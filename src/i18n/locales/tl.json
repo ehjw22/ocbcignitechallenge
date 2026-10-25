@@ -1,0 +1,283 @@
+{
+  "nav": {
+    "home": "Home",
+    "accounts": "Mga account",
+    "pay": "Bayad at lipat",
+    "help": "Tulong",
+    "more": "Iba pa"
+  },
+  "back": "Bumalik",
+  "continue": "Magpatuloy",
+  "close": "OK",
+  "confirm": "Magpatuloy",
+  "yesContinue": "Magpatuloy",
+  "changeAmount": "Palitan ang halaga",
+  "askAi": "Katulong",
+  "getHelp": "Tulong",
+  "aiTranslated": "",
+  "help": {
+    "fab": "Tulong",
+    "title": "Tulong",
+    "ai": "AI na katulong",
+    "guide": "Gabay nang hakbang-hakbang",
+    "staff": "Magmensahe sa aming tauhan",
+    "intro": "Pumili ng isa.",
+    "journeys": "Mga gabay"
+  },
+  "onboarding": {
+    "language": "Piliin ang wika mo",
+    "enter": "Tapos na",
+    "welcome": "I-set up ang app mo",
+    "welcomeBody": "Palitan anumang oras sa Settings.",
+    "languageBody": "Piliin ang wika mo",
+    "text": "Piliin ang laki ng text",
+    "textBody": "Piliin ang laki ng text",
+    "preview": "S$1,250.00 na ipinadala kay Mei",
+    "colour": "Mga setting ng kulay",
+    "colourBody": "Mga setting ng kulay",
+    "detail": "Gaano karaming detalye?",
+    "readBody": "Maaaring basahin nang malakas ang mga tip at sagot.",
+    "help": "Paano mo gustong tumulong kami?",
+    "ready": "Handa ka na",
+    "readyBody": "Naka-save sa device na ito.",
+    "shortcuts": "Pumili ng 6 na shortcut",
+    "colourAdjust": "Maaaring bahagyang magbago ang accent na kulay."
+  },
+  "errors": {
+    "summary": "Suriin ang mga item sa ibaba.",
+    "account_digits": "Ang account number ay kailangan ng 10 digit. Naglagay ka ng {got}.",
+    "required": "Ilagay ang {field}.",
+    "paynow_mobile": "Gumamit ng 8 digit na nagsisimula sa 8 o 9.",
+    "nric": "Gumamit ng NRIC gaya ng S1234567A.",
+    "amount_format": "Ilagay ang halaga sa numero, gaya ng 50.00.",
+    "insufficient": "Mas mataas ang halaga kaysa sa balanse. Maglagay ng mas mababang halaga.",
+    "swift": "Ang SWIFT code ay kailangan ng 8 o 11 character. Naglagay ka ng {got}.",
+    "limit_range": "Maglagay ng limit mula S$100.00 hanggang S$50,000.00.",
+    "goal_amount": "Maglagay ng target na higit sa S$0.00.",
+    "email": "Maglagay ng email gaya ng name@email.com.",
+    "phone": "Maglagay ng numero na may hindi bababa sa 8 digit.",
+    "otp": "Maglagay ng 6 na digit.",
+    "account_iban": "Ilagay ang IBAN, kasama ang mga letra sa unahan.",
+    "account_my": "Maglagay ng 10 hanggang 16 digit. Naglagay ka ng {got}."
+  },
+  "unusual": {
+    "body": "Mas mataas ito kaysa sa karaniwang transfer mo. Ipadala ang {amount} kay {name}?"
+  },
+  "staff": {
+    "thanks": "Naipadala ang mensahe",
+    "hotline": "24-hour hotline +65 6363 3333",
+    "title": "Magmensahe sa amin",
+    "body": "Sasagot kami sa mensahe.",
+    "send": "Ipadala",
+    "hotlineTitle": "Tawagan kami",
+    "hotlineBody": "Tawagan ang 24-hour hotline.",
+    "lockNow": "I-lock ang card",
+    "progressSaved": "Naka-save ang progress mo.",
+    "empty": "Wala pang mensahe.",
+    "yourRequests": "Mga mensahe mo",
+    "urgentQ": "Tungkol ba ito sa panloloko o nawawalang card?",
+    "needGeneral": "Kailangan ng tulong."
+  },
+  "flows": {
+    "overseas": "Bayad at lipat",
+    "account10": "Mga account",
+    "otpTitle": "Ilagay ang one-time PIN",
+    "otpBody": "Demo: anumang 6 na digit",
+    "otpLabel": "One-time PIN",
+    "submit": "Magpatuloy",
+    "scanHint": "Sample na QR para sa practice.",
+    "lostNote": "Ila-lock ang card na ito. Tawagan kami kung talagang nawawala ito.",
+    "nameUnknown": "Hindi namin makumpirma ang pangalang ito. Suriin ang numero.",
+    "currentLimit": "Kasalukuyang limit {amount}",
+    "nameSample": "Pangalan sa record: {name}"
+  },
+  "ai": {
+    "faq": {
+      "giro": {
+        "short": "GIRO"
+      },
+      "offtopic": {
+        "short": "Banking at app na ito lang ang matutulungan ko.",
+        "full": "Makakatulong ako sa account, transfer, PayNow, GIRO, bill, card, savings, at screen na ito."
+      },
+      "general": {
+        "short": "Makakatulong ako sa account, transfer, PayNow, GIRO, bill, card, at savings.",
+        "full": "Makakatulong ako sa account, transfer, PayNow, GIRO, bill, card, savings, at screen na ito. Maaari akong magsimula ng gabay o magmensahe sa tauhan."
+      },
+      "secret": {
+        "short": "Huwag ibahagi ang password, PIN, o one-time code.",
+        "full": "Huwag ibahagi ang password, PIN, one-time code, o buong card number. Kung may humingi nito, tumawag sa +65 6363 3333."
+      },
+      "fraud": {
+        "short": "Kung maaaring panloloko ito, tumawag sa +65 6363 3333. Maaari mo ring i-lock ang card.",
+        "full": "Kung hindi ikaw ang gumawa ng bayad, o may nagpapadala sa iyo ng pera, tumawag sa +65 6363 3333 at i-lock ang card."
+      },
+      "lostcard": {
+        "short": "I-lock ang card, tapos tumawag sa +65 6363 3333.",
+        "full": "I-lock ang card para itigil ang bagong bayad, tapos tumawag sa +65 6363 3333."
+      },
+      "staff": {
+        "short": "Maaari akong magpadala ng mensahe sa tauhan. Sasagot sila sa mensahe.",
+        "full": "Maaari kong ipadala ang tanong mo, ang hakbang na hininto mo, at ang wika mo. Pumili ng mensahe, tawag pabalik, o email."
+      },
+      "fees": {
+        "short": "Wala ako ng fee o rate na iyon. Magmensahe sa amin para kumpirmahin.",
+        "full": "Wala ako ng fee, interest, o exchange rate. Magmensahe sa amin para makumpirma namin."
+      },
+      "balance": {
+        "short": "Makikita ang balanse mo sa Home.",
+        "full": "Ang 360 Account at Statement Savings sa Home ang bumubuo sa balanse mo. Ina-update ito sa device na ito kapag kinumpirma mo ang transfer."
+      }
+    },
+    "title": "Katulong",
+    "about": "Tungkol",
+    "aboutBody": "Sumasagot sa mga tanong tungkol sa banking at app na ito. Hindi ito makakapaglipat ng pera. Hindi nito hihingin ang password, PIN, o one-time code mo.",
+    "placeholder": "Magtanong",
+    "demoNote": "Ginagamit ang mga sample na sagot.",
+    "stuck": "Magmensahe sa amin kung kailangan mo pa ng tulong.",
+    "hotline": "24-hour hotline +65 6363 3333. Maaari mong i-lock ang card.",
+    "liveFailed": "Hindi available ang katulong. Narito ang maikling sagot.",
+    "busy": "Abala ang katulong. Narito ang maikling sagot.",
+    "empty": "Magtanong.",
+    "chipBalance": "Magkano ang balanse ko?",
+    "chipGuide": "Ipakita ang mga hakbang"
+  },
+  "settings": {
+    "title": "Iba pa",
+    "language": "Home",
+    "persona": "Mga sample na profile",
+    "personaBody": "Naglo-load ng sample na profile.",
+    "meiBody": "Chinese, malaking text, maiikling sagot. Nagbubukas ng overseas transfer.",
+    "arifBody": "English, buong detalye, spending insights. Nagbubukas ng GIRO setup.",
+    "reset": "I-reset ang app",
+    "resetBody": "Binubura ang mga piniling naka-save sa device na ito."
+  },
+  "demoBadge": "Demo",
+  "prototype": "Demo",
+  "skipStep": "Laktawan",
+  "skipSetup": "Laktawan",
+  "doForReal": "Magpatuloy",
+  "backHome": "Home",
+  "practise": "Sanayin",
+  "insightsHint": "Tingnan ang buod ng gastos mo.",
+  "guideSkipped": "Wala ang hakbang na ito sa screen na ito.",
+  "guideEmpty": "Walang gabay dito.",
+  "reorderHint": "I-drag ang shortcut, o gamitin ang mga arrow.",
+  "shortcutFull": "Mag-alis ng isa para magdagdag ng iba.",
+  "needSix": "Mag-alis ng isa para magdagdag ng iba.",
+  "contrastWarn": "Masyadong maliwanag ang larawan. Subukan ang mas madilim.",
+  "imageTooBig": "Masyadong malaki ang larawan. Subukan ang mas maliit.",
+  "gate": {
+    "missingName": "Ilagay ang username at password.",
+    "missingPerson": "Ilagay ang pangalan.",
+    "nameTitle": "Pangalan mo",
+    "nameBody": "Naka-save sa device na ito.",
+    "tourTitle": "Maikling tour",
+    "tourBody": "Ipapakita namin ang Home, Pay, at Help.",
+    "tourStart": "Simulan",
+    "preBody": "Mag-log in para magpatuloy.",
+    "loginContinue": "Mag-log in para magpatuloy.",
+    "personas": "Mga sample na profile",
+    "resetQuiz": "Ulitin ang setup",
+    "resetQuizBody": "Bubuksan muli ang setup.",
+    "redoQuiz": "Ulitin ang setup",
+    "deleteUser": "Tanggalin ang user",
+    "deleteUserBody": "Aalisin ang profile na ito sa device na ito.",
+    "create": "Mag-log in"
+  },
+  "detail": {
+    "short": "Maikli",
+    "full": "Buong detalye",
+    "shortSample": "Nagpapadala ang PayNow sa mobile number.",
+    "fullSample": "Suriin ang pangalan at halaga bago kumpirmahin."
+  },
+  "practice": {
+    "banner": "Practice. Walang perang inililipat.",
+    "done": "Tapos na ang practice."
+  },
+  "success": {
+    "demo": "Na-save. Walang perang inilipat."
+  },
+  "more": {
+    "about": "Tungkol",
+    "aboutBody": "Demo ito. Ang mga balanse at mensahe ay sample na data.",
+    "practice": "Practice sunod",
+    "admin": "Dashboard",
+    "tour": "Tour sa Home"
+  },
+  "pay": {
+    "body": "Pumili ng bayad."
+  },
+  "info": {
+    "investmentsBody": "Walang detalye ng investment dito.",
+    "insuranceBody": "Walang detalye ng insurance dito.",
+    "rewardsBody": "Balanse ng rewards: 1,240 points."
+  },
+  "demo": {
+    "mei": "Nagpapadala ng pera kay Tan Wei Ming sa Australia.",
+    "arif": "Nagsi-set up ng GIRO."
+  },
+  "guides": {
+    "home": {
+      "balanceTitle": "Balanse mo",
+      "balanceBody": "Ito ang perang magagamit mo ngayon.",
+      "shortcutsBody": "Sa iyo ang anim na shortcut na ito. Palitan sa Settings.",
+      "helpBody": "Pumili ng katulong, gabay nang hakbang-hakbang, o mensahe sa amin."
+    },
+    "scan": {
+      "frameBody": "I-tap ang sample na code."
+    },
+    "cardLost": {
+      "confirmBody": "Ila-lock nito ang card dito. Tumawag sa +65 6363 3333 kung talagang nawawala ito."
+    },
+    "limit": {
+      "currentBody": "Ito ang limit na naka-save sa device na ito.",
+      "reviewBody": "Suriin ang bagong limit bago kumpirmahin."
+    },
+    "overseas": {
+      "purposeBody": "Piliin kung bakit ka nagpapadala ng pera."
+    },
+    "paynow": {
+      "reviewBody": "Basahin ang pangalan at halaga, tapos magpatuloy."
+    },
+    "goal": {
+      "reviewBody": "Kumpirmahin ang pangalan, target, at halaga kada buwan."
+    }
+  },
+  "profile": {
+    "sample": "Naka-save sa device na ito."
+  },
+  "notFound": {
+    "body": "Hindi available ang page na iyon.",
+    "home": "Home"
+  },
+  "txn": {
+    "sample": "Walang perang inilipat."
+  },
+  "notifications": {
+    "salaryBody": "Idinagdag ang S$4,200.00 sa 360 Account mo.",
+    "billBody": "Handa nang bayaran ang bill ng SP Group na S$96.40."
+  },
+  "dialects": {
+    "soon": "Hindi available",
+    "cloud": "Gumagamit ang Cantonese ng cloud voice kapag available."
+  },
+  "speech": {
+    "noVoice": "Ginagamit ang default na boses.",
+    "micDenied": "Naka-off ang mikropono. Maaari kang mag-type."
+  },
+  "turnOnInsights": "I-on",
+  "comingSoon": "Hindi available",
+  "sampleBalance": "Available",
+  "fx": {
+    "sample": "Indicative na rate"
+  },
+  "forYouBody": "Sanayin ang isang overseas transfer.",
+  "yourPreference": "Naka-save",
+  "admin": {
+    "note": "Mga sample na bilang mula sa device na ito.",
+    "demoLogin": "Anumang password ay pwede.",
+    "helpStaff": "Magmensahe sa aming tauhan"
+  },
+  "selectedCount": "{n} sa 6 ang napili"
+}

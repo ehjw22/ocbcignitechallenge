@@ -1,0 +1,283 @@
+{
+  "nav": {
+    "home": "首頁",
+    "accounts": "帳戶",
+    "pay": "付款與轉帳",
+    "help": "協助",
+    "more": "更多"
+  },
+  "back": "返回",
+  "continue": "繼續",
+  "close": "關閉",
+  "confirm": "確認",
+  "yesContinue": "繼續",
+  "changeAmount": "修改金額",
+  "askAi": "助手",
+  "getHelp": "協助",
+  "aiTranslated": "",
+  "help": {
+    "fab": "協助",
+    "title": "協助",
+    "ai": "AI 助手",
+    "guide": "分步指引",
+    "staff": "聯絡我們",
+    "intro": "請選擇一項。",
+    "journeys": "指引"
+  },
+  "onboarding": {
+    "language": "選擇語言",
+    "enter": "完成",
+    "welcome": "設定您的應用程式",
+    "welcomeBody": "可隨時在設定中變更。",
+    "languageBody": "選擇語言",
+    "text": "選擇文字大小",
+    "textBody": "選擇文字大小",
+    "preview": "已向 Mei 轉帳 S$1,250.00",
+    "colour": "顏色設定",
+    "colourBody": "顏色設定",
+    "detail": "需要多少詳細資料？",
+    "readBody": "提示和回覆可以朗讀。",
+    "help": "您希望如何取得協助？",
+    "ready": "已準備好",
+    "readyBody": "儲存在此裝置上。",
+    "shortcuts": "選擇 6 個捷徑",
+    "colourAdjust": "強調色可能會稍微改變。"
+  },
+  "errors": {
+    "summary": "請檢查以下項目。",
+    "account_digits": "帳號需要 10 位數字。您輸入了 {got} 位。",
+    "required": "請輸入{field}。",
+    "paynow_mobile": "請使用以 8 或 9 開頭的 8 位號碼。",
+    "nric": "請使用類似 S1234567A 的 NRIC。",
+    "amount_format": "請用數字輸入金額，例如 50.00。",
+    "insufficient": "金額超出可用餘額。請輸入較低金額。",
+    "swift": "SWIFT 代碼需要 8 或 11 位。您輸入了 {got} 位。",
+    "limit_range": "請輸入 S$100.00 至 S$50,000.00 的限額。",
+    "goal_amount": "請輸入大於 S$0.00 的目標。",
+    "email": "請輸入類似 name@email.com 的電子郵件。",
+    "phone": "請輸入至少 8 位數字的電話號碼。",
+    "otp": "請輸入 6 位數字。",
+    "account_iban": "請輸入 IBAN，包括開頭的字母。",
+    "account_my": "請輸入 10 至 16 位數字。您輸入了 {got} 位。"
+  },
+  "unusual": {
+    "body": "這比您平常的轉帳金額更高。向 {name} 轉帳 {amount}？"
+  },
+  "staff": {
+    "thanks": "訊息已傳送",
+    "hotline": "24 小時熱線 +65 6363 3333",
+    "title": "聯絡我們",
+    "body": "我們將以訊息回覆。",
+    "send": "傳送",
+    "hotlineTitle": "致電我們",
+    "hotlineBody": "請撥打 24 小時熱線。",
+    "lockNow": "鎖定卡",
+    "progressSaved": "您的進度已儲存。",
+    "empty": "還沒有訊息。",
+    "yourRequests": "您的訊息",
+    "urgentQ": "這是關於詐欺或卡片遺失嗎？",
+    "needGeneral": "需要協助。"
+  },
+  "flows": {
+    "overseas": "付款與轉帳",
+    "account10": "帳戶",
+    "otpTitle": "輸入一次性 PIN",
+    "otpBody": "Demo：任意 6 位數字",
+    "otpLabel": "一次性 PIN",
+    "submit": "繼續",
+    "scanHint": "練習用的範例 QR code。",
+    "lostNote": "此卡將被鎖定。如果確實遺失，請致電我們。",
+    "nameUnknown": "我們無法確認這個姓名。請檢查號碼。",
+    "currentLimit": "目前限額 {amount}",
+    "nameSample": "記錄中的姓名：{name}"
+  },
+  "ai": {
+    "faq": {
+      "giro": {
+        "short": "GIRO"
+      },
+      "offtopic": {
+        "short": "我只能協助處理銀行業務和本應用程式。",
+        "full": "我可以協助處理帳戶、轉帳、PayNow、GIRO、帳單、卡、儲蓄以及您目前的頁面。"
+      },
+      "general": {
+        "short": "我可以協助處理帳戶、轉帳、PayNow、GIRO、帳單、卡和儲蓄。",
+        "full": "我可以協助處理帳戶、轉帳、PayNow、GIRO、帳單、卡、儲蓄以及您目前的頁面。我可以開始指引，或聯絡我們的人員。"
+      },
+      "secret": {
+        "short": "請不要分享密碼、PIN 或一次性驗證碼。",
+        "full": "請不要分享密碼、PIN、一次性驗證碼或完整卡號。如果有人向您索取這些資訊，請致電 +65 6363 3333。"
+      },
+      "fraud": {
+        "short": "如果這可能是詐騙，請致電 +65 6363 3333。您也可以鎖定卡。",
+        "full": "如果這筆付款不是您本人操作，或有人要求您轉帳，請致電 +65 6363 3333 並鎖定卡。"
+      },
+      "lostcard": {
+        "short": "請先鎖定卡，然後致電 +65 6363 3333。",
+        "full": "鎖定卡以停止新的付款，然後致電 +65 6363 3333。"
+      },
+      "staff": {
+        "short": "我可以把訊息發給人員。他們會以訊息回覆。",
+        "full": "我可以傳送您的問題、您停下的步驟和您的語言。請選擇訊息、回電或電子郵件。"
+      },
+      "fees": {
+        "short": "我沒有這項費用或匯率。請聯絡我們確認。",
+        "full": "我沒有這項費用、利息或匯率。請聯絡我們，我們可以為您確認。"
+      },
+      "balance": {
+        "short": "您的餘額顯示在首頁。",
+        "full": "首頁上的 360 帳戶和結單儲蓄構成您的餘額。您確認的轉帳會在此裝置上更新餘額。"
+      }
+    },
+    "title": "助手",
+    "about": "關於",
+    "aboutBody": "回答關於銀行業務和本應用程式的問題。它不能轉移資金，也不會索取您的密碼、PIN 或一次性驗證碼。",
+    "placeholder": "提問",
+    "demoNote": "正在使用範例回答。",
+    "stuck": "如仍需協助，請聯絡我們。",
+    "hotline": "24 小時熱線 +65 6363 3333。您可以鎖定卡。",
+    "liveFailed": "助手暫不可用。這是一個簡短回答。",
+    "busy": "助手正忙。這是一個簡短回答。",
+    "empty": "請提問。",
+    "chipBalance": "我的餘額是多少？",
+    "chipGuide": "顯示步驟"
+  },
+  "settings": {
+    "title": "更多",
+    "language": "語言",
+    "persona": "範例資料",
+    "personaBody": "載入一份範例資料。",
+    "meiBody": "中文、大號文字、簡要回答。開啟一筆海外轉帳。",
+    "arifBody": "英文、完整詳細資料、支出洞察。開啟 GIRO 設定。",
+    "reset": "重設應用程式",
+    "resetBody": "清除此裝置上儲存的選擇。"
+  },
+  "demoBadge": "Demo",
+  "prototype": "Demo",
+  "skipStep": "略過",
+  "skipSetup": "略過",
+  "doForReal": "繼續",
+  "backHome": "首頁",
+  "practise": "練習",
+  "insightsHint": "查看您的支出摘要。",
+  "guideSkipped": "此步驟不在這個頁面。",
+  "guideEmpty": "此指引在這裡無法使用。",
+  "reorderHint": "拖曳捷徑，或使用箭頭。",
+  "shortcutFull": "請先移除一個，再新增。",
+  "needSix": "請先移除一個，再新增。",
+  "contrastWarn": "這張照片太亮。請換一張較暗的。",
+  "imageTooBig": "這張照片太大。請換一張較小的。",
+  "gate": {
+    "missingName": "請輸入使用者名稱和密碼。",
+    "missingPerson": "請輸入姓名。",
+    "nameTitle": "您的姓名",
+    "nameBody": "儲存在此裝置上。",
+    "tourTitle": "快速瀏覽",
+    "tourBody": "我們將介紹首頁、付款和協助。",
+    "tourStart": "開始",
+    "preBody": "登入後繼續。",
+    "loginContinue": "登入後繼續。",
+    "personas": "範例資料",
+    "resetQuiz": "重新設定",
+    "resetQuizBody": "再次開啟設定。",
+    "redoQuiz": "重新設定",
+    "deleteUser": "刪除使用者",
+    "deleteUserBody": "從本裝置移除此資料。",
+    "create": "登入"
+  },
+  "detail": {
+    "short": "簡要",
+    "full": "完整詳細資料",
+    "shortSample": "PayNow 可向手機號碼轉帳。",
+    "fullSample": "確認前請核對姓名和金額。"
+  },
+  "practice": {
+    "banner": "練習。不會轉移資金。",
+    "done": "練習完成。"
+  },
+  "success": {
+    "demo": "已儲存。沒有轉移資金。"
+  },
+  "more": {
+    "about": "關於",
+    "aboutBody": "這是示範。餘額和訊息為範例資料。",
+    "practice": "接著練習",
+    "admin": "控制台",
+    "tour": "首頁導覽"
+  },
+  "pay": {
+    "body": "選擇一項付款。"
+  },
+  "info": {
+    "investmentsBody": "投資詳細資料在這裡無法使用。",
+    "insuranceBody": "保險詳細資料在這裡無法使用。",
+    "rewardsBody": "獎勵積分餘額：1,240 分。"
+  },
+  "demo": {
+    "mei": "正在向澳洲的 Tan Wei Ming 轉帳。",
+    "arif": "正在設定 GIRO。"
+  },
+  "guides": {
+    "home": {
+      "balanceTitle": "您的餘額",
+      "balanceBody": "這是您今天可以使用的金額。",
+      "shortcutsBody": "這六個捷徑是您的。可在設定中變更。",
+      "helpBody": "請選擇助手、分步指引，或給我們發訊息。"
+    },
+    "scan": {
+      "frameBody": "點按範例 QR code。"
+    },
+    "cardLost": {
+      "confirmBody": "這將在此鎖定卡。如果確實遺失，請致電 +65 6363 3333。"
+    },
+    "limit": {
+      "currentBody": "這是儲存在此裝置上的限額。",
+      "reviewBody": "確認前請核對新的限額。"
+    },
+    "overseas": {
+      "purposeBody": "請選擇匯款原因。"
+    },
+    "paynow": {
+      "reviewBody": "請閱讀姓名和金額，然後繼續。"
+    },
+    "goal": {
+      "reviewBody": "請確認名稱、目標和每月金額。"
+    }
+  },
+  "profile": {
+    "sample": "儲存在此裝置上。"
+  },
+  "notFound": {
+    "body": "該頁面無法使用。",
+    "home": "首頁"
+  },
+  "txn": {
+    "sample": "沒有轉移資金।"
+  },
+  "notifications": {
+    "salaryBody": "S$4,200.00 已存入您的 360 帳戶。",
+    "billBody": "SP Group 帳單 S$96.40 可以付款。"
+  },
+  "dialects": {
+    "soon": "暫不可用",
+    "cloud": "粵語在可用時使用雲端語音。"
+  },
+  "speech": {
+    "noVoice": "正在使用預設語音。",
+    "micDenied": "麥克風已關閉。您可以改為輸入。"
+  },
+  "turnOnInsights": "開啟",
+  "comingSoon": "暫不可用",
+  "sampleBalance": "可用",
+  "fx": {
+    "sample": "參考匯率"
+  },
+  "forYouBody": "練習一筆海外轉帳。",
+  "yourPreference": "已儲存",
+  "admin": {
+    "note": "本裝置上的範例數據。",
+    "demoLogin": "任意密碼均可。",
+    "helpStaff": "聯絡我們"
+  },
+  "selectedCount": "已選 {n} / 6"
+}

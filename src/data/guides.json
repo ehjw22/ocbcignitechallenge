@@ -1,0 +1,63 @@
+{
+  "home": [
+    { "id": "greet", "element": "home-greeting", "title": "guide.home1t", "body": "guide.home1" },
+    { "id": "balance", "element": "home-balance", "title": "guide.home2t", "body": "guide.home2" },
+    { "id": "shortcuts", "element": "home-shortcuts", "title": "guide.home3t", "body": "guide.home3" },
+    { "id": "help", "element": "help-fab", "title": "guide.home4t", "body": "guide.home4" },
+    { "id": "pay", "element": "nav-pay", "title": "guide.home5t", "body": "guide.home5" }
+  ],
+  "paynow": [
+    { "id": "to", "element": "paynow-to", "title": "tips.paynow.to.t", "body": "tips.paynow.to.b" },
+    { "id": "amount", "element": "paynow-amount", "title": "tips.paynow.amount.t", "body": "tips.paynow.amount.b" },
+    { "id": "submit", "element": "paynow-submit", "title": "tips.paynow.submit.t", "body": "tips.paynow.submit.b" }
+  ],
+  "transfer": [
+    { "id": "name", "element": "transfer-name", "title": "tips.transfer.name.t", "body": "tips.transfer.name.b" },
+    { "id": "account", "element": "transfer-account", "title": "tips.transfer.account.t", "body": "tips.transfer.account.b" },
+    { "id": "amount", "element": "transfer-amount", "title": "tips.transfer.amount.t", "body": "tips.transfer.amount.b" },
+    { "id": "submit", "element": "transfer-submit", "title": "tips.transfer.submit.t", "body": "tips.transfer.submit.b" }
+  ],
+  "overseas": [
+    { "id": "name", "element": "overseas-name", "title": "tips.overseas.name.t", "body": "tips.overseas.name.b" },
+    { "id": "country", "element": "overseas-country", "title": "tips.overseas.country.t", "body": "tips.overseas.country.b" },
+    { "id": "swift", "element": "overseas-swift", "title": "tips.overseas.swift.t", "body": "tips.overseas.swift.b" },
+    { "id": "account", "element": "overseas-account", "title": "tips.overseas.account.t", "body": "tips.overseas.account.b" },
+    { "id": "amount", "element": "overseas-amount", "title": "tips.overseas.amount.t", "body": "tips.overseas.amount.b" },
+    { "id": "submit", "element": "overseas-submit", "title": "tips.overseas.submit.t", "body": "tips.overseas.submit.b" }
+  ],
+  "bills": [
+    { "id": "biller", "element": "bills-biller", "title": "tips.bills.biller.t", "body": "tips.bills.biller.b" },
+    { "id": "amount", "element": "bills-amount", "title": "tips.bills.amount.t", "body": "tips.bills.amount.b" },
+    { "id": "submit", "element": "bills-submit", "title": "tips.bills.submit.t", "body": "tips.bills.submit.b" }
+  ],
+  "giro": [
+    { "id": "org", "element": "giro-org", "title": "tips.giro.org.t", "body": "tips.giro.org.b" },
+    { "id": "limit", "element": "giro-limit", "title": "tips.giro.limit.t", "body": "tips.giro.limit.b" },
+    { "id": "auth", "element": "giro-auth", "title": "tips.giro.auth.t", "body": "tips.giro.auth.b" },
+    { "id": "submit", "element": "giro-submit", "title": "tips.giro.submit.t", "body": "tips.giro.submit.b" }
+  ],
+  "qr": [
+    { "id": "scan", "element": "qr-scan", "title": "tips.qr.scan.t", "body": "tips.qr.scan.b" },
+    { "id": "amount", "element": "qr-amount", "title": "tips.qr.amount.t", "body": "tips.qr.amount.b" },
+    { "id": "submit", "element": "qr-submit", "title": "tips.qr.submit.t", "body": "tips.qr.submit.b" }
+  ],
+  "goal": [
+    { "id": "name", "element": "goal-name", "title": "tips.goal.name.t", "body": "tips.goal.name.b" },
+    { "id": "target", "element": "goal-target", "title": "tips.goal.target.t", "body": "tips.goal.target.b" },
+    { "id": "submit", "element": "goal-submit", "title": "tips.goal.submit.t", "body": "tips.goal.submit.b" }
+  ],
+  "cards": [
+    { "id": "lock", "element": "card-lock", "title": "tips.card.lock.t", "body": "tips.card.lock.b" },
+    { "id": "report", "element": "card-report", "title": "tips.card.report.t", "body": "tips.card.report.b" }
+  ],
+  "limit": [
+    { "id": "current", "element": "limit-current", "title": "tips.limit.current.t", "body": "tips.limit.current.b" },
+    { "id": "next", "element": "limit-new", "title": "tips.limit.new.t", "body": "tips.limit.new.b" },
+    { "id": "submit", "element": "limit-submit", "title": "tips.limit.submit.t", "body": "tips.limit.submit.b" }
+  ],
+  "invest": [
+    { "id": "intro", "element": "invest-intro", "title": "tips.invest.intro.t", "body": "tips.invest.intro.b" },
+    { "id": "rates", "element": "invest-rates-table", "title": "tips.invest.rates.t", "body": "tips.invest.rates.b" },
+    { "id": "staff", "element": "invest-staff", "title": "tips.invest.staff.t", "body": "tips.invest.staff.b" }
+  ]
+}

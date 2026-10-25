@@ -1,0 +1,283 @@
+{
+  "nav": {
+    "home": "Trang chủ",
+    "accounts": "Tài khoản",
+    "pay": "Thanh toán & Chuyển tiền",
+    "help": "Trợ giúp",
+    "more": "Thêm"
+  },
+  "back": "Quay lại",
+  "continue": "Tiếp tục",
+  "close": "OK",
+  "confirm": "Tiếp tục",
+  "yesContinue": "Tiếp tục",
+  "changeAmount": "Đổi số tiền",
+  "askAi": "Trợ lý",
+  "getHelp": "Trợ giúp",
+  "aiTranslated": "",
+  "help": {
+    "fab": "Trợ giúp",
+    "title": "Trợ giúp",
+    "ai": "Trợ lý AI",
+    "guide": "Hướng dẫn từng bước",
+    "staff": "Nhắn cho nhân viên",
+    "intro": "Chọn một mục.",
+    "journeys": "Hướng dẫn"
+  },
+  "onboarding": {
+    "language": "Chọn ngôn ngữ",
+    "enter": "Xong",
+    "welcome": "Thiết lập ứng dụng",
+    "welcomeBody": "Đổi bất cứ lúc nào trong Cài đặt.",
+    "languageBody": "Chọn ngôn ngữ",
+    "text": "Chọn cỡ chữ",
+    "textBody": "Chọn cỡ chữ",
+    "preview": "Đã gửi S$1,250.00 cho Mei",
+    "colour": "Cài đặt màu",
+    "colourBody": "Cài đặt màu",
+    "detail": "Bạn cần bao nhiêu chi tiết?",
+    "readBody": "Mẹo và câu trả lời có thể được đọc to.",
+    "help": "Bạn muốn được giúp thế nào?",
+    "ready": "Bạn đã sẵn sàng",
+    "readyBody": "Đã lưu trên thiết bị này.",
+    "shortcuts": "Chọn 6 lối tắt",
+    "colourAdjust": "Màu nhấn có thể thay đổi một chút."
+  },
+  "errors": {
+    "summary": "Kiểm tra các mục bên dưới.",
+    "account_digits": "Số tài khoản cần 10 chữ số. Bạn đã nhập {got}.",
+    "required": "Nhập {field}.",
+    "paynow_mobile": "Dùng số 8 chữ số bắt đầu bằng 8 hoặc 9.",
+    "nric": "Dùng NRIC như S1234567A.",
+    "amount_format": "Nhập số tiền bằng chữ số, ví dụ 50.00.",
+    "insufficient": "Số tiền cao hơn số dư. Nhập số tiền thấp hơn.",
+    "swift": "Mã SWIFT cần 8 hoặc 11 ký tự. Bạn đã nhập {got}.",
+    "limit_range": "Nhập hạn mức từ S$100.00 đến S$50,000.00.",
+    "goal_amount": "Nhập mục tiêu lớn hơn S$0.00.",
+    "email": "Nhập email như name@email.com.",
+    "phone": "Nhập số điện thoại có ít nhất 8 chữ số.",
+    "otp": "Nhập 6 chữ số.",
+    "account_iban": "Nhập IBAN, gồm các chữ cái ở đầu.",
+    "account_my": "Nhập 10 đến 16 chữ số. Bạn đã nhập {got}."
+  },
+  "unusual": {
+    "body": "Số tiền này cao hơn chuyển khoản thường của bạn. Gửi {amount} cho {name}?"
+  },
+  "staff": {
+    "thanks": "Đã gửi tin nhắn",
+    "hotline": "Đường dây nóng 24 giờ +65 6363 3333",
+    "title": "Nhắn cho chúng tôi",
+    "body": "Chúng tôi sẽ trả lời bằng tin nhắn.",
+    "send": "Gửi",
+    "hotlineTitle": "Gọi cho chúng tôi",
+    "hotlineBody": "Gọi đường dây nóng 24 giờ.",
+    "lockNow": "Khóa thẻ",
+    "progressSaved": "Tiến trình của bạn đã được lưu.",
+    "empty": "Chưa có tin nhắn.",
+    "yourRequests": "Tin nhắn của bạn",
+    "urgentQ": "Đây có phải về gian lận hoặc thẻ bị mất không?",
+    "needGeneral": "Cần trợ giúp."
+  },
+  "flows": {
+    "overseas": "Thanh toán & Chuyển tiền",
+    "account10": "Tài khoản",
+    "otpTitle": "Nhập PIN một lần",
+    "otpBody": "Demo: bất kỳ 6 chữ số",
+    "otpLabel": "PIN một lần",
+    "submit": "Tiếp tục",
+    "scanHint": "Mã QR mẫu để luyện tập.",
+    "lostNote": "Thẻ này sẽ bị khóa. Hãy gọi cho chúng tôi nếu thẻ thực sự bị mất.",
+    "nameUnknown": "Chúng tôi không thể xác nhận tên này. Hãy kiểm tra số.",
+    "currentLimit": "Hạn mức hiện tại {amount}",
+    "nameSample": "Tên trong hồ sơ: {name}"
+  },
+  "ai": {
+    "faq": {
+      "giro": {
+        "short": "GIRO"
+      },
+      "offtopic": {
+        "short": "Tôi chỉ có thể giúp về ngân hàng và ứng dụng này.",
+        "full": "Tôi có thể giúp về tài khoản, chuyển khoản, PayNow, GIRO, hóa đơn, thẻ, tiết kiệm và màn hình bạn đang xem."
+      },
+      "general": {
+        "short": "Tôi có thể giúp về tài khoản, chuyển khoản, PayNow, GIRO, hóa đơn, thẻ và tiết kiệm.",
+        "full": "Tôi có thể giúp về tài khoản, chuyển khoản, PayNow, GIRO, hóa đơn, thẻ, tiết kiệm và màn hình bạn đang xem. Tôi có thể bắt đầu hướng dẫn hoặc nhắn cho nhân viên."
+      },
+      "secret": {
+        "short": "Đừng chia sẻ mật khẩu, PIN hoặc mã một lần.",
+        "full": "Đừng chia sẻ mật khẩu, PIN, mã một lần hoặc số thẻ đầy đủ. Nếu ai đó hỏi những thông tin này, hãy gọi +65 6363 3333."
+      },
+      "fraud": {
+        "short": "Nếu đây có thể là lừa đảo, hãy gọi +65 6363 3333. Bạn cũng có thể khóa thẻ.",
+        "full": "Nếu bạn không thực hiện khoản thanh toán, hoặc ai đó yêu cầu bạn gửi tiền, hãy gọi +65 6363 3333 và khóa thẻ."
+      },
+      "lostcard": {
+        "short": "Khóa thẻ, rồi gọi +65 6363 3333.",
+        "full": "Khóa thẻ để dừng các khoản thanh toán mới, rồi gọi +65 6363 3333."
+      },
+      "staff": {
+        "short": "Tôi có thể gửi tin nhắn cho nhân viên. Họ sẽ trả lời bằng tin nhắn.",
+        "full": "Tôi có thể gửi câu hỏi, bước bạn đã dừng và ngôn ngữ của bạn. Chọn tin nhắn, gọi lại hoặc email."
+      },
+      "fees": {
+        "short": "Tôi không có mức phí hoặc tỷ giá đó. Hãy nhắn cho chúng tôi để xác nhận.",
+        "full": "Tôi không có phí, lãi suất hoặc tỷ giá. Hãy nhắn cho chúng tôi để xác nhận."
+      },
+      "balance": {
+        "short": "Số dư của bạn hiện trên Trang chủ.",
+        "full": "360 Account và Statement Savings trên Trang chủ tạo nên số dư của bạn. Chuyển khoản bạn xác nhận sẽ cập nhật trên thiết bị này."
+      }
+    },
+    "title": "Trợ lý",
+    "about": "Giới thiệu",
+    "aboutBody": "Trả lời câu hỏi về ngân hàng và ứng dụng này. Nó không thể chuyển tiền. Nó sẽ không hỏi mật khẩu, PIN hoặc mã một lần của bạn.",
+    "placeholder": "Đặt câu hỏi",
+    "demoNote": "Đang dùng câu trả lời mẫu.",
+    "stuck": "Nhắn cho chúng tôi nếu bạn vẫn cần trợ giúp.",
+    "hotline": "Đường dây nóng 24 giờ +65 6363 3333. Bạn có thể khóa thẻ.",
+    "liveFailed": "Trợ lý hiện không dùng được. Đây là câu trả lời ngắn.",
+    "busy": "Trợ lý đang bận. Đây là câu trả lời ngắn.",
+    "empty": "Hãy đặt câu hỏi.",
+    "chipBalance": "Số dư của tôi là bao nhiêu?",
+    "chipGuide": "Cho tôi xem các bước"
+  },
+  "settings": {
+    "title": "Thêm",
+    "language": "Trang chủ",
+    "persona": "Hồ sơ mẫu",
+    "personaBody": "Tải một hồ sơ mẫu.",
+    "meiBody": "Tiếng Trung, chữ lớn, câu trả lời ngắn. Mở một chuyển khoản nước ngoài.",
+    "arifBody": "Tiếng Anh, đầy đủ chi tiết, thông tin chi tiêu. Mở thiết lập GIRO.",
+    "reset": "Đặt lại ứng dụng",
+    "resetBody": "Xóa các lựa chọn đã lưu trên thiết bị này."
+  },
+  "demoBadge": "Demo",
+  "prototype": "Demo",
+  "skipStep": "Bỏ qua",
+  "skipSetup": "Bỏ qua",
+  "doForReal": "Tiếp tục",
+  "backHome": "Trang chủ",
+  "practise": "Luyện tập",
+  "insightsHint": "Xem tóm tắt chi tiêu của bạn.",
+  "guideSkipped": "Bước này không có trên màn hình này.",
+  "guideEmpty": "Hướng dẫn này không có ở đây.",
+  "reorderHint": "Kéo lối tắt, hoặc dùng mũi tên.",
+  "shortcutFull": "Xóa một mục để thêm mục khác.",
+  "needSix": "Xóa một mục để thêm mục khác.",
+  "contrastWarn": "Ảnh này quá sáng. Hãy thử ảnh tối hơn.",
+  "imageTooBig": "Ảnh này quá lớn. Hãy thử ảnh nhỏ hơn.",
+  "gate": {
+    "missingName": "Nhập tên đăng nhập và mật khẩu.",
+    "missingPerson": "Nhập tên.",
+    "nameTitle": "Tên của bạn",
+    "nameBody": "Đã lưu trên thiết bị này.",
+    "tourTitle": "Xem qua nhanh",
+    "tourBody": "Chúng tôi sẽ chỉ Trang chủ, Thanh toán và Trợ giúp.",
+    "tourStart": "Bắt đầu",
+    "preBody": "Đăng nhập để tiếp tục.",
+    "loginContinue": "Đăng nhập để tiếp tục.",
+    "personas": "Hồ sơ mẫu",
+    "resetQuiz": "Làm lại thiết lập",
+    "resetQuizBody": "Mở lại phần thiết lập.",
+    "redoQuiz": "Làm lại thiết lập",
+    "deleteUser": "Xóa người dùng",
+    "deleteUserBody": "Xóa hồ sơ này khỏi thiết bị này.",
+    "create": "Đăng nhập"
+  },
+  "detail": {
+    "short": "Ngắn gọn",
+    "full": "Đầy đủ chi tiết",
+    "shortSample": "PayNow gửi tiền đến số điện thoại.",
+    "fullSample": "Kiểm tra tên và số tiền trước khi xác nhận."
+  },
+  "practice": {
+    "banner": "Luyện tập. Không có tiền nào được chuyển.",
+    "done": "Đã luyện tập xong."
+  },
+  "success": {
+    "demo": "Đã lưu. Không có tiền nào được chuyển."
+  },
+  "more": {
+    "about": "Giới thiệu",
+    "aboutBody": "Đây là bản demo. Số dư và tin nhắn là dữ liệu mẫu.",
+    "practice": "Luyện tập tiếp",
+    "admin": "Bảng điều khiển",
+    "tour": "Xem trang chủ"
+  },
+  "pay": {
+    "body": "Chọn một khoản thanh toán."
+  },
+  "info": {
+    "investmentsBody": "Chi tiết đầu tư không có ở đây.",
+    "insuranceBody": "Chi tiết bảo hiểm không có ở đây.",
+    "rewardsBody": "Số dư điểm thưởng: 1.240 điểm."
+  },
+  "demo": {
+    "mei": "Đang gửi tiền cho Tan Wei Ming tại Úc.",
+    "arif": "Đang thiết lập GIRO."
+  },
+  "guides": {
+    "home": {
+      "balanceTitle": "Số dư của bạn",
+      "balanceBody": "Đây là số tiền bạn có thể dùng hôm nay.",
+      "shortcutsBody": "Sáu lối tắt này là của bạn. Đổi chúng trong Cài đặt.",
+      "helpBody": "Chọn trợ lý, hướng dẫn từng bước, hoặc tin nhắn cho chúng tôi."
+    },
+    "scan": {
+      "frameBody": "Chạm vào mã mẫu."
+    },
+    "cardLost": {
+      "confirmBody": "Thao tác này khóa thẻ tại đây. Gọi +65 6363 3333 nếu thẻ thực sự bị mất."
+    },
+    "limit": {
+      "currentBody": "Đây là hạn mức đã lưu trên thiết bị này.",
+      "reviewBody": "Kiểm tra hạn mức mới trước khi xác nhận."
+    },
+    "overseas": {
+      "purposeBody": "Chọn lý do bạn gửi tiền."
+    },
+    "paynow": {
+      "reviewBody": "Đọc tên và số tiền, rồi tiếp tục."
+    },
+    "goal": {
+      "reviewBody": "Xác nhận tên, mục tiêu và số tiền hàng tháng."
+    }
+  },
+  "profile": {
+    "sample": "Đã lưu trên thiết bị này."
+  },
+  "notFound": {
+    "body": "Trang đó không có.",
+    "home": "Trang chủ"
+  },
+  "txn": {
+    "sample": "Không có tiền nào được chuyển."
+  },
+  "notifications": {
+    "salaryBody": "S$4,200.00 đã được cộng vào 360 Account của bạn.",
+    "billBody": "Hóa đơn SP Group S$96.40 đã sẵn sàng để thanh toán."
+  },
+  "dialects": {
+    "soon": "Không có",
+    "cloud": "Tiếng Quảng Đông dùng giọng đám mây khi có."
+  },
+  "speech": {
+    "noVoice": "Đang dùng giọng mặc định.",
+    "micDenied": "Micro đang tắt. Bạn có thể nhập bằng bàn phím."
+  },
+  "turnOnInsights": "Bật",
+  "comingSoon": "Không có",
+  "sampleBalance": "Khả dụng",
+  "fx": {
+    "sample": "Tỷ giá tham khảo"
+  },
+  "forYouBody": "Luyện tập một chuyển khoản nước ngoài.",
+  "yourPreference": "Đã lưu",
+  "admin": {
+    "note": "Số liệu mẫu từ thiết bị này.",
+    "demoLogin": "Mật khẩu nào cũng được.",
+    "helpStaff": "Nhắn cho nhân viên"
+  },
+  "selectedCount": "Đã chọn {n} / 6"
+}

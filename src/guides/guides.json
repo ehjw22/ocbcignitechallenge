@@ -1,0 +1,110 @@
+[
+  {
+    "id": "home",
+    "title": "guides.home.title",
+    "steps": [
+      { "id": "balance", "element": "home-balance", "title": "guides.home.balanceTitle", "body": "guides.home.balanceBody" },
+      { "id": "shortcuts", "element": "home-shortcuts", "title": "guides.home.shortcutsTitle", "body": "guides.home.shortcutsBody" },
+      { "id": "help", "element": "help-fab", "title": "guides.home.helpTitle", "body": "guides.home.helpBody" },
+      { "id": "nav", "element": "nav-pay", "title": "guides.home.navTitle", "body": "guides.home.navBody" }
+    ]
+  },
+  {
+    "id": "paynow",
+    "title": "guides.paynow.title",
+    "steps": [
+      { "id": "recipient", "element": "paynow-to", "title": "guides.paynow.toTitle", "body": "guides.paynow.toBody" },
+      { "id": "amount", "element": "paynow-amount", "title": "guides.paynow.amountTitle", "body": "guides.paynow.amountBody" },
+      { "id": "reference", "element": "paynow-reference", "title": "guides.paynow.refTitle", "body": "guides.paynow.refBody" },
+      { "id": "review", "element": "paynow-review", "title": "guides.paynow.reviewTitle", "body": "guides.paynow.reviewBody" }
+    ]
+  },
+  {
+    "id": "transfer",
+    "title": "guides.transfer.title",
+    "steps": [
+      { "id": "name", "element": "transfer-name", "title": "guides.transfer.nameTitle", "body": "guides.transfer.nameBody" },
+      { "id": "account", "element": "transfer-account", "title": "guides.transfer.accountTitle", "body": "guides.transfer.accountBody" },
+      { "id": "amount", "element": "transfer-amount", "title": "guides.transfer.amountTitle", "body": "guides.transfer.amountBody" },
+      { "id": "review", "element": "transfer-review", "title": "guides.transfer.reviewTitle", "body": "guides.transfer.reviewBody" }
+    ]
+  },
+  {
+    "id": "overseas",
+    "title": "guides.overseas.title",
+    "steps": [
+      { "id": "name", "element": "overseas-name", "title": "guides.overseas.nameTitle", "body": "guides.overseas.nameBody" },
+      { "id": "country", "element": "overseas-country", "title": "guides.overseas.countryTitle", "body": "guides.overseas.countryBody" },
+      { "id": "swift", "element": "overseas-swift", "title": "guides.overseas.swiftTitle", "body": "guides.overseas.swiftBody" },
+      { "id": "account", "element": "overseas-account", "title": "guides.overseas.accountTitle", "body": "guides.overseas.accountBody" },
+      { "id": "amount", "element": "overseas-amount", "title": "guides.overseas.amountTitle", "body": "guides.overseas.amountBody" },
+      { "id": "purpose", "element": "overseas-purpose", "title": "guides.overseas.purposeTitle", "body": "guides.overseas.purposeBody" },
+      { "id": "review", "element": "overseas-review", "title": "guides.overseas.reviewTitle", "body": "guides.overseas.reviewBody" }
+    ]
+  },
+  {
+    "id": "bill",
+    "title": "guides.bill.title",
+    "steps": [
+      { "id": "biller", "element": "bill-biller", "title": "guides.bill.billerTitle", "body": "guides.bill.billerBody" },
+      { "id": "ref", "element": "bill-ref", "title": "guides.bill.refTitle", "body": "guides.bill.refBody" },
+      { "id": "amount", "element": "bill-amount", "title": "guides.bill.amountTitle", "body": "guides.bill.amountBody" },
+      { "id": "review", "element": "bill-review", "title": "guides.bill.reviewTitle", "body": "guides.bill.reviewBody" }
+    ]
+  },
+  {
+    "id": "giro",
+    "title": "guides.giro.title",
+    "steps": [
+      { "id": "org", "element": "giro-org", "title": "guides.giro.orgTitle", "body": "guides.giro.orgBody" },
+      { "id": "account", "element": "giro-account", "title": "guides.giro.accountTitle", "body": "guides.giro.accountBody" },
+      { "id": "limit", "element": "giro-limit", "title": "guides.giro.limitTitle", "body": "guides.giro.limitBody" },
+      { "id": "review", "element": "giro-review", "title": "guides.giro.reviewTitle", "body": "guides.giro.reviewBody" }
+    ]
+  },
+  {
+    "id": "scan",
+    "title": "guides.scan.title",
+    "steps": [
+      { "id": "frame", "element": "scan-frame", "title": "guides.scan.frameTitle", "body": "guides.scan.frameBody" },
+      { "id": "amount", "element": "scan-amount", "title": "guides.scan.amountTitle", "body": "guides.scan.amountBody" },
+      { "id": "review", "element": "scan-review", "title": "guides.scan.reviewTitle", "body": "guides.scan.reviewBody" }
+    ]
+  },
+  {
+    "id": "goal",
+    "title": "guides.goal.title",
+    "steps": [
+      { "id": "name", "element": "goal-name", "title": "guides.goal.nameTitle", "body": "guides.goal.nameBody" },
+      { "id": "target", "element": "goal-target", "title": "guides.goal.targetTitle", "body": "guides.goal.targetBody" },
+      { "id": "monthly", "element": "goal-monthly", "title": "guides.goal.monthlyTitle", "body": "guides.goal.monthlyBody" },
+      { "id": "review", "element": "goal-review", "title": "guides.goal.reviewTitle", "body": "guides.goal.reviewBody" }
+    ]
+  },
+  {
+    "id": "card-lock",
+    "title": "guides.cardLock.title",
+    "steps": [
+      { "id": "card", "element": "card-select", "title": "guides.cardLock.cardTitle", "body": "guides.cardLock.cardBody" },
+      { "id": "toggle", "element": "card-toggle", "title": "guides.cardLock.toggleTitle", "body": "guides.cardLock.toggleBody" },
+      { "id": "review", "element": "card-review", "title": "guides.cardLock.reviewTitle", "body": "guides.cardLock.reviewBody" }
+    ]
+  },
+  {
+    "id": "card-lost",
+    "title": "guides.cardLost.title",
+    "steps": [
+      { "id": "card", "element": "lost-card", "title": "guides.cardLost.cardTitle", "body": "guides.cardLost.cardBody" },
+      { "id": "confirm", "element": "lost-confirm", "title": "guides.cardLost.confirmTitle", "body": "guides.cardLost.confirmBody" }
+    ]
+  },
+  {
+    "id": "limit",
+    "title": "guides.limit.title",
+    "steps": [
+      { "id": "current", "element": "limit-current", "title": "guides.limit.currentTitle", "body": "guides.limit.currentBody" },
+      { "id": "next", "element": "limit-new", "title": "guides.limit.newTitle", "body": "guides.limit.newBody" },
+      { "id": "review", "element": "limit-review", "title": "guides.limit.reviewTitle", "body": "guides.limit.reviewBody" }
+    ]
+  }
+]

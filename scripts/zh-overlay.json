@@ -1,0 +1,222 @@
+{
+  "appName": "OCBC Adaptive",
+  "prototype": "原型演示，只用样本数据。",
+  "back": "返回",
+  "close": "关闭",
+  "continue": "继续",
+  "cancel": "取消",
+  "confirm": "确认",
+  "skipStep": "跳过此步",
+  "skipSetup": "暂时跳过",
+  "save": "保存",
+  "done": "完成",
+  "next": "下一步",
+  "previous": "返回",
+  "listen": "朗读",
+  "edit": "编辑",
+  "show": "显示余额",
+  "hide": "隐藏余额",
+  "yesContinue": "是的，继续",
+  "changeAmount": "修改金额",
+  "askAi": "问 AI",
+  "getHelp": "获取帮助",
+  "doForReal": "按正式流程再做一次",
+  "practise": "用练习模式试试",
+  "yourPreference": "你的偏好",
+  "aiTranslated": "AI 翻译，审核中",
+  "goodMorning": "早上好",
+  "goodAfternoon": "下午好",
+  "goodEvening": "晚上好",
+  "available": "可用",
+  "sampleBalance": "样本余额",
+  "quickActions": "你的快捷操作",
+  "recent": "最近",
+  "insights": "开支概览",
+  "guideSkipped": "这一步的按钮不在当前屏幕上，所以已跳过。",
+  "amount": "金额",
+  "review": "核对",
+  "from": "从",
+  "nav": {
+    "home": "主页",
+    "accounts": "账户",
+    "pay": "付款和转账",
+    "help": "帮助",
+    "more": "更多"
+  },
+  "help": {
+    "fab": "帮助",
+    "title": "需要什么帮助？",
+    "intro": "选一种。之后随时可以改。",
+    "ai": "问 AI 助手",
+    "guide": "一步一步带我做",
+    "staff": "联系 OCBC 职员",
+    "journeys": "选择一个引导"
+  },
+  "onboarding": {
+    "welcome": "按你的方式设置 OCBC Adaptive",
+    "welcomeBody": "这些选项由你来选。我们不会猜测。任何一步都可以跳过，之后在设置里修改。",
+    "language": "语言",
+    "languageBody": "选择这个应用使用的语言。",
+    "text": "文字大小和样式",
+    "textBody": "拖动滑块，示例会马上更新。",
+    "preview": "文字会这样显示。转账 S$50.00 给朋友。",
+    "bold": "粗体",
+    "contrast": "高对比度",
+    "colour": "色彩视觉",
+    "colourBody": "每一种状态都有图标和文字，不只靠颜色。",
+    "detail": "你希望解释有多详细？",
+    "readAloud": "朗读",
+    "readBody": "提示、错误和回复可以读出来。之后可以关掉。",
+    "help": "你希望怎样获得帮助？",
+    "ready": "设置好了",
+    "readyBody": "你的选择保存在这台设备上。这个原型不使用真实银行账户。",
+    "enter": "进入主页"
+  },
+  "detail": {
+    "short": "简短易懂",
+    "full": "完整说明",
+    "shortSample": "PayNow 用手机号码转账。",
+    "fullSample": "PayNow 用手机号码或身份证号码转账。确认前会看到收款人姓名。这个演示不会编造费用。"
+  },
+  "cvd": {
+    "default": "默认颜色",
+    "paid": "已付款",
+    "check": "请检查",
+    "failed": "未成功"
+  },
+  "errors": {
+    "summary": "请检查下面几项。",
+    "required": "请填写{field}。",
+    "account_digits": "账号需要 10 位数字。你输入了 {got} 位。请检查后再试。",
+    "paynow_mobile": "新加坡 PayNow 手机号码是 8 位，并以 8 或 9 开头。请检查后再试。",
+    "amount_positive": "请输入大于 S$0.00 的金额。",
+    "amount_format": "请用数字输入金额，例如 50.00。",
+    "swift": "SWIFT 代码是 8 位或 11 位字母和数字。你输入了 {got} 个字符。",
+    "insufficient": "这个账户的钱不够完成转账。可用金额：{available}。"
+  },
+  "unusual": {
+    "title": "请再确认金额",
+    "body": "确认一下：这比你平时转的多。你即将转 {amount} 给 {name}。金额对吗？"
+  },
+  "practice": {
+    "banner": "练习模式：不会移动真实的钱",
+    "done": "练习完成。没有移动任何钱。",
+    "step": "第 {n} 步，共 {total} 步"
+  },
+  "success": {
+    "demo": "已保存在这个演示里。因为这是原型，没有移动真实的钱。",
+    "ref": "参考编号 {ref}"
+  },
+  "staff": {
+    "title": "联系 OCBC 职员",
+    "body": "这是留言，不是即时通话。职员会回复。",
+    "urgentQ": "这是关于诈骗、欺诈或卡片遗失吗？",
+    "yes": "是",
+    "no": "不是",
+    "summary": "给职员的摘要",
+    "summaryText": "任务：{task}。停在：{step}。语言偏好：{language}。",
+    "browsing": "正在查看 {screen}",
+    "none": "没有停在某一步",
+    "method": "希望我们怎样联系你？",
+    "message": "应用内消息",
+    "phone": "电话回拨",
+    "email": "电子邮件",
+    "time": "方便的时间",
+    "morning": "上午",
+    "afternoon": "下午",
+    "evening": "傍晚",
+    "anytime": "没有偏好",
+    "contact": "联系方式",
+    "send": "发送请求",
+    "thanks": "谢谢，我们已收到你的请求。OCBC 职员会尽快回复，通常在 1 个工作日内。你的进度已保存。",
+    "ref": "参考编号",
+    "status": "状态",
+    "received": "已收到",
+    "in_progress": "处理中",
+    "replied": "已回复",
+    "yourRequests": "你的请求",
+    "empty": "你还没有职员请求。",
+    "hotlineTitle": "这件事需要 24 小时热线",
+    "hotlineBody": "因为这件事可能很紧急，我们不让你排队。请现在致电 24 小时热线。这个原型不能拨出真实电话。",
+    "hotline": "24 小时热线：+65 6363 3333",
+    "lockNow": "立即锁卡",
+    "progressSaved": "你在这个任务中的进度已保存。"
+  },
+  "ai": {
+    "title": "AI 助手",
+    "about": "关于这个助手",
+    "placeholder": "询问银行业务或这个屏幕",
+    "send": "发送",
+    "demoNote": "现在使用内置演示回答。加入 API 密钥后可以使用实时模型。",
+    "suggestions": "建议问题",
+    "empty": "输入问题，或点一个建议。",
+    "chipGiro": "什么是 GIRO？",
+    "chipPaynow": "怎样使用 PayNow？",
+    "chipScam": "我觉得这是诈骗",
+    "chipOverseas": "什么是 SWIFT 代码？",
+    "chipBalance": "我的样本余额是多少？",
+    "faq": {
+      "giro": {
+        "short": "GIRO 让账单机构在约定日期从你的账户扣款，金额不超过你设定的上限。之后可以停止。",
+        "full": "GIRO 是一项长期扣款安排。你选择账单机构、付款账户和每次最多扣多少。到了约定日期，对方可以在上限内扣款。它不是一次性转账。在这个演示里，不会发给真实机构。你可以在“付款和转账”里设置 GIRO，我也可以一步一步带你做。"
+      },
+      "overseas": {
+        "short": "海外转账需要收款人、国家、SWIFT 代码、账号和金额。这里不显示实时费用。",
+        "full": "海外转账把钱汇到另一个国家的银行。你需要收款人姓名、国家、银行的 SWIFT 代码（8 或 11 位）、账号和金额。这个演示的账号需要 10 位数字，不会编造费用。准确费用请向职员查询。"
+      }
+    }
+  },
+  "flows": {
+    "overseas": "海外转账",
+    "transfer": "本地转账",
+    "recipient": "收款人姓名",
+    "country": "国家",
+    "australia": "澳大利亚",
+    "swift": "SWIFT 代码",
+    "account10": "账号（10 位数字）",
+    "from": "付款账户",
+    "submit": "核对并继续",
+    "whatGiro": "什么是 GIRO？",
+    "giro": "设置 GIRO",
+    "billingOrg": "账单机构",
+    "giroLimit": "每次最多扣款"
+  },
+  "demo": {
+    "mei": "演示：梅姨要汇款给在澳大利亚的儿子陈伟明。账号故意少了一位数字。",
+    "contactStaff": "就这笔转账联系职员",
+    "arif": "演示：Arif 正在设置样本 GIRO。可以问 GIRO 是什么，或跟着引导做。",
+    "seeInsights": "查看开支概览"
+  },
+  "settings": {
+    "title": "设置",
+    "persona": "载入演示人物",
+    "mei": "梅姨",
+    "arif": "Arif"
+  },
+  "pay": {
+    "title": "付款和转账",
+    "body": "选择你想做的事。每项都可以先练习。"
+  },
+  "accounts": {
+    "title": "账户",
+    "a360": "360 账户",
+    "savings": "储蓄账户"
+  },
+  "guides": {
+    "overseas": {
+      "title": "海外转账",
+      "nameTitle": "收款人",
+      "nameBody": "输入收款人的姓名。这个练习可以填写陈伟明。",
+      "countryTitle": "国家",
+      "countryBody": "选择钱要汇去的国家。",
+      "swiftTitle": "SWIFT 代码",
+      "swiftBody": "这是银行代码，由 8 位或 11 位字母和数字组成。",
+      "accountTitle": "账号",
+      "accountBody": "数一数位数。这个演示需要 10 位。",
+      "amountTitle": "金额",
+      "amountBody": "如果金额比平时大很多，我们会请你再确认。",
+      "reviewTitle": "核对",
+      "reviewBody": "如果有错误，文字会说明要改什么。你输入的内容会保留。"
+    }
+  }
+}

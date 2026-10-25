@@ -1,0 +1,283 @@
+{
+  "nav": {
+    "home": "ホーム",
+    "accounts": "口座",
+    "pay": "支払い・振込",
+    "help": "ヘルプ",
+    "more": "その他"
+  },
+  "back": "戻る",
+  "continue": "続ける",
+  "close": "閉じる",
+  "confirm": "確認",
+  "yesContinue": "続ける",
+  "changeAmount": "金額を変更",
+  "askAi": "アシスタント",
+  "getHelp": "ヘルプ",
+  "aiTranslated": "",
+  "help": {
+    "fab": "ヘルプ",
+    "title": "ヘルプ",
+    "ai": "AIアシスタント",
+    "guide": "手順ガイド",
+    "staff": "担当者にメッセージ",
+    "intro": "1つ選んでください。",
+    "journeys": "ガイド"
+  },
+  "onboarding": {
+    "language": "言語を選択",
+    "enter": "完了",
+    "welcome": "アプリを設定",
+    "welcomeBody": "設定でいつでも変更できます。",
+    "languageBody": "言語を選択",
+    "text": "文字サイズを選択",
+    "textBody": "文字サイズを選択",
+    "preview": "Meiさんへ S$1,250.00 を送金",
+    "colour": "色の設定",
+    "colourBody": "色の設定",
+    "detail": "詳細はどの程度にしますか",
+    "readBody": "ヒントと返信を読み上げできます。",
+    "help": "どのようなサポートをご希望ですか",
+    "ready": "準備ができました",
+    "readyBody": "この端末に保存されます。",
+    "shortcuts": "ショートカットを6つ選択",
+    "colourAdjust": "アクセントカラーが少し変わることがあります。"
+  },
+  "errors": {
+    "summary": "以下の項目を確認してください。",
+    "account_digits": "口座番号は10桁です。{got}桁入力されています。",
+    "required": "{field}を入力してください。",
+    "paynow_mobile": "8または9で始まる8桁の番号を使ってください。",
+    "nric": "S1234567A のような NRIC を使ってください。",
+    "amount_format": "金額は 50.00 のように数字で入力してください。",
+    "insufficient": "金額が残高を超えています。少ない金額を入力してください。",
+    "swift": "SWIFTコードは8桁または11桁です。{got}桁入力されています。",
+    "limit_range": "限度額は S$100.00 から S$50,000.00 で入力してください。",
+    "goal_amount": "S$0.00 より大きい目標を入力してください。",
+    "email": "name@email.com のようなメールを入力してください。",
+    "phone": "8桁以上の電話番号を入力してください。",
+    "otp": "6桁を入力してください。",
+    "account_iban": "先頭の文字を含めて IBAN を入力してください。",
+    "account_my": "10桁から16桁で入力してください。{got}桁入力されています。"
+  },
+  "unusual": {
+    "body": "通常の送金より高額です。{name}さんへ {amount} を送金しますか。"
+  },
+  "staff": {
+    "thanks": "メッセージを送信しました",
+    "hotline": "24時間ホットライン +65 6363 3333",
+    "title": "メッセージを送る",
+    "body": "メッセージで返信します。",
+    "send": "送信",
+    "hotlineTitle": "お電話ください",
+    "hotlineBody": "24時間ホットラインにお電話ください。",
+    "lockNow": "カードをロック",
+    "progressSaved": "進捗は保存されています。",
+    "empty": "メッセージはまだありません。",
+    "yourRequests": "メッセージ",
+    "urgentQ": "不正利用またはカード紛失についてですか。",
+    "needGeneral": "サポートが必要です。"
+  },
+  "flows": {
+    "overseas": "支払い・振込",
+    "account10": "口座",
+    "otpTitle": "ワンタイムPINを入力",
+    "otpBody": "Demo: 任意の6桁",
+    "otpLabel": "ワンタイムPIN",
+    "submit": "続ける",
+    "scanHint": "練習用のサンプルQRです。",
+    "lostNote": "このカードはロックされます。実際に紛失した場合はお電話ください。",
+    "nameUnknown": "この名前を確認できません。番号を確認してください。",
+    "currentLimit": "現在の限度額 {amount}",
+    "nameSample": "登録名: {name}"
+  },
+  "ai": {
+    "faq": {
+      "giro": {
+        "short": "GIRO"
+      },
+      "offtopic": {
+        "short": "銀行業務とこのアプリについてのみお手伝いします。",
+        "full": "口座、送金、PayNow、GIRO、請求、カード、貯蓄、今の画面についてお手伝いします。"
+      },
+      "general": {
+        "short": "口座、送金、PayNow、GIRO、請求、カード、貯蓄についてお手伝いします。",
+        "full": "口座、送金、PayNow、GIRO、請求、カード、貯蓄、今の画面についてお手伝いします。ガイドを始めることも、担当者へ連絡することもできます。"
+      },
+      "secret": {
+        "short": "パスワード、PIN、ワンタイムコードは共有しないでください。",
+        "full": "パスワード、PIN、ワンタイムコード、カード番号の全桁は共有しないでください。求められた場合は +65 6363 3333 にお電話ください。"
+      },
+      "fraud": {
+        "short": "詐欺の可能性がある場合は +65 6363 3333 にお電話ください。カードもロックできます。",
+        "full": "身に覚えのない支払いがある場合、または送金を求められた場合は、+65 6363 3333 に電話し、カードをロックしてください。"
+      },
+      "lostcard": {
+        "short": "カードをロックしてから +65 6363 3333 にお電話ください。",
+        "full": "新しい支払いを止めるためカードをロックし、+65 6363 3333 にお電話ください。"
+      },
+      "staff": {
+        "short": "担当者にメッセージを送れます。メッセージで返信します。",
+        "full": "質問、止まった手順、言語を送れます。メッセージ、折り返し電話、メールから選べます。"
+      },
+      "fees": {
+        "short": "その手数料やレートは分かりません。確認のためメッセージを送ってください。",
+        "full": "手数料、金利、為替レートは分かりません。メッセージを送っていただければ確認します。"
+      },
+      "balance": {
+        "short": "残高はホームに表示されます。",
+        "full": "ホームの 360 Account と Statement Savings が残高です。確認した送金はこの端末で更新されます。"
+      }
+    },
+    "title": "アシスタント",
+    "about": "概要",
+    "aboutBody": "銀行業務とこのアプリについて回答します。資金は移動できません。パスワード、PIN、ワンタイムコードは尋ねません。",
+    "placeholder": "質問する",
+    "demoNote": "サンプル回答を使用しています。",
+    "stuck": "まだサポートが必要な場合はメッセージを送ってください。",
+    "hotline": "24時間ホットライン +65 6363 3333。カードをロックできます。",
+    "liveFailed": "アシスタントは現在使えません。短い回答です。",
+    "busy": "アシスタントが混み合っています。短い回答です。",
+    "empty": "質問してください。",
+    "chipBalance": "残高はいくらですか。",
+    "chipGuide": "手順を表示"
+  },
+  "settings": {
+    "title": "その他",
+    "language": "言語",
+    "persona": "サンプルプロフィール",
+    "personaBody": "サンプルプロフィールを読み込みます。",
+    "meiBody": "中国語、大きい文字、短い回答。海外送金を開きます。",
+    "arifBody": "英語、詳細、支出インサイト。GIRO設定を開きます。",
+    "reset": "アプリをリセット",
+    "resetBody": "この端末に保存した選択を消去します。"
+  },
+  "demoBadge": "Demo",
+  "prototype": "Demo",
+  "skipStep": "スキップ",
+  "skipSetup": "スキップ",
+  "doForReal": "続ける",
+  "backHome": "ホーム",
+  "practise": "練習",
+  "insightsHint": "支出の概要を表示します。",
+  "guideSkipped": "この手順はこの画面にありません。",
+  "guideEmpty": "このガイドはここでは使えません。",
+  "reorderHint": "ショートカットをドラッグするか、矢印を使います。",
+  "shortcutFull": "追加するには1つ外してください。",
+  "needSix": "追加するには1つ外してください。",
+  "contrastWarn": "この写真は明るすぎます。暗い写真をお試しください。",
+  "imageTooBig": "この写真は大きすぎます。小さい写真をお試しください。",
+  "gate": {
+    "missingName": "ユーザー名とパスワードを入力してください。",
+    "missingPerson": "名前を入力してください。",
+    "nameTitle": "お名前",
+    "nameBody": "この端末に保存されます。",
+    "tourTitle": "短い案内",
+    "tourBody": "ホーム、支払い、ヘルプをご案内します。",
+    "tourStart": "開始",
+    "preBody": "続けるにはログインしてください。",
+    "loginContinue": "続けるにはログインしてください。",
+    "personas": "サンプルプロフィール",
+    "resetQuiz": "設定をやり直す",
+    "resetQuizBody": "設定を再度開きます。",
+    "redoQuiz": "設定をやり直す",
+    "deleteUser": "ユーザーを削除",
+    "deleteUserBody": "この端末からこのプロフィールを削除します。",
+    "create": "ログイン"
+  },
+  "detail": {
+    "short": "簡潔",
+    "full": "詳細",
+    "shortSample": "PayNowは携帯番号へ送金します。",
+    "fullSample": "確認前に名前と金額を確認してください。"
+  },
+  "practice": {
+    "banner": "練習です。資金は移動しません。",
+    "done": "練習が完了しました。"
+  },
+  "success": {
+    "demo": "保存しました。資金は移動していません。"
+  },
+  "more": {
+    "about": "概要",
+    "aboutBody": "これはデモです。残高とメッセージはサンプルデータです。",
+    "practice": "次を練習",
+    "admin": "ダッシュボード",
+    "tour": "ホーム案内"
+  },
+  "pay": {
+    "body": "支払いを選択してください。"
+  },
+  "info": {
+    "investmentsBody": "投資の詳細はここでは確認できません。",
+    "insuranceBody": "保険の詳細はここでは確認できません。",
+    "rewardsBody": "リワード残高: 1,240 ポイント。"
+  },
+  "demo": {
+    "mei": "オーストラリアの Tan Wei Ming さんへ送金しています。",
+    "arif": "GIROを設定しています。"
+  },
+  "guides": {
+    "home": {
+      "balanceTitle": "残高",
+      "balanceBody": "今日使える金額です。",
+      "shortcutsBody": "この6つのショートカットはあなた用です。設定で変更できます。",
+      "helpBody": "アシスタント、手順ガイド、またはメッセージを選んでください。"
+    },
+    "scan": {
+      "frameBody": "サンプルコードをタップしてください。"
+    },
+    "cardLost": {
+      "confirmBody": "ここでカードをロックします。実際に紛失した場合は +65 6363 3333 にお電話ください。"
+    },
+    "limit": {
+      "currentBody": "この端末に保存されている限度額です。",
+      "reviewBody": "確認前に新しい限度額を確認してください。"
+    },
+    "overseas": {
+      "purposeBody": "送金の目的を選択してください。"
+    },
+    "paynow": {
+      "reviewBody": "名前と金額を確認してから続けてください。"
+    },
+    "goal": {
+      "reviewBody": "名前、目標、毎月の金額を確認してください。"
+    }
+  },
+  "profile": {
+    "sample": "この端末に保存されます。"
+  },
+  "notFound": {
+    "body": "そのページは利用できません。",
+    "home": "ホーム"
+  },
+  "txn": {
+    "sample": "資金は移動していません。"
+  },
+  "notifications": {
+    "salaryBody": "360 Account に S$4,200.00 が入金されました。",
+    "billBody": "SP Group の請求 S$96.40 を支払えます。"
+  },
+  "dialects": {
+    "soon": "利用不可",
+    "cloud": "広東語は利用できる場合、クラウド音声を使います。"
+  },
+  "speech": {
+    "noVoice": "標準の音声を使っています。",
+    "micDenied": "マイクはオフです。入力できます。"
+  },
+  "turnOnInsights": "オンにする",
+  "comingSoon": "利用不可",
+  "sampleBalance": "利用可能",
+  "fx": {
+    "sample": "参考レート"
+  },
+  "forYouBody": "海外送金を練習します。",
+  "yourPreference": "保存済み",
+  "admin": {
+    "note": "この端末のサンプル数値です。",
+    "demoLogin": "どのパスワードでも入れます。",
+    "helpStaff": "担当者にメッセージ"
+  },
+  "selectedCount": "6件中{n}件を選択"
+}

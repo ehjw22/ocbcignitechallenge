@@ -1,0 +1,283 @@
+{
+  "nav": {
+    "home": "Beranda",
+    "accounts": "Rekening",
+    "pay": "Bayar & Transfer",
+    "help": "Bantuan",
+    "more": "Lainnya"
+  },
+  "back": "Kembali",
+  "continue": "Lanjut",
+  "close": "OK",
+  "confirm": "Lanjut",
+  "yesContinue": "Lanjut",
+  "changeAmount": "Ubah jumlah",
+  "askAi": "Asisten",
+  "getHelp": "Bantuan",
+  "aiTranslated": "",
+  "help": {
+    "fab": "Bantuan",
+    "title": "Bantuan",
+    "ai": "Asisten AI",
+    "guide": "Panduan langkah demi langkah",
+    "staff": "Pesan staf kami",
+    "intro": "Pilih satu.",
+    "journeys": "Panduan"
+  },
+  "onboarding": {
+    "language": "Pilih bahasa Anda",
+    "enter": "Selesai",
+    "welcome": "Siapkan aplikasi Anda",
+    "welcomeBody": "Ubah kapan saja di Pengaturan.",
+    "languageBody": "Pilih bahasa Anda",
+    "text": "Pilih ukuran teks",
+    "textBody": "Pilih ukuran teks",
+    "preview": "S$1,250.00 dikirim ke Mei",
+    "colour": "Pengaturan warna",
+    "colourBody": "Pengaturan warna",
+    "detail": "Seberapa detail?",
+    "readBody": "Tips dan balasan dapat dibacakan.",
+    "help": "Bagaimana Anda ingin dibantu?",
+    "ready": "Anda sudah siap",
+    "readyBody": "Disimpan di perangkat ini.",
+    "shortcuts": "Pilih 6 pintasan",
+    "colourAdjust": "Warna aksen dapat berubah sedikit."
+  },
+  "errors": {
+    "summary": "Periksa item di bawah.",
+    "account_digits": "Nomor rekening perlu 10 digit. Anda memasukkan {got}.",
+    "required": "Masukkan {field}.",
+    "paynow_mobile": "Gunakan nomor 8 digit yang dimulai dengan 8 atau 9.",
+    "nric": "Gunakan NRIC seperti S1234567A.",
+    "amount_format": "Masukkan jumlah dalam angka, seperti 50.00.",
+    "insufficient": "Jumlah melebihi saldo Anda. Masukkan jumlah yang lebih rendah.",
+    "swift": "Kode SWIFT perlu 8 atau 11 karakter. Anda memasukkan {got}.",
+    "limit_range": "Masukkan batas dari S$100.00 sampai S$50,000.00.",
+    "goal_amount": "Masukkan target lebih dari S$0.00.",
+    "email": "Masukkan email seperti name@email.com.",
+    "phone": "Masukkan nomor telepon dengan minimal 8 digit.",
+    "otp": "Masukkan 6 digit.",
+    "account_iban": "Masukkan IBAN, termasuk huruf di awal.",
+    "account_my": "Masukkan 10 sampai 16 digit. Anda memasukkan {got}."
+  },
+  "unusual": {
+    "body": "Ini lebih tinggi dari transfer biasa Anda. Kirim {amount} ke {name}?"
+  },
+  "staff": {
+    "thanks": "Pesan terkirim",
+    "hotline": "Hotline 24 jam +65 6363 3333",
+    "title": "Pesan kami",
+    "body": "Kami akan membalas melalui pesan.",
+    "send": "Kirim",
+    "hotlineTitle": "Hubungi kami",
+    "hotlineBody": "Hubungi hotline 24 jam.",
+    "lockNow": "Kunci kartu",
+    "progressSaved": "Progres Anda disimpan.",
+    "empty": "Belum ada pesan.",
+    "yourRequests": "Pesan Anda",
+    "urgentQ": "Apakah ini tentang penipuan atau kartu hilang?",
+    "needGeneral": "Perlu bantuan."
+  },
+  "flows": {
+    "overseas": "Bayar & Transfer",
+    "account10": "Rekening",
+    "otpTitle": "Masukkan PIN sekali pakai",
+    "otpBody": "Demo: 6 digit apa saja",
+    "otpLabel": "PIN sekali pakai",
+    "submit": "Lanjut",
+    "scanHint": "QR contoh untuk latihan.",
+    "lostNote": "Kartu ini akan dikunci. Hubungi kami jika benar-benar hilang.",
+    "nameUnknown": "Kami tidak dapat mengonfirmasi nama ini. Periksa nomornya.",
+    "currentLimit": "Batas saat ini {amount}",
+    "nameSample": "Nama tercatat: {name}"
+  },
+  "ai": {
+    "faq": {
+      "giro": {
+        "short": "GIRO"
+      },
+      "offtopic": {
+        "short": "Saya hanya dapat membantu perbankan dan aplikasi ini.",
+        "full": "Saya dapat membantu akun, transfer, PayNow, GIRO, tagihan, kartu, tabungan, dan layar Anda."
+      },
+      "general": {
+        "short": "Saya dapat membantu akun, transfer, PayNow, GIRO, tagihan, kartu, dan tabungan.",
+        "full": "Saya dapat membantu akun, transfer, PayNow, GIRO, tagihan, kartu, tabungan, dan layar Anda. Saya dapat memulai panduan atau mengirim pesan ke staf."
+      },
+      "secret": {
+        "short": "Jangan bagikan kata sandi, PIN, atau kode sekali pakai.",
+        "full": "Jangan bagikan kata sandi, PIN, kode sekali pakai, atau nomor kartu lengkap. Jika seseorang memintanya, hubungi +65 6363 3333."
+      },
+      "fraud": {
+        "short": "Jika ini mungkin penipuan, hubungi +65 6363 3333. Anda juga dapat mengunci kartu.",
+        "full": "Jika Anda tidak melakukan pembayaran, atau seseorang meminta Anda mengirim uang, hubungi +65 6363 3333 dan kunci kartu."
+      },
+      "lostcard": {
+        "short": "Kunci kartu, lalu hubungi +65 6363 3333.",
+        "full": "Kunci kartu untuk menghentikan pembayaran baru, lalu hubungi +65 6363 3333."
+      },
+      "staff": {
+        "short": "Saya dapat mengirim pesan ke staf. Mereka akan membalas melalui pesan.",
+        "full": "Saya dapat mengirim pertanyaan Anda, langkah yang Anda hentikan, dan bahasa Anda. Pilih pesan, telepon balik, atau email."
+      },
+      "fees": {
+        "short": "Saya tidak memiliki biaya atau kurs itu. Pesan kami untuk mengonfirmasi.",
+        "full": "Saya tidak memiliki biaya, bunga, atau kurs. Pesan kami dan kami dapat mengonfirmasinya."
+      },
+      "balance": {
+        "short": "Saldo Anda ditampilkan di Beranda.",
+        "full": "360 Account dan Statement Savings di Beranda membentuk saldo Anda. Transfer yang Anda konfirmasi memperbaruinya di perangkat ini."
+      }
+    },
+    "title": "Asisten",
+    "about": "Tentang",
+    "aboutBody": "Menjawab pertanyaan tentang perbankan dan aplikasi ini. Ia tidak dapat memindahkan uang. Ia tidak akan meminta kata sandi, PIN, atau kode sekali pakai Anda.",
+    "placeholder": "Ajukan pertanyaan",
+    "demoNote": "Jawaban contoh sedang digunakan.",
+    "stuck": "Pesan kami jika Anda masih perlu bantuan.",
+    "hotline": "Hotline 24 jam +65 6363 3333. Anda dapat mengunci kartu.",
+    "liveFailed": "Asisten tidak tersedia. Ini jawaban singkat.",
+    "busy": "Asisten sedang sibuk. Ini jawaban singkat.",
+    "empty": "Ajukan pertanyaan.",
+    "chipBalance": "Berapa saldo saya?",
+    "chipGuide": "Tampilkan langkah"
+  },
+  "settings": {
+    "title": "Lainnya",
+    "language": "Beranda",
+    "persona": "Profil contoh",
+    "personaBody": "Memuat profil contoh.",
+    "meiBody": "Tionghoa, teks besar, jawaban singkat. Membuka transfer luar negeri.",
+    "arifBody": "Inggris, detail lengkap, ringkasan pengeluaran. Membuka pengaturan GIRO.",
+    "reset": "Atur ulang aplikasi",
+    "resetBody": "Menghapus pilihan yang disimpan di perangkat ini."
+  },
+  "demoBadge": "Demo",
+  "prototype": "Demo",
+  "skipStep": "Lewati",
+  "skipSetup": "Lewati",
+  "doForReal": "Lanjut",
+  "backHome": "Beranda",
+  "practise": "Latihan",
+  "insightsHint": "Lihat ringkasan pengeluaran Anda.",
+  "guideSkipped": "Langkah ini tidak ada di layar ini.",
+  "guideEmpty": "Panduan ini tidak tersedia di sini.",
+  "reorderHint": "Seret pintasan, atau gunakan panah.",
+  "shortcutFull": "Hapus satu untuk menambah yang lain.",
+  "needSix": "Hapus satu untuk menambah yang lain.",
+  "contrastWarn": "Foto ini terlalu terang. Coba yang lebih gelap.",
+  "imageTooBig": "Foto ini terlalu besar. Coba yang lebih kecil.",
+  "gate": {
+    "missingName": "Masukkan nama pengguna dan kata sandi.",
+    "missingPerson": "Masukkan nama.",
+    "nameTitle": "Nama Anda",
+    "nameBody": "Disimpan di perangkat ini.",
+    "tourTitle": "Tur singkat",
+    "tourBody": "Kami akan menunjukkan Beranda, Bayar, dan Bantuan.",
+    "tourStart": "Mulai",
+    "preBody": "Masuk untuk melanjutkan.",
+    "loginContinue": "Masuk untuk melanjutkan.",
+    "personas": "Profil contoh",
+    "resetQuiz": "Ulangi pengaturan",
+    "resetQuizBody": "Membuka pengaturan lagi.",
+    "redoQuiz": "Ulangi pengaturan",
+    "deleteUser": "Hapus pengguna",
+    "deleteUserBody": "Menghapus profil ini dari perangkat ini.",
+    "create": "Masuk"
+  },
+  "detail": {
+    "short": "Singkat",
+    "full": "Detail lengkap",
+    "shortSample": "PayNow mengirim uang ke nomor ponsel.",
+    "fullSample": "Periksa nama dan jumlah sebelum mengonfirmasi."
+  },
+  "practice": {
+    "banner": "Latihan. Tidak ada uang yang dipindahkan.",
+    "done": "Latihan selesai."
+  },
+  "success": {
+    "demo": "Disimpan. Tidak ada uang yang dipindahkan."
+  },
+  "more": {
+    "about": "Tentang",
+    "aboutBody": "Ini adalah demo. Saldo dan pesan adalah data contoh.",
+    "practice": "Latihan berikutnya",
+    "admin": "Dasbor",
+    "tour": "Tur beranda"
+  },
+  "pay": {
+    "body": "Pilih pembayaran."
+  },
+  "info": {
+    "investmentsBody": "Detail investasi tidak tersedia di sini.",
+    "insuranceBody": "Detail asuransi tidak tersedia di sini.",
+    "rewardsBody": "Saldo reward: 1.240 poin."
+  },
+  "demo": {
+    "mei": "Mengirim uang ke Tan Wei Ming di Australia.",
+    "arif": "Menyiapkan GIRO."
+  },
+  "guides": {
+    "home": {
+      "balanceTitle": "Saldo Anda",
+      "balanceBody": "Ini uang yang dapat Anda gunakan hari ini.",
+      "shortcutsBody": "Enam pintasan ini milik Anda. Ubah di Pengaturan.",
+      "helpBody": "Pilih asisten, panduan langkah demi langkah, atau pesan kepada kami."
+    },
+    "scan": {
+      "frameBody": "Ketuk kode contoh."
+    },
+    "cardLost": {
+      "confirmBody": "Ini mengunci kartu di sini. Hubungi +65 6363 3333 jika benar-benar hilang."
+    },
+    "limit": {
+      "currentBody": "Ini batas yang disimpan di perangkat ini.",
+      "reviewBody": "Periksa batas baru sebelum mengonfirmasi."
+    },
+    "overseas": {
+      "purposeBody": "Pilih alasan Anda mengirim uang."
+    },
+    "paynow": {
+      "reviewBody": "Baca nama dan jumlah, lalu lanjutkan."
+    },
+    "goal": {
+      "reviewBody": "Konfirmasi nama, target, dan jumlah bulanan."
+    }
+  },
+  "profile": {
+    "sample": "Disimpan di perangkat ini."
+  },
+  "notFound": {
+    "body": "Halaman itu tidak tersedia.",
+    "home": "Beranda"
+  },
+  "txn": {
+    "sample": "Tidak ada uang yang dipindahkan."
+  },
+  "notifications": {
+    "salaryBody": "S$4,200.00 ditambahkan ke 360 Account Anda.",
+    "billBody": "Tagihan SP Group sebesar S$96.40 siap dibayar."
+  },
+  "dialects": {
+    "soon": "Tidak tersedia",
+    "cloud": "Kanton menggunakan suara cloud jika tersedia."
+  },
+  "speech": {
+    "noVoice": "Menggunakan suara bawaan.",
+    "micDenied": "Mikrofon mati. Anda dapat mengetik."
+  },
+  "turnOnInsights": "Nyalakan",
+  "comingSoon": "Tidak tersedia",
+  "sampleBalance": "Tersedia",
+  "fx": {
+    "sample": "Kurs indikatif"
+  },
+  "forYouBody": "Berlatih transfer luar negeri.",
+  "yourPreference": "Disimpan",
+  "admin": {
+    "note": "Angka contoh dari perangkat ini.",
+    "demoLogin": "Kata sandi apa saja dapat digunakan.",
+    "helpStaff": "Pesan staf kami"
+  },
+  "selectedCount": "{n} dari 6 dipilih"
+}

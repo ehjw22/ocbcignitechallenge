@@ -1,0 +1,48 @@
+import {
+  ArrowLeftRight,
+  CreditCard,
+  Gift,
+  Globe,
+  Landmark,
+  QrCode,
+  Receipt,
+  RefreshCw,
+  Shield,
+  Smartphone,
+  Target,
+  type LucideIcon,
+} from 'lucide-react'
+
+export const SHORTCUT_ROUTES: Record<string, string> = {
+  transfer: '/flow/transfer',
+  paynow: '/flow/paynow',
+  bills: '/flow/bill',
+  overseas: '/flow/overseas',
+  scan: '/flow/scan',
+  cards: '/cards',
+  goals: '/flow/goal',
+  giro: '/flow/giro',
+  topup: '/flow/topup',
+  investments: '/info/investments',
+  insurance: '/info/insurance',
+  rewards: '/info/rewards',
+  fx: '/flow/overseas',
+  wealth: '/insights',
+}
+
+export const SHORTCUT_ICONS: Record<string, LucideIcon> = {
+  transfer: ArrowLeftRight,
+  paynow: Smartphone,
+  bills: Receipt,
+  overseas: Globe,
+  scan: QrCode,
+  cards: CreditCard,
+  goals: Target,
+  giro: RefreshCw,
+  topup: Smartphone,
+  investments: Landmark,
+  insurance: Shield,
+  rewards: Gift,
+  fx: ArrowLeftRight,
+  wealth: Landmark,
+}
