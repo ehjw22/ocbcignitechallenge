@@ -55,7 +55,7 @@ export function beginShowHow(app: App, getPrefs: () => Preferences, journeyId: s
     },
     onMissing: (element, stepId) => {
       app.log('guide_step_missing', { guideId: journeyId, element, stepId })
-      app.setNotice(text('guideSkipped'))
+      app.setNotice('')
     },
     onStart: (guideId) => app.log('guide_started', { guideId, practice }),
     onStep: (stepId) => app.setGuideStep(`${journeyId}:${stepId}`),

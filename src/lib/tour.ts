@@ -23,8 +23,7 @@ export function playGuide(app: App, guideId: string) {
       }),
     onMissing: (element, stepId) => {
       app.log('guide_step_missing', { guideId, element, stepId })
-      app.setNotice(translate(app.prefs.language, 'guideSkipped'))
-      app.setAnnounce(translate(app.prefs.language, 'guideSkipped'))
+      app.setNotice('')
     },
     onStart: () => app.log('guide_started', { guideId }),
     onStep: (stepId) => app.setGuideStep(`${guideId}:${stepId}`),

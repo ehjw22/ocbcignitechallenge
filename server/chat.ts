@@ -87,8 +87,7 @@ export async function handleChat(req: IncomingMessage, res: ServerResponse) {
     send(res, 200, demoReply(pack, demoInput))
     return
   }
-  const { key, baseURL, model } = llmSettings()
-  const busy = () => withBusyNote(pack, demoReply(pack, demoInput))
+  const { key, baseURL, model, fallback } = llmSettings()
   if (!key) {
     send(res, 200, demoReply(pack, demoInput))
     return
@@ -98,8 +97,8 @@ export async function handleChat(req: IncomingMessage, res: ServerResponse) {
     : ''
   const detailLine = raw.detail === 'short' ? 'short and simple' : 'full detail'
   const system = [
-    'You are the OCBC Adaptive in-app banking assistant in a demo app. Only help with banking and using this app: accounts, transfers, PayNow, GIRO, bills, cards, savings, fees, security and scams, and the current screen.',
-    `Always reply only in ${raw.languageName || 'English'}. Do not add an English sentence about which screen the user is on. Use ${detailLine} detail, in plain friendly words, explaining banking terms simply.`,
+    'You are Ollie, the OCBC in-app banking assistant in a demo app. Only help with banking and using this app: accounts, transfers, PayNow, GIRO, bills, cards, savings, fees, security and scams, and the current screen.',
+    `Reply in the language of the user's latest message. If that language is unclear, reply in ${raw.languageName || 'English'}. Do not add an English sentence about which screen the user is on. Use ${detailLine} detail, in plain friendly words, explaining banking terms simply.`,
     'If a question is not about banking or this app, politely say you can only help with banking and suggest what you can do.',
     'Never ask for or reveal passwords, OTPs, PINs or full card numbers.',
     "Never invent account data, rates or fees; say you're not sure and offer to contact staff.",
@@ -111,30 +110,57 @@ export async function handleChat(req: IncomingMessage, res: ServerResponse) {
     'Balances in the app are samples. Do not say a payment reached a real bank, and do not call the app a prototype.',
     'If you refuse an off-topic question, start with [[REFUSE]]. If you escalate to a person, start with [[ESCALATE]]. If this is fraud, a scam, a dispute or a lost card, start with [[FRAUD]]. Then write the customer-facing reply. Do not mention these markers.',
   ].join(' ')
-  try {
-    const client = new OpenAI({ apiKey: key, baseURL })
-    const completion = await client.chat.completions.create({
-      model,
-      temperature: 0.4,
-      messages: [
-        { role: 'system', content: system },
-        ...messages.map((message) => ({ role: message.role, content: String(message.content).slice(0, MAX_MESSAGE) })),
-      ],
-    })
-    const content = completion.choices[0]?.message?.content as unknown
-    const text = typeof content === 'string'
-      ? content
-      : Array.isArray(content)
-        ? content.map((part) => (typeof part === 'string' ? part : String((part as { text?: string })?.text || ''))).join('')
-        : ''
-    if (!text.trim()) throw new Error('empty reply')
+  const chatMessages = [
+    { role: 'system' as const, content: system },
+    ...messages.map((message) => ({ role: message.role, content: String(message.content).slice(0, MAX_MESSAGE) })),
+  ]
+  const replyLanguage = answerLanguage(last, raw.language || 'en')
+  const busyPack = localePack(replyLanguage)
+  const finish = (text: string, source: 'llm' | 'demo') => {
     const flags = stripFlags(text)
     const journeyId = flags.refused || flags.fraud ? null : journeyFor(last, demoReply(pack, demoInput).intent)
-    send(res, 200, { reply: flags.reply, source: 'llm', journeyId, flags: { refused: flags.refused, escalated: flags.escalated, fraud: flags.fraud } })
-  } catch (err) {
-    console.error('chat failed', err instanceof Error ? err.message : err)
-    send(res, 200, busy())
+    return { reply: flags.reply, source, journeyId, flags: { refused: flags.refused, escalated: flags.escalated, fraud: flags.fraud } }
   }
+  try {
+    const text = await completeModel(key, baseURL, model, chatMessages)
+    if (!text.trim()) throw new Error('empty reply')
+    send(res, 200, finish(text, 'llm'))
+  } catch (err) {
+    console.error('chat failed', model, err instanceof Error ? err.message : err)
+    if (fallback && fallback !== model) {
+      try {
+        const text = await completeModel(key, baseURL, fallback, chatMessages)
+        if (!text.trim()) throw new Error('empty reply')
+        send(res, 200, finish(text, 'llm'))
+        return
+      } catch (fallbackErr) {
+        console.error('chat fallback failed', fallback, fallbackErr instanceof Error ? fallbackErr.message : fallbackErr)
+      }
+    }
+    send(res, 200, withBusyNote(busyPack, demoReply(busyPack, demoInput)))
+  }
+}
+
+function answerLanguage(text: string, fallback: string) {
+  if (/[\u0b80-\u0bff]/.test(text)) return 'ta'
+  if (/[\u4e00-\u9fff]/.test(text)) return 'zh'
+  if (/[A-Za-z]/.test(text) && !/[^\u0000-\u007f]/.test(text)) return 'en'
+  return fallback
+}
+
+async function completeModel(key: string, baseURL: string, model: string, messages: { role: 'system' | 'user' | 'assistant'; content: string }[]) {
+  const client = new OpenAI({ apiKey: key, baseURL, timeout: 15000, maxRetries: 0 })
+  const completion = await client.chat.completions.create({
+    model,
+    temperature: 0.4,
+    messages,
+  })
+  const content = completion.choices[0]?.message?.content as unknown
+  if (typeof content === 'string') return content
+  if (Array.isArray(content)) {
+    return content.map((part) => (typeof part === 'string' ? part : String((part as { text?: string })?.text || ''))).join('')
+  }
+  return ''
 }
 
 export function handleHealth(req: IncomingMessage, res: ServerResponse) {

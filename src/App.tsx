@@ -20,7 +20,10 @@ function Gate({ children }: { children: ReactNode }) {
   const { sessionId, prefs } = useApp()
   const path = useLocation().pathname
   const welcome = path === '/welcome' || path === '/login' || path.startsWith('/pre')
+  const known = path === '/' || welcome || path === '/join' || path === '/onboarding'
+    || ['/accounts', '/txn/', '/notifications', '/profile', '/pay', '/flow/', '/help', '/more', '/settings', '/cards', '/info/', '/insights'].some((item) => path === item || path.startsWith(item))
   const quizDone = prefs.quizCompleted
+  if (!known) return children
   if (!sessionId && path === '/join') return <Navigate to="/login" replace />
   if (!sessionId && !welcome) return <Navigate to="/welcome" replace />
   if (sessionId && !quizDone && path !== '/join') return <Navigate to="/join" replace />

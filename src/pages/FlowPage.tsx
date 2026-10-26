@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { CircleAlert, TriangleAlert } from 'lucide-react'
+import { ChevronDown, CircleAlert, TriangleAlert } from 'lucide-react'
 import { Page } from '@/components/Shell'
 import { Speakable } from '@/components/Speakable'
 import { useApp } from '@/context/AppContext'
@@ -23,6 +23,7 @@ export function FlowPage() {
   const navigate = useNavigate()
   const [params] = useSearchParams()
   const practice = params.get('practice') === '1'
+  const touring = params.get('tour') === '1'
   const demo = params.get('demo')
   const t = (key: string, vars?: Record<string, string | number>) => translate(app.prefs.language, key, vars)
   const [form, setForm] = useState<Record<string, string>>({})
@@ -89,7 +90,7 @@ export function FlowPage() {
         speak: (text, onRange) => speak(text, { language: prefsRef.current.language, rate: prefsRef.current.speechRate, dialect: prefsRef.current.dialect, onRange }),
         onMissing: (element, stepId) => {
           app.log('guide_step_missing', { guideId: flow.guideId, element, stepId })
-          app.setNotice(t('guideSkipped'))
+          app.setNotice('')
         },
         onStart: (guideId) => app.log('guide_started', { guideId }),
         onStep: (stepId) => app.setGuideStep(`${flow.guideId}:${stepId}`),
@@ -213,7 +214,8 @@ export function FlowPage() {
       if (flow.id === 'card-lock') lockCard(form.card || 'credit', form.lock !== 'no')
       if (flow.id === 'card-lost') lockCard(form.card || 'credit', true)
       if (flow.id === 'goal') {
-        app.setGoals([...app.goals, { id: reference, name: form.name || 'Goal', target: Number(form.target) || 0, monthly: Number(form.monthly) || 0 }])
+        const added = Number(form.monthly) || Number(form.target) || 0
+        app.setGoals([...app.goals, { id: reference, name: form.name || 'Holiday', target: Number(form.target) || 0, monthly: Number(form.monthly) || 0, saved: added }])
       }
     } else if (flow.id === 'card-lock') {
       lockCard(form.card || 'credit', form.lock !== 'no')
@@ -347,9 +349,11 @@ export function FlowPage() {
                 {lookedUp && <p className="font-semibold">{lookedUp}</p>}
               </section>
             )}
-            {groups.filter((group) => group.fields.some((field) => field.id !== 'lock' && (!stepIds || stepIds.includes(field.id)))).map((group) => (
-              <fieldset key={group.guide} data-guide={flow.id === 'scan' && group.guide === 'scan-frame' ? undefined : group.guide} className="card space-y-3 p-3">
+            {groups.filter((group) => group.fields.some((field) => field.id !== 'lock' && (touring || !stepIds || stepIds.includes(field.id)))).map((group) => (
+              <fieldset key={group.guide} className="card space-y-3 p-3">
                 {group.fields.map((field) => {
+                  if (moreFields(flow.id).includes(field.id)) return null
+                  if (!touring && stepIds && !stepIds.includes(field.id)) return null
                   if (field.id === 'laterDate' && form.when !== 'later') return null
                   if (field.id === 'swift' && fx?.account === 'iban') return null
                   const iban = field.id === 'account' && fx?.account === 'iban'
@@ -392,10 +396,13 @@ export function FlowPage() {
                 />
               </label>
             )}
-            {reviewAt >= 0 && wstep === reviewAt && (
-              <details className="card p-3" open={more} onToggle={(event) => setMore((event.target as HTMLDetailsElement).open)}>
-                <summary className="cursor-pointer font-semibold">{t('flows.moreOptions')}</summary>
-                <div className="mt-3 space-y-3">
+            {(touring || (reviewAt >= 0 && wstep === reviewAt)) && (
+              <div className="card p-3">
+                <button type="button" className="flex min-h-11 w-full items-center justify-between gap-2 font-semibold" aria-expanded={more || touring} onClick={() => setMore((value) => !value)}>
+                  {t('flows.moreOptions')}
+                  <ChevronDown aria-hidden className={more || touring ? 'rotate-180' : ''} />
+                </button>
+                {(more || touring) && <div className="mt-3 space-y-3">
                   {flow.fields.filter((field) => moreFields(flow.id).includes(field.id) && (field.id !== 'laterDate' || form.when === 'later')).map((field) => (
                     <Field
                       key={field.id}
@@ -405,8 +412,8 @@ export function FlowPage() {
                       t={t}
                     />
                   ))}
-                </div>
-              </details>
+                </div>}
+              </div>
             )}
             {reviewAt >= 0 && wstep > 0 && (
               <button type="button" className="text-sm font-semibold text-[var(--link)]" onClick={() => { setIssues([]); setWstep((value) => value - 1) }}>{t('back')}</button>
@@ -435,11 +442,18 @@ export function FlowPage() {
               if (field.id === 'swift') return fx?.account !== 'iban'
               return true
             }).map((field) => (
-              <p key={field.id} className="flex justify-between gap-3">
+              <p key={field.id} className={app.prefs.textSize >= 20 ? 'flex min-w-0 flex-col gap-1' : 'flex min-w-0 justify-between gap-3'}>
                 <span className="text-[var(--muted)]">{field.id === 'account' && fx?.account === 'iban' ? t('flows.iban') : t(field.label)}</span>
-                <span className="text-right font-semibold">{display(field, form[field.id] || '', t)}</span>
+                <span className="money min-w-0 font-semibold">{display(field, form[field.id] || '', t)}</span>
               </p>
             ))}
+            {fx && (
+              <>
+                <p className={app.prefs.textSize >= 20 ? 'flex flex-col gap-1' : 'flex justify-between gap-3'}><span className="text-[var(--muted)]">{t('success.rate')}</span><span className="money font-semibold">{t('fx.rate', { currency: t(fx.currencyKey), rate: fx.perSgd.toFixed(2) })}</span></p>
+                <p className={app.prefs.textSize >= 20 ? 'flex flex-col gap-1' : 'flex justify-between gap-3'}><span className="text-[var(--muted)]">{t('success.fee')}</span><span className="money font-semibold">{formatSGD(fx.fee)}</span></p>
+                <p className={app.prefs.textSize >= 20 ? 'flex flex-col gap-1' : 'flex justify-between gap-3'}><span className="text-[var(--muted)]">{t('success.received')}</span><span className="money font-semibold">{t(fx.currencyKey)} {received.toFixed(2)}</span></p>
+              </>
+            )}
             {flow.id === 'card-lost' && <p>{t('flows.lostNote')}</p>}
             <button type="button" className="ocbc-btn" onClick={() => { if (flow.kind === 'payment') { setOtp(''); setOtpError(''); setStage('otp') } else confirm() }}>{flow.kind === 'payment' ? t('continue') : t('confirm')}</button>
             <button type="button" className="tap w-full" onClick={() => setStage('form')}>{t('back')}</button>
@@ -481,20 +495,21 @@ export function FlowPage() {
         {stage === 'done' && (
           <section className="card space-y-3 p-4" role="status">
             <div className="flex items-center gap-2">
-              <h2 className="text-lg font-semibold text-[var(--success)]">
-                <span aria-hidden>✓</span> {practice ? t('practice.doneTitle') : t('success.title')}
+              <h2 className="min-w-0 text-lg font-semibold leading-snug text-[var(--success)]">
+                <span aria-hidden>✓</span> {practice ? t('practice.doneTitle') : flow.id === 'goal' ? t('success.goalAdded', { amount: formatSGD(Number(form.monthly) || Number(form.target) || 0), name: form.name || 'Holiday' }) : t('success.title')}
               </h2>
               <Speakable text={practice ? t('practice.done') : t('success.summarySpoken', { amount: formatSGD(sendAmount), name: displayPayee || title, ref })} auto={app.prefs.readAloud} hideText />
             </div>
             <dl className="space-y-2">
-              <div className="flex justify-between gap-3"><dt className="text-[var(--muted)]">{t('amount')}</dt><dd className="font-semibold">{formatSGD(sendAmount)}</dd></div>
-              <div className="flex justify-between gap-3"><dt className="text-[var(--muted)]">{t('success.payee')}</dt><dd className="text-right font-semibold">{displayPayee || title}</dd></div>
-              <div className="flex justify-between gap-3"><dt className="text-[var(--muted)]">{t('success.reference')}</dt><dd className="font-semibold">{ref}</dd></div>
-              <div className="flex justify-between gap-3"><dt className="text-[var(--muted)]">{t('success.when')}</dt><dd className="font-semibold">{form.when === 'later' && form.laterDate ? form.laterDate : new Date().toISOString().slice(0, 10)}</dd></div>
+              {flow.id !== 'goal' && <div className={app.prefs.textSize >= 20 ? 'flex flex-col' : 'flex justify-between gap-3'}><dt className="text-[var(--muted)]">{t('amount')}</dt><dd className="money font-semibold">{formatSGD(sendAmount)}</dd></div>}
+              <div className={app.prefs.textSize >= 20 ? 'flex flex-col' : 'flex justify-between gap-3'}><dt className="text-[var(--muted)]">{t('success.payee')}</dt><dd className="min-w-0 font-semibold">{displayPayee || form.name || title}</dd></div>
+              <div className={app.prefs.textSize >= 20 ? 'flex flex-col' : 'flex justify-between gap-3'}><dt className="text-[var(--muted)]">{t('success.reference')}</dt><dd className="money font-semibold">{ref}</dd></div>
+              <div className={app.prefs.textSize >= 20 ? 'flex flex-col' : 'flex justify-between gap-3'}><dt className="text-[var(--muted)]">{t('success.when')}</dt><dd className="money font-semibold">{form.when === 'later' && form.laterDate ? form.laterDate : new Date().toISOString().slice(0, 10)}</dd></div>
               {fx && (
                 <>
-                  <div className="flex justify-between gap-3"><dt className="text-[var(--muted)]">{t('success.fee')}</dt><dd className="font-semibold">{formatSGD(fx.fee)}</dd></div>
-                  <div className="flex justify-between gap-3"><dt className="text-[var(--muted)]">{t('success.rate')}</dt><dd className="text-right font-semibold">{t('fx.rate', { currency: t(fx.currencyKey), rate: fx.perSgd.toFixed(2) })}</dd></div>
+                  <div className={app.prefs.textSize >= 20 ? 'flex flex-col' : 'flex justify-between gap-3'}><dt className="text-[var(--muted)]">{t('success.fee')}</dt><dd className="money font-semibold">{formatSGD(fx.fee)}</dd></div>
+                  <div className={app.prefs.textSize >= 20 ? 'flex flex-col' : 'flex justify-between gap-3'}><dt className="text-[var(--muted)]">{t('success.rate')}</dt><dd className="money font-semibold">{t('fx.rate', { currency: t(fx.currencyKey), rate: fx.perSgd.toFixed(2) })}</dd></div>
+                  <div className={app.prefs.textSize >= 20 ? 'flex flex-col' : 'flex justify-between gap-3'}><dt className="text-[var(--muted)]">{t('success.received')}</dt><dd className="money font-semibold">{t(fx.currencyKey)} {received.toFixed(2)}</dd></div>
                 </>
               )}
             </dl>
@@ -561,7 +576,11 @@ function reviewGuide(flowId: string) {
 function display(field: FlowField, value: string, t: (key: string) => string) {
   if (field.type === 'account' || field.type === 'select') {
     const option = field.options?.find((item) => item.value === value)
-    return option ? t(option.label) : value
+    if (option) return t(option.label)
+    if (value === 'frank') return t('accounts.frank')
+    if (value === '360') return t('accounts.a360')
+    if (value === 'savings') return t('accounts.savings')
+    return value
   }
   if (field.id === 'savePayee') return value === 'yes' ? t('yes') : t('no')
   if (field.type === 'toggle') return value === 'no' ? t('flows.unlocked') : t('flows.locked')
@@ -625,7 +644,7 @@ function Field({
   const errorId = error ? `${id}-error` : undefined
   const invalid = error ? true : undefined
   return (
-    <label className="block" htmlFor={id}>
+    <label className="block min-w-0" htmlFor={id} data-guide={field.guide}>
       <span className="mb-1 block text-[12px] font-medium text-[var(--muted)]">
         {label || t(field.label)} {field.placeholder === 'optional' && <span className="font-normal text-[var(--muted)]">({t('optional')})</span>}
       </span>

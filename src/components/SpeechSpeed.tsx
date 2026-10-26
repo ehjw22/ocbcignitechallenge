@@ -1,14 +1,16 @@
-import { Volume2 } from 'lucide-react'
+import { useState } from 'react'
 import { useApp } from '@/context/AppContext'
+import { SpeakButton } from '@/components/SpeakButton'
 import { translate } from '@/i18n'
 import { snapRate } from '@/lib/rates'
-import { speak } from '@/lib/speech'
+import { speak, stopSpeaking } from '@/lib/speech'
 
 export function SpeechSpeed() {
   const app = useApp()
   const t = (key: string) => translate(app.prefs.language, key)
   const current = snapRate(app.prefs.speechRate)
   const label = current === 1 ? '1x' : `${current.toFixed(1)}x`
+  const [playing, setPlaying] = useState(false)
 
   return (
     <div className="mt-3">
@@ -30,20 +32,26 @@ export function SpeechSpeed() {
         onChange={(event) => app.updatePrefs({ speechRate: snapRate(Number(event.target.value)) })}
         className="mt-1 w-full"
       />
-      <button
-        type="button"
-        className="mt-2 flex h-10 w-10 items-center justify-center rounded-full border border-[var(--line)] bg-[var(--card)]"
-        aria-label={t('playSample')}
+      <span className="mt-2 inline-flex">
+      <SpeakButton
+        playing={playing}
+        listenLabel={t('playSample')}
+        stopLabel={t('stop')}
         onClick={() => {
+          if (playing) {
+            stopSpeaking()
+            setPlaying(false)
+            return
+          }
+          setPlaying(true)
           void speak(t('speechSample'), {
             language: app.prefs.language,
             rate: current,
             dialect: app.prefs.dialect,
-          })
+          }).finally(() => setPlaying(false))
         }}
-      >
-        <Volume2 aria-hidden size={20} />
-      </button>
+      />
+      </span>
     </div>
   )
 }

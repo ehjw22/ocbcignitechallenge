@@ -54,7 +54,7 @@ export function Home() {
               <Link to="/notifications" className="flex min-h-11 min-w-11 items-center justify-center" aria-label={t('notifications.title')}>
                 <Bell aria-hidden size={22} />
               </Link>
-              <Link to="/profile" className="flex h-11 w-11 items-center justify-center rounded-full bg-[var(--soft)] text-[0.8rem] font-semibold text-[var(--text)]" aria-label={t('profile.title')}>
+              <Link to="/profile" className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--soft)] text-[0.8rem] font-semibold text-[var(--text)]" aria-label={t('profile.title')}>
                 {app.profile.shortName.slice(0, 1)}
               </Link>
             </span>
@@ -70,7 +70,7 @@ export function Home() {
               <ChevronRight aria-hidden size={18} className="text-[var(--muted)]" />
             </Link>
             <div className="mt-2 flex items-center justify-between">
-              <p className="text-[32px] font-bold leading-9 tracking-tight tabular-nums">{hidden ? 'S$ ••••••' : formatSGD(balance)}</p>
+              <p className="money text-[32px] font-bold leading-9 tracking-tight tabular-nums">{hidden ? 'S$ ••••••' : formatSGD(balance)}</p>
               <button type="button" className="flex h-11 w-11 items-center justify-center" aria-pressed={hidden} aria-label={hidden ? t('show') : t('hide')} onClick={() => setHidden((v) => !v)}>
                 {hidden ? <Eye aria-hidden size={22} /> : <EyeOff aria-hidden size={22} />}
               </button>
@@ -98,7 +98,7 @@ export function Home() {
               {t('edit')}
             </Link>
           </div>
-          <div className={app.prefs.textSize >= 22 ? 'grid grid-cols-2 gap-x-3 gap-y-4' : 'grid grid-cols-4 gap-y-4'}>
+          <div className="grid grid-cols-3 justify-items-center gap-x-2 gap-y-4">
             {app.prefs.shortcuts.map((id) => {
               const Icon = SHORTCUT_ICONS[id] ?? ArrowLeftRight
               return (
@@ -106,7 +106,7 @@ export function Home() {
                   <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-[var(--soft)] text-[var(--link)]">
                     <Icon aria-hidden size={26} />
                   </span>
-                  <span className="line-clamp-2 w-full px-1 text-center text-[0.75rem] font-medium leading-normal text-[var(--text)]">{t(`shortcuts.${id}`)}</span>
+                  <span className="line-clamp-2 w-full px-1 text-center text-[12px] font-medium leading-snug text-[var(--text)]">{t(`shortcuts.${id}`)}</span>
                 </Link>
               )
             })}

@@ -10,6 +10,7 @@ import { AppTour } from './AppTour'
 import { AiPanel } from './AiPanel'
 import { StaffPanel } from './StaffPanel'
 import { speak, stopSpeaking } from '@/lib/speech'
+import { SpeakButton } from './SpeakButton'
 
 const NAV = [
   { to: '/', key: 'nav.home', icon: Home, guide: 'nav-home', end: true },
@@ -147,6 +148,23 @@ function HelpLayer() {
     || location.pathname.startsWith('/help')
     || (app.helpOpen && app.helpView === 'ai')
   const aiFull = app.helpOpen && app.helpView === 'ai'
+  const [fabHidden, setFabHidden] = useState(false)
+  useEffect(() => {
+    const main = document.getElementById('main')
+    if (!main) return
+    let last = 0
+    const onScroll = () => {
+      const y = main.scrollTop
+      setFabHidden(y > last && y > 24)
+      last = y
+    }
+    main.addEventListener('scroll', onScroll, { passive: true })
+    return () => main.removeEventListener('scroll', onScroll)
+  }, [location.pathname])
+  useEffect(() => {
+    app.setGuidePrompt(null)
+    app.setNotice('')
+  }, [location.pathname])
 
   useEffect(() => {
     if (!app.helpOpen) stopSpeaking()
@@ -170,7 +188,7 @@ function HelpLayer() {
 
   return (
     <>
-      {!hideFab && (
+      {!hideFab && !fabHidden && (
       <button
         type="button"
         data-guide="help-fab"
@@ -242,8 +260,8 @@ function HelpLayer() {
       )}
       <AppTour />
       {app.guidePrompt && (
-        <div className="absolute inset-0 z-50 flex items-end bg-black/40 p-4">
-          <div role="dialog" aria-modal="true" aria-labelledby="guide-done" className="w-full rounded-3xl bg-[var(--card)] p-4 text-[var(--text)]">
+        <div className="absolute bottom-20 left-3 right-3 z-30">
+          <div role="dialog" aria-labelledby="guide-done" className="w-full rounded-3xl border border-[var(--line)] bg-[var(--card)] p-4 text-[var(--text)] shadow-lg">
             <p id="guide-done" className="font-semibold">{t('guideDone')}</p>
             <button
               type="button"
@@ -280,12 +298,14 @@ export function Page({
   const t = (key: string) => translate(prefs.language, key)
   const location = useLocation()
   const mainRef = useRef<HTMLElement>(null)
+  const [speakingTitle, setSpeakingTitle] = useState(false)
   useEffect(() => {
     mainRef.current?.scrollTo(0, 0)
     if (sessionStorage.getItem('ocbc-app-tour')?.includes('"active":true')) return
     stopSpeaking()
     if (!prefs.readAloud || !title) return
-    void speak(title, { language: prefs.language, rate: prefs.speechRate, dialect: prefs.dialect })
+    setSpeakingTitle(true)
+    void speak(title, { language: prefs.language, rate: prefs.speechRate, dialect: prefs.dialect }).finally(() => setSpeakingTitle(false))
   }, [location.pathname])
   return (
     <div className="flex h-full min-h-0 flex-col bg-[var(--bg)] text-[var(--text)]">
@@ -296,12 +316,30 @@ export function Page({
           </button>
         )}
         <div className="flex min-w-0 flex-col items-center gap-1">
-          {title && <h1 className="text-center text-[1.05rem] font-semibold leading-normal">{title}</h1>}
+          {title && (
+            <span className="flex items-center gap-1">
+              <h1 className="text-center text-[1.05rem] font-semibold leading-normal">{title}</h1>
+              <SpeakButton
+                playing={speakingTitle}
+                listenLabel={t('speech.readAloud')}
+                stopLabel={t('stop')}
+                onClick={() => {
+                  if (speakingTitle) {
+                    stopSpeaking()
+                    setSpeakingTitle(false)
+                    return
+                  }
+                  setSpeakingTitle(true)
+                  void speak(title, { language: prefs.language, rate: prefs.speechRate, dialect: prefs.dialect }).finally(() => setSpeakingTitle(false))
+                }}
+              />
+            </span>
+          )}
           <DemoBadge />
         </div>
         <span className="absolute right-1 top-1"><HeaderHelp /></span>
       </header>
-      <main id="main" ref={mainRef} key={location.pathname} className={`min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[var(--bg)] ${prefs.textSize >= 22 ? 'pb-24' : 'pb-36'}`}>
+      <main id="main" ref={mainRef} key={location.pathname} className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[var(--bg)] pb-36">
         {children}
       </main>
       <BottomNav />

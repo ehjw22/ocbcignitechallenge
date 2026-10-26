@@ -67,37 +67,35 @@ html[data-bold="1"] #customer-app button {
   font-weight: 700;
 }
 
-.speak-pill {
+.speak-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  width: 6.5rem;
+  width: 40px;
   height: 40px;
-  flex: 0 0 6.5rem;
+  flex: 0 0 40px;
   border-radius: 999px;
   border: 2px solid transparent;
   box-shadow: inset 0 0 0 1px #d0d0d0;
   background: var(--card, #fff);
   color: var(--text, #111);
-  padding: 0 8px;
-  transition: border-color 150ms ease, color 150ms ease;
+  padding: 0;
 }
 
-.speak-pill.is-on {
+.speak-btn.is-on {
   border-color: var(--accent, #e30613);
   animation: speak-ring 1.2s ease-out infinite;
 }
 
+.speak-btn .speak-waves { display: none; }
+.speak-btn.is-on .speak-waves { display: inline-flex; }
+.speak-btn.is-on svg { display: none; }
+
 .speak-waves {
-  display: none;
+  display: inline-flex;
   align-items: flex-end;
   gap: 2px;
   height: 14px;
-}
-
-.speak-pill.is-on .speak-waves {
-  display: inline-flex;
 }
 
 .speak-waves span,
@@ -132,6 +130,35 @@ html[data-bold="1"] #customer-app button {
 @keyframes speak-ring {
   0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent, #e30613) 45%, transparent); }
   100% { box-shadow: 0 0 0 8px transparent; }
+}
+
+.money,
+.phone-number {
+  white-space: nowrap;
+}
+
+.chip-row {
+  scrollbar-width: none;
+}
+
+.chip-row::-webkit-scrollbar {
+  display: none;
+}
+
+.typing-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--muted);
+  animation: speak-bar 0.9s ease-in-out infinite;
+}
+
+#customer-root[data-scheme="dark"] .ocbc-field,
+#customer-root[data-scheme="dark"] select,
+#customer-root[data-scheme="dark"] textarea {
+  background: #1c1c1c;
+  color: #f8f8f8;
+  border-color: #a1a1aa;
 }
 
 .field-error {

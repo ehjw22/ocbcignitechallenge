@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useApp } from '@/context/AppContext'
 import { translate } from '@/i18n'
 import { staffSummary } from '@/lib/staffSummary'
-import { Check } from 'lucide-react'
+import { Check, TriangleAlert } from 'lucide-react'
 import { Choice, choiceClass } from './Choice'
 import { Speakable } from './Speakable'
 
@@ -85,7 +85,7 @@ export function StaffPanel() {
           {t('staff.attached', { what: context })} ×
         </button>
       )}
-      <div role="radiogroup" aria-label={t('staff.method')} className="grid grid-cols-3 gap-1">
+      <div role="radiogroup" aria-label={t('staff.method')} className={app.prefs.textSize >= 20 ? 'flex flex-col' : 'grid grid-cols-3 gap-1'}>
         {(['message', 'phone', 'email'] as const).map((item) => (
           <Choice key={item} selected={method === item} onClick={() => setMethod(item)}>
             {t(item === 'message' ? 'staff.inApp' : `staff.${item}`)}
@@ -108,8 +108,15 @@ export function StaffPanel() {
           <input id="staff-contact" value={contact} onChange={(event) => setContact(event.target.value)} className="mt-1 min-h-11 w-full rounded-xl border border-[var(--line)] bg-[var(--card)] px-2 font-normal" autoComplete="off" />
         </label>
       )}
-      {error && <p role="alert" className="text-sm font-semibold text-[var(--danger)]">{error}</p>}
-      <button type="submit" className="sticky bottom-0 min-h-11 rounded-xl bg-[var(--accent)] font-semibold text-[var(--on-accent)]">{t('staff.send')}</button>
+      <div className="min-h-[4.5rem]">
+        {error && (
+          <p role="alert" className="field-error">
+            <TriangleAlert aria-hidden size={18} className="mt-0.5 shrink-0" />
+            <span>{error}</span>
+          </p>
+        )}
+      </div>
+      <button type="submit" className="min-h-11 rounded-xl bg-[var(--accent)] font-semibold text-[var(--on-accent)]">{t('staff.send')}</button>
     </form>
   )
 }

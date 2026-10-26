@@ -33,9 +33,9 @@ export function Join() {
   if (!app.sessionId) return null
 
   return (
-    <div className="flex h-full min-h-0 flex-col bg-black/40 p-3">
-      <div role="dialog" aria-modal="true" aria-labelledby="quiz-title" className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-3xl bg-[var(--bg)] text-[var(--text)]">
-        <div className="flex items-center justify-center gap-2 px-4 pb-1 pt-4" aria-hidden>
+    <div className="flex h-full min-h-0 flex-col bg-[var(--bg)]">
+      <div role="dialog" aria-modal="true" aria-labelledby="quiz-title" className="flex min-h-0 flex-1 flex-col overflow-hidden text-[var(--text)]">
+        <div className="flex shrink-0 items-center justify-center gap-2 px-4 pb-2 pt-3" aria-hidden>
           {Array.from({ length: STEPS }, (_, index) => (
             <span key={index} className={`h-2.5 w-2.5 rounded-full ${index === step ? 'bg-[var(--accent)]' : 'bg-[var(--line)]'}`} />
           ))}
@@ -135,14 +135,14 @@ export function Join() {
             </section>
           )}
         </main>
-        <div className="grid grid-cols-3 gap-2 border-t border-[var(--line)] px-4 py-3">
-          <button type="button" className="h-12 rounded-xl border-2 border-[#d9d9d9] bg-[var(--card)] font-semibold" onClick={() => (step === 0 ? app.logout() : setStep((value) => value - 1))}>
+        <div className="sticky bottom-0 grid shrink-0 grid-cols-3 gap-2 border-t border-[var(--line)] bg-[var(--bg)] px-4 py-3">
+          <button type="button" className="min-h-11 rounded-xl border-2 border-[#d9d9d9] bg-[var(--card)] px-1 font-semibold" onClick={() => (step === 0 ? app.logout() : setStep((value) => value - 1))}>
             {t('back')}
           </button>
-          <button type="button" className="h-12 rounded-xl border-2 border-[#d9d9d9] bg-[var(--card)] font-semibold" onClick={() => (step === STEPS - 1 ? finish(false) : setStep((value) => value + 1))}>
+          <button type="button" className="min-h-11 rounded-xl border-2 border-[#d9d9d9] bg-[var(--card)] px-1 font-semibold" onClick={() => (step === STEPS - 1 ? finish(false) : setStep((value) => value + 1))}>
             {t('skipStep')}
           </button>
-          <button type="button" className="h-12 rounded-xl bg-[var(--accent)] font-semibold text-[var(--on-accent)] disabled:opacity-50" disabled={step === STEPS - 1 && picked.length !== 6} onClick={() => (step === STEPS - 1 ? finish(true) : setStep((value) => value + 1))}>
+          <button type="button" className="min-h-11 rounded-xl bg-[var(--accent)] px-1 font-semibold text-[var(--on-accent)] disabled:opacity-50" disabled={step === STEPS - 1 && picked.length !== 6} onClick={() => (step === STEPS - 1 ? finish(true) : setStep((value) => value + 1))}>
             {step === STEPS - 1 ? t('done') : t('continue')}
           </button>
         </div>

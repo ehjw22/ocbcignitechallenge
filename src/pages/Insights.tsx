@@ -101,7 +101,7 @@ export function Insights() {
       <div className="space-y-4 p-4">
         <p className="text-sm text-[var(--muted)]">{t('insight.sample')}</p>
         <div className="grid grid-cols-2 gap-2">
-          <label className="block text-sm font-semibold">
+          <label className="block min-w-0 text-sm font-semibold">
             {t('insight.account')}
             <select className="ocbc-field mt-1" value={accountId} onChange={(event) => setAccountId(event.target.value)}>
               <option value="all">{t('insight.allAccounts')}</option>
@@ -110,7 +110,7 @@ export function Insights() {
               ))}
             </select>
           </label>
-          <label className="block text-sm font-semibold">
+          <label className="block min-w-0 text-sm font-semibold">
             {t('insight.month')}
             <select className="ocbc-field mt-1" value={month} onChange={(event) => setMonth(event.target.value)}>
               {INSIGHT_MONTHS.map((id) => (
@@ -132,17 +132,27 @@ export function Insights() {
         <section className="card space-y-2 p-3">
           <h2 className="text-base font-semibold">{t('insight.donut')}</h2>
           {slices.length === 0 ? <p>{t('insight.empty')}</p> : (
-            <div aria-hidden className="h-48">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie data={slices} dataKey="amount" nameKey="key" innerRadius={48} outerRadius={72}>
-                    {slices.map((item, index) => <Cell key={item.key} fill={index === 0 ? accent : colours[index % colours.length]} />)}
-                  </Pie>
-                </PieChart>
-              </ResponsiveContainer>
+            <div className="flex items-center gap-3">
+              <div aria-hidden className="h-40 w-40 shrink-0">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie data={slices} dataKey="amount" nameKey="key" innerRadius={36} outerRadius={58}>
+                      {slices.map((item, index) => <Cell key={item.key} fill={index === 0 ? accent : colours[index % colours.length]} />)}
+                    </Pie>
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <ul className="min-w-0 flex-1 space-y-1 text-sm">
+                {slices.map((item, index) => (
+                  <li key={item.key} className="flex min-w-0 items-center justify-between gap-2">
+                    <span className="flex min-w-0 items-center gap-1"><span className="h-2.5 w-2.5 shrink-0 rounded-sm" style={{ background: index === 0 ? accent : colours[index % colours.length] }} /><span className="truncate">{t(`categories.${item.key}`)}</span></span>
+                    <span className="money shrink-0">{formatSGD(item.amount)}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
-          <table className="w-full text-left">
+          <table className="sr-only">
             <caption className="sr-only">{t('insight.donut')}</caption>
             <tbody>
               {byCategory(current).map((item, index) => (
@@ -174,7 +184,7 @@ export function Insights() {
 
         <section className="card space-y-2 p-3">
           <h2 className="text-base font-semibold">{t('insight.trend')}</h2>
-          <div aria-hidden className="h-40">
+          <div aria-hidden className="h-36">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={trend}>
                 <XAxis dataKey="label" tick={{ fontSize: 12 }} />
@@ -183,8 +193,8 @@ export function Insights() {
               </BarChart>
             </ResponsiveContainer>
           </div>
-          <table className="w-full text-left">
-            <caption className="sr-only">{t('insight.trend')}</caption>
+          <table className="sr-only">
+            <caption>{t('insight.trend')}</caption>
             <tbody>
               {trend.map((item) => (
                 <tr key={item.month} className="border-t border-[var(--line)]">
@@ -198,8 +208,10 @@ export function Insights() {
 
         <section className="card space-y-2 p-3">
           <h2 className="text-base font-semibold">{t('insight.daily')}</h2>
+          <details>
+            <summary className="cursor-pointer font-semibold">{t('insight.seeAll')}</summary>
           {daily.length === 0 ? <p>{t('insight.empty')}</p> : (
-            <div aria-hidden className="h-40">
+            <div aria-hidden className="mt-2 h-36">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={daily}>
                   <XAxis dataKey="day" tick={{ fontSize: 12 }} />
@@ -220,6 +232,7 @@ export function Insights() {
               ))}
             </tbody>
           </table>
+          </details>
         </section>
 
         <section className="card space-y-2 p-3">

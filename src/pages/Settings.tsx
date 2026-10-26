@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { Check, ChevronDown } from 'lucide-react'
+import { Check, ChevronDown, Search } from 'lucide-react'
 import { Choice, choiceClass } from '@/components/Choice'
 import { ShortcutPicker } from '@/components/ShortcutPicker'
 import { SpeechSpeed } from '@/components/SpeechSpeed'
@@ -21,6 +21,7 @@ function Section({
   query,
   open,
   onToggle,
+  onResult,
   children,
 }: {
   id: string
@@ -32,11 +33,14 @@ function Section({
   query: string
   open: boolean
   onToggle: (id: string) => void
+  onResult?: (id: string, shown: boolean) => void
   children: ReactNode
 }) {
   const q = query.trim().toLowerCase()
   const hay = `${title} ${summary} ${keywords}`.toLowerCase()
-  if (q && !hay.includes(q)) return null
+  const shown = !q || hay.includes(q)
+  useEffect(() => { onResult?.(id, shown) }, [id, shown])
+  if (!shown) return null
   const expanded = q ? true : open
   return (
     <section id={anchor} className="border-b border-[var(--line)]">
@@ -69,6 +73,8 @@ export function Settings() {
   const [order, setOrder] = useState(app.prefs.shortcuts)
   const [query, setQuery] = useState('')
   const [open, setOpen] = useState<Record<string, boolean>>({})
+  const [shown, setShown] = useState<Record<string, boolean>>({})
+  const remember = (id: string, value: boolean) => setShown((prev) => (prev[id] === value ? prev : { ...prev, [id]: value }))
   const prefsRef = useRef(app.prefs)
   prefsRef.current = app.prefs
   useEffect(() => {
@@ -99,18 +105,23 @@ export function Settings() {
   return (
     <Page title={t('settings.title')} back>
       <div className="px-4 pb-4">
-        <label className="mb-2 block pt-3 font-semibold" htmlFor="settings-search">
+        <label className="relative mb-2 block pt-3 font-semibold" htmlFor="settings-search">
           {t('gate.search')}
+          <Search aria-hidden size={18} className="pointer-events-none absolute bottom-3.5 left-3 text-[var(--muted)]" />
           <input
             id="settings-search"
             type="search"
             value={query}
+            placeholder={t('gate.searchPh')}
             onChange={(event) => setQuery(event.target.value)}
-            className="mt-1 min-h-12 w-full rounded-2xl border border-[var(--line)] bg-[var(--card)] px-3"
+            className="mt-1 min-h-12 w-full rounded-2xl border border-[var(--line)] bg-[var(--card)] py-2 pl-10 pr-3"
           />
         </label>
+        {query.trim() && Object.values(shown).some(Boolean) === false && Object.keys(shown).length > 0 && (
+          <p className="py-6 text-center font-semibold">{t('gate.noMatch', { q: query.trim() })}</p>
+        )}
 
-        <Section
+        <Section onResult={remember}
           id="language"
           guide="settings-language"
           title={t('settings.sections.language')}
@@ -132,20 +143,32 @@ export function Settings() {
             <Choice selected={app.prefs.dialect !== 'cantonese'} onClick={() => app.updatePrefs({ dialect: 'standard' })}>{t('dialects.standard')}</Choice>
             <Choice selected={app.prefs.dialect === 'cantonese'} onClick={() => app.updatePrefs({ dialect: 'cantonese' })}>{t('dialects.cantonese')}</Choice>
           </div>
-          <button type="button" className="mt-1 text-left text-sm font-semibold text-[var(--link)]" onClick={() => { app.setStaffSeed(t('dialects.ask')); app.openHelp('staff') }}>
-            {t('dialects.ask')}
-          </button>
-          <label className="mt-3 flex min-h-11 items-start gap-3" data-guide="settings-read">
-            <input className="mt-1" type="checkbox" checked={app.prefs.readAloud} onChange={(event) => app.updatePrefs({ readAloud: event.target.checked })} />
-            <span>
+          <p className="mt-1 text-left text-sm font-normal leading-snug">
+            <button type="button" className="font-normal text-[var(--link)] underline" onClick={() => { app.setStaffSeed(t('dialects.ask')); app.openHelp('staff') }}>
+              {t('dialects.ask')}
+            </button>
+          </p>
+          <div className="mt-3 flex min-h-11 items-center justify-between gap-3" data-guide="settings-read">
+            <span className="min-w-0">
               <span className="block font-semibold">{t('onboarding.readAloud')}</span>
               <span className="block text-sm font-normal text-[var(--muted)]">{t('onboarding.readAloudBody')}</span>
             </span>
-          </label>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={app.prefs.readAloud}
+              aria-label={t('onboarding.readAloud')}
+              className="relative shrink-0 rounded-full"
+              style={{ background: app.prefs.readAloud ? 'var(--accent)' : '#d4d4d8', height: '1.75rem', width: '3rem' }}
+              onClick={() => app.updatePrefs({ readAloud: !app.prefs.readAloud })}
+            >
+              <span className={`absolute top-0.5 h-6 w-6 rounded-full bg-white ${app.prefs.readAloud ? 'right-0.5' : 'left-0.5'}`} />
+            </button>
+          </div>
           <SpeechSpeed />
         </Section>
 
-        <Section
+        <Section onResult={remember}
           id="text"
           guide="settings-text"
           title={t('settings.sections.text')}
@@ -164,7 +187,7 @@ export function Settings() {
           <label className="flex min-h-12 items-center gap-3"><input type="checkbox" checked={app.prefs.highContrast} onChange={(event) => app.updatePrefs({ highContrast: event.target.checked })} />{t('onboarding.contrast')}</label>
         </Section>
 
-        <Section
+        <Section onResult={remember}
           id="colour"
           title={t('settings.sections.colour')}
           summary={`${theme ? t(theme.labelKey) : t('themes.custom')} · ${t(`themes.${app.prefs.scheme}`)} · ${t(`cvd.${app.prefs.colourVision}`)}`}
@@ -228,7 +251,7 @@ export function Settings() {
           </div>
         </Section>
 
-        <Section
+        <Section onResult={remember}
           id="help"
           guide="settings-help"
           title={t('settings.sections.help')}
@@ -259,7 +282,7 @@ export function Settings() {
           </div>
         </Section>
 
-        <Section
+        <Section onResult={remember}
           id="shortcuts"
           guide="settings-shortcuts"
           anchor="shortcuts"
@@ -279,7 +302,7 @@ export function Settings() {
           </div>
         </Section>
 
-        <Section
+        <Section onResult={remember}
           id="privacy"
           title={t('settings.sections.privacy')}
           summary={app.prefs.spendingInsights ? t('settings.insightsOn') : t('settings.insightsOff')}
@@ -294,7 +317,7 @@ export function Settings() {
           </label>
         </Section>
 
-        <Section
+        <Section onResult={remember}
           id="account"
           title={t('settings.sections.account')}
           summary={app.profile.shortName}

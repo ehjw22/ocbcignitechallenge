@@ -54,7 +54,7 @@ function placeTourPopover(wrapper: HTMLElement, element?: Element, nudge = true)
   let top = frameRect.bottom - nav - popH - pad
   if (fitsBelow && target) top = target.bottom + pad
   else if (fitsAbove && target) top = target.top - popH - pad
-  const minTop = frameRect.top + pad
+  const minTop = frameRect.top + 36
   const maxTop = Math.max(minTop, frameRect.bottom - nav - popH - pad)
   top = Math.min(Math.max(top, minTop), maxTop)
   let left = frameRect.left + pad
@@ -158,21 +158,16 @@ export function startGuide(options: {
       if (!step) return
       const button = document.createElement('button')
       button.type = 'button'
-      button.className = 'speak-pill'
+      button.className = 'speak-btn'
       button.setAttribute('aria-label', options.text('speech.readAloud'))
       button.innerHTML = `${SPEAKER_SVG}<span class="speak-waves" aria-hidden="true"><i></i><i></i><i></i></span><span class="speak-word"></span>`
-      const word = () => button.querySelector('.speak-word')
       const idle = () => {
         button.classList.remove('is-on')
-        const label = word()
-        if (label) label.textContent = ''
         button.setAttribute('aria-label', options.text('speech.readAloud'))
         button.setAttribute('aria-pressed', 'false')
       }
       const play = () => {
         button.classList.add('is-on')
-        const label = word()
-        if (label) label.textContent = options.text('stop')
         button.setAttribute('aria-label', options.text('stop'))
         button.setAttribute('aria-pressed', 'true')
       }

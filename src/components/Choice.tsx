@@ -22,7 +22,7 @@ export function Choice({
       role={role === 'radio' ? 'radio' : undefined}
       aria-checked={role === 'radio' ? selected : undefined}
       aria-pressed={role === 'button' ? selected : undefined}
-      className={`${choiceClass(selected)} mb-2 flex min-h-11 w-full items-center justify-between gap-3 rounded-xl px-3 text-left`}
+      className={`${choiceClass(selected)} mb-2 flex min-h-11 w-full items-center justify-between gap-3 rounded-xl px-4 py-2 text-left`}
       onClick={onClick}
     >
       <span className="min-w-0 leading-snug">{children}</span>

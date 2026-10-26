@@ -2,7 +2,8 @@ export function llmSettings() {
   return {
     key: process.env.LLM_API_KEY || process.env.OPENAI_API_KEY || '',
     baseURL: process.env.LLM_BASE_URL || 'https://generativelanguage.googleapis.com/v1beta/openai/',
-    model: process.env.LLM_MODEL === 'gemini-2.5-flash' || !process.env.LLM_MODEL ? 'gemini-3.8-flash' : process.env.LLM_MODEL,
+    model: process.env.LLM_MODEL || 'gemini-flash-lite-latest',
+    fallback: process.env.LLM_FALLBACK_MODEL || 'gemini-3.5-flash',
   }
 }
 

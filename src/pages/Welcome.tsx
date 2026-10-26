@@ -34,8 +34,9 @@ export function Welcome() {
   }
 
   return (
-    <div className="relative flex h-full min-h-0 flex-col overflow-y-auto bg-white text-[#1a1a1a]">
-      <section className="relative h-[58%] min-h-[220px] shrink-0 overflow-hidden">
+    <div className="relative flex h-full min-h-0 flex-col bg-white text-[#1a1a1a]">
+      <div className="min-h-0 flex-1 overflow-y-auto">
+      <section className="relative h-64 shrink-0 overflow-hidden">
         <img src="/welcome-hero.jpg" alt="" className="absolute inset-0 h-full w-full object-cover" style={{ objectPosition: 'center 12%' }} />
         <svg className="pointer-events-none absolute bottom-0 left-0 top-0 h-full w-[38%]" viewBox="0 0 140 640" preserveAspectRatio="none" aria-hidden>
           <path d="M0 0H46C92 80 108 170 74 270C44 360 78 470 108 640H0Z" fill="#E30613" />
@@ -64,7 +65,7 @@ export function Welcome() {
                     <span className="flex items-center justify-center rounded-full bg-[#F1F2F4]" style={{ width: 52, height: 52 }}>
                       <Icon aria-hidden size={22} strokeWidth={1.6} />
                     </span>
-                    <span className="mt-1.5 text-center text-[0.75rem] font-medium leading-tight">{t(`shortcuts.${id}`)}</span>
+                    <span className="mt-1.5 line-clamp-2 w-full text-center text-[12px] font-medium leading-tight">{t(`shortcuts.${id}`)}</span>
                   </button>
                 )
               })
@@ -75,7 +76,7 @@ export function Welcome() {
                     <span className="flex items-center justify-center rounded-full bg-[#F1F2F4]" style={{ width: 52, height: 52 }}>
                       <Icon aria-hidden size={22} strokeWidth={1.6} />
                     </span>
-                    <span className="mt-1.5 text-center text-[0.75rem] font-medium leading-tight">{t(action.label)}</span>
+                    <span className="mt-1.5 line-clamp-2 w-full text-center text-[12px] font-medium leading-tight">{t(action.label)}</span>
                   </button>
                 )
               })}
@@ -85,12 +86,13 @@ export function Welcome() {
             {t('gate.switchUser')}
           </button>
         )}
-        <div className="shrink-0 px-4 pb-4 pt-2">
-          <button type="button" className="min-h-12 w-full rounded-full bg-[#1C2834] px-4 py-3 text-[0.95rem] font-semibold leading-snug text-white" onClick={() => navigate('/login')}>
-            {t('gate.login')}
-          </button>
-        </div>
       </section>
+      </div>
+      <div className="sticky bottom-0 shrink-0 bg-white px-4 pb-[max(16px,env(safe-area-inset-bottom))] pt-2">
+        <button type="button" className="min-h-12 w-full rounded-full bg-[#1C2834] px-4 py-3 text-[0.95rem] font-semibold leading-snug text-white" onClick={() => navigate('/login')}>
+          {t('gate.login')}
+        </button>
+      </div>
       {more && (
         <div className="absolute inset-0 z-20 flex flex-col justify-end bg-black/40" onClick={() => setMore(false)}>
           <div role="dialog" aria-modal="true" aria-labelledby="welcome-more" className="max-h-[70%] overflow-y-auto rounded-t-3xl bg-white p-4 text-[#1a1a1a]" onClick={(event) => event.stopPropagation()}>

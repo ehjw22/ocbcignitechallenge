@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Info, Mic, Send, Square } from 'lucide-react'
+import { Info, Mic, Send } from 'lucide-react'
 import { useApp } from '@/context/AppContext'
 import { translate } from '@/i18n'
 import { languageById } from '@/lib/languages'
 import { journeyRoute, queueShowHow } from '@/lib/showHow'
+import { stopSpeaking } from '@/lib/speech'
 import { Speakable } from './Speakable'
 
 const CHIP_KEYS = ['ai.chipBalance', 'ai.chipPaynow', 'ai.chipGiro', 'ai.chipGuide', 'ai.chipScam']
@@ -17,38 +18,64 @@ function chipsFor(screen: string) {
   return CHIP_KEYS
 }
 
+function OllieAvatar() {
+  return (
+    <span aria-hidden className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--accent)] text-sm font-bold text-[var(--on-accent)]">
+      O
+    </span>
+  )
+}
+
 export function AiPanel() {
   const app = useApp()
   const navigate = useNavigate()
   const t = (key: string, vars?: Record<string, string | number>) => translate(app.prefs.language, key, vars)
   const [draft, setDraft] = useState('')
   const [busy, setBusy] = useState(false)
+  const [slow, setSlow] = useState(false)
   const [about, setAbout] = useState(false)
   const [listening, setListening] = useState(false)
   const [live, setLive] = useState('')
   const scroller = useRef<HTMLDivElement>(null)
+  const box = useRef<HTMLTextAreaElement>(null)
+  const abortRef = useRef<AbortController | null>(null)
   const recRef = useRef<SpeechRecognitionLike | null>(null)
 
   useEffect(() => {
     scroller.current?.scrollTo({ top: scroller.current.scrollHeight })
-  }, [app.messages, busy])
+  }, [app.messages, busy, slow])
 
-  const ask = async (question: string) => {
+  useEffect(() => {
+    if (!busy) {
+      setSlow(false)
+      return
+    }
+    const timer = window.setTimeout(() => setSlow(true), 15000)
+    return () => window.clearTimeout(timer)
+  }, [busy])
+
+  const ask = async (question: string, retry = false) => {
     const text = question.trim()
-    if (!text || busy) return
-    const history = [...app.messages, { role: 'user' as const, content: text }]
-    app.setMessages(history)
+    if (!text || (busy && !retry)) return
+    abortRef.current?.abort()
+    const nextHistory = retry ? app.messages : [...app.messages, { role: 'user' as const, content: text }]
+    if (!retry) app.setMessages(nextHistory)
     app.setLastQuestion(text)
-    app.log('ai_question', { question: text, screen: app.screen })
+    if (!retry) app.log('ai_question', { question: text, screen: app.screen })
     setDraft('')
+    if (box.current) box.current.style.height = 'auto'
     setBusy(true)
+    setSlow(false)
+    const controller = new AbortController()
+    abortRef.current = controller
     try {
       const lang = languageById(app.prefs.language)
       const res = await fetch('/api/chat', {
         method: 'POST',
+        signal: controller.signal,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          messages: history.slice(-8).map((m) => ({ role: m.role, content: m.content })),
+          messages: nextHistory.slice(-8).map((m) => ({ role: m.role, content: m.content })),
           language: app.prefs.language,
           languageName: lang.english,
           detail: app.prefs.detail,
@@ -73,10 +100,11 @@ export function AiPanel() {
       if (flags.escalated || flags.fraud) app.log('ai_escalated', { question: text, reason: flags.fraud ? 'fraud' : 'staff', screen: app.screen })
       app.setMessages((prev) => [...prev, { role: 'assistant', content: reply, flags, source: data.source, journeyId: data.journeyId }])
       setLive(reply)
-    } catch {
-      app.setMessages((prev) => [...prev, { role: 'assistant', content: `${t('ai.busy')}\n\n${t('ai.faq.general.short')}`, source: 'demo' }])
+    } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') return
+      app.setMessages((prev) => [...prev, { role: 'assistant', content: t('ai.faq.general.short'), source: 'demo' }])
     } finally {
-      setBusy(false)
+      if (abortRef.current === controller) setBusy(false)
     }
   }
 
@@ -85,7 +113,6 @@ export function AiPanel() {
     const q = app.aiSeed
     app.setAiSeed('')
     void ask(q)
-    // Seed is consumed once when Help opens the assistant with a question.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [app.aiSeed])
 
@@ -116,98 +143,101 @@ export function AiPanel() {
 
   return (
     <div className="flex h-full min-h-0 flex-col gap-3">
-      <div className="flex items-center justify-between gap-2">
-        <h2 className="text-xl font-semibold">{t('ai.title')}</h2>
-        <button type="button" className="flex min-h-11 min-w-11 items-center justify-center rounded-full border border-[var(--line)]" aria-label={t('ai.about')} onClick={() => setAbout(true)}>
+      <div className="flex items-center gap-2">
+        <OllieAvatar />
+        <h2 className="min-w-0 flex-1 text-lg font-semibold leading-snug">{t('ai.header')}</h2>
+        <button type="button" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[var(--line)]" aria-label={t('ai.about')} onClick={() => setAbout(true)}>
           <Info aria-hidden size={20} />
         </button>
       </div>
-      <div className="sr-only" aria-live="polite">{live}</div>
+      <div className="sr-only" aria-live="polite">{busy ? (slow ? t('ai.slow') : t('ai.typing')) : live}</div>
       <div ref={scroller} className="flex min-h-40 w-full flex-1 flex-col gap-3 overflow-y-auto overflow-x-hidden">
-        {app.messages.length === 0 && <p className="text-[var(--muted)]">{t('ai.empty')}</p>}
+        {app.messages.length === 0 && (
+          <article className="card flex max-w-[92%] gap-2 p-3">
+            <OllieAvatar />
+            <Speakable text={t('ai.greeting')} />
+          </article>
+        )}
         {app.messages.map((message, index) => (
-          <article key={`${message.role}-${index}`} className={message.role === 'user' ? 'ml-auto max-w-[85%] rounded-2xl bg-[var(--soft)] p-3' : 'card max-w-[85%] p-3'}>
-            <p className="mb-1 text-sm font-semibold">{message.role === 'user' ? t('you') : t('ai.title')}</p>
-            {message.role === 'assistant' ? (
-              <Speakable text={message.content} auto={app.prefs.readAloud && index === app.messages.length - 1} corner />
-            ) : (
-              <p>{message.content}</p>
-            )}
-            {message.flags?.fraud && (
-              <div className="status-danger mt-3 rounded-xl bg-[var(--soft)] p-3">
-                <p className="font-semibold">{t('staff.hotline')}</p>
-                <button
-                  type="button"
-                  className="tap mt-2 rounded-xl bg-[var(--accent)] px-3 text-[var(--on-accent)]"
-                  onClick={() => {
-                    app.setHelpOpen(false)
-                    window.location.assign('/flow/card-lock')
-                  }}
-                >
-                  {t('staff.lockNow')}
-                </button>
-              </div>
-            )}
-            {message.journeyId && (
-              <div className="mt-3 flex flex-col gap-2">
-                <button
-                  type="button"
-                  className="min-h-12 rounded-xl bg-[var(--accent)] px-3 font-semibold text-[var(--on-accent)]"
-                  onClick={() => {
-                    app.setHelpOpen(false)
-                    queueShowHow(message.journeyId || '', false)
-                    navigate(journeyRoute(message.journeyId || ''))
-                  }}
-                >
-                  {t('tryIt')}
-                </button>
-                <button
-                  type="button"
-                  className="min-h-12 rounded-xl border border-[var(--line)] bg-[var(--card)] px-3 font-semibold"
-                  onClick={() => {
-                    app.setHelpOpen(false)
-                    queueShowHow(message.journeyId || '', true)
-                    const route = journeyRoute(message.journeyId || '')
-                    navigate(route.startsWith('/flow') ? `${route}?practice=1` : route)
-                  }}
-                >
-                  {t('practiseSample')}
-                </button>
-              </div>
-            )}
-            {message.flags?.escalated && (
-              <button type="button" className="tap mt-2 underline" onClick={() => app.setHelpView('staff')}>
-                {t('help.staff')}
-              </button>
-            )}
+          <article key={`${message.role}-${index}`} className={message.role === 'user' ? 'ml-auto max-w-[85%] rounded-2xl bg-[var(--soft)] p-3' : 'card flex max-w-[92%] gap-2 p-3'}>
+            {message.role === 'assistant' && <OllieAvatar />}
+            <div className="min-w-0">
+              <p className="mb-1 text-sm font-semibold">{message.role === 'user' ? t('you') : t('ai.title')}</p>
+              {message.role === 'assistant' ? (
+                <Speakable text={message.content} auto={app.prefs.readAloud && index === app.messages.length - 1} corner />
+              ) : (
+                <p>{message.content}</p>
+              )}
+              {message.flags?.fraud && (
+                <div className="status-danger mt-3 rounded-xl bg-[var(--soft)] p-3">
+                  <p className="phone-number font-semibold">{t('staff.hotline')}</p>
+                  <button type="button" className="tap mt-2 rounded-xl bg-[var(--accent)] px-3 text-[var(--on-accent)]" onClick={() => { app.setHelpOpen(false); window.location.assign('/flow/card-lock') }}>
+                    {t('staff.lockNow')}
+                  </button>
+                </div>
+              )}
+              {message.journeyId && (
+                <div className="mt-3 flex flex-col gap-2">
+                  <button type="button" className="min-h-12 rounded-xl bg-[var(--accent)] px-3 font-semibold text-[var(--on-accent)]" onClick={() => { app.setHelpOpen(false); queueShowHow(message.journeyId || '', false); navigate(journeyRoute(message.journeyId || '')) }}>
+                    {t('tryIt')}
+                  </button>
+                  <button type="button" className="min-h-12 rounded-xl border border-[var(--line)] bg-[var(--card)] px-3 font-semibold" onClick={() => { app.setHelpOpen(false); queueShowHow(message.journeyId || '', true); const route = journeyRoute(message.journeyId || ''); navigate(route.startsWith('/flow') ? `${route}?practice=1` : route) }}>
+                    {t('practiseSample')}
+                  </button>
+                </div>
+              )}
+              {message.flags?.escalated && (
+                <button type="button" className="tap mt-2 underline" onClick={() => app.setHelpView('staff')}>{t('help.staff')}</button>
+              )}
+            </div>
           </article>
         ))}
-        {busy && <p>{t('loading') === 'loading' ? '…' : '…'}</p>}
+        {busy && (
+          <article className="card flex max-w-[92%] items-center gap-2 p-3" aria-live="polite">
+            <OllieAvatar />
+            <div>
+              <span className="flex items-center gap-1" aria-hidden>
+                <span className="typing-dot" />
+                <span className="typing-dot" style={{ animationDelay: '0.15s' }} />
+                <span className="typing-dot" style={{ animationDelay: '0.3s' }} />
+              </span>
+              <p className="text-sm">{slow ? t('ai.slow') : t('ai.typing')}</p>
+              {slow && (
+                <button type="button" className="mt-2 min-h-11 rounded-xl border border-[var(--line)] px-3 font-semibold" onClick={() => void ask(app.lastQuestion, true)}>
+                  {t('ai.retry')}
+                </button>
+              )}
+            </div>
+          </article>
+        )}
       </div>
       {app.messages.length === 0 && (
-        <div className="flex gap-2 overflow-x-auto pb-1">
+        <div className="chip-row flex gap-2 overflow-x-auto pb-1">
           {chipsFor(app.screen).map((key) => (
-            <button key={key} type="button" className="min-h-8 shrink-0 rounded-full border border-[var(--line)] px-3 text-sm" onClick={() => void ask(t(key))}>
+            <button key={key} type="button" className="min-h-8 shrink-0 rounded-full border border-[var(--line)] px-3 text-sm" disabled={busy} onClick={() => void ask(t(key))}>
               {t(key)}
             </button>
           ))}
         </div>
       )}
       <form
-        className="flex w-full items-end gap-2 rounded-full border border-[var(--line)] bg-[var(--card)] px-2 py-1"
-        onSubmit={(e) => {
-          e.preventDefault()
-          void ask(draft)
-        }}
+        className="flex w-full items-center gap-1 rounded-full border border-[var(--line)] bg-[var(--card)] px-1 py-1 focus-within:border-[var(--accent)] focus-within:ring-2 focus-within:ring-[var(--accent)]"
+        onSubmit={(e) => { e.preventDefault(); void ask(draft) }}
       >
-        <button type="button" className="flex h-10 w-10 shrink-0 items-center justify-center" onClick={toggleMic} aria-pressed={listening} aria-label={t('speech.voiceInput')}>
-          {listening ? <Square aria-hidden size={16} /> : <Mic aria-hidden size={20} />}
+        <button type="button" className="flex h-10 w-10 shrink-0 items-center justify-center" onClick={toggleMic} aria-pressed={listening} aria-label={t('speech.voiceInput')} disabled={busy}>
+          <Mic aria-hidden size={20} />
         </button>
         <label className="sr-only" htmlFor="ai-draft">{t('ai.placeholder')}</label>
         <textarea
           id="ai-draft"
+          ref={box}
           value={draft}
-          onChange={(e) => setDraft(e.target.value)}
+          disabled={busy}
+          onChange={(e) => {
+            setDraft(e.target.value)
+            e.target.style.height = 'auto'
+            e.target.style.height = `${Math.min(e.target.scrollHeight, 96)}px`
+          }}
           onKeyDown={(e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
               e.preventDefault()
@@ -216,9 +246,9 @@ export function AiPanel() {
           }}
           placeholder={t('ai.placeholder')}
           rows={1}
-          className="max-h-24 min-h-10 flex-1 resize-none bg-transparent py-2 text-[15px] leading-normal text-[var(--text)] outline-none"
+          className="max-h-24 min-h-10 min-w-0 flex-1 resize-none bg-transparent py-2 text-[15px] leading-normal text-[var(--text)] outline-none"
         />
-        <button type="submit" className="mb-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--accent)] text-[var(--on-accent)]" aria-label={t('ai.send')}>
+        <button type="submit" disabled={busy || !draft.trim()} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--accent)] text-[var(--on-accent)] disabled:opacity-40" aria-label={t('ai.send')}>
           <Send aria-hidden size={16} />
         </button>
       </form>
@@ -226,8 +256,8 @@ export function AiPanel() {
       {about && (
         <div role="dialog" aria-modal="true" aria-labelledby="about-ai" className="rounded-2xl border border-[var(--line)] bg-[var(--card)] p-3">
           <h3 id="about-ai" className="mb-2 text-lg font-semibold">{t('ai.about')}</h3>
-          <Speakable text={t('ai.aboutBody')} auto={app.prefs.readAloud} />
-          <button type="button" className="tap mt-3 rounded-xl border border-[var(--line)] px-3" onClick={() => setAbout(false)}>
+          <Speakable text={`${t('ai.aboutCan')} ${t('ai.aboutCant')}`} auto={app.prefs.readAloud} />
+          <button type="button" className="tap mt-3 rounded-xl border border-[var(--line)] px-3" onClick={() => { stopSpeaking(); setAbout(false) }}>
             {t('close')}
           </button>
         </div>

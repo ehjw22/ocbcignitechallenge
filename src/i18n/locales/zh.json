@@ -2,7 +2,7 @@
   "nav": {
     "home": "首页",
     "accounts": "账户",
-    "pay": "付款和转账",
+    "pay": "付款",
     "help": "帮助",
     "more": "更多"
   },
@@ -77,7 +77,8 @@
     "budgetFor": "{name}的每月预算",
     "goalAction": "存入 S$50 到{name}目标",
     "goalDone": "已存入 S$50 到{name}。",
-    "empty": "此视图没有支出。"
+    "empty": "此视图没有支出。",
+    "seeAll": "查看全部"
   },
   "outstanding": "待付金额",
   "guideSkipped": "此步骤不在这个页面。",
@@ -134,7 +135,9 @@
     "switchUser": "不是你？切换用户",
     "deleteUser": "删除用户",
     "deleteUserBody": "从本设备移除此资料。",
-    "search": "搜索设置"
+    "search": "搜索设置",
+    "searchPh": "搜索设置",
+    "noMatch": "没有找到与“{q}”匹配的设置"
   },
   "onboarding": {
     "welcome": "设置您的应用",
@@ -215,6 +218,8 @@
     "reference": "参考编号",
     "when": "日期",
     "summarySpoken": "{amount} 转给 {name}。参考编号 {ref}。",
+    "goalAdded": "已将 {amount} 存入{name}目标",
+    "received": "到账金额",
     "fee": "手续费",
     "rate": "汇率"
   },
@@ -282,8 +287,16 @@
     }
   },
   "ai": {
-    "title": "助手",
+    "title": "Ollie",
+    "header": "Ollie · OCBC 助手",
+    "greeting": "我是 Ollie，你的 OCBC 助手。可以问我账户、转账、PayNow、卡或当前页面。",
+    "typing": "Ollie 正在输入…",
+    "slow": "比平时久一些…",
+    "retry": "重试",
     "about": "关于",
+    "aboutBody": "Ollie 解答银行和本应用的问题，也可以开始引导或帮你联系职员。",
+    "aboutCan": "Ollie 可以说明余额、转账、PayNow、GIRO、账单、卡和你当前的页面。",
+    "aboutCant": "Ollie 不能转移资金，也不会索取密码、PIN 或一次性验证码。",
     "placeholder": "提问",
     "send": "发送",
     "demoNote": "正在使用示例回答。",
@@ -765,7 +778,7 @@
   "notFound": {
     "title": "找不到页面",
     "body": "该页面不可用。",
-    "home": "首页"
+    "home": "回首页"
   },
   "txn": {
     "title": "交易",

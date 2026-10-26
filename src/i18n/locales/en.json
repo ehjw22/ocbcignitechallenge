@@ -71,7 +71,8 @@
     "budgetFor": "Monthly budget for {name}",
     "goalAction": "Put S$50 into {name} goal",
     "goalDone": "S$50 added to {name}.",
-    "empty": "No spending in this view."
+    "empty": "No spending in this view.",
+    "seeAll": "See all"
   },
   "outstanding": "Amount to pay",
   "guideSkipped": "This step is not on this screen.",
@@ -86,7 +87,7 @@
   "nav": {
     "home": "Home",
     "accounts": "Accounts",
-    "pay": "Pay & Transfer",
+    "pay": "Pay",
     "help": "Help",
     "more": "More"
   },
@@ -136,7 +137,9 @@
     "switchUser": "Not you? Switch user",
     "deleteUser": "Delete user",
     "deleteUserBody": "Removes this profile from this device.",
-    "search": "Search settings"
+    "search": "Search settings",
+    "searchPh": "Search settings",
+    "noMatch": "No settings found for '{q}'"
   },
   "onboarding": {
     "welcome": "Set up your app",
@@ -286,7 +289,9 @@
     "when": "Date",
     "summarySpoken": "{amount} to {name}. Reference {ref}.",
     "fee": "Fee",
-    "rate": "Exchange rate"
+    "rate": "Exchange rate",
+    "received": "Amount received",
+    "goalAdded": "Added {amount} to {name} goal"
   },
   "staff": {
     "title": "Message us",
@@ -352,9 +357,16 @@
     }
   },
   "ai": {
-    "title": "Assistant",
+    "title": "Ollie",
+    "header": "Ollie · OCBC assistant",
+    "greeting": "I'm Ollie, your OCBC assistant. Ask me about accounts, transfers, PayNow, cards or this screen.",
+    "typing": "Ollie is typing…",
+    "slow": "Taking longer than usual…",
+    "retry": "Retry",
     "about": "About",
-    "aboutBody": "Answers questions about banking and this app. It cannot move money. It will not ask for your password, PIN or one-time code.",
+    "aboutBody": "Ollie answers questions about banking and this app. Ollie can explain a screen, start a guide, or help you message staff.",
+    "aboutCan": "Ollie can explain balances, transfers, PayNow, GIRO, bills, cards and the screen you are on.",
+    "aboutCant": "Ollie cannot move money, and will not ask for your password, PIN or one-time code.",
     "placeholder": "Ask a question",
     "send": "Send",
     "demoNote": "Sample answers are in use.",
@@ -765,7 +777,7 @@
   "notFound": {
     "title": "Page not found",
     "body": "That page is not available.",
-    "home": "Home"
+    "home": "Go home"
   },
   "txn": {
     "title": "Transaction",

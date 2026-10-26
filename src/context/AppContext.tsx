@@ -16,6 +16,7 @@ import {
   loadExtraTxns,
   loadGuest,
   loadLastUser,
+  loadSessionId,
   loadLimit,
   loadProfile,
   loadRequests,
@@ -127,18 +128,20 @@ function signedOutPrefs(): Preferences {
   return { ...defaultPrefs(), ...loadGuest(), onboarded: false }
 }
 
-function signedOutView(): { prefs: Preferences; profile: Profile } {
-  saveSessionId(null)
+function bootView(): { sessionId: string | null; prefs: Preferences; profile: Profile } {
+  const sessionId = loadSessionId()
+  const user = sessionId ? loadUsers().find((item) => item.id === sessionId) : null
+  if (user) return { sessionId: user.id, prefs: user.prefs, profile: user.profile }
   const last = loadLastUser()
-  if (last) return { prefs: last.prefs, profile: last.profile }
-  return { prefs: signedOutPrefs(), profile: defaultProfile() }
+  if (last) return { sessionId: null, prefs: last.prefs, profile: last.profile }
+  return { sessionId: null, prefs: signedOutPrefs(), profile: defaultProfile() }
 }
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const navigate = useNavigate()
   const location = useLocation()
-  const [boot] = useState(signedOutView)
-  const [sessionId, setSessionId] = useState<string | null>(null)
+  const [boot] = useState(bootView)
+  const [sessionId, setSessionId] = useState<string | null>(boot.sessionId)
   const sessionRef = useRef<string | null>(null)
   sessionRef.current = sessionId
   const [prefs, setPrefs] = useState<Preferences>(boot.prefs)
@@ -149,14 +152,39 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return saved.length ? saved : SEED_REQUESTS
   })
   const [cards, setCardsState] = useState<CardItem[]>(() => loadCards(SEED_CARDS))
-  const [extraTxns, setExtraTxns] = useState<Txn[]>(loadExtraTxns)
-  const [baseTxns, setBaseTxns] = useState<Txn[]>(SEED_TXNS)
-  const [accounts, setAccounts] = useState(ACCOUNTS)
-  const [payees, setPayees] = useState<SavedPayee[]>([])
+  const [extraTxns, setExtraTxns] = useState<Txn[]>(() => (boot.sessionId && isDemoAccount(boot.sessionId) ? [] : loadExtraTxns()))
+  const [baseTxns, setBaseTxns] = useState<Txn[]>(() => {
+    if (boot.sessionId && isDemoAccount(boot.sessionId)) {
+      return (loadBook(boot.sessionId) ?? demoBook(boot.sessionId))?.txns ?? SEED_TXNS
+    }
+    return SEED_TXNS
+  })
+  const [accounts, setAccounts] = useState(() => {
+    if (boot.sessionId && isDemoAccount(boot.sessionId)) {
+      return (loadBook(boot.sessionId) ?? demoBook(boot.sessionId))?.accounts ?? ACCOUNTS
+    }
+    return ACCOUNTS
+  })
+  const [payees, setPayees] = useState<SavedPayee[]>(() => {
+    if (boot.sessionId && isDemoAccount(boot.sessionId)) {
+      return (loadBook(boot.sessionId) ?? demoBook(boot.sessionId))?.payees ?? []
+    }
+    return []
+  })
   const [guidePrompt, setGuidePrompt] = useState<{ journeyId: string; practice: boolean } | null>(null)
-  const [balances, setBalances] = useState<Record<string, number>>(() => loadBalances(seedBalances))
+  const [balances, setBalances] = useState<Record<string, number>>(() => {
+    if (boot.sessionId && isDemoAccount(boot.sessionId)) {
+      return (loadBook(boot.sessionId) ?? demoBook(boot.sessionId))?.balances ?? loadBalances(seedBalances)
+    }
+    return loadBalances(seedBalances)
+  })
   const [limit, setLimitState] = useState(() => loadLimit(5000))
-  const [goals, setGoalsState] = useState<Goal[]>(readGoals)
+  const [goals, setGoalsState] = useState<Goal[]>(() => {
+    if (boot.sessionId && isDemoAccount(boot.sessionId)) {
+      return (loadBook(boot.sessionId) ?? demoBook(boot.sessionId))?.goals ?? readGoals()
+    }
+    return readGoals()
+  })
   const [screen, setScreenState] = useState('home')
   const [step, setStep] = useState('')
   const [guideStep, setGuideStepState] = useState('')
