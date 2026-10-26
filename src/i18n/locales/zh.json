@@ -750,14 +750,14 @@
   "from": "从",
   "imageTooBig": "这张照片太大。请换一张较小的。",
   "speech": {
-    "noVoice": "正在使用默认语音。",
+    "noVoice": "这句话暂时无法朗读。",
     "listening": "正在听…",
     "voiceInput": "语音输入",
     "micDenied": "麦克风已关闭。您可以改为输入。",
     "readAloud": "朗读",
     "slower": "更慢",
     "faster": "更快",
-    "cantoneseDown": "粤语语音暂时不可用"
+    "cantoneseDown": "粤语语音暂时无法使用，这次没有朗读。"
   },
   "info": {
     "investments": "投资",

@@ -18,6 +18,7 @@ export function SpeakButton({
       onClick={onClick}
       aria-label={playing ? stopLabel : listenLabel}
       aria-pressed={playing}
+      aria-busy={playing}
     >
       {playing ? (
         <span className="speak-waves" aria-hidden>

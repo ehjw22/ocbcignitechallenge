@@ -7,7 +7,7 @@ import { translate } from '@/i18n'
 import { formatSGD } from '@/lib/format'
 import { languageById } from '@/lib/languages'
 import { journeyRoute, queueShowHow } from '@/lib/showHow'
-import { speak, stopSpeaking } from '@/lib/speech'
+import { prefetchSpeech, speak, stopSpeaking } from '@/lib/speech'
 import type { ChatAction, ChatMessage } from '@/lib/types'
 import { RichText, plainSpeech } from './RichText'
 import { Speakable } from './Speakable'
@@ -142,10 +142,11 @@ export function AiPanel() {
         handover: data.handover || flags.escalated,
       }
       app.setMessages((prev) => [...prev, message])
-      setLive(plainSpeech(reply))
-      if (app.prefs.readAloud) {
-        void speak(plainSpeech(reply), { language: app.prefs.language, rate: app.prefs.speechRate, dialect: app.prefs.dialect })
-      }
+      const spoken = plainSpeech(reply)
+      setLive(spoken)
+      const speechOptions = { language: app.prefs.language, rate: app.prefs.speechRate, dialect: app.prefs.dialect }
+      prefetchSpeech(spoken, speechOptions)
+      if (app.prefs.readAloud) void speak(spoken, speechOptions)
     } catch (err) {
       if (err instanceof DOMException && err.name === 'AbortError') return
       app.setMessages((prev) => [...prev, { role: 'assistant', content: t('ai.faq.general.short'), source: 'demo' }])
@@ -238,6 +239,7 @@ export function AiPanel() {
               <div className="min-w-0 flex-1">
                 <p className="mb-1 text-sm font-semibold">{message.role === 'user' ? t('you') : t('ai.title')}</p>
                 {message.role === 'assistant' ? <RichText text={message.content} /> : <p>{message.content}</p>}
+                {message.role === 'assistant' && <div className="mt-2"><Speakable text={plainSpeech(message.content)} hideText /></div>}
                 {message.role === 'assistant' && message.scamRisk === 'check' && message.action && !paused[index] && !cancelled[index] && (
                   <div className="mt-3 space-y-2">
                     {(['ai.scamQ1', 'ai.scamQ2', 'ai.scamQ3'] as const).map((key, slot) => (

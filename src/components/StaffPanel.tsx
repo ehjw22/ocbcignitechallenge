@@ -38,6 +38,12 @@ export function StaffPanel() {
       return
     }
     const summary = `${t(`staff.topic.${topic}`)}: ${message.trim()}${attached && context ? ` (${context})` : ''}`
+    const needs = [
+      app.prefs.textSize >= 20 ? 'Large text' : '',
+      app.prefs.readAloud ? 'Read aloud' : '',
+      app.prefs.dialect === 'cantonese' ? 'Cantonese' : '',
+      app.prefs.highContrast ? 'High contrast' : '',
+    ].filter(Boolean).join(', ')
     const request = app.addRequest({
       summary,
       summaryEn: staffSummary('en', { guideId: '', stepId: app.step, screen: app.screen, question: app.lastQuestion, seed: app.staffSeed }),
@@ -48,6 +54,9 @@ export function StaffPanel() {
       time: method === 'phone' ? time : '',
       contact,
       urgent: false,
+      customerName: app.profile?.name || '',
+      needs,
+      transcript: app.messages.slice(-6).map((message) => `${message.role === 'user' ? 'Customer' : 'Ollie'}: ${message.content}`).join('\n'),
     })
     app.log('staff_request', { ref: request.ref, task: request.task })
     setDone(request.ref)

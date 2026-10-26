@@ -209,14 +209,14 @@
     "ask": "Prefer a dialect? Ask for a staff member who speaks Hokkien, Teochew, Hakka or Cantonese"
   },
   "speech": {
-    "noVoice": "Using the default voice.",
+    "noVoice": "This line could not be read aloud.",
     "listening": "Listening…",
     "voiceInput": "Voice input",
     "micDenied": "Microphone is off. You can type instead.",
     "readAloud": "Read aloud",
     "slower": "Slower",
     "faster": "Faster",
-    "cantoneseDown": "Cantonese voice is unavailable right now"
+    "cantoneseDown": "Cantonese voice is unavailable. Nothing was read aloud."
   },
   "settings": {
     "title": "Settings",

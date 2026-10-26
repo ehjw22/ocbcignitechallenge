@@ -1,17 +1,25 @@
 import { languageById } from './languages'
 
 type RangeHandler = (start: number, end: number) => void
+type SpeakOptions = { language: string; rate: number; dialect: string; onRange?: RangeHandler }
 
 let currentAudio: HTMLAudioElement | null = null
 let token = 0
+const audioCache = new Map<string, string>()
+const pending = new Map<string, Promise<string | null>>()
 
 export function stopSpeaking() {
   token += 1
   window.speechSynthesis?.cancel()
   if (currentAudio) {
     currentAudio.pause()
+    currentAudio.src = ''
     currentAudio = null
   }
+}
+
+function cacheKey(text: string, options: SpeakOptions) {
+  return `${options.dialect}|${options.language}|${options.rate}|${text}`
 }
 
 function voicesReady() {
@@ -20,7 +28,7 @@ function voicesReady() {
   return new Promise<SpeechSynthesisVoice[]>((resolve) => {
     const finish = () => resolve(window.speechSynthesis.getVoices())
     window.speechSynthesis.addEventListener('voiceschanged', finish, { once: true })
-    setTimeout(finish, 400)
+    setTimeout(finish, 250)
   })
 }
 
@@ -35,98 +43,128 @@ function matchVoice(voices: SpeechSynthesisVoice[], prefix: string) {
   )
 }
 
-export async function speak(
-  text: string,
-  options: { language: string; rate: number; dialect: string; onRange?: RangeHandler },
-): Promise<'device' | 'cloud' | 'none'> {
+async function fetchAudio(text: string, options: SpeakOptions) {
+  const key = cacheKey(text, options)
+  const hit = audioCache.get(key)
+  if (hit) return hit
+  const inflight = pending.get(key)
+  if (inflight) return inflight
+  const lang = languageById(options.language)
+  const job = fetch('/api/tts', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text, lang: lang.bcp47, rate: options.rate, dialect: options.dialect }),
+  })
+    .then(async (res) => {
+      const data = (await res.json().catch(() => ({}))) as { audio?: string; error?: string }
+      if (!res.ok || !data.audio || data.error === 'cantonese_unavailable') return null
+      const url = `data:audio/mpeg;base64,${data.audio}`
+      audioCache.set(key, url)
+      return url
+    })
+    .catch(() => null)
+    .finally(() => pending.delete(key))
+  pending.set(key, job)
+  return job
+}
+
+export function prefetchSpeech(text: string, options: SpeakOptions) {
+  const clean = text.replace(/\s+/g, ' ').trim()
+  if (!clean) return
+  void fetchAudio(clean, options)
+}
+
+function playUrl(url: string, text: string, options: SpeakOptions, myToken: number) {
+  if (myToken !== token) return Promise.resolve(false)
+  const audio = new Audio(url)
+  audio.preload = 'auto'
+  currentAudio = audio
+  const words = text.split(/\s+/).filter(Boolean)
+  audio.ontimeupdate = () => {
+    if (!audio.duration || !words.length) return
+    const index = Math.min(words.length - 1, Math.floor((audio.currentTime / audio.duration) * words.length))
+    let cursor = 0
+    const parts = text.split(/(\s+)/)
+    let word = 0
+    for (const part of parts) {
+      if (!part.trim()) {
+        cursor += part.length
+        continue
+      }
+      if (word === index) {
+        options.onRange?.(cursor, cursor + part.length)
+        break
+      }
+      word += 1
+      cursor += part.length
+    }
+  }
+  return new Promise<boolean>((resolve) => {
+    let settled = false
+    const finish = (played: boolean) => {
+      if (settled) return
+      settled = true
+      resolve(played)
+    }
+    audio.onended = () => {
+      options.onRange?.(-1, -1)
+      finish(true)
+    }
+    audio.onpause = () => {
+      if (myToken !== token) finish(false)
+    }
+    audio.onerror = () => finish(false)
+    void audio.play().then(() => {
+      if (myToken !== token) {
+        audio.pause()
+        finish(false)
+      }
+    }).catch(() => finish(false))
+  })
+}
+
+async function speakOnDevice(text: string, options: SpeakOptions) {
+  const lang = languageById(options.language)
+  const voices = await voicesReady()
+  const voice = matchVoice(voices, lang.voicePrefix)
+  await new Promise<void>((resolve) => {
+    const utter = new SpeechSynthesisUtterance(text)
+    if (voice) utter.voice = voice
+    utter.lang = voice?.lang || lang.bcp47
+    utter.rate = options.rate
+    utter.onboundary = (event) => {
+      if (event.charIndex == null) return
+      const length = event.charLength || text.slice(event.charIndex).split(/\s/)[0].length
+      options.onRange?.(event.charIndex, event.charIndex + length)
+    }
+    utter.onend = () => {
+      options.onRange?.(-1, -1)
+      resolve()
+    }
+    utter.onerror = () => resolve()
+    window.speechSynthesis.speak(utter)
+  })
+}
+
+export async function speak(text: string, options: SpeakOptions): Promise<'device' | 'cloud' | 'none' | 'cancelled'> {
   stopSpeaking()
   const myToken = token
   const clean = text.replace(/\s+/g, ' ').trim()
-  if (!clean || !window.speechSynthesis) return 'none'
-  const lang = languageById(options.language)
-  const voices = await voicesReady()
-  if (myToken !== token) return 'none'
-  const voice = options.dialect === 'cantonese' ? null : matchVoice(voices, lang.voicePrefix)
-  if (voice) {
-    await new Promise<void>((resolve) => {
-      const utter = new SpeechSynthesisUtterance(clean)
-      utter.voice = voice
-      utter.lang = voice.lang
-      utter.rate = options.rate
-      utter.onboundary = (event) => {
-        if (event.charIndex == null) return
-        const length = event.charLength || clean.slice(event.charIndex).split(/\s/)[0].length
-        options.onRange?.(event.charIndex, event.charIndex + length)
-      }
-      utter.onend = () => {
-        options.onRange?.(-1, -1)
-        resolve()
-      }
-      utter.onerror = () => resolve()
-      window.speechSynthesis.speak(utter)
-    })
-    return 'device'
+  if (!clean) return 'none'
+  const url = await fetchAudio(clean, options)
+  if (myToken !== token) return 'cancelled'
+  if (url) {
+    const played = await playUrl(url, clean, options, myToken)
+    if (myToken !== token) return 'cancelled'
+    return played ? 'cloud' : 'none'
   }
-  try {
-    const res = await fetch('/api/tts', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: clean, lang: lang.bcp47, rate: options.rate, dialect: options.dialect }),
-    })
-    if (!res.ok) throw new Error('tts')
-    const data = (await res.json()) as { audio?: string; fallback?: string; error?: string }
-    if (options.dialect === 'cantonese' && (data.fallback === 'mandarin' || data.error === 'cantonese_unavailable')) {
-      window.dispatchEvent(new Event('ocbc-cantonese'))
-    }
-    if (!data.audio || myToken !== token) {
-      if (options.dialect === 'cantonese') {
-        const utter = new SpeechSynthesisUtterance(clean)
-        utter.lang = 'zh-CN'
-        utter.rate = options.rate
-        window.speechSynthesis.speak(utter)
-        return 'device'
-      }
-      return 'none'
-    }
-    const audio = new Audio(`data:audio/mpeg;base64,${data.audio}`)
-    currentAudio = audio
-    const words = clean.split(/\s+/).filter(Boolean)
-    audio.ontimeupdate = () => {
-      if (!audio.duration) return
-      const index = Math.min(words.length - 1, Math.floor((audio.currentTime / audio.duration) * words.length))
-      let cursor = 0
-      const parts = clean.split(/(\s+)/)
-      let word = 0
-      for (const part of parts) {
-        if (!part.trim()) {
-          cursor += part.length
-          continue
-        }
-        if (word === index) {
-          options.onRange?.(cursor, cursor + part.length)
-          break
-        }
-        word += 1
-        cursor += part.length
-      }
-    }
-    await new Promise<void>((resolve) => {
-      audio.onended = () => {
-        options.onRange?.(-1, -1)
-        resolve()
-      }
-      audio.onerror = () => resolve()
-      void audio.play().catch(() => resolve())
-    })
-    return 'cloud'
-  } catch {
-    if (options.dialect === 'cantonese') window.dispatchEvent(new Event('ocbc-cantonese'))
-    const utter = new SpeechSynthesisUtterance(clean)
-    utter.lang = options.dialect === 'cantonese' ? 'zh-CN' : lang.bcp47
-    utter.rate = options.rate
-    window.speechSynthesis.speak(utter)
-    return options.dialect === 'cantonese' ? 'device' : 'none'
+  if (options.dialect === 'cantonese') {
+    window.dispatchEvent(new Event('ocbc-cantonese'))
+    return 'none'
   }
+  if (!window.speechSynthesis) return 'none'
+  await speakOnDevice(clean, options)
+  return 'device'
 }
 
 export function speakableWords(text: string) {

@@ -5,5 +5,9 @@
   "framework": "vite",
   "rewrites": [
     { "source": "/((?!api/).*)", "destination": "/index.html" }
-  ]
+  ],
+  "functions": {
+    "api/chat.ts": { "maxDuration": 30 },
+    "api/tts.ts": { "maxDuration": 15 }
+  }
 }

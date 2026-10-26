@@ -81,6 +81,9 @@ export interface StaffRequest {
   contact: string
   status: RequestStatus
   urgent: boolean
+  customerName?: string
+  transcript?: string
+  needs?: string
 }
 
 export interface AnalyticsEvent {

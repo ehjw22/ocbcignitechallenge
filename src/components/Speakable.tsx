@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useApp } from '@/context/AppContext'
 import { SpeakButton } from '@/components/SpeakButton'
 import { translate } from '@/i18n'
-import { speak, stopSpeaking } from '@/lib/speech'
+import { prefetchSpeech, speak, stopSpeaking } from '@/lib/speech'
 
 export function Highlighted({ text, range }: { text: string; range: [number, number] | null }) {
   if (!range || range[0] < 0) return <>{text}</>
@@ -42,6 +42,11 @@ export function Speakable({
   const [playing, setPlaying] = useState(false)
 
   useEffect(() => {
+    if (!text) return
+    prefetchSpeech(text, { language: prefs.language, rate: prefs.speechRate, dialect: prefs.dialect })
+  }, [text, prefs.language, prefs.speechRate, prefs.dialect])
+
+  useEffect(() => {
     if (!auto || !prefs.readAloud || !text) return
     let live = true
     setPlaying(true)
@@ -52,7 +57,7 @@ export function Speakable({
     }).then((mode) => {
       if (!live) return
       setPlaying(false)
-      if (mode === 'none' && prefs.dialect === 'cantonese') setNotice(t('speech.noVoice'))
+      if (mode === 'none') setNotice(t(prefs.dialect === 'cantonese' ? 'speech.cantoneseDown' : 'speech.noVoice'))
     })
     return () => {
       live = false
@@ -75,7 +80,7 @@ export function Speakable({
       dialect: prefs.dialect,
     })
     setPlaying(false)
-    if (mode === 'none') setNotice(t('speech.noVoice'))
+    if (mode === 'none') setNotice(t(prefs.dialect === 'cantonese' ? 'speech.cantoneseDown' : 'speech.noVoice'))
   }
 
   return (
