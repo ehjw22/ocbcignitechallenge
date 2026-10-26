@@ -82,7 +82,6 @@ export function DemoBadge() {
 
 export function HeaderHelp({ guide = false }: { guide?: boolean }) {
   const app = useApp()
-  if (app.prefs.textSize < 22) return null
   const t = (key: string) => translate(app.prefs.language, key)
   return (
     <button
@@ -137,32 +136,8 @@ function HelpLayer() {
   const navigate = useNavigate()
   const location = useLocation()
   const t = (key: string, vars?: Record<string, string | number>) => translate(app.prefs.language, key, vars)
-  const hideFab = app.prefs.textSize >= 22
-    || !app.sessionId
-    || location.pathname.startsWith('/onboarding')
-    || location.pathname.startsWith('/join')
-    || location.pathname.startsWith('/welcome')
-    || location.pathname.startsWith('/login')
-    || location.pathname.startsWith('/pre')
-    || location.pathname.startsWith('/flow')
-    || location.pathname.startsWith('/help')
-    || (app.helpOpen && app.helpView === 'ai')
   const aiFull = app.helpOpen && app.helpView === 'ai'
-  const [fabHidden, setFabHidden] = useState(false)
   useEffect(() => {
-    const main = document.getElementById('main')
-    if (!main) return
-    let last = 0
-    const onScroll = () => {
-      const y = main.scrollTop
-      setFabHidden(y > last && y > 24)
-      last = y
-    }
-    main.addEventListener('scroll', onScroll, { passive: true })
-    return () => main.removeEventListener('scroll', onScroll)
-  }, [location.pathname])
-  useEffect(() => {
-    app.setGuidePrompt(null)
     app.setNotice('')
   }, [location.pathname])
 
@@ -188,19 +163,6 @@ function HelpLayer() {
 
   return (
     <>
-      {!hideFab && !fabHidden && (
-      <button
-        type="button"
-        data-guide="help-fab"
-        className="absolute bottom-[76px] right-3 z-30 flex min-h-11 items-center gap-1 rounded-full border border-[var(--line)] bg-[var(--card)] px-3 py-2 text-[0.8rem] font-semibold leading-snug text-[var(--link)] shadow-card"
-        onClick={() => app.openHelp('menu')}
-        aria-haspopup="dialog"
-        aria-expanded={app.helpOpen}
-      >
-        <CircleHelp aria-hidden size={22} />
-        {t('help.fab')}
-      </button>
-      )}
       {app.notice && (
         <div role="status" className="absolute bottom-36 left-3 right-3 z-30 rounded-2xl border border-[var(--line)] bg-[var(--card)] p-3 shadow-lg">
           <p>{app.notice}</p>
@@ -259,28 +221,89 @@ function HelpLayer() {
         </div>
       )}
       <AppTour />
-      {app.guidePrompt && (
-        <div className="absolute bottom-20 left-3 right-3 z-30">
-          <div role="dialog" aria-labelledby="guide-done" className="w-full rounded-3xl border border-[var(--line)] bg-[var(--card)] p-4 text-[var(--text)] shadow-lg">
-            <p id="guide-done" className="font-semibold">{t('guideDone')}</p>
-            <button
-              type="button"
-              className="mt-4 min-h-12 w-full rounded-2xl bg-[var(--accent)] font-semibold text-[var(--on-accent)]"
-              onClick={() => {
-                const prompt = app.guidePrompt
-                app.setGuidePrompt(null)
-                if (prompt?.practice) navigate(journeyRoute(prompt.journeyId))
-              }}
-            >
-              {t('yes')}
-            </button>
-            <button type="button" className="mt-2 min-h-12 w-full rounded-2xl border border-[var(--line)]" onClick={() => app.setGuidePrompt(null)}>
-              {t('close')}
-            </button>
-          </div>
-        </div>
-      )}
     </>
+  )
+}
+
+export function ExplainButton() {
+  const app = useApp()
+  const t = (key: string) => translate(app.prefs.language, key)
+  return (
+    <button
+      type="button"
+      className="flex h-11 w-11 items-center justify-center rounded-full border border-[var(--line)] text-base font-semibold"
+      aria-label={t('ai.what')}
+      onClick={() => {
+        const root = document.getElementById('main') || document.getElementById('customer-root')
+        const labels = [...(root?.querySelectorAll('h1, h2, label, button') || [])]
+          .map((el) => (el.textContent || '').replace(/\s+/g, ' ').trim())
+          .filter((item) => item && item.length < 80)
+          .slice(0, 12)
+          .join(' | ')
+        app.openHelp('ai')
+        app.setAiSeed(`__explain__:${labels}`)
+      }}
+    >
+      ?
+    </button>
+  )
+}
+
+export function GuideDone() {
+  const app = useApp()
+  const navigate = useNavigate()
+  const t = (key: string) => translate(app.prefs.language, key)
+  const ref = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (!app.guidePrompt) return
+    const dismiss = () => {
+      const prompt = app.guidePrompt
+      if (prompt) sessionStorage.setItem('ocbc-guide-prompt', prompt.journeyId)
+      app.setGuidePrompt(null)
+    }
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') dismiss()
+    }
+    const onDown = (event: PointerEvent) => {
+      if (!ref.current?.contains(event.target as Node)) dismiss()
+    }
+    window.addEventListener('keydown', onKey)
+    window.addEventListener('pointerdown', onDown)
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      window.removeEventListener('pointerdown', onDown)
+    }
+  }, [app])
+  if (!app.guidePrompt) return null
+  return (
+    <div ref={ref} className="mx-4 mt-3 rounded-2xl border border-[var(--line)] bg-[var(--card)] p-3">
+      <p className="font-semibold">{t('guideDone')}</p>
+      <div className="mt-2 flex gap-2">
+        <button
+          type="button"
+          className="min-h-11 flex-1 rounded-xl bg-[var(--accent)] font-semibold text-[var(--on-accent)]"
+          onClick={() => {
+            const prompt = app.guidePrompt
+            if (prompt) sessionStorage.setItem('ocbc-guide-prompt', prompt.journeyId)
+            app.setGuidePrompt(null)
+            if (prompt?.practice) navigate(journeyRoute(prompt.journeyId))
+          }}
+        >
+          {t('continue')}
+        </button>
+        <button
+          type="button"
+          className="min-h-11 flex-1 rounded-xl border border-[var(--line)] font-semibold"
+          onClick={() => {
+            const prompt = app.guidePrompt
+            if (prompt) sessionStorage.setItem('ocbc-guide-prompt', prompt.journeyId)
+            app.setGuidePrompt(null)
+          }}
+        >
+          {t('close')}
+        </button>
+      </div>
+    </div>
   )
 }
 
@@ -337,9 +360,13 @@ export function Page({
           )}
           <DemoBadge />
         </div>
-        <span className="absolute right-1 top-1"><HeaderHelp /></span>
+        <span className="absolute right-1 top-1 flex items-center gap-1">
+          <ExplainButton />
+          <HeaderHelp />
+        </span>
       </header>
-      <main id="main" ref={mainRef} key={location.pathname} className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[var(--bg)] pb-36">
+      <main id="main" ref={mainRef} key={location.pathname} className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[var(--bg)] pb-8">
+        <GuideDone />
         {children}
       </main>
       <BottomNav />

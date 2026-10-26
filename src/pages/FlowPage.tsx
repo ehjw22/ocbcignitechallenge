@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { ChevronDown, CircleAlert, TriangleAlert } from 'lucide-react'
+import { FieldError } from '@/components/FieldError'
 import { Page } from '@/components/Shell'
 import { Speakable } from '@/components/Speakable'
 import { useApp } from '@/context/AppContext'
@@ -35,6 +36,7 @@ export function FlowPage() {
   const [ref, setRef] = useState('')
   const [wstep, setWstep] = useState(0)
   const [more, setMore] = useState(false)
+  const [highlights, setHighlights] = useState<string[]>([])
   const alertRef = useRef<HTMLDivElement>(null)
   const guided = useRef(false)
 
@@ -59,9 +61,24 @@ export function FlowPage() {
       next.amount = '5000'
       next.from = '360'
     }
+    let filled: string[] = []
+    const rawFill = sessionStorage.getItem('ocbc-fill')
+    if (rawFill) {
+      try {
+        const data = JSON.parse(rawFill) as { flow?: string; fields?: Record<string, string> }
+        if (data.flow === flow.id && data.fields) {
+          Object.assign(next, data.fields)
+          filled = Object.keys(data.fields)
+          sessionStorage.removeItem('ocbc-fill')
+        }
+      } catch {
+        sessionStorage.removeItem('ocbc-fill')
+      }
+    }
+    setHighlights(filled)
     setForm(next)
     setStage('form')
-    setWstep(0)
+    setWstep(filled.length && wizardReview(flow.id) >= 0 ? wizardReview(flow.id) : 0)
     setMore(false)
     if (demo === 'mei' && flow.id === 'overseas') {
       const found = validateForm(flow.id, next, app.balances['360'] ?? 0)
@@ -171,7 +188,9 @@ export function FlowPage() {
       setIssues((current) => {
         if (!current.some((issue) => issue.field === id)) return current
         const still = validateForm(flow.id, next, balance).filter((issue) => issue.field === id)
-        return [...current.filter((issue) => issue.field !== id), ...still]
+        const nextIssues = [...current.filter((issue) => issue.field !== id), ...still]
+        if (!nextIssues.length) app.setAnnounce('')
+        return nextIssues
       })
       return next
     })
@@ -347,6 +366,14 @@ export function FlowPage() {
                   </p>
                 ))}
                 {lookedUp && <p className="font-semibold">{lookedUp}</p>}
+                {fx && (
+                  <>
+                    <p className="flex justify-between gap-3 text-sm"><span className="text-[var(--muted)]">{t('success.rate')}</span><span className="money text-right font-semibold">{t('fx.rate', { currency: t(fx.currencyKey), rate: fx.perSgd.toFixed(2) })}</span></p>
+                    <p className="flex justify-between gap-3 text-sm"><span className="text-[var(--muted)]">{t('success.fee')}</span><span className="money text-right font-semibold">{formatSGD(fx.fee)}</span></p>
+                    <p className="flex justify-between gap-3 text-sm"><span className="text-[var(--muted)]">{t('success.received')}</span><span className="money text-right font-semibold">{t(fx.currencyKey)} {received.toFixed(2)}</span></p>
+                    <p className="text-sm text-[var(--muted)]">{t('ai.sampleRate')}</p>
+                  </>
+                )}
               </section>
             )}
             {groups.filter((group) => group.fields.some((field) => field.id !== 'lock' && (touring || !stepIds || stepIds.includes(field.id)))).map((group) => (
@@ -366,6 +393,7 @@ export function FlowPage() {
                     hint={iban ? t('flows.ibanHint') : undefined}
                     placeholder={iban ? 'GB29 NWBK 6016 1331 9268 19' : undefined}
                     options={field.type === 'account' ? app.accounts.filter((account) => account.kind === 'deposit').map((account) => ({ value: account.id, label: account.nameKey })) : undefined}
+                    highlight={highlights.includes(field.id)}
                     error={issues.find((issue) => issue.field === field.id) ? describe(issues.find((issue) => issue.field === field.id) as Issue) : ''}
                     balanceHint={field.id === 'amount' || field.id === 'from' ? t('flows.available', { amount: formatSGD(balance) }) : ''}
                     onChange={(value) => changeField(field.id, value)}
@@ -463,13 +491,8 @@ export function FlowPage() {
           <section className="card space-y-3 p-4">
             <h2 className="text-lg font-semibold" id="otp-title">{t('flows.otpTitle')}</h2>
             <p className="text-sm text-[var(--muted)]">{t('flows.otpBody')}</p>
-            <input id="demo-otp" aria-labelledby="otp-title" aria-invalid={otpError ? true : undefined} aria-describedby={otpError ? 'otp-error' : undefined} inputMode="numeric" autoComplete="one-time-code" value={otp} onChange={(e) => { setOtp(e.target.value); if (/^\d{6}$/.test(e.target.value.trim())) setOtpError('') }} className={`ocbc-field ${otpError ? 'is-invalid' : ''}`} />
-            {otpError && (
-              <p id="otp-error" role="alert" className="field-error">
-                <TriangleAlert aria-hidden size={18} className="mt-0.5 shrink-0" />
-                <span>{otpError}</span>
-              </p>
-            )}
+            <input id="demo-otp" aria-labelledby="otp-title" aria-invalid={otpError ? true : undefined} aria-describedby={otpError ? 'otp-error' : undefined} inputMode="numeric" autoComplete="one-time-code" value={otp} onChange={(e) => { setOtp(e.target.value); if (/^\d{6}$/.test(e.target.value.trim())) { setOtpError(''); app.setAnnounce('') } }} className={`ocbc-field ${otpError ? 'is-invalid' : ''}`} />
+            <FieldError id="otp-error">{otpError}</FieldError>
             <button
               type="button"
               className="ocbc-btn"
@@ -619,6 +642,7 @@ function Field({
   options,
   error,
   balanceHint,
+  highlight,
 }: {
   field: FlowField
   value: string
@@ -630,6 +654,7 @@ function Field({
   options?: { value: string; label: string }[]
   error?: string
   balanceHint?: string
+  highlight?: boolean
 }) {
   if (field.type === 'toggle') {
     if (field.id === 'lock') return null
@@ -650,7 +675,7 @@ function Field({
       </span>
       {hint && <span className="mb-1 block text-[0.85rem] font-normal text-[var(--muted)]">{hint}</span>}
       {field.type === 'select' || field.type === 'account' ? (
-        <select id={id} value={value} aria-invalid={invalid} aria-describedby={errorId} onChange={(e) => onChange(e.target.value)} className={`ocbc-field ${error ? 'is-invalid' : ''}`}>
+        <select id={id} value={value} aria-invalid={invalid} aria-describedby={errorId} onChange={(e) => onChange(e.target.value)} className={`ocbc-field ${error ? 'is-invalid' : ''} ${highlight ? 'ocbc-filled' : ''}`}>
           {(options || field.options)?.map((option) => (
             <option key={option.value} value={option.value}>{t(option.label)}</option>
           ))}
@@ -665,16 +690,11 @@ function Field({
           aria-invalid={invalid}
           aria-describedby={errorId}
           onChange={(e) => onChange(e.target.value)}
-          className={`ocbc-field ${error ? 'is-invalid' : ''} ${field.type === 'amount' ? 'text-center text-[28px] font-semibold' : ''}`}
+          className={`ocbc-field ${error ? 'is-invalid' : ''} ${highlight ? 'ocbc-filled' : ''} ${field.type === 'amount' ? 'text-center text-[28px] font-semibold' : ''}`}
         />
       )}
       {balanceHint && <span className="mt-1 block text-sm text-[var(--muted)]">{balanceHint}</span>}
-      {error && (
-        <span id={errorId} role="alert" className="field-error">
-          <TriangleAlert aria-hidden size={18} className="mt-0.5 shrink-0" />
-          <span>{error}</span>
-        </span>
-      )}
+      <FieldError id={errorId}>{error}</FieldError>
     </label>
   )
 }

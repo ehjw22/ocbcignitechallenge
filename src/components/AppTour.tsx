@@ -159,10 +159,10 @@ export function AppTour() {
             <span key={section} className={`h-1 flex-1 rounded-full ${index <= currentSection ? 'bg-[var(--accent)]' : 'bg-[var(--line)]'}`} title={t(section)} />
           ))}
         </div>
-        <p className="text-xs font-semibold text-[var(--muted)]">{t(step.section)}</p>
-        <h2 id="app-tour-title" className="mt-1 text-base font-semibold">{t(step.title)}</h2>
-        <p className="text-sm leading-snug">{t(step.body)}</p>
-        <div className="mt-2 grid h-11 grid-cols-[40px_3.25rem_minmax(0,1fr)_auto_auto_auto] items-center gap-1">
+        <p className="text-[1rem] font-semibold text-[var(--muted)]">{t(step.section)}</p>
+        <h2 id="app-tour-title" className="mt-1 text-[1.05rem] font-semibold">{t(step.title)}</h2>
+        <p className="text-[1rem] leading-snug">{t(step.body)}</p>
+        <div className="mt-2 grid h-11 grid-cols-[40px_3.25rem_minmax(0,1fr)_5.5rem_5.5rem_auto] items-center gap-1">
           <SpeakButton
             playing={playing}
             listenLabel={t('speech.readAloud')}
@@ -182,12 +182,12 @@ export function AppTour() {
             }}
           />
           <span className="text-sm tabular-nums">{state.index + 1} / {APP_TOUR.length}</span>
-          <button type="button" className="h-11 whitespace-nowrap px-1 text-sm font-semibold text-[var(--link)]" onClick={() => (state.index === 0 ? exit() : go(state.index - 1))}>
+          <button type="button" className="h-11 w-[5.5rem] whitespace-nowrap text-center text-[1rem] font-semibold text-[var(--link)]" onClick={() => (state.index === 0 ? exit() : go(state.index - 1))}>
             {t('back')}
           </button>
           <button
             type="button"
-            className="h-11 whitespace-nowrap rounded-xl bg-[var(--accent)] px-2 text-sm font-semibold text-[var(--on-accent)]"
+            className="h-11 w-[5.5rem] whitespace-nowrap rounded-xl bg-[var(--accent)] text-center text-[1rem] font-semibold text-[var(--on-accent)]"
             onClick={() => {
               if (state.index >= APP_TOUR.length - 1) {
                 stopSpeaking()

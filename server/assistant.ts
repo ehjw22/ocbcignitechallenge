@@ -74,7 +74,9 @@ export function demoReply(
       break
     }
   }
-  if (intent === 'general' && message.trim() && !BANK.test(message) && message.trim().split(/\s+/).length > 2) {
+  if (/weather|天气|天氣|perth/i.test(message)) intent = 'weather'
+  else if (/diagnos|symptom|lawsuit|lawyer|which stock|should i invest|买什么基金|看医生/i.test(message)) intent = 'advice'
+  else if (intent === 'general' && message.trim() && !BANK.test(message) && message.trim().split(/\s+/).length > 2) {
     intent = 'offtopic'
   }
 
@@ -85,7 +87,7 @@ export function demoReply(
 
   const fraud = intent === 'fraud' || intent === 'lostcard'
   const escalated = fraud || intent === 'staff' || input.userTurns >= 3
-  const refused = intent === 'offtopic'
+  const refused = intent === 'advice'
   if (escalated && intent !== 'staff') {
     const extra = textOf('ai.stuck')
     if (!reply.includes(extra)) reply = `${reply}\n\n${extra}`

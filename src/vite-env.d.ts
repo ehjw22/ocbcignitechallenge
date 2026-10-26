@@ -5,7 +5,7 @@ interface SpeechRecognitionLike extends EventTarget {
   interimResults: boolean
   start: () => void
   stop: () => void
-  onresult: ((ev: { results: ArrayLike<ArrayLike<{ transcript: string }>> }) => void) | null
+  onresult: ((ev: { results: ArrayLike<{ isFinal: boolean; 0: { transcript: string } }> }) => void) | null
   onerror: (() => void) | null
   onend: (() => void) | null
 }

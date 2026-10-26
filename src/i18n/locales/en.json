@@ -384,7 +384,36 @@
     "chipGuide": "Show me the steps",
     "chipOverseas": "What is a SWIFT code?",
     "chipLimit": "How do I change my transfer limit?",
+    "chipHow": "Show me how",
+    "chipSimpler": "Explain more simply",
+    "chipStaff": "Talk to staff",
+    "what": "What is this?",
+    "fillIn": "Fill it in for me",
+    "cancelTask": "Cancel",
+    "sampleRate": "Sample rate. Not a live OCBC rate.",
+    "confirmOverseas": "Send {amount} to {name} ({country})? Fee {fee}. He receives about {received}.",
+    "confirmGeneric": "I can fill in this {task} for you. You still review it and confirm with your PIN.",
+    "scamQ1": "Did someone you do not know ask you to send this money?",
+    "scamQ2": "Did they say they were the police, a government office, or offering a job?",
+    "scamQ3": "Did they promise you money back or a reward?",
+    "scamYes": "Yes",
+    "scamNo": "No",
+    "scamPause": "Please stop this transfer. This looks like a common scam. Call the anti-scam hotline, or message OCBC staff. I will not fill in the form.",
+    "handoverLabel": "Message staff",
+    "summaryHint": "Topic, screen and your last question. You can edit this.",
+    "micMissing": "Voice input is not available in this browser.",
+    "hearing": "Hearing…",
+    "aboutAi": "Ollie uses AI. It can explain screens, answer everyday questions, and prepare a transfer for you to review. It will not move money, give medical, legal or investment advice, or ask for your password, PIN or one-time code.",
+    "explainFallback": "This is the {screen} screen. You can see: {labels}. The figures are samples. Ask me if a word is unclear.",
     "faq": {
+      "weather": {
+        "short": "I cannot check a live forecast. December in Perth is usually warm and dry. I can also help you send money or check a balance.",
+        "full": "I cannot check a live forecast from here. December in Perth is usually warm and dry, which is summer there. If you are sending money to Australia, I can prepare the transfer for you to review. The rate in this app is sample data."
+      },
+      "advice": {
+        "short": "I cannot give medical, legal or investment advice. I can help with transfers, cards and this app.",
+        "full": "I cannot give medical, legal or personal investment advice. I can explain a transfer, a card lock, or the screen you are on, and I can message OCBC staff."
+      },
       "general": {
         "short": "I can help with accounts, transfers, PayNow, GIRO, bills, cards and savings.",
         "full": "I can help with accounts, transfers, PayNow, GIRO, bills, cards, savings and the screen you are on. I can start a guide or message our staff."
@@ -813,6 +842,7 @@
     "refusedTitle": "Questions the assistant refused or escalated",
     "refused": "Refused.",
     "escalated": "Escalated.",
+    "scam": "Scam check.",
     "queue": "Staff request queue",
     "received": "Received",
     "inProgress": "In progress",

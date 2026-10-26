@@ -504,6 +504,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     navigate('/welcome')
   }
 
+  const rememberGuidePrompt = (prompt: { journeyId: string; practice: boolean } | null) => {
+    if (prompt && sessionStorage.getItem('ocbc-guide-prompt') === prompt.journeyId) return
+    setGuidePrompt(prompt)
+  }
+
   const value: AppApi = {
     prefs,
     updatePrefs,
@@ -544,7 +549,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     accounts,
     payees,
     guidePrompt,
-    setGuidePrompt,
+    setGuidePrompt: rememberGuidePrompt,
     addTxn,
     balances,
     setBalance,

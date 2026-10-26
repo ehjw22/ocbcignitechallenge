@@ -132,20 +132,20 @@ export function Insights() {
         <section className="card space-y-2 p-3">
           <h2 className="text-base font-semibold">{t('insight.donut')}</h2>
           {slices.length === 0 ? <p>{t('insight.empty')}</p> : (
-            <div className="flex items-center gap-3">
-              <div aria-hidden className="h-40 w-40 shrink-0">
-                <ResponsiveContainer width="100%" height="100%">
+            <div>
+              <div aria-hidden className="mx-auto h-[220px] w-full max-w-[280px]">
+                <ResponsiveContainer width="100%" height={220}>
                   <PieChart>
-                    <Pie data={slices} dataKey="amount" nameKey="key" innerRadius={36} outerRadius={58}>
+                    <Pie data={slices} dataKey="amount" nameKey="key" innerRadius={58} outerRadius={88}>
                       {slices.map((item, index) => <Cell key={item.key} fill={index === 0 ? accent : colours[index % colours.length]} />)}
                     </Pie>
                   </PieChart>
                 </ResponsiveContainer>
               </div>
-              <ul className="min-w-0 flex-1 space-y-1 text-sm">
+              <ul className="mt-2 space-y-1 text-sm">
                 {slices.map((item, index) => (
-                  <li key={item.key} className="flex min-w-0 items-center justify-between gap-2">
-                    <span className="flex min-w-0 items-center gap-1"><span className="h-2.5 w-2.5 shrink-0 rounded-sm" style={{ background: index === 0 ? accent : colours[index % colours.length] }} /><span className="truncate">{t(`categories.${item.key}`)}</span></span>
+                  <li key={item.key} className="flex items-center justify-between gap-2">
+                    <span className="flex min-w-0 items-center gap-1"><span className="h-2.5 w-2.5 shrink-0 rounded-sm" style={{ background: index === 0 ? accent : colours[index % colours.length] }} />{t(`categories.${item.key}`)}</span>
                     <span className="money shrink-0">{formatSGD(item.amount)}</span>
                   </li>
                 ))}

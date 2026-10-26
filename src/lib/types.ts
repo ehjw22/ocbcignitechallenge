@@ -90,10 +90,19 @@ export interface AnalyticsEvent {
   data: Record<string, string | number | boolean | null>
 }
 
+export interface ChatAction {
+  intent: 'paynow' | 'transfer' | 'overseas' | 'bill' | 'giro' | 'goal' | 'card-lock'
+  fields: Record<string, string>
+}
+
 export interface ChatMessage {
   role: 'user' | 'assistant'
   content: string
   flags?: { refused?: boolean; escalated?: boolean; fraud?: boolean }
   source?: 'llm' | 'demo'
   journeyId?: string | null
+  action?: ChatAction | null
+  scamRisk?: 'none' | 'check' | 'high'
+  suggestions?: string[]
+  handover?: boolean
 }

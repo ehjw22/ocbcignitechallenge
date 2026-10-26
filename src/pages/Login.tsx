@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ChevronLeft } from 'lucide-react'
+import { FieldError } from '@/components/FieldError'
 import { useApp } from '@/context/AppContext'
 import { translate } from '@/i18n'
 
@@ -35,13 +36,13 @@ export function Login() {
         {sessionStorage.getItem('ocbc-after-login') && <p>{t('gate.loginContinue')}</p>}
         <label className="block font-semibold" htmlFor="username">
           {t('gate.username')}
-          <input id="username" name="username" autoComplete="username" value={username} onChange={(event) => setUsername(event.target.value)} className="mt-1 w-full rounded-2xl border border-[var(--line)] bg-[var(--card)] px-3 py-3" />
+          <input id="username" name="username" autoComplete="username" value={username} onChange={(event) => { setUsername(event.target.value); setError('') }} aria-invalid={error ? true : undefined} className={`ocbc-field mt-1 ${error ? 'is-invalid' : ''}`} />
         </label>
         <label className="block font-semibold" htmlFor="password">
           {t('gate.password')}
-          <input id="password" name="password" type="password" autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} className="mt-1 w-full rounded-2xl border border-[var(--line)] bg-[var(--card)] px-3 py-3" />
+          <input id="password" name="password" type="password" autoComplete="current-password" value={password} onChange={(event) => { setPassword(event.target.value); setError('') }} aria-invalid={error ? true : undefined} aria-describedby={error ? 'login-error' : undefined} className={`ocbc-field mt-1 ${error ? 'is-invalid' : ''}`} />
         </label>
-        {error && <p role="alert">{error}</p>}
+        <FieldError id="login-error">{error}</FieldError>
         <button type="submit" className="min-h-12 w-full rounded-full bg-[#1C2834] px-4 py-3 font-semibold text-white">
           {t('gate.login')}
         </button>

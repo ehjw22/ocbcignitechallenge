@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom'
 import { useApp } from '@/context/AppContext'
 import { translate } from '@/i18n'
 import { staffSummary } from '@/lib/staffSummary'
-import { Check, TriangleAlert } from 'lucide-react'
+import { Check } from 'lucide-react'
 import { Choice, choiceClass } from './Choice'
+import { FieldError } from './FieldError'
 import { Speakable } from './Speakable'
 
 const TOPICS = ['transfer', 'card', 'account', 'login', 'other'] as const
@@ -17,7 +18,7 @@ export function StaffPanel() {
   const [method, setMethod] = useState<'message' | 'phone' | 'email'>('message')
   const [time, setTime] = useState('anytime')
   const [contact, setContact] = useState('')
-  const [message, setMessage] = useState('')
+  const [message, setMessage] = useState(app.staffSeed || '')
   const [error, setError] = useState('')
   const [done, setDone] = useState('')
   const [attached, setAttached] = useState(true)
@@ -65,7 +66,7 @@ export function StaffPanel() {
 
   return (
     <form className="flex min-h-0 flex-col gap-2" onSubmit={(event) => { event.preventDefault(); submit() }}>
-      <button type="button" className="text-left text-sm font-semibold text-[var(--accent)]" onClick={() => { app.setHelpOpen(false); navigate('/flow/card-lock') }}>
+      <button type="button" className="phone-number text-left text-sm font-semibold text-[var(--accent)]" onClick={() => { app.setHelpOpen(false); navigate('/flow/card-lock') }}>
         {t('staff.lostLink')}
       </button>
       <div role="radiogroup" aria-label={t('staff.topicLabel')} className="flex gap-1 overflow-x-auto">
@@ -78,7 +79,7 @@ export function StaffPanel() {
       </div>
       <label className="block text-sm font-semibold" htmlFor="staff-message">
         {t('staff.summary')}
-        <textarea id="staff-message" value={message} onChange={(event) => setMessage(event.target.value)} rows={2} placeholder={t('staff.placeholder')} className="mt-1 w-full rounded-xl border border-[var(--line)] bg-[var(--card)] p-2 font-normal" />
+        <textarea id="staff-message" value={message} onChange={(event) => { setMessage(event.target.value); setError('') }} rows={2} placeholder={t('staff.placeholder')} className={`ocbc-field mt-1 font-normal ${error ? 'is-invalid' : ''}`} />
       </label>
       {attached && context && (
         <button type="button" className="self-start rounded-full border border-[var(--line)] px-2 py-1 text-xs" onClick={() => setAttached(false)}>
@@ -109,12 +110,7 @@ export function StaffPanel() {
         </label>
       )}
       <div className="min-h-[4.5rem]">
-        {error && (
-          <p role="alert" className="field-error">
-            <TriangleAlert aria-hidden size={18} className="mt-0.5 shrink-0" />
-            <span>{error}</span>
-          </p>
-        )}
+        <FieldError>{error}</FieldError>
       </div>
       <button type="submit" className="min-h-11 rounded-xl bg-[var(--accent)] font-semibold text-[var(--on-accent)]">{t('staff.send')}</button>
     </form>

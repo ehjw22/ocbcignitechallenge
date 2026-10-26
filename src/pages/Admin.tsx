@@ -233,7 +233,8 @@ export function Admin() {
           <h2 className="mb-2 text-lg font-semibold">{t('admin.refusedTitle')}</h2>
           <ul className="space-y-2">
             {refused.map((item) => <li key={item.q} className="rounded-xl bg-zinc-50 p-3"><strong>{t('admin.refused')}</strong> {item.q} <span className="text-zinc-600">({item.reason})</span></li>)}
-            {escalated.map((event) => <li key={event.id} className="rounded-xl bg-amber-50 p-3"><strong>{t('admin.escalated')}</strong> {String(event.data.question)} <span className="text-zinc-600">({String(event.data.reason)})</span></li>)}
+            {escalated.map((event) => <li key={event.id} className="rounded-xl bg-amber-50 p-3"><strong>{t('admin.escalated')}</strong> {String(event.data.reason || 'staff')} <span className="text-zinc-600">({String(event.data.screen || '')})</span></li>)}
+            {app.events.filter((event) => event.type === 'scam_check').map((event) => <li key={event.id} className="rounded-xl bg-red-50 p-3"><strong>{t('admin.scam')}</strong> {String(event.data.trigger)} · {String(event.data.result)} · {String(event.data.screen || '')}</li>)}
           </ul>
         </section>
         <section className="rounded-2xl border border-zinc-200 bg-white p-4">

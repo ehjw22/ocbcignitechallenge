@@ -3,7 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { ArrowLeftRight, Bell, ChevronRight, Eye, EyeOff } from 'lucide-react'
 import { percentChange, rowsFor, sum } from '@/data/insights'
 import { useApp } from '@/context/AppContext'
-import { BottomNav, DemoBadge, HeaderHelp } from '@/components/Shell'
+import { BottomNav, DemoBadge, ExplainButton, GuideDone, HeaderHelp } from '@/components/Shell'
 import { translate } from '@/i18n'
 import { SHORTCUT_ICONS, SHORTCUT_ROUTES } from '@/lib/shortcutItems'
 import { startAppTour } from '@/lib/appTour'
@@ -40,7 +40,8 @@ export function Home() {
 
   return (
     <div className="relative flex h-full min-h-0 flex-col bg-[var(--bg)] text-[var(--text)]">
-      <main id="main" className={`min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[var(--bg)] ${app.prefs.textSize >= 22 ? 'pb-24' : 'pb-36'}`}>
+      <main id="main" className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[var(--bg)] pb-8">
+        <GuideDone />
         <header className="px-5 pb-2 pt-4" style={hero ? { background: hero, color: '#fff' } : undefined}>
           <div className="flex items-center justify-between gap-2">
             <span className="flex min-w-0 items-center gap-2">
@@ -50,6 +51,7 @@ export function Home() {
               <DemoBadge />
             </span>
             <span className="flex shrink-0 items-center gap-1 text-[var(--text)]" style={hero ? { color: '#fff' } : undefined}>
+              <ExplainButton />
               <HeaderHelp guide />
               <Link to="/notifications" className="flex min-h-11 min-w-11 items-center justify-center" aria-label={t('notifications.title')}>
                 <Bell aria-hidden size={22} />

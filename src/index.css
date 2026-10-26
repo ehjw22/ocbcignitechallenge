@@ -408,6 +408,44 @@ html[data-bold="1"] #customer-app button {
   overflow: visible;
 }
 
+#customer-root .speak-btn {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  min-height: 40px;
+  flex: 0 0 40px;
+}
+
+#customer-root .choice,
+#customer-root .choice span {
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
+.ocbc-filled {
+  outline: 2px solid var(--accent);
+  background: var(--soft);
+}
+
+.ollie-md p + p,
+.ollie-md ul,
+.ollie-md ol {
+  margin-top: 0.5rem;
+}
+
+.ollie-md ul,
+.ollie-md ol {
+  padding-left: 1.25rem;
+}
+
+.ollie-md ul { list-style: disc; }
+.ollie-md ol { list-style: decimal; }
+
+.driver-popover.ocbc-tour .driver-popover-title,
+.driver-popover.ocbc-tour .driver-popover-description {
+  font-size: 1rem;
+}
+
 #customer-root input,
 #customer-root select,
 #customer-root textarea {
