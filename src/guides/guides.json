@@ -106,5 +106,15 @@
       { "id": "next", "element": "limit-new", "title": "guides.limit.newTitle", "body": "guides.limit.newBody" },
       { "id": "review", "element": "limit-review", "title": "guides.limit.reviewTitle", "body": "guides.limit.reviewBody" }
     ]
+  },
+  {
+    "id": "settings",
+    "title": "guides.settings.title",
+    "steps": [
+      { "id": "language", "element": "settings-language", "title": "guides.settings.languageTitle", "body": "guides.settings.languageBody" },
+      { "id": "text", "element": "settings-text", "title": "guides.settings.textTitle", "body": "guides.settings.textBody" },
+      { "id": "help", "element": "settings-help", "title": "guides.settings.helpTitle", "body": "guides.settings.helpBody" },
+      { "id": "shortcuts", "element": "settings-shortcuts", "title": "guides.settings.shortcutsTitle", "body": "guides.settings.shortcutsBody" }
+    ]
   }
 ]

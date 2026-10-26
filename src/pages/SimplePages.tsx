@@ -79,7 +79,10 @@ export function HelpPage() {
   const app = useApp()
   const navigate = useNavigate()
   const t = (key: string) => translate(app.prefs.language, key)
-  useEffect(() => { app.setScreen('help') }, [])
+  useEffect(() => {
+    app.setScreen('help')
+    if (new URLSearchParams(window.location.search).get('staff') === '1') app.openHelp('staff')
+  }, [])
   return (
     <Page title={t('nav.help')}>
       <div className="space-y-3 p-4">

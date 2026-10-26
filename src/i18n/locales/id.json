@@ -162,7 +162,7 @@
   "insightsHint": "Lihat ringkasan pengeluaran Anda.",
   "guideSkipped": "Langkah ini tidak ada di layar ini.",
   "guideEmpty": "Panduan ini tidak tersedia di sini.",
-  "reorderHint": "Seret pintasan, atau gunakan panah.",
+  "reorderHint": "Seret ke slot, atau ketuk untuk menambah.",
   "shortcutFull": "Hapus satu untuk menambah yang lain.",
   "needSix": "Hapus satu untuk menambah yang lain.",
   "contrastWarn": "Foto ini terlalu terang. Coba yang lebih gelap.",
@@ -279,5 +279,9 @@
     "demoLogin": "Kata sandi apa saja dapat digunakan.",
     "helpStaff": "Pesan staf kami"
   },
-  "selectedCount": "{n} dari 6 dipilih"
+  "selectedCount": "{n} dari 6 dipilih",
+  "allShortcuts": "Semua pintasan",
+  "emptySlot": "Kosong",
+  "moveUp": "Naik",
+  "moveDown": "Turun"
 }

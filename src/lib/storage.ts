@@ -1,5 +1,7 @@
+import { DEMO_LOGINS } from '@/data/demoAccounts'
 import type { AnalyticsEvent, CardItem, DemoUser, Preferences, Profile, StaffRequest, Txn } from './types'
 import { DEFAULT_SHORTCUTS } from './languages'
+import { snapRate } from './rates'
 
 export const defaultPrefs = (): Preferences => ({
   language: 'en',
@@ -178,6 +180,7 @@ function mergePrefs(prefs: Preferences): Preferences {
   const next = { ...defaultPrefs(), ...prefs }
   if (!Array.isArray(next.shortcuts) || next.shortcuts.length !== 6) next.shortcuts = [...DEFAULT_SHORTCUTS]
   next.textSize = Math.min(24, Math.max(16, Number(next.textSize) || 16))
+  next.speechRate = snapRate(Number(next.speechRate) || 1)
   next.quizCompleted = typeof next.quizCompleted === 'boolean' ? next.quizCompleted : Boolean(next.onboarded)
   next.onboarded = next.quizCompleted
   return next
@@ -212,13 +215,13 @@ export function loadUsers(): DemoUser[] {
     const raw = localStorage.getItem(keys.users)
     if (raw) {
       const parsed = JSON.parse(raw) as DemoUser[]
-      if (Array.isArray(parsed) && parsed.length) return parsed.map((user) => ({ ...user, prefs: mergePrefs(user.prefs) }))
+      if (Array.isArray(parsed)) return ensureDemoUsers(parsed.map((user) => ({ ...user, prefs: mergePrefs(user.prefs) })))
     }
   } catch {
     /* use migration below */
   }
   const prefs = loadPrefs()
-  if (!prefs.onboarded) return []
+  if (!prefs.onboarded) return ensureDemoUsers([])
   const profile = loadProfile()
   const user: DemoUser = {
     id: profile.id || 'alex',
@@ -226,8 +229,25 @@ export function loadUsers(): DemoUser[] {
     prefs,
     profile,
   }
-  saveUsers([user])
-  return [user]
+  return ensureDemoUsers([user])
+}
+
+function ensureDemoUsers(users: DemoUser[]) {
+  const seedIds = new Set(DEMO_LOGINS.map((seed) => seed.id))
+  const kept = users.filter((user) => !(seedIds.has(user.id) && !user.password))
+  const next = kept.map((user) => {
+    const clash = DEMO_LOGINS.some((seed) => seed.username.toLowerCase() === user.username.toLowerCase()) && !user.password
+    return clash ? { ...user, username: `persona-${user.username}` } : user
+  })
+  let changed = next.length !== users.length || next.some((user, index) => user.username !== kept[index]?.username)
+  for (const seed of DEMO_LOGINS) {
+    if (!next.some((user) => user.username.toLowerCase() === seed.username.toLowerCase())) {
+      next.push(seed)
+      changed = true
+    }
+  }
+  if (changed) saveUsers(next)
+  return next
 }
 
 export function saveUsers(users: DemoUser[]) {

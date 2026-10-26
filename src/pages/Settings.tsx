@@ -1,16 +1,19 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Check, ChevronDown } from 'lucide-react'
 import { ShortcutPicker } from '@/components/ShortcutPicker'
+import { SpeechSpeed } from '@/components/SpeechSpeed'
 import { Page } from '@/components/Shell'
 import { useApp } from '@/context/AppContext'
 import { translate } from '@/i18n'
 import { prepareBackground } from '@/lib/contrast'
+import { beginShowHow, takeShowHow } from '@/lib/showHow'
 import { DEFAULT_SHORTCUTS, DIALECTS, LANGUAGES, SHORTCUTS, THEMES } from '@/lib/languages'
 import type { ColourVision, Dialect, HelpPreference, ThemeId } from '@/lib/types'
 
 function Section({
   id,
   anchor,
+  guide,
   title,
   summary,
   keywords,
@@ -21,6 +24,7 @@ function Section({
 }: {
   id: string
   anchor?: string
+  guide?: string
   title: string
   summary: string
   keywords: string
@@ -38,6 +42,7 @@ function Section({
       <h2>
         <button
           type="button"
+          data-guide={guide}
           className="flex w-full min-h-12 items-center gap-3 py-3 text-left"
           aria-expanded={expanded}
           aria-controls={`settings-${id}`}
@@ -63,8 +68,21 @@ export function Settings() {
   const [order, setOrder] = useState(app.prefs.shortcuts)
   const [query, setQuery] = useState('')
   const [open, setOpen] = useState<Record<string, boolean>>({})
+  const prefsRef = useRef(app.prefs)
+  prefsRef.current = app.prefs
   useEffect(() => {
     if (window.location.hash === '#shortcuts') setOpen((current) => ({ ...current, shortcuts: true }))
+  }, [])
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      const job = takeShowHow('settings')
+      if (!job) return
+      const result = beginShowHow(app, () => prefsRef.current, job.journeyId, job.practice, t)
+      if (!result?.started) app.setNotice(t('guideEmpty'))
+    }, 400)
+    return () => window.clearTimeout(timer)
+    // Start once if the assistant sent the customer here.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const toggle = (id: string) => setOpen((current) => ({ ...current, [id]: !current[id] }))
@@ -93,6 +111,7 @@ export function Settings() {
 
         <Section
           id="language"
+          guide="settings-language"
           title={t('settings.sections.language')}
           summary={`${language?.native || ''} · ${t(`dialects.${app.prefs.dialect}`)}`}
           keywords={`${t('settings.language')} ${t('dialects.title')} ${t('onboarding.readAloud')} ${t('speed')} ${LANGUAGES.map((item) => `${item.native} ${item.english}`).join(' ')} ${DIALECTS.map((item) => t(`dialects.${item.id}`)).join(' ')}`}
@@ -135,14 +154,12 @@ export function Settings() {
             <input type="checkbox" checked={app.prefs.readAloud} onChange={(event) => app.updatePrefs({ readAloud: event.target.checked })} />
             {t('onboarding.readAloud')}
           </label>
-          <label htmlFor="rate" className="mt-2 block font-semibold">
-            {t('speed')}: {app.prefs.speechRate.toFixed(1)}
-            <input id="rate" type="range" min={0.8} max={1.5} step={0.1} value={app.prefs.speechRate} onChange={(event) => app.updatePrefs({ speechRate: Number(event.target.value) })} className="w-full" />
-          </label>
+          <SpeechSpeed />
         </Section>
 
         <Section
           id="text"
+          guide="settings-text"
           title={t('settings.sections.text')}
           summary={textSummary}
           keywords={`${t('settings.text')} ${t('settings.textSize')} ${t('onboarding.bold')} ${t('onboarding.contrast')} ${t('settings.large')}`}
@@ -224,6 +241,7 @@ export function Settings() {
 
         <Section
           id="help"
+          guide="settings-help"
           title={t('settings.sections.help')}
           summary={`${t(helpKey)} · ${t(`detail.${app.prefs.detail}`)}`}
           keywords={`${t('settings.helpPref')} ${t('settings.explain')} ${t('help.ai')} ${t('help.guide')} ${t('help.staff')} ${t('detail.short')} ${t('detail.full')}`}
@@ -252,6 +270,7 @@ export function Settings() {
 
         <Section
           id="shortcuts"
+          guide="settings-shortcuts"
           anchor="shortcuts"
           title={t('settings.sections.shortcuts')}
           summary={order.slice(0, 2).map((id) => t(`shortcuts.${id}`)).join(' · ')}

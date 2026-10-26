@@ -2,13 +2,14 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { CheckCircle2, AlertTriangle } from 'lucide-react'
 import { ShortcutPicker } from '@/components/ShortcutPicker'
+import { SpeechSpeed } from '@/components/SpeechSpeed'
 import { useApp } from '@/context/AppContext'
 import { peekAfterLogin } from '@/lib/storage'
 import { translate } from '@/i18n'
 import { LANGUAGES } from '@/lib/languages'
 import type { ColourVision, DetailLevel, HelpPreference } from '@/lib/types'
 
-const STEPS = 7
+const STEPS = 8
 
 export function Join() {
   const app = useApp()
@@ -59,6 +60,16 @@ export function Join() {
             </section>
           )}
           {step === 2 && (
+            <section>
+              <h2 id="quiz-title" className="text-2xl font-semibold">{t('speakingSpeed')}</h2>
+              <label className="mt-3 flex min-h-12 items-center gap-3">
+                <input type="checkbox" checked={app.prefs.readAloud} onChange={(event) => app.updatePrefs({ readAloud: event.target.checked })} />
+                {t('onboarding.readAloud')}
+              </label>
+              <SpeechSpeed />
+            </section>
+          )}
+          {step === 3 && (
             <section className="space-y-3">
               <h2 id="quiz-title" className="text-2xl font-semibold">{t('onboarding.text')}</h2>
               <label className="block font-semibold" htmlFor="quiz-size">
@@ -68,7 +79,7 @@ export function Join() {
               <p className="rounded-2xl border border-[var(--line)] bg-[var(--card)] p-3">{t('onboarding.preview')}</p>
             </section>
           )}
-          {step === 3 && (
+          {step === 4 && (
             <section className="space-y-3">
               <h2 id="quiz-title" className="text-2xl font-semibold">{t('onboarding.detail')}</h2>
               <div role="radiogroup" aria-label={t('onboarding.detail')} className="space-y-2">
@@ -81,7 +92,7 @@ export function Join() {
               </div>
             </section>
           )}
-          {step === 4 && (
+          {step === 5 && (
             <section className="space-y-2">
               <h2 id="quiz-title" className="text-2xl font-semibold">{t('onboarding.help')}</h2>
               <div role="radiogroup" aria-label={t('onboarding.help')}>
@@ -97,7 +108,7 @@ export function Join() {
               </div>
             </section>
           )}
-          {step === 5 && (
+          {step === 6 && (
             <section>
               <h2 id="quiz-title" className="text-2xl font-semibold">{t('onboarding.colour')}</h2>
               <div role="radiogroup" aria-label={t('onboarding.colour')} className="mt-3 space-y-2">
@@ -113,7 +124,7 @@ export function Join() {
               </div>
             </section>
           )}
-          {step === 6 && (
+          {step === 7 && (
             <section>
               <h2 id="quiz-title" className="text-2xl font-semibold">{t('onboarding.shortcuts')}</h2>
               <div className="mt-3">

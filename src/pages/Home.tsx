@@ -25,7 +25,7 @@ export function Home() {
   const t = (key: string, vars?: Record<string, string | number>) => translate(app.prefs.language, key, vars)
   const hour = new Date().getHours()
   const hello = hour < 12 ? t('goodMorning') : hour < 18 ? t('goodAfternoon') : t('goodEvening')
-  const balance = (app.balances['360'] ?? 0) + (app.balances.savings ?? 0)
+  const balance = app.accounts.filter((account) => account.kind === 'deposit').reduce((sum, account) => sum + (app.balances[account.id] ?? account.balance), 0)
   const hero = app.prefs.backgroundImage
     ? `linear-gradient(rgba(0,0,0,${app.prefs.backgroundOverlay}), rgba(0,0,0,${app.prefs.backgroundOverlay})), url(${app.prefs.backgroundImage}) center/cover`
     : undefined
@@ -75,7 +75,7 @@ export function Home() {
                 {hidden ? <Eye aria-hidden size={22} /> : <EyeOff aria-hidden size={22} />}
               </button>
             </div>
-            <p className="text-[0.75rem] text-[var(--muted)]">{t('totalBalanceHint')}</p>
+            <p className="text-[0.75rem] text-[var(--muted)]">{app.accounts.filter((account) => account.kind === 'deposit').map((account) => t(account.nameKey)).join(' · ') || t('totalBalanceHint')}</p>
           </article>
         </section>
         <section className="px-5 pt-6" data-guide="home-shortcuts" aria-labelledby="shortcuts-title">
@@ -135,6 +135,19 @@ export function Home() {
             ))}
           </ul>
         </section>
+        {app.goals.length > 0 && (
+          <section className="px-5 pb-2">
+            <h2 className="mb-2 text-[16px] font-semibold">{t('shortcuts.goals')}</h2>
+            <ul className="overflow-hidden rounded-card border border-[var(--line)] bg-[var(--card)]">
+              {app.goals.map((goal) => (
+                <li key={goal.id} className="flex items-center justify-between px-4 py-3">
+                  <span>{goal.name}</span>
+                  <span className="tabular-nums">{formatSGD(goal.saved ?? 0)} / {formatSGD(goal.target)}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
         {app.prefs.spendingInsights && (
           <section className="px-5 pb-6">
             <div className="mb-2 flex items-center justify-between">

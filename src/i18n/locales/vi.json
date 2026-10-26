@@ -162,7 +162,7 @@
   "insightsHint": "Xem tóm tắt chi tiêu của bạn.",
   "guideSkipped": "Bước này không có trên màn hình này.",
   "guideEmpty": "Hướng dẫn này không có ở đây.",
-  "reorderHint": "Kéo lối tắt, hoặc dùng mũi tên.",
+  "reorderHint": "Kéo vào ô, hoặc chạm để thêm.",
   "shortcutFull": "Xóa một mục để thêm mục khác.",
   "needSix": "Xóa một mục để thêm mục khác.",
   "contrastWarn": "Ảnh này quá sáng. Hãy thử ảnh tối hơn.",
@@ -279,5 +279,9 @@
     "demoLogin": "Mật khẩu nào cũng được.",
     "helpStaff": "Nhắn cho nhân viên"
   },
-  "selectedCount": "Đã chọn {n} / 6"
+  "selectedCount": "Đã chọn {n} / 6",
+  "allShortcuts": "Mọi lối tắt",
+  "emptySlot": "Trống",
+  "moveUp": "Lên",
+  "moveDown": "Xuống"
 }

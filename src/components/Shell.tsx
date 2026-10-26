@@ -4,6 +4,7 @@ import { ArrowLeftRight, ChevronLeft, CircleHelp, Home, Menu, Wallet, X } from '
 import { useApp } from '@/context/AppContext'
 import { JOURNEY_IDS } from '@/data/flows'
 import { translate } from '@/i18n'
+import { journeyRoute } from '@/lib/showHow'
 import { themeVars } from '@/lib/accent'
 import { AiPanel } from './AiPanel'
 import { StaffPanel } from './StaffPanel'
@@ -223,6 +224,27 @@ function HelpLayer() {
             )}
             {app.helpView === 'ai' && <AiPanel />}
             {app.helpView === 'staff' && <StaffPanel />}
+          </div>
+        </div>
+      )}
+      {app.guidePrompt && (
+        <div className="absolute inset-0 z-50 flex items-end bg-black/40 p-4">
+          <div role="dialog" aria-modal="true" aria-labelledby="guide-done" className="w-full rounded-3xl bg-[var(--card)] p-4 text-[var(--text)]">
+            <p id="guide-done" className="font-semibold">{t('guideDone')}</p>
+            <button
+              type="button"
+              className="mt-4 min-h-12 w-full rounded-2xl bg-[var(--accent)] font-semibold text-[var(--on-accent)]"
+              onClick={() => {
+                const prompt = app.guidePrompt
+                app.setGuidePrompt(null)
+                if (prompt?.practice) navigate(journeyRoute(prompt.journeyId))
+              }}
+            >
+              {t('yes')}
+            </button>
+            <button type="button" className="mt-2 min-h-12 w-full rounded-2xl border border-[var(--line)]" onClick={() => app.setGuidePrompt(null)}>
+              {t('close')}
+            </button>
           </div>
         </div>
       )}

@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { Page } from '@/components/Shell'
 import { useApp } from '@/context/AppContext'
-import { ACCOUNTS, NOTIFICATIONS, payeeName } from '@/data/bank'
+import { NOTIFICATIONS, payeeName } from '@/data/bank'
 import { translate } from '@/i18n'
 import { formatSGD } from '@/lib/format'
 
@@ -10,7 +10,7 @@ export function AccountDetail() {
   const { accountId = '' } = useParams()
   const app = useApp()
   const t = (key: string) => translate(app.prefs.language, key)
-  const account = ACCOUNTS.find((item) => item.id === accountId)
+  const account = app.accounts.find((item) => item.id === accountId)
   useEffect(() => { app.setScreen('account') }, [])
   if (!account) {
     return (
@@ -62,7 +62,7 @@ export function TxnDetail() {
       </Page>
     )
   }
-  const account = ACCOUNTS.find((item) => item.id === txn.accountId)
+  const account = app.accounts.find((item) => item.id === txn.accountId)
   return (
     <Page title={t('txn.title')} back>
       <article className="card m-4 space-y-3 p-4">

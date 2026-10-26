@@ -32,6 +32,11 @@ export function startGuide(options: {
   guideId: string
   text: (key: string) => string
   readAloud: boolean
+  waitForTap?: boolean
+  rate?: () => number
+  setRate?: (rate: number) => void
+  formatRate?: (rate: number) => string
+  nextRate?: (rate: number) => number
   speak: (text: string, onRange?: (start: number, end: number) => void) => void
   onMissing: (element: string, stepId: string) => void
   onStart: (guideId: string) => void
@@ -93,7 +98,7 @@ export function startGuide(options: {
         align: 'center' as const,
       },
     })),
-    onHighlighted: (_element, _step, { state }) => {
+    onHighlighted: (element, _step, { driver: drv, state }) => {
       const step = steps[state.activeIndex ?? 0]
       if (!step) return
       current = step.id
@@ -101,6 +106,16 @@ export function startGuide(options: {
       const body = options.text(step.body)
       const title = options.text(step.title)
       if (options.readAloud) options.speak(`${title}. ${body}`)
+      if (options.waitForTap && element) {
+        element.addEventListener('click', () => {
+          const last = (state.activeIndex ?? 0) >= steps.length - 1
+          if (last) {
+            finished = true
+            options.onDone(guide.id)
+            drv.destroy()
+          } else drv.moveNext()
+        }, { once: true })
+      }
     },
     onPopoverRender: (popover: PopoverDOM, { state }) => {
       const step = steps[state.activeIndex ?? 0]
@@ -121,6 +136,32 @@ export function startGuide(options: {
         options.speak(`${options.text(step.title)}. ${body}`, (start, end) => paint(popover.description, body, start, end))
       }
       popover.footer.appendChild(button)
+      if (options.rate && options.setRate && options.formatRate && options.nextRate) {
+        const format = options.formatRate
+        const speed = document.createElement('button')
+        speed.type = 'button'
+        const paintRate = () => {
+          speed.textContent = format(options.rate?.() ?? 1)
+        }
+        paintRate()
+        speed.setAttribute('aria-label', options.text('speakingSpeed'))
+        speed.style.minHeight = '44px'
+        speed.style.minWidth = '44px'
+        speed.style.marginLeft = '8px'
+        speed.style.padding = '0 12px'
+        speed.style.borderRadius = '999px'
+        speed.style.border = '1px solid #111'
+        speed.style.background = '#fff'
+        speed.style.color = '#111'
+        speed.onclick = (event) => {
+          event.preventDefault()
+          event.stopPropagation()
+          const next = options.nextRate?.(options.rate?.() ?? 1) ?? 1
+          options.setRate?.(next)
+          paintRate()
+        }
+        popover.footer.appendChild(speed)
+      }
     },
     onNextClick: (_el, _step, { driver: drv, state }) => {
       const last = (state.activeIndex ?? 0) >= steps.length - 1

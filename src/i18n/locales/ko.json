@@ -162,7 +162,7 @@
   "insightsHint": "지출 요약을 확인하세요.",
   "guideSkipped": "이 단계는 이 화면에 없습니다.",
   "guideEmpty": "이 안내는 여기서 사용할 수 없습니다.",
-  "reorderHint": "바로가기를 끌거나 화살표를 사용하세요.",
+  "reorderHint": "칸으로 끌거나 눌러 추가하세요.",
   "shortcutFull": "다른 항목을 추가하려면 하나를 지우세요.",
   "needSix": "다른 항목을 추가하려면 하나를 지우세요.",
   "contrastWarn": "이 사진은 너무 밝습니다. 더 어두운 사진을 사용해 보세요.",
@@ -279,5 +279,9 @@
     "demoLogin": "아무 비밀번호나 됩니다.",
     "helpStaff": "직원에게 메시지"
   },
-  "selectedCount": "6개 중 {n}개 선택"
+  "selectedCount": "6개 중 {n}개 선택",
+  "allShortcuts": "모든 바로가기",
+  "emptySlot": "비어 있음",
+  "moveUp": "위로",
+  "moveDown": "아래로"
 }

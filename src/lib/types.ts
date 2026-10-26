@@ -33,6 +33,7 @@ export interface Preferences {
 export interface DemoUser {
   id: string
   username: string
+  password?: string
   prefs: Preferences
   profile: Profile
 }
@@ -94,4 +95,5 @@ export interface ChatMessage {
   content: string
   flags?: { refused?: boolean; escalated?: boolean; fraud?: boolean }
   source?: 'llm' | 'demo'
+  journeyId?: string | null
 }

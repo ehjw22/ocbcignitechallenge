@@ -9,6 +9,8 @@ import { flowById, type FlowField } from '@/data/flows'
 import { translate } from '@/i18n'
 import { formatSGD } from '@/lib/format'
 import { startGuide } from '@/lib/guide'
+import { formatRate, nextRate } from '@/lib/rates'
+import { beginShowHow, takeShowHow } from '@/lib/showHow'
 import { speak } from '@/lib/speech'
 import { validateForm, type Issue } from '@/lib/validate'
 
@@ -16,6 +18,8 @@ export function FlowPage() {
   const { flowId = '' } = useParams()
   const flow = flowById(flowId)
   const app = useApp()
+  const prefsRef = useRef(app.prefs)
+  prefsRef.current = app.prefs
   const navigate = useNavigate()
   const [params] = useSearchParams()
   const practice = params.get('practice') === '1'
@@ -37,6 +41,12 @@ export function FlowPage() {
     const next: Record<string, string> = {}
     flow.fields.forEach((field) => {
       next[field.id] = practice ? field.sample : field.type === 'account' || field.type === 'select' || field.type === 'toggle' ? field.sample : ''
+    })
+    const deposits = app.accounts.filter((account) => account.kind === 'deposit')
+    flow.fields.forEach((field) => {
+      if (field.type === 'account' && deposits.length && !deposits.some((account) => account.id === next[field.id])) {
+        next[field.id] = deposits[0].id
+      }
     })
     if (demo === 'mei' && flow.id === 'overseas') {
       next.name = 'Tan Wei Ming'
@@ -68,7 +78,11 @@ export function FlowPage() {
         guideId: flow.guideId,
         text: t,
         readAloud: app.prefs.readAloud,
-        speak: (text, onRange) => void speak(text, { language: app.prefs.language, rate: app.prefs.speechRate, dialect: app.prefs.dialect, onRange }),
+        rate: () => prefsRef.current.speechRate,
+        setRate: (rate) => app.updatePrefs({ speechRate: rate }),
+        formatRate,
+        nextRate,
+        speak: (text, onRange) => void speak(text, { language: prefsRef.current.language, rate: prefsRef.current.speechRate, dialect: prefsRef.current.dialect, onRange }),
         onMissing: (element, stepId) => {
           app.log('guide_step_missing', { guideId: flow.guideId, element, stepId })
           app.setNotice(t('guideSkipped'))
@@ -81,6 +95,19 @@ export function FlowPage() {
       if (!result.started) app.setNotice(t('guideEmpty'))
     }, 400)
     return () => window.clearTimeout(timer)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [flowId])
+
+  useEffect(() => {
+    if (!flow) return
+    const timer = window.setTimeout(() => {
+      const job = takeShowHow(flow.id)
+      if (!job) return
+      const result = beginShowHow(app, () => prefsRef.current, job.journeyId, job.practice, t)
+      if (!result?.started) app.setNotice(t('guideEmpty'))
+    }, 400)
+    return () => window.clearTimeout(timer)
+    // The walkthrough starts once when this flow opens from the assistant.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [flowId])
 
@@ -215,6 +242,21 @@ export function FlowPage() {
                 <p className="text-[var(--muted)]">{t('fx.accountHint', { hint: t(`fx.hint.${fx.account}`) })}</p>
               </section>
             )}
+            {flow.id === 'overseas' && app.payees.length > 0 && (
+              <section className="card space-y-2 p-3">
+                <p className="font-semibold">{t('savedPayees')}</p>
+                {app.payees.map((payee) => (
+                  <button
+                    key={payee.id}
+                    type="button"
+                    className="min-h-12 w-full rounded-xl border border-[var(--line)] bg-[var(--card)] px-3 text-left"
+                    onClick={() => setForm((prev) => ({ ...prev, name: payee.name, country: payee.country }))}
+                  >
+                    {payee.label}
+                  </button>
+                ))}
+              </section>
+            )}
             {groups.filter((group) => group.fields.some((field) => field.id !== 'lock')).map((group) => (
               <fieldset key={group.guide} data-guide={flow.id === 'scan' && group.guide === 'scan-frame' ? undefined : group.guide} className="card space-y-3 p-3">
                 {group.fields.map((field) => {
@@ -229,6 +271,7 @@ export function FlowPage() {
                     label={iban ? t('flows.iban') : undefined}
                     hint={iban ? t('flows.ibanHint') : undefined}
                     placeholder={iban ? 'GB29 NWBK 6016 1331 9268 19' : undefined}
+                    options={field.type === 'account' ? app.accounts.filter((account) => account.kind === 'deposit').map((account) => ({ value: account.id, label: account.nameKey })) : undefined}
                     onChange={(value) => {
                       setForm((prev) => ({ ...prev, [field.id]: value }))
                       app.setScreen(flow.id, field.id)
@@ -431,6 +474,7 @@ function Field({
   label,
   hint,
   placeholder,
+  options,
 }: {
   field: FlowField
   value: string
@@ -439,6 +483,7 @@ function Field({
   label?: string
   hint?: string
   placeholder?: string
+  options?: { value: string; label: string }[]
 }) {
   if (field.type === 'toggle') {
     if (field.id === 'lock') return null
@@ -458,7 +503,7 @@ function Field({
       {hint && <span className="mb-1 block text-[0.85rem] font-normal text-[var(--muted)]">{hint}</span>}
       {field.type === 'select' || field.type === 'account' ? (
         <select id={id} value={value} onChange={(e) => onChange(e.target.value)} className="ocbc-field">
-          {field.options?.map((option) => (
+          {(options || field.options)?.map((option) => (
             <option key={option.value} value={option.value}>{t(option.label)}</option>
           ))}
         </select>

@@ -59,7 +59,7 @@ export async function handleTts(req: IncomingMessage, res: ServerResponse) {
     send(res, 400, { error: 'text too long' })
     return
   }
-  const rate = Math.min(1.6, Math.max(0.7, Number(raw.rate) || 1))
+  const rate = Math.min(1.5, Math.max(0.6, Number(raw.rate) || 1))
   const cantonese = raw.dialect === 'cantonese'
   const { googleKey, azureKey, region } = speechSettings()
   if (googleKey) {
@@ -82,7 +82,7 @@ export async function handleTts(req: IncomingMessage, res: ServerResponse) {
   }
   if (azureKey) {
     const voice = cantonese ? 'zh-HK-HiuMaanNeural' : azureVoice(raw.lang || 'en-SG')
-    const ssml = `<speak version='1.0' xml:lang='${cantonese ? 'zh-HK' : raw.lang || 'en-SG'}'><voice name='${voice}'><prosody rate='${rate}'>${escapeXml(text)}</prosody></voice></speak>`
+    const ssml = `<speak version='1.0' xml:lang='${cantonese ? 'zh-HK' : raw.lang || 'en-SG'}'><voice name='${voice}'><prosody rate='${rate.toFixed(1)}'>${escapeXml(text)}</prosody></voice></speak>`
     const upstream = await fetch(`https://${region}.tts.speech.microsoft.com/cognitiveservices/v1`, {
       method: 'POST',
       headers: {

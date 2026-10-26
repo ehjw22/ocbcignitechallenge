@@ -162,7 +162,7 @@
   "insightsHint": "Tingnan ang buod ng gastos mo.",
   "guideSkipped": "Wala ang hakbang na ito sa screen na ito.",
   "guideEmpty": "Walang gabay dito.",
-  "reorderHint": "I-drag ang shortcut, o gamitin ang mga arrow.",
+  "reorderHint": "I-drag sa slot, o i-tap para idagdag.",
   "shortcutFull": "Mag-alis ng isa para magdagdag ng iba.",
   "needSix": "Mag-alis ng isa para magdagdag ng iba.",
   "contrastWarn": "Masyadong maliwanag ang larawan. Subukan ang mas madilim.",
@@ -279,5 +279,9 @@
     "demoLogin": "Anumang password ay pwede.",
     "helpStaff": "Magmensahe sa aming tauhan"
   },
-  "selectedCount": "{n} sa 6 ang napili"
+  "selectedCount": "{n} sa 6 ang napili",
+  "allShortcuts": "Lahat ng shortcut",
+  "emptySlot": "Walang laman",
+  "moveUp": "Itaas",
+  "moveDown": "Ibaba"
 }

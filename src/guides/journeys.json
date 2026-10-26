@@ -1,0 +1,76 @@
+{
+  "paynow": {
+    "route": "/flow/paynow",
+    "steps": [
+      { "id": "recipient", "element": "paynow-to" },
+      { "id": "amount", "element": "paynow-amount" },
+      { "id": "reference", "element": "paynow-reference" },
+      { "id": "review", "element": "paynow-review" }
+    ]
+  },
+  "transfer": {
+    "route": "/flow/transfer",
+    "steps": [
+      { "id": "name", "element": "transfer-name" },
+      { "id": "account", "element": "transfer-account" },
+      { "id": "amount", "element": "transfer-amount" },
+      { "id": "review", "element": "transfer-review" }
+    ]
+  },
+  "overseas": {
+    "route": "/flow/overseas",
+    "steps": [
+      { "id": "name", "element": "overseas-name" },
+      { "id": "country", "element": "overseas-country" },
+      { "id": "swift", "element": "overseas-swift" },
+      { "id": "account", "element": "overseas-account" },
+      { "id": "amount", "element": "overseas-amount" },
+      { "id": "purpose", "element": "overseas-purpose" },
+      { "id": "review", "element": "overseas-review" }
+    ]
+  },
+  "bill": {
+    "route": "/flow/bill",
+    "steps": [
+      { "id": "biller", "element": "bill-biller" },
+      { "id": "ref", "element": "bill-ref" },
+      { "id": "amount", "element": "bill-amount" },
+      { "id": "review", "element": "bill-review" }
+    ]
+  },
+  "giro": {
+    "route": "/flow/giro",
+    "steps": [
+      { "id": "org", "element": "giro-org" },
+      { "id": "account", "element": "giro-account" },
+      { "id": "limit", "element": "giro-limit" },
+      { "id": "review", "element": "giro-review" }
+    ]
+  },
+  "goal": {
+    "route": "/flow/goal",
+    "steps": [
+      { "id": "name", "element": "goal-name" },
+      { "id": "target", "element": "goal-target" },
+      { "id": "monthly", "element": "goal-monthly" },
+      { "id": "review", "element": "goal-review" }
+    ]
+  },
+  "card-lock": {
+    "route": "/flow/card-lock",
+    "steps": [
+      { "id": "card", "element": "card-select" },
+      { "id": "toggle", "element": "card-toggle" },
+      { "id": "review", "element": "card-review" }
+    ]
+  },
+  "settings": {
+    "route": "/settings",
+    "steps": [
+      { "id": "language", "element": "settings-language" },
+      { "id": "text", "element": "settings-text" },
+      { "id": "help", "element": "settings-help" },
+      { "id": "shortcuts", "element": "settings-shortcuts" }
+    ]
+  }
+}

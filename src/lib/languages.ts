@@ -49,6 +49,10 @@ export const SHORTCUTS = [
   'investments',
   'insurance',
   'rewards',
+  'staff',
+  'accounts',
+  'help',
+  'insights',
 ] as const
 
 export const DEFAULT_SHORTCUTS = ['transfer', 'paynow', 'bills', 'scan', 'cards', 'rewards']

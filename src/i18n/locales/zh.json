@@ -59,7 +59,7 @@
   "guideEmpty": "此指引在这里不可用。",
   "moveUp": "上移",
   "moveDown": "下移",
-  "reorderHint": "拖动快捷方式，或使用箭头。",
+  "reorderHint": "拖到空位，或点按添加。",
   "selectedCount": "已选 {n} / 6",
   "needSix": "请先移除一个，再添加。",
   "contrastWarn": "这张照片太亮。请换一张较暗的。",
@@ -412,14 +412,18 @@
     "paynow": "PayNow",
     "bills": "付账单",
     "overseas": "海外转账",
-    "scan": "扫二维码",
+    "scan": "扫码支付",
     "cards": "银行卡",
     "goals": "储蓄目标",
     "giro": "GIRO",
     "topup": "充值",
     "investments": "投资",
     "insurance": "保险",
-    "rewards": "奖励"
+    "rewards": "奖励",
+    "staff": "联系职员",
+    "accounts": "账户",
+    "help": "帮助",
+    "insights": "支出洞察"
   },
   "accounts": {
     "title": "账户",
@@ -427,7 +431,8 @@
     "savings": "结单储蓄",
     "card365": "365 信用卡",
     "deposits": "存款账户",
-    "cards": "银行卡"
+    "cards": "银行卡",
+    "frank": "FRANK 账户"
   },
   "cards": {
     "title": "银行卡",
@@ -606,7 +611,18 @@
       "reviewTitle": "确认新限额",
       "reviewBody": "确认前请核对新的限额。"
     },
-    "progress": "{current} / {total}"
+    "progress": "{current} / {total}",
+    "settings": {
+      "title": "更改设置",
+      "languageTitle": "语言和语音",
+      "languageBody": "选择语言、语音和语速。",
+      "textTitle": "文字大小",
+      "textBody": "把文字调大或调小。",
+      "helpTitle": "获得帮助的方式",
+      "helpBody": "选择助手、引导，或给职员发消息。",
+      "shortcutsTitle": "首页快捷方式",
+      "shortcutsBody": "选择首页上的 6 个快捷方式。"
+    }
   },
   "themes": {
     "title": "颜色主题",
@@ -763,5 +779,22 @@
       "iban": "IBAN"
     }
   },
-  "shortcutFull": "请先移除一个，再添加。"
+  "shortcutFull": "请先移除一个，再添加。",
+  "allShortcuts": "全部快捷方式",
+  "emptySlot": "空位",
+  "speakingSpeed": "语速",
+  "playSample": "播放示例",
+  "speechSample": "您的可用余额是 S,250.00。",
+  "tryIt": "试一试",
+  "practiseSample": "用示例数据练习",
+  "guideDone": "完成了。现在要正式办理吗？",
+  "badPassword": "密码不正确。请再试一次。",
+  "savedPayees": "已保存的收款人",
+  "speechRates": {
+    "verySlow": "很慢",
+    "slow": "慢",
+    "normal": "正常",
+    "fast": "快",
+    "veryFast": "很快"
+  }
 }

@@ -53,7 +53,7 @@
   "guideEmpty": "This guide is not available here.",
   "moveUp": "Move up",
   "moveDown": "Move down",
-  "reorderHint": "Drag a shortcut, or use the arrows.",
+  "reorderHint": "Drag into a slot, or tap to add.",
   "selectedCount": "{n} of 6 selected",
   "needSix": "Remove one to add another.",
   "contrastWarn": "This photo is very bright. Try a darker one.",
@@ -477,14 +477,18 @@
     "paynow": "PayNow",
     "bills": "Pay Bills",
     "overseas": "Overseas Transfer",
-    "scan": "Scan QR",
+    "scan": "Scan & Pay",
     "cards": "Cards",
     "goals": "Savings Goals",
     "giro": "GIRO",
     "topup": "Top Up",
     "investments": "Investments",
     "insurance": "Insurance",
-    "rewards": "Rewards"
+    "rewards": "Rewards",
+    "staff": "Message staff",
+    "accounts": "Accounts",
+    "help": "Help",
+    "insights": "Spending insights"
   },
   "accounts": {
     "title": "Accounts",
@@ -492,7 +496,8 @@
     "savings": "Statement Savings",
     "card365": "365 Credit Card",
     "deposits": "Deposit accounts",
-    "cards": "Cards"
+    "cards": "Cards",
+    "frank": "FRANK Account"
   },
   "cards": {
     "title": "Cards",
@@ -648,7 +653,18 @@
       "reviewTitle": "Confirm the new limit",
       "reviewBody": "Review the new limit before you confirm."
     },
-    "progress": "{current} of {total}"
+    "progress": "{current} of {total}",
+    "settings": {
+      "title": "Change settings",
+      "languageTitle": "Language and voice",
+      "languageBody": "Choose the language, voice, and speaking speed.",
+      "textTitle": "Text size",
+      "textBody": "Make the text larger or smaller.",
+      "helpTitle": "How you get help",
+      "helpBody": "Choose the assistant, a guide, or a message to staff.",
+      "shortcutsTitle": "Home shortcuts",
+      "shortcutsBody": "Choose the six shortcuts on Home."
+    }
   },
   "categories": {
     "food": "Food",
@@ -763,5 +779,22 @@
       "iban": "IBAN"
     }
   },
-  "shortcutFull": "Remove one to add another."
+  "shortcutFull": "Remove one to add another.",
+  "allShortcuts": "All shortcuts",
+  "emptySlot": "Empty",
+  "speakingSpeed": "Speaking speed",
+  "playSample": "Play sample",
+  "speechSample": "Your available balance is S,250.00.",
+  "tryIt": "Try it",
+  "practiseSample": "Practise with sample data",
+  "guideDone": "Done. Want to do it for real now?",
+  "badPassword": "Password is not correct. Try again.",
+  "savedPayees": "Saved payees",
+  "speechRates": {
+    "verySlow": "Very slow",
+    "slow": "Slow",
+    "normal": "Normal",
+    "fast": "Fast",
+    "veryFast": "Very fast"
+  }
 }

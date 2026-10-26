@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { ACCOUNTS, SEED_CARDS, SEED_TXNS } from '@/data/bank'
+import { clearBooks, demoBook, isDemoAccount, loadBook, saveBook, type BankBook, type SavedPayee } from '@/data/demoAccounts'
 import { PERSONAS } from '@/data/personas'
 import { SEED_REQUESTS } from '@/data/seed'
 import { translate } from '@/i18n'
@@ -44,6 +45,7 @@ export interface Goal {
   name: string
   target: number
   monthly: number
+  saved?: number
 }
 
 type RequestInput = Omit<StaffRequest, 'ref' | 'createdAt' | 'status'>
@@ -92,6 +94,10 @@ interface AppApi {
   setLimit: (amount: number) => void
   goals: Goal[]
   setGoals: (goals: Goal[]) => void
+  accounts: import('@/lib/types').Account[]
+  payees: SavedPayee[]
+  guidePrompt: { journeyId: string; practice: boolean } | null
+  setGuidePrompt: (prompt: { journeyId: string; practice: boolean } | null) => void
   applyPersona: (id: 'mei' | 'arif') => void
   resetDemo: () => void
   resetQuiz: () => void
@@ -99,7 +105,7 @@ interface AppApi {
   switchUser: () => void
   markTourSeen: () => void
   sessionId: string | null
-  login: (username: string) => void
+  login: (username: string, password: string) => boolean
   logout: () => void
 }
 
@@ -144,6 +150,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
   })
   const [cards, setCardsState] = useState<CardItem[]>(() => loadCards(SEED_CARDS))
   const [extraTxns, setExtraTxns] = useState<Txn[]>(loadExtraTxns)
+  const [baseTxns, setBaseTxns] = useState<Txn[]>(SEED_TXNS)
+  const [accounts, setAccounts] = useState(ACCOUNTS)
+  const [payees, setPayees] = useState<SavedPayee[]>([])
+  const [guidePrompt, setGuidePrompt] = useState<{ journeyId: string; practice: boolean } | null>(null)
   const [balances, setBalances] = useState<Record<string, number>>(() => loadBalances(seedBalances))
   const [limit, setLimitState] = useState(() => loadLimit(5000))
   const [goals, setGoalsState] = useState<Goal[]>(readGoals)
@@ -221,7 +231,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const addTxn = (txn: Txn) => {
     setExtraTxns((current) => {
       const next = [txn, ...current].slice(0, 30)
-      saveExtraTxns(next)
+      const userId = sessionRef.current
+      if (userId && isDemoAccount(userId)) {
+        const book = loadBook(userId)
+        if (book) saveBook(userId, { ...book, txns: [txn, ...book.txns].slice(0, 30) })
+      } else saveExtraTxns(next)
       return next
     })
   }
@@ -229,7 +243,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const setBalance = (id: string, amount: number) => {
     setBalances((current) => {
       const next = { ...current, [id]: amount }
-      saveBalances(next)
+      const userId = sessionRef.current
+      if (userId && isDemoAccount(userId)) {
+        const book = loadBook(userId)
+        if (book) saveBook(userId, { ...book, balances: next })
+      } else saveBalances(next)
       return next
     })
   }
@@ -241,7 +259,29 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const setGoals = (next: Goal[]) => {
     setGoalsState(next)
-    localStorage.setItem(GOALS_KEY, JSON.stringify(next))
+    const userId = sessionRef.current
+    if (userId && isDemoAccount(userId)) {
+      const book = loadBook(userId)
+      if (book) saveBook(userId, { ...book, goals: next })
+    } else localStorage.setItem(GOALS_KEY, JSON.stringify(next))
+  }
+
+  const showBook = (book: BankBook) => {
+    setAccounts(book.accounts)
+    setBalances(book.balances)
+    setBaseTxns(book.txns)
+    setExtraTxns([])
+    setGoalsState(book.goals)
+    setPayees(book.payees)
+  }
+
+  const showSharedBook = () => {
+    setAccounts(ACCOUNTS)
+    setBalances(loadBalances(seedBalances))
+    setBaseTxns(SEED_TXNS)
+    setExtraTxns(loadExtraTxns())
+    setGoalsState(readGoals())
+    setPayees([])
   }
 
   const addRequest = (input: RequestInput) => {
@@ -297,20 +337,29 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setProfileState(user.profile)
     savePrefs(user.prefs)
     saveProfile(user.profile)
+    if (isDemoAccount(user.id)) {
+      const book = loadBook(user.id) ?? demoBook(user.id)
+      if (book) {
+        saveBook(user.id, book)
+        showBook(book)
+      }
+    } else showSharedBook()
   }
 
   const destination = () => peekAfterLogin() || '/'
 
-  const login = (username: string) => {
+  const login = (username: string, password: string) => {
     const name = username.trim()
-    if (!name) return
+    if (!name) return false
     const users = loadUsers()
-    const found = users.find((user) => [user.username, user.profile.name, user.profile.shortName].some((value) => value.toLowerCase() === name.toLowerCase()))
+    const found = users.find((user) => user.username.toLowerCase() === name.toLowerCase())
+      || users.find((user) => [user.profile.name, user.profile.shortName].some((value) => value.toLowerCase() === name.toLowerCase()))
+    if (found?.password && found.password !== password) return false
     if (found?.prefs.quizCompleted) {
       activate(found)
       saveLastUserId(found.id)
       navigate(destination())
-      return
+      return true
     }
     const id = found?.id || `user-${Date.now()}`
     const nextProfile: Profile = found?.profile || { id, name, shortName: name.split(/\s+/)[0] || name, usualTransfer: 500 }
@@ -322,6 +371,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     activate({ id, username: found?.username || name, prefs: nextPrefs, profile: nextProfile })
     saveLastUserId(id)
     navigate('/join')
+    return true
   }
 
   const logout = () => {
@@ -364,15 +414,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const applyPersona = (id: 'mei' | 'arif') => {
     const persona = PERSONAS.find((item) => item.id === id)
     if (!persona) return
-    const existing = loadUsers().find((user) => user.id === id)
+    const storedId = `persona-${id}`
+    const existing = loadUsers().find((user) => user.id === storedId)
     activate({
-      id,
-      username: existing?.username || persona.profile.shortName,
+      id: storedId,
+      username: existing?.username || `persona-${persona.profile.shortName}`,
       prefs: { ...persona.prefs, quizCompleted: true, onboarded: true },
-      profile: persona.profile,
+      profile: { ...persona.profile, id: storedId },
     })
     setTourSeen()
-    saveLastUserId(id)
+    saveLastUserId(storedId)
     if (id === 'mei') {
       setStaffSeed('')
       navigate('/flow/overseas?practice=1&demo=mei')
@@ -400,6 +451,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const resetDemo = () => {
     resetAll()
+    clearBooks()
     localStorage.removeItem(GOALS_KEY)
     clearTourSeen()
     sessionRef.current = null
@@ -410,6 +462,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setRequests([])
     setCardsState(SEED_CARDS)
     setExtraTxns([])
+    setBaseTxns(SEED_TXNS)
+    setAccounts(ACCOUNTS)
+    setPayees([])
+    setGuidePrompt(null)
     setBalances(seedBalances)
     setLimitState(5000)
     setGoalsState([])
@@ -456,7 +512,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     cards,
     setCards,
     setCardLocked,
-    txns: [...extraTxns, ...SEED_TXNS],
+    txns: [...extraTxns, ...baseTxns],
+    accounts,
+    payees,
+    guidePrompt,
+    setGuidePrompt,
     addTxn,
     balances,
     setBalance,

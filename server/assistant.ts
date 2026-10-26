@@ -1,10 +1,35 @@
 type Pack = Record<string, unknown>
 
+import journeys from '../src/guides/journeys.json'
+
 export type DemoResult = {
   reply: string
   source: 'demo'
   flags: { refused: boolean; escalated: boolean; fraud: boolean }
   intent: string
+  journeyId: string | null
+}
+
+const JOURNEY_IDS = new Set(Object.keys(journeys))
+
+const HOW = /how|show me|steps|guide|where|walk me|help me|怎么|如何|怎样|bagaimana|macam mana|எப்படி/i
+
+export function journeyFor(message: string, intent: string) {
+  const mapped: Record<string, string> = {
+    paynow: 'paynow',
+    transfer: 'transfer',
+    overseas: 'overseas',
+    bill: 'bill',
+    giro: 'giro',
+    savings: 'goal',
+    cardlock: 'card-lock',
+    settings: 'settings',
+  }
+  const id = mapped[intent]
+  if (!id || !JOURNEY_IDS.has(id)) return null
+  const words = message.trim().split(/\s+/).filter(Boolean).length
+  if (HOW.test(message) || words <= 8) return id
+  return null
 }
 
 function dig(obj: unknown, path: string): string | undefined {
@@ -19,7 +44,9 @@ function dig(obj: unknown, path: string): string | undefined {
 const RULES: { intent: string; re: RegExp }[] = [
   { intent: 'secret', re: /password|\botp\b|\bpin\b|full card|card number|cvv|\d{13,}/i },
   { intent: 'fraud', re: /fraud|scam|phish|unauthori[sz]ed|dispute|stolen|hacked|cheat|诈骗|骗局|盗刷|penipuan|tipu|scammer|骗/i },
+  { intent: 'cardlock', re: /lock (my |the )?card|unlock (my |the )?card|锁卡|解锁|kunci kad/i },
   { intent: 'lostcard', re: /lost (my )?card|card (is )?lost|misplaced|丢了卡|卡丢|kad hilang|card missing|report.*card/i },
+  { intent: 'settings', re: /settings|text size|colour|color|shortcut|language|字体|设置|bahasa|tetapan/i },
   { intent: 'staff', re: /speak to (a )?(person|human|staff|someone)|contact (ocbc )?staff|call me|real person|客服|人工|工作人员/i },
   { intent: 'giro', re: /giro/i },
   { intent: 'paynow', re: /paynow|pay now/i },
@@ -67,5 +94,6 @@ export function demoReply(
     const hotline = textOf('ai.hotline')
     if (!reply.includes('+65')) reply = `${reply}\n\n${hotline}`
   }
-  return { reply, source: 'demo', flags: { refused, escalated, fraud }, intent }
+  const journeyId = refused || fraud ? null : journeyFor(message, intent)
+  return { reply, source: 'demo', flags: { refused, escalated, fraud }, intent, journeyId }
 }

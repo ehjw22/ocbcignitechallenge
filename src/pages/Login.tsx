@@ -18,7 +18,8 @@ export function Login() {
       setError(t('gate.missingName'))
       return
     }
-    app.login(username)
+    const ok = app.login(username, password)
+    if (!ok) setError(t('badPassword'))
   }
 
   return (

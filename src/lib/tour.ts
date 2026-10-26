@@ -1,5 +1,6 @@
 import { translate } from '@/i18n'
 import { startGuide } from '@/lib/guide'
+import { formatRate, nextRate } from '@/lib/rates'
 import { speak } from '@/lib/speech'
 import type { useApp } from '@/context/AppContext'
 
@@ -10,6 +11,10 @@ export function playGuide(app: App, guideId: string) {
     guideId,
     text: (key) => translate(app.prefs.language, key),
     readAloud: app.prefs.readAloud,
+    rate: () => app.prefs.speechRate,
+    setRate: (rate) => app.updatePrefs({ speechRate: rate }),
+    formatRate,
+    nextRate,
     speak: (text, onRange) => {
       void speak(text, {
         language: app.prefs.language,

@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Info, Mic, Send, Square } from 'lucide-react'
 import { useApp } from '@/context/AppContext'
 import { translate } from '@/i18n'
 import { languageById } from '@/lib/languages'
+import { journeyRoute, queueShowHow } from '@/lib/showHow'
 import { Speakable } from './Speakable'
 
 const CHIP_KEYS = ['ai.chipBalance', 'ai.chipPaynow', 'ai.chipGiro', 'ai.chipGuide', 'ai.chipScam']
@@ -17,13 +19,13 @@ function chipsFor(screen: string) {
 
 export function AiPanel() {
   const app = useApp()
+  const navigate = useNavigate()
   const t = (key: string, vars?: Record<string, string | number>) => translate(app.prefs.language, key, vars)
   const [draft, setDraft] = useState('')
   const [busy, setBusy] = useState(false)
   const [about, setAbout] = useState(false)
   const [listening, setListening] = useState(false)
   const [live, setLive] = useState('')
-  const [rate, setRate] = useState(app.prefs.speechRate)
   const scroller = useRef<HTMLDivElement>(null)
   const recRef = useRef<SpeechRecognitionLike | null>(null)
 
@@ -59,12 +61,13 @@ export function AiPanel() {
         reply?: string
         source?: 'llm' | 'demo'
         flags?: { refused?: boolean; escalated?: boolean; fraud?: boolean }
+        journeyId?: string | null
       }
       const reply = data.reply || t('ai.faq.general.short')
       const flags = data.flags || {}
       if (flags.refused) app.log('ai_refused', { question: text, screen: app.screen })
       if (flags.escalated || flags.fraud) app.log('ai_escalated', { question: text, reason: flags.fraud ? 'fraud' : 'staff', screen: app.screen })
-      app.setMessages((prev) => [...prev, { role: 'assistant', content: reply, flags, source: data.source }])
+      app.setMessages((prev) => [...prev, { role: 'assistant', content: reply, flags, source: data.source, journeyId: data.journeyId }])
       setLive(reply)
     } catch {
       app.setMessages((prev) => [...prev, { role: 'assistant', content: `${t('ai.busy')}\n\n${t('ai.faq.general.short')}`, source: 'demo' }])
@@ -141,6 +144,33 @@ export function AiPanel() {
                 </button>
               </div>
             )}
+            {message.journeyId && (
+              <div className="mt-3 flex flex-col gap-2">
+                <button
+                  type="button"
+                  className="min-h-12 rounded-xl bg-[var(--accent)] px-3 font-semibold text-[var(--on-accent)]"
+                  onClick={() => {
+                    app.setHelpOpen(false)
+                    queueShowHow(message.journeyId || '', false)
+                    navigate(journeyRoute(message.journeyId || ''))
+                  }}
+                >
+                  {t('tryIt')}
+                </button>
+                <button
+                  type="button"
+                  className="min-h-12 rounded-xl border border-[var(--line)] bg-[var(--card)] px-3 font-semibold"
+                  onClick={() => {
+                    app.setHelpOpen(false)
+                    queueShowHow(message.journeyId || '', true)
+                    const route = journeyRoute(message.journeyId || '')
+                    navigate(route.startsWith('/flow') ? `${route}?practice=1` : route)
+                  }}
+                >
+                  {t('practiseSample')}
+                </button>
+              </div>
+            )}
             {message.flags?.escalated && (
               <button type="button" className="tap mt-2 underline" onClick={() => app.setHelpView('staff')}>
                 {t('help.staff')}
@@ -160,23 +190,6 @@ export function AiPanel() {
           ))}
         </div>
       </div>
-      <label className="block text-sm font-semibold" htmlFor="speech-rate">
-        {t('speed')}
-        <input
-          id="speech-rate"
-          type="range"
-          min={0.8}
-          max={1.5}
-          step={0.1}
-          value={rate}
-          onChange={(e) => {
-            const next = Number(e.target.value)
-            setRate(next)
-            app.updatePrefs({ speechRate: next })
-          }}
-          className="mt-1 w-full"
-        />
-      </label>
       <form
         className="flex w-full flex-col gap-2"
         onSubmit={(e) => {

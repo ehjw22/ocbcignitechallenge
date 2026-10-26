@@ -184,7 +184,7 @@
   "insightsHint": "Lihat ringkasan perbelanjaan anda.",
   "guideSkipped": "Langkah ini tiada pada skrin ini.",
   "guideEmpty": "Panduan ini tidak tersedia di sini.",
-  "reorderHint": "Seret pintasan, atau guna anak panah.",
+  "reorderHint": "Seret ke slot, atau ketik untuk tambah.",
   "shortcutFull": "Buang satu untuk tambah yang lain.",
   "needSix": "Buang satu untuk tambah yang lain.",
   "contrastWarn": "Foto ini terlalu cerah. Cuba yang lebih gelap.",
@@ -260,6 +260,17 @@
     },
     "goal": {
       "reviewBody": "Sahkan nama, sasaran dan jumlah bulanan."
+    },
+    "settings": {
+      "title": "Tukar tetapan",
+      "languageTitle": "Bahasa dan suara",
+      "languageBody": "Pilih bahasa, suara dan kelajuan pertuturan.",
+      "textTitle": "Saiz teks",
+      "textBody": "Besarkan atau kecilkan teks.",
+      "helpTitle": "Cara mendapat bantuan",
+      "helpBody": "Pilih pembantu, panduan, atau mesej kepada kakitangan.",
+      "shortcutsTitle": "Pintasan utama",
+      "shortcutsBody": "Pilih enam pintasan di skrin utama."
     }
   },
   "profile": {
@@ -296,5 +307,34 @@
     "demoLogin": "Sebarang kata laluan boleh digunakan.",
     "helpStaff": "Mesej kakitangan kami"
   },
-  "selectedCount": "{n} daripada 6 dipilih"
+  "selectedCount": "{n} daripada 6 dipilih",
+  "allShortcuts": "Semua pintasan",
+  "emptySlot": "Kosong",
+  "moveUp": "Naik",
+  "moveDown": "Turun",
+  "speakingSpeed": "Kelajuan pertuturan",
+  "playSample": "Main sampel",
+  "speechSample": "Baki anda ialah S,250.00.",
+  "tryIt": "Cuba",
+  "practiseSample": "Berlatih dengan data sampel",
+  "guideDone": "Selesai. Mahu buat sekarang?",
+  "badPassword": "Kata laluan tidak tepat. Cuba lagi.",
+  "savedPayees": "Penerima disimpan",
+  "speechRates": {
+    "verySlow": "Sangat perlahan",
+    "slow": "Perlahan",
+    "normal": "Biasa",
+    "fast": "Laju",
+    "veryFast": "Sangat laju"
+  },
+  "shortcuts": {
+    "scan": "Imbas & Bayar",
+    "staff": "Mesej kakitangan",
+    "accounts": "Akaun",
+    "help": "Bantuan",
+    "insights": "Wawasan perbelanjaan"
+  },
+  "accounts": {
+    "frank": "Akaun FRANK"
+  }
 }

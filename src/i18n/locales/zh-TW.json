@@ -162,7 +162,7 @@
   "insightsHint": "查看您的支出摘要。",
   "guideSkipped": "此步驟不在這個頁面。",
   "guideEmpty": "此指引在這裡無法使用。",
-  "reorderHint": "拖曳捷徑，或使用箭頭。",
+  "reorderHint": "拖到空位，或點一下新增。",
   "shortcutFull": "請先移除一個，再新增。",
   "needSix": "請先移除一個，再新增。",
   "contrastWarn": "這張照片太亮。請換一張較暗的。",
@@ -279,5 +279,9 @@
     "demoLogin": "任意密碼均可。",
     "helpStaff": "聯絡我們"
   },
-  "selectedCount": "已選 {n} / 6"
+  "selectedCount": "已選 {n} / 6",
+  "allShortcuts": "全部捷徑",
+  "emptySlot": "空位",
+  "moveUp": "上移",
+  "moveDown": "下移"
 }

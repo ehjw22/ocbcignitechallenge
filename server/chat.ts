@@ -1,6 +1,6 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import OpenAI from 'openai'
-import { demoReply, type DemoResult } from './assistant'
+import { demoReply, journeyFor, type DemoResult } from './assistant'
 import { llmSettings } from './env'
 import { clientIp, readBody, send } from './http'
 import { rateLimited } from './limit'
@@ -119,7 +119,8 @@ export async function handleChat(req: IncomingMessage, res: ServerResponse) {
     const text = completion.choices[0]?.message?.content || ''
     if (!text.trim()) throw new Error('empty reply')
     const flags = stripFlags(text)
-    send(res, 200, { reply: flags.reply, source: 'llm', flags: { refused: flags.refused, escalated: flags.escalated, fraud: flags.fraud } })
+    const journeyId = flags.refused || flags.fraud ? null : journeyFor(last, demoReply(pack, demoInput).intent)
+    send(res, 200, { reply: flags.reply, source: 'llm', journeyId, flags: { refused: flags.refused, escalated: flags.escalated, fraud: flags.fraud } })
   } catch {
     send(res, 200, busy())
   }

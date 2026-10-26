@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Page } from '@/components/Shell'
 import { useApp } from '@/context/AppContext'
-import { ACCOUNTS, payeeName } from '@/data/bank'
+import { payeeName } from '@/data/bank'
 import { translate } from '@/i18n'
 import { formatSGD } from '@/lib/format'
 
@@ -21,7 +21,7 @@ export function Accounts() {
   return (
     <Page title={t('accounts.title')}>
       <div className="space-y-3 px-4 py-4">
-        {ACCOUNTS.map((account) => (
+        {app.accounts.map((account) => (
           <Link key={account.id} to={`/accounts/${account.id}`} className="card block px-4 py-4">
             <h2 className="text-[0.9rem] font-medium leading-normal">{t(account.nameKey)}</h2>
             <p className="text-[0.75rem] text-[var(--muted)]">{account.kind === 'card' ? `•••• ${account.number}` : account.number}</p>
@@ -40,7 +40,7 @@ export function Accounts() {
           {t('txn.filterAccount')}
           <select id="txn-account" value={accountId} onChange={(e) => setAccountId(e.target.value)} className="ocbc-field mt-1">
             <option value="all">{t('txn.allAccounts')}</option>
-            {ACCOUNTS.map((account) => <option key={account.id} value={account.id}>{t(account.nameKey)}</option>)}
+            {app.accounts.map((account) => <option key={account.id} value={account.id}>{t(account.nameKey)}</option>)}
           </select>
         </label>
         <ul className="card divide-y divide-[var(--line)]">
