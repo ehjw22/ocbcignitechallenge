@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { CheckCircle2, AlertTriangle } from 'lucide-react'
-import { Choice } from '@/components/Choice'
+import { Check, CheckCircle2, AlertTriangle } from 'lucide-react'
+import { Choice, choiceClass } from '@/components/Choice'
 import { ShortcutPicker } from '@/components/ShortcutPicker'
 import { SpeechSpeed } from '@/components/SpeechSpeed'
 import { useApp } from '@/context/AppContext'
@@ -112,12 +112,15 @@ export function Join() {
               <h2 id="quiz-title" className="text-xl font-semibold">{t('onboarding.colour')}</h2>
               <div role="radiogroup" aria-label={t('onboarding.colour')} className="mt-3 space-y-2">
                 {(['default', 'protanopia', 'deuteranopia', 'tritanopia', 'monochrome'] as ColourVision[]).map((mode) => (
-                  <button key={mode} type="button" role="radio" aria-checked={app.prefs.colourVision === mode} className={`min-h-11 w-full rounded-xl px-3 py-2 text-left ${app.prefs.colourVision === mode ? 'border-2 border-[var(--accent)] bg-[color-mix(in_srgb,var(--accent)_12%,var(--card))] font-bold' : 'border border-[#d9d9d9] bg-[var(--card)]'}`} onClick={() => app.updatePrefs({ colourVision: mode })}>
-                    <span className="font-semibold">{t(`cvd.${mode}`)}</span>
-                    <span className="mt-1 flex flex-wrap gap-3 text-sm">
-                      <span className="inline-flex items-center gap-1 text-[var(--success)]"><CheckCircle2 aria-hidden size={16} />{t('cvd.paid')}</span>
-                      <span className="inline-flex items-center gap-1 text-[var(--warning)]"><AlertTriangle aria-hidden size={16} />{t('cvd.check')}</span>
+                  <button key={mode} type="button" role="radio" aria-checked={app.prefs.colourVision === mode} className={`${choiceClass(app.prefs.colourVision === mode)} flex min-h-11 w-full items-center justify-between gap-3 rounded-xl px-3 py-2 text-left`} onClick={() => app.updatePrefs({ colourVision: mode })}>
+                    <span>
+                      <span className="font-semibold">{t(`cvd.${mode}`)}</span>
+                      <span className="mt-1 flex flex-wrap gap-3 text-sm font-medium">
+                        <span className="inline-flex items-center gap-1 text-[var(--success)]"><CheckCircle2 aria-hidden size={16} />{t('cvd.paid')}</span>
+                        <span className="inline-flex items-center gap-1 text-[var(--warning)]"><AlertTriangle aria-hidden size={16} />{t('cvd.check')}</span>
+                      </span>
                     </span>
+                    <Check aria-hidden size={18} className={`shrink-0 text-[var(--accent)] ${app.prefs.colourVision === mode ? 'opacity-100' : 'opacity-0'}`} />
                   </button>
                 ))}
               </div>
@@ -132,14 +135,14 @@ export function Join() {
             </section>
           )}
         </main>
-        <div className="flex items-center gap-3 border-t border-[var(--line)] px-4 py-3">
-          <button type="button" className="text-sm font-semibold text-[var(--link)]" onClick={() => (step === 0 ? app.logout() : setStep((value) => value - 1))}>
+        <div className="grid grid-cols-3 gap-2 border-t border-[var(--line)] px-4 py-3">
+          <button type="button" className="h-12 rounded-xl border-2 border-[#d9d9d9] bg-[var(--card)] font-semibold" onClick={() => (step === 0 ? app.logout() : setStep((value) => value - 1))}>
             {t('back')}
           </button>
-          <button type="button" className="text-sm font-semibold text-[var(--link)]" onClick={() => (step === STEPS - 1 ? finish(false) : setStep((value) => value + 1))}>
+          <button type="button" className="h-12 rounded-xl border-2 border-[#d9d9d9] bg-[var(--card)] font-semibold" onClick={() => (step === STEPS - 1 ? finish(false) : setStep((value) => value + 1))}>
             {t('skipStep')}
           </button>
-          <button type="button" className="ml-auto min-h-11 rounded-xl bg-[var(--accent)] px-4 font-semibold text-[var(--on-accent)]" disabled={step === STEPS - 1 && picked.length !== 6} onClick={() => (step === STEPS - 1 ? finish(true) : setStep((value) => value + 1))}>
+          <button type="button" className="h-12 rounded-xl bg-[var(--accent)] font-semibold text-[var(--on-accent)] disabled:opacity-50" disabled={step === STEPS - 1 && picked.length !== 6} onClick={() => (step === STEPS - 1 ? finish(true) : setStep((value) => value + 1))}>
             {step === STEPS - 1 ? t('done') : t('continue')}
           </button>
         </div>

@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { useApp } from '@/context/AppContext'
 import { translate } from '@/i18n'
 import { staffSummary } from '@/lib/staffSummary'
-import { Choice } from './Choice'
+import { Check } from 'lucide-react'
+import { Choice, choiceClass } from './Choice'
 import { Speakable } from './Speakable'
 
 const TOPICS = ['transfer', 'card', 'account', 'login', 'other'] as const
@@ -69,8 +70,9 @@ export function StaffPanel() {
       </button>
       <div role="radiogroup" aria-label={t('staff.topicLabel')} className="flex gap-1 overflow-x-auto">
         {TOPICS.map((item) => (
-          <button key={item} type="button" role="radio" aria-checked={topic === item} className={`min-h-8 shrink-0 rounded-full px-3 text-sm ${topic === item ? 'bg-[color-mix(in_srgb,var(--accent)_14%,var(--card))] font-bold ring-2 ring-[var(--accent)]' : 'border border-[#d9d9d9]'}`} onClick={() => setTopic(item)}>
+          <button key={item} type="button" role="radio" aria-checked={topic === item} className={`${choiceClass(topic === item)} inline-flex min-h-8 shrink-0 items-center gap-1 rounded-full px-3 text-sm`} onClick={() => setTopic(item)}>
             {t(`staff.topic.${item}`)}
+            <Check aria-hidden size={14} className={topic === item ? 'text-[var(--accent)] opacity-100' : 'opacity-0'} />
           </button>
         ))}
       </div>

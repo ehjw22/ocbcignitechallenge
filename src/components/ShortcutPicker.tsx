@@ -18,6 +18,7 @@ import { SortableContext, arrayMove, rectSortingStrategy, sortableKeyboardCoordi
 import { useDraggable } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
 import { Check, ChevronDown, ChevronUp, Plus } from 'lucide-react'
+import { choiceClass } from '@/components/Choice'
 import { useApp } from '@/context/AppContext'
 import { translate } from '@/i18n'
 import { themeVars } from '@/lib/accent'
@@ -163,17 +164,12 @@ function CatalogueTile({
       {...listeners}
       aria-pressed={selected}
       onClick={onToggle}
-      className={`relative flex w-full min-w-0 flex-col items-center gap-1.5 rounded-2xl border-2 py-2 ${
-        selected ? 'border-[var(--accent)] font-bold' : `border-transparent ${dim ? 'opacity-45' : ''}`
-      } ${isDragging ? 'opacity-40' : ''}`}
-      style={selected ? { background: 'color-mix(in srgb, var(--accent) 14%, var(--card))' } : undefined}
+      className={`${choiceClass(selected)} relative flex w-full min-w-0 flex-col items-center gap-1.5 rounded-2xl py-2 ${dim ? 'opacity-45' : ''} ${isDragging ? 'opacity-40' : ''}`}
     >
       <ShortcutFace id={id} label={label} compact={compact} />
-      {selected && (
-        <span className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-[var(--accent)] text-[var(--on-accent)]" aria-hidden>
-          <Check size={13} strokeWidth={3} />
-        </span>
-      )}
+      <span className={`absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-[var(--accent)] text-[var(--on-accent)] ${selected ? 'opacity-100' : 'opacity-0'}`} aria-hidden>
+        <Check size={13} strokeWidth={3} />
+      </span>
     </button>
   )
 }

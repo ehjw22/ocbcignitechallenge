@@ -46,7 +46,7 @@ export function beginShowHow(app: App, getPrefs: () => Preferences, journeyId: s
     nextRate,
     speak: (spoken, onRange) => {
       const prefs = getPrefs()
-      void speak(spoken, {
+      return speak(spoken, {
         language: prefs.language,
         rate: prefs.speechRate,
         dialect: prefs.dialect,

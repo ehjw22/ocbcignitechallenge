@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Volume2, Square } from 'lucide-react'
 import { useApp } from '@/context/AppContext'
+import { SpeakButton } from '@/components/SpeakButton'
 import { translate } from '@/i18n'
 import { speak, stopSpeaking } from '@/lib/speech'
 
@@ -81,15 +81,9 @@ export function Speakable({
   return (
     <span className={corner ? 'flex w-full flex-col items-stretch gap-1' : 'inline-flex items-start gap-2'}>
       {!hideText && <span className={corner ? 'whitespace-pre-wrap' : ''}>{label || text}</span>}
-      <button
-        type="button"
-        className={`inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[var(--line)] bg-[var(--card)] ${corner ? 'self-end' : ''}`}
-        onClick={() => void onClick()}
-        aria-label={playing ? t('stop') : t('speech.readAloud')}
-        aria-pressed={playing}
-      >
-        {playing ? <Square aria-hidden size={16} /> : <Volume2 aria-hidden size={20} />}
-      </button>
+      <span className={corner ? 'self-end' : ''}>
+        <SpeakButton playing={playing} onClick={() => void onClick()} listenLabel={t('speech.readAloud')} stopLabel={t('stop')} />
+      </span>
     </span>
   )
 }

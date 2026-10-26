@@ -1,15 +1,11 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { ChevronRight, CreditCard, Globe, QrCode, Receipt, RefreshCw, Smartphone, ArrowLeftRight, Lock, Target, ShieldAlert, Info } from 'lucide-react'
-import { Cell, Pie, PieChart, ResponsiveContainer } from 'recharts'
 import { Page } from '@/components/Shell'
 import { useApp } from '@/context/AppContext'
-import { SPENDING, chartPalette } from '@/data/bank'
 import { JOURNEY_IDS } from '@/data/flows'
 import { translate } from '@/i18n'
 import { requestText } from '@/lib/staffSummary'
-import { themeVars } from '@/lib/accent'
-import { formatSGD } from '@/lib/format'
 import { startAppTour, tourState } from '@/lib/appTour'
 
 const PAY_LINKS = [
@@ -175,60 +171,6 @@ export function Cards() {
         ))}
         <Link to="/flow/card-lock" data-guide="cards-lock" className="tap flex items-center justify-center rounded-xl bg-[var(--accent)] text-[var(--on-accent)]">{t('cards.lock')}</Link>
         <Link to="/flow/card-lost" className="tap flex items-center justify-center rounded-xl border border-[var(--line)] bg-[var(--card)]">{t('cards.lost')}</Link>
-      </div>
-    </Page>
-  )
-}
-
-export function Insights() {
-  const app = useApp()
-  const t = (key: string) => translate(app.prefs.language, key)
-  const colours = chartPalette(app.prefs.colourVision)
-  const accent = themeVars(app.prefs)['--accent']
-  const total = SPENDING.reduce((sum, item) => sum + item.amount, 0)
-  useEffect(() => { app.setScreen('insights') }, [])
-  if (!app.prefs.spendingInsights) {
-    return (
-      <Page title={t('insights')} back>
-        <div className="space-y-3 p-4">
-          <p>{t('insightsHint')}</p>
-          <button type="button" className="tap w-full rounded-xl bg-[var(--accent)] text-[var(--on-accent)]" onClick={() => app.updatePrefs({ spendingInsights: true })}>
-            {t('turnOnInsights')}
-          </button>
-        </div>
-      </Page>
-    )
-  }
-  return (
-    <Page title={t('insights')} back>
-      <div className="space-y-3 p-4">
-        <div className="card h-56 p-2">
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie data={SPENDING} dataKey="amount" nameKey="key" outerRadius={80}>
-                {SPENDING.map((item, index) => <Cell key={item.key} fill={index === 0 ? accent : colours[index % colours.length]} />)}
-              </Pie>
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
-        <table className="w-full text-left">
-          <caption className="mb-2 text-left font-semibold">{t('insights')}</caption>
-          <tbody>
-            {SPENDING.map((item, index) => (
-              <tr key={item.key} className="border-t border-[var(--line)]">
-                <th scope="row" className="py-2 font-medium">
-                  <span className="mr-2 inline-block h-3 w-3 rounded-sm" style={{ background: index === 0 ? accent : colours[index % colours.length] }} aria-hidden />
-                  {t(`categories.${item.key}`)}
-                </th>
-                <td className="py-2 text-right">{formatSGD(item.amount)}</td>
-              </tr>
-            ))}
-            <tr className="border-t border-[var(--line)] font-semibold">
-              <th scope="row" className="py-2">{t('available')}</th>
-              <td className="py-2 text-right">{formatSGD(total)}</td>
-            </tr>
-          </tbody>
-        </table>
       </div>
     </Page>
   )

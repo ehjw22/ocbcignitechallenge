@@ -86,7 +86,7 @@ export function FlowPage() {
         setRate: (rate) => app.updatePrefs({ speechRate: rate }),
         formatRate,
         nextRate,
-        speak: (text, onRange) => void speak(text, { language: prefsRef.current.language, rate: prefsRef.current.speechRate, dialect: prefsRef.current.dialect, onRange }),
+        speak: (text, onRange) => speak(text, { language: prefsRef.current.language, rate: prefsRef.current.speechRate, dialect: prefsRef.current.dialect, onRange }),
         onMissing: (element, stepId) => {
           app.log('guide_step_missing', { guideId: flow.guideId, element, stepId })
           app.setNotice(t('guideSkipped'))
@@ -154,13 +154,36 @@ export function FlowPage() {
     return t(`errors.${issue.code}`, params)
   }
 
+  const focusIssues = (found: Issue[]) => {
+    if (!found.length) return
+    const id = `field-${found[0].field}`
+    window.setTimeout(() => {
+      const el = document.getElementById(id)
+      el?.scrollIntoView({ block: 'center' })
+      el?.focus()
+    }, 0)
+  }
+
+  const changeField = (id: string, value: string) => {
+    setForm((prev) => {
+      const next = { ...prev, [id]: value }
+      setIssues((current) => {
+        if (!current.some((issue) => issue.field === id)) return current
+        const still = validateForm(flow.id, next, balance).filter((issue) => issue.field === id)
+        return [...current.filter((issue) => issue.field !== id), ...still]
+      })
+      return next
+    })
+    app.setScreen(flow.id, id)
+  }
+
   const submit = () => {
     const found = validateForm(flow.id, form, balance)
     setIssues(found)
     found.forEach((issue) => app.log('error_shown', { code: issue.code, flowId: flow.id }))
     if (found.length) {
-      app.setAnnounce(describe(found[0]))
-      alertRef.current?.focus()
+      if (app.prefs.readAloud) app.setAnnounce(describe(found[0]))
+      focusIssues(found)
       return
     }
     const amount = Number(String(form[flow.amountField || ''] || '').replace(/,/g, ''))
@@ -243,7 +266,7 @@ export function FlowPage() {
                 found.forEach((issue) => app.log('error_shown', { code: issue.code, flowId: flow.id }))
                 if (found.length) {
                   if (app.prefs.readAloud) app.setAnnounce(describe(found[0]))
-                  alertRef.current?.focus()
+                  focusIssues(found)
                   return
                 }
                 setWstep((value) => value + 1)
@@ -255,7 +278,7 @@ export function FlowPage() {
                 found.forEach((issue) => app.log('error_shown', { code: issue.code, flowId: flow.id }))
                 if (found.length) {
                   if (app.prefs.readAloud) app.setAnnounce(describe(found[0]))
-                  alertRef.current?.focus()
+                  focusIssues(found)
                   return
                 }
                 setStage('otp')
@@ -289,8 +312,8 @@ export function FlowPage() {
                 ))}
               </section>
             )}
-            {issues.length > 0 && (
-              <div ref={alertRef} tabIndex={-1} role="alert" className="rounded-xl border-2 border-[var(--danger)] bg-[#fff1f2] p-3 text-[var(--danger)]">
+            {issues.length > 1 && (
+              <div ref={alertRef} tabIndex={-1} role="alert" className="rounded-xl border-l-4 border-[#9f1239] bg-[#FDECEC] p-3 text-[15px] font-bold text-[#9f1239]">
                 <p className="flex items-center gap-2 font-bold">
                   <CircleAlert aria-hidden size={18} /> {t('errors.count', { n: issues.length })}
                 </p>
@@ -305,7 +328,7 @@ export function FlowPage() {
                 </ul>
                 <div className="mt-2 flex gap-2">
                   {issues.some((issue) => issue.code === 'insufficient') && (
-                    <button type="button" className="min-h-11 flex-1 rounded-xl border border-[var(--danger)] px-2 font-semibold" onClick={() => setForm((prev) => ({ ...prev, amount: Math.max(0, balance).toFixed(2) }))}>{t('errors.useMax')}</button>
+                    <button type="button" className="min-h-11 flex-1 rounded-xl border border-[var(--danger)] px-2 font-semibold" onClick={() => changeField('amount', Math.max(0, balance).toFixed(2))}>{t('errors.useMax')}</button>
                   )}
                   <button type="button" className="min-h-11 flex-1 rounded-xl border border-[var(--danger)] px-2 font-semibold" onClick={() => app.openHelp('staff')}>{t('getHelp')}</button>
                 </div>
@@ -341,10 +364,7 @@ export function FlowPage() {
                     options={field.type === 'account' ? app.accounts.filter((account) => account.kind === 'deposit').map((account) => ({ value: account.id, label: account.nameKey })) : undefined}
                     error={issues.find((issue) => issue.field === field.id) ? describe(issues.find((issue) => issue.field === field.id) as Issue) : ''}
                     balanceHint={field.id === 'amount' || field.id === 'from' ? t('flows.available', { amount: formatSGD(balance) }) : ''}
-                    onChange={(value) => {
-                      setForm((prev) => ({ ...prev, [field.id]: value }))
-                      app.setScreen(flow.id, field.id)
-                    }}
+                    onChange={(value) => changeField(field.id, value)}
                     t={t}
                   />
                   )
@@ -381,7 +401,7 @@ export function FlowPage() {
                       key={field.id}
                       field={field}
                       value={form[field.id] ?? ''}
-                      onChange={(value) => setForm((prev) => ({ ...prev, [field.id]: value }))}
+                      onChange={(value) => changeField(field.id, value)}
                       t={t}
                     />
                   ))}
@@ -429,14 +449,24 @@ export function FlowPage() {
           <section className="card space-y-3 p-4">
             <h2 className="text-lg font-semibold" id="otp-title">{t('flows.otpTitle')}</h2>
             <p className="text-sm text-[var(--muted)]">{t('flows.otpBody')}</p>
-            <input id="demo-otp" aria-labelledby="otp-title" inputMode="numeric" autoComplete="one-time-code" value={otp} onChange={(e) => setOtp(e.target.value)} className="ocbc-field" />
-            {otpError && <p role="alert" className="text-[var(--danger)]">{otpError}</p>}
+            <input id="demo-otp" aria-labelledby="otp-title" aria-invalid={otpError ? true : undefined} aria-describedby={otpError ? 'otp-error' : undefined} inputMode="numeric" autoComplete="one-time-code" value={otp} onChange={(e) => { setOtp(e.target.value); if (/^\d{6}$/.test(e.target.value.trim())) setOtpError('') }} className={`ocbc-field ${otpError ? 'is-invalid' : ''}`} />
+            {otpError && (
+              <p id="otp-error" role="alert" className="field-error">
+                <TriangleAlert aria-hidden size={18} className="mt-0.5 shrink-0" />
+                <span>{otpError}</span>
+              </p>
+            )}
             <button
               type="button"
               className="ocbc-btn"
               onClick={() => {
                 if (!/^\d{6}$/.test(otp.trim())) {
                   setOtpError(t('errors.otp'))
+                  window.setTimeout(() => {
+                    const el = document.getElementById('demo-otp')
+                    el?.scrollIntoView({ block: 'center' })
+                    el?.focus()
+                  }, 0)
                   return
                 }
                 setOtpError('')
@@ -593,7 +623,7 @@ function Field({
   }
   const id = `field-${field.id}`
   const errorId = error ? `${id}-error` : undefined
-  const invalid = error ? 'true' : undefined
+  const invalid = error ? true : undefined
   return (
     <label className="block" htmlFor={id}>
       <span className="mb-1 block text-[12px] font-medium text-[var(--muted)]">
@@ -601,7 +631,7 @@ function Field({
       </span>
       {hint && <span className="mb-1 block text-[0.85rem] font-normal text-[var(--muted)]">{hint}</span>}
       {field.type === 'select' || field.type === 'account' ? (
-        <select id={id} value={value} aria-invalid={invalid} aria-describedby={errorId} onChange={(e) => onChange(e.target.value)} className={`ocbc-field ${error ? 'border-2 border-[var(--danger)]' : ''}`}>
+        <select id={id} value={value} aria-invalid={invalid} aria-describedby={errorId} onChange={(e) => onChange(e.target.value)} className={`ocbc-field ${error ? 'is-invalid' : ''}`}>
           {(options || field.options)?.map((option) => (
             <option key={option.value} value={option.value}>{t(option.label)}</option>
           ))}
@@ -616,12 +646,12 @@ function Field({
           aria-invalid={invalid}
           aria-describedby={errorId}
           onChange={(e) => onChange(e.target.value)}
-          className={`ocbc-field ${error ? 'border-2 border-[var(--danger)]' : ''} ${field.type === 'amount' ? 'text-center text-[28px] font-semibold' : ''}`}
+          className={`ocbc-field ${error ? 'is-invalid' : ''} ${field.type === 'amount' ? 'text-center text-[28px] font-semibold' : ''}`}
         />
       )}
       {balanceHint && <span className="mt-1 block text-sm text-[var(--muted)]">{balanceHint}</span>}
       {error && (
-        <span id={errorId} className="mt-2 flex gap-2 rounded-xl border border-[var(--danger)] bg-[#fff1f2] p-2 text-sm font-bold text-[var(--danger)]">
+        <span id={errorId} role="alert" className="field-error">
           <TriangleAlert aria-hidden size={18} className="mt-0.5 shrink-0" />
           <span>{error}</span>
         </span>

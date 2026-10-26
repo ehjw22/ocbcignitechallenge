@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { Square, Volume2 } from 'lucide-react'
 import { useApp } from '@/context/AppContext'
+import { SpeakButton } from '@/components/SpeakButton'
 import { translate } from '@/i18n'
 import { APP_TOUR, tourSections, tourState, writeTour } from '@/lib/appTour'
 import { speak, stopSpeaking } from '@/lib/speech'
@@ -13,6 +13,8 @@ export function AppTour() {
   const t = (key: string) => translate(app.prefs.language, key)
   const [state, setState] = useState(tourState)
   const [playing, setPlaying] = useState(false)
+  const [top, setTop] = useState<number | null>(null)
+  const cardRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const sync = () => setState(tourState())
@@ -26,6 +28,30 @@ export function AppTour() {
     if (location.pathname !== step.route) navigate(step.route)
   }, [state.active, state.index, step, location.pathname, navigate])
 
+  useLayoutEffect(() => {
+    if (!state.active || !step) return
+    const root = document.getElementById('customer-root')
+    const card = cardRef.current
+    if (!root || !card) return
+    const target = document.querySelector(`[data-guide="${step.element}"]`)
+    if (target) target.scrollIntoView({ block: 'center', behavior: 'auto' })
+    const rootRect = root.getBoundingClientRect()
+    const scale = rootRect.height / root.offsetHeight || 1
+    const cardH = card.offsetHeight
+    const nav = 72
+    const pad = 12
+    let next = root.clientHeight - nav - cardH - pad
+    if (target) {
+      const rect = target.getBoundingClientRect()
+      const spaceBelow = (rootRect.bottom - nav * scale - rect.bottom) / scale
+      const spaceAbove = (rect.top - rootRect.top) / scale
+      if (spaceBelow >= cardH + pad) next = (rect.bottom - rootRect.top) / scale + pad
+      else if (spaceAbove >= cardH + pad) next = (rect.top - rootRect.top) / scale - cardH - pad
+    }
+    const maxTop = Math.max(pad, root.clientHeight - nav - cardH - pad)
+    setTop(Math.max(pad, Math.min(next, maxTop)))
+  }, [state.active, state.index, step, location.pathname])
+
   useEffect(() => {
     if (!state.active || !step) return
     const found = document.querySelector(`[data-guide="${step.element}"]`)
@@ -34,7 +60,7 @@ export function AppTour() {
       app.log('guide_step_missing', { guideId: 'app-tour', element: step.element, stepId: step.id })
     } else {
       found.classList.add('tour-target')
-      found.scrollIntoView({ block: 'center', behavior: 'smooth' })
+      found.scrollIntoView({ block: 'center', behavior: 'auto' })
     }
     if (app.prefs.readAloud) {
       setPlaying(true)
@@ -71,22 +97,21 @@ export function AppTour() {
   }
 
   return (
-    <div className="absolute inset-x-0 bottom-16 z-40 px-3">
-      <div role="dialog" aria-labelledby="app-tour-title" className="rounded-2xl border border-[var(--line)] bg-[var(--card)] p-3 text-[var(--text)] shadow-lg">
+    <div className="absolute z-40" style={top == null ? { left: 12, right: 12, bottom: 76 } : { left: 12, right: 12, top }}>
+      <div ref={cardRef} role="dialog" aria-labelledby="app-tour-title" className="max-w-full rounded-2xl border border-[var(--line)] bg-[var(--card)] p-3 text-[var(--text)] shadow-lg">
         <div className="mb-2 flex gap-1" aria-hidden>
           {sections.map((section, index) => (
             <span key={section} className={`h-1 flex-1 rounded-full ${index <= currentSection ? 'bg-[var(--accent)]' : 'bg-[var(--line)]'}`} title={t(section)} />
           ))}
         </div>
-        <p className="text-xs text-[var(--muted)]">{sections.map((section) => t(section)).join(' · ')}</p>
+        <p className="text-xs font-semibold text-[var(--muted)]">{t(step.section)}</p>
         <h2 id="app-tour-title" className="mt-1 text-base font-semibold">{t(step.title)}</h2>
         <p className="text-sm leading-snug">{t(step.body)}</p>
-        <div className="mt-2 flex items-center gap-2">
-          <span className="text-sm tabular-nums">{state.index + 1} / {APP_TOUR.length}</span>
-          <button
-            type="button"
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-[var(--line)]"
-            aria-label={playing ? t('stop') : t('speech.readAloud')}
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          <SpeakButton
+            playing={playing}
+            listenLabel={t('speech.readAloud')}
+            stopLabel={t('stop')}
             onClick={() => {
               if (playing) {
                 stopSpeaking()
@@ -100,10 +125,9 @@ export function AppTour() {
                 dialect: app.prefs.dialect,
               }).finally(() => setPlaying(false))
             }}
-          >
-            {playing ? <Square aria-hidden size={16} /> : <Volume2 aria-hidden size={20} />}
-          </button>
-          <button type="button" className="ml-auto px-2 text-sm font-semibold text-[var(--link)]" onClick={() => (state.index === 0 ? exit() : go(state.index - 1))}>
+          />
+          <span className="text-sm tabular-nums">{state.index + 1} / {APP_TOUR.length}</span>
+          <button type="button" className="ml-auto h-10 px-2 text-sm font-semibold text-[var(--link)]" onClick={() => (state.index === 0 ? exit() : go(state.index - 1))}>
             {t('back')}
           </button>
           <button

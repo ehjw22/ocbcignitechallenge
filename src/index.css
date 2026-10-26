@@ -51,10 +51,116 @@ html[data-bold="1"] #customer-app button {
   outline: none;
 }
 
+.choice {
+  border-width: 2px;
+  border-style: solid;
+  border-color: transparent;
+  box-shadow: inset 0 0 0 1px #d9d9d9;
+  background: var(--card);
+  color: var(--text);
+  transition: border-color 150ms ease, color 150ms ease, box-shadow 150ms ease;
+}
+
+.choice.is-on {
+  border-color: var(--accent);
+  box-shadow: none;
+  font-weight: 700;
+}
+
+.speak-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 6.5rem;
+  height: 40px;
+  flex: 0 0 6.5rem;
+  border-radius: 999px;
+  border: 2px solid transparent;
+  box-shadow: inset 0 0 0 1px #d0d0d0;
+  background: var(--card, #fff);
+  color: var(--text, #111);
+  padding: 0 8px;
+  transition: border-color 150ms ease, color 150ms ease;
+}
+
+.speak-pill.is-on {
+  border-color: var(--accent, #e30613);
+  animation: speak-ring 1.2s ease-out infinite;
+}
+
+.speak-waves {
+  display: none;
+  align-items: flex-end;
+  gap: 2px;
+  height: 14px;
+}
+
+.speak-pill.is-on .speak-waves {
+  display: inline-flex;
+}
+
+.speak-waves span,
+.speak-waves i {
+  display: block;
+  width: 3px;
+  background: var(--accent, #e30613);
+  border-radius: 2px;
+  transform-origin: center bottom;
+  animation: speak-bar 0.8s ease-in-out infinite;
+}
+
+.speak-waves span:nth-child(1),
+.speak-waves i:nth-child(1) { height: 6px; }
+.speak-waves span:nth-child(2),
+.speak-waves i:nth-child(2) { height: 12px; animation-delay: 0.15s; }
+.speak-waves span:nth-child(3),
+.speak-waves i:nth-child(3) { height: 8px; animation-delay: 0.3s; }
+
+.speak-word {
+  min-width: 2.4rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-align: left;
+}
+
+@keyframes speak-bar {
+  0%, 100% { transform: scaleY(0.45); }
+  50% { transform: scaleY(1); }
+}
+
+@keyframes speak-ring {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent, #e30613) 45%, transparent); }
+  100% { box-shadow: 0 0 0 8px transparent; }
+}
+
+.field-error {
+  display: flex;
+  width: 100%;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 8px;
+  border-left: 4px solid #9f1239;
+  background: #FDECEC;
+  padding: 8px 12px;
+  color: #9f1239;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
 .driver-popover.ocbc-tour {
   max-width: min(320px, calc(100vw - 24px));
   border-radius: 16px;
   font-family: inherit;
+  box-sizing: border-box;
+}
+
+.driver-popover.ocbc-tour .driver-popover-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
 }
 
 .tour-target {
@@ -242,12 +348,17 @@ html[data-bold="1"] #customer-app button {
   width: 100%;
   max-width: 100%;
   border-radius: 8px;
-  border: 1px solid var(--line);
+  border: 2px solid var(--line);
   background: var(--card);
   padding: 0.6rem 12px;
   font-size: 1rem;
   line-height: 1.5;
   color: var(--text);
+}
+
+.ocbc-field.is-invalid {
+  border-color: #9f1239;
+  background: #FDECEC;
 }
 
 .ocbc-row {

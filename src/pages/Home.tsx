@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { ArrowLeftRight, Bell, ChevronRight, Eye, EyeOff } from 'lucide-react'
-import { SPENDING } from '@/data/bank'
+import { percentChange, rowsFor, sum } from '@/data/insights'
 import { useApp } from '@/context/AppContext'
 import { BottomNav, DemoBadge, HeaderHelp } from '@/components/Shell'
 import { translate } from '@/i18n'
@@ -154,14 +154,13 @@ export function Home() {
               <h2 className="text-[16px] font-semibold">{t('insights')}</h2>
               <Link to="/insights" className="accent text-[0.85rem] font-semibold">{t('insights')}</Link>
             </div>
-            <ul className="overflow-hidden rounded-card border border-[var(--line)] bg-[var(--card)]">
-              {SPENDING.map((item) => (
-                <li key={item.key} className="flex justify-between border-b border-[#F2F2F2] px-4 py-3 last:border-0">
-                  <span>{t(`categories.${item.key}`)}</span>
-                  <span className="tabular-nums">{formatSGD(item.amount)}</span>
-                </li>
-              ))}
-            </ul>
+            <p className="rounded-card border border-[var(--line)] bg-[var(--card)] px-4 py-3">
+              {t('insight.vsLast', {
+                amount: formatSGD(sum(rowsFor('all', '2026-10'))),
+                pct: Math.abs(percentChange(sum(rowsFor('all', '2026-10')), sum(rowsFor('all', '2026-09')))),
+                dir: percentChange(sum(rowsFor('all', '2026-10')), sum(rowsFor('all', '2026-09'))) >= 0 ? t('insight.more') : t('insight.less'),
+              })}
+            </p>
           </section>
         )}
       </main>

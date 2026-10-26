@@ -15,14 +15,12 @@ export function playGuide(app: App, guideId: string) {
     setRate: (rate) => app.updatePrefs({ speechRate: rate }),
     formatRate,
     nextRate,
-    speak: (text, onRange) => {
-      void speak(text, {
+    speak: (text, onRange) => speak(text, {
         language: app.prefs.language,
         rate: app.prefs.speechRate,
         dialect: app.prefs.dialect,
         onRange,
-      })
-    },
+      }),
     onMissing: (element, stepId) => {
       app.log('guide_step_missing', { guideId, element, stepId })
       app.setNotice(translate(app.prefs.language, 'guideSkipped'))
