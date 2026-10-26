@@ -31,6 +31,31 @@ export const PAYNOW_DIRECTORY: Record<string, string> = {
   '81234567': 'Siti Aminah',
 }
 
+const NRIC = /^[STFGM]\d{7}[A-Z]$/
+const MOBILE = /^[89]\d{7}$/
+const UEN = /^(\d{8}[A-Z]|\d{9}[A-Z]|[TSR]\d{2}[A-Z]{2}\d{4}[A-Z])$/
+const SAMPLE_NAMES = ['Tan Wei Ming', 'Lim Jia Hui', 'Nur Aisyah', 'Raj Kumar']
+
+export function maskPayee(name: string) {
+  const parts = name.trim().split(/\s+/).filter(Boolean)
+  return parts.map((part, index) => {
+    const letters = part.replace(/[^A-Za-z]/g, '')
+    if (!letters) return part
+    if (index === 0) return letters.toUpperCase()
+    return `${letters[0].toUpperCase()}${'*'.repeat(Math.max(2, letters.length - 1))}`
+  }).join(' ')
+}
+
+export function lookupPaynow(raw: string, proxy = 'mobile') {
+  const value = raw.replace(/\s/g, '').replace(/^\+65/i, '').toUpperCase()
+  if (!value) return { status: 'empty' as const }
+  const ok = proxy === 'nric' ? NRIC.test(value) : proxy === 'uen' ? UEN.test(value) : MOBILE.test(value)
+  if (!ok) return { status: 'bad' as const }
+  const known = PAYNOW_DIRECTORY[value]
+  const seed = Number(value.replace(/\D/g, '').slice(-1) || '0') % SAMPLE_NAMES.length
+  return { status: 'ok' as const, name: maskPayee(known || SAMPLE_NAMES[seed]) }
+}
+
 export function payeeName(title: string | undefined) {
   const value = title || ''
   const key = value.replace(/\s/g, '')

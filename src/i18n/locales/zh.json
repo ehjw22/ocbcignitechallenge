@@ -124,14 +124,16 @@
     "colour": "颜色设置",
     "colourBody": "颜色设置",
     "detail": "需要多少详情？",
-    "readAloud": "朗读",
+    "readAloud": "朗读屏幕",
     "readBody": "提示和回复可以朗读。",
     "help": "您希望如何获得帮助？",
     "ready": "已准备好",
     "readyBody": "保存在此设备上。",
     "enter": "完成",
     "colourAdjust": "强调色可能会略有变化。",
-    "shortcuts": "选择 6 个快捷方式"
+    "shortcuts": "选择 6 个快捷方式",
+    "readAloudBody": "文字旁边会出现喇叭按钮。打开后，每个屏幕会自动朗读。",
+    "minutes": "大约 3 分钟。之后可在设置中更改。"
   },
   "detail": {
     "short": "简要",
@@ -165,7 +167,10 @@
     "phone": "请输入至少 8 位数字的电话号码。",
     "otp": "请输入 6 位数字。",
     "account_iban": "请输入 IBAN，包括开头的字母。",
-    "account_my": "请输入 10 至 16 位数字。您输入了 {got} 位。"
+    "account_my": "请输入 10 至 16 位数字。您输入了 {got} 位。",
+    "count": "有 {n} 项需要修改",
+    "useMax": "使用最高余额",
+    "uen": "请输入 UEN，例如 201234567A。"
   },
   "unusual": {
     "title": "请核对金额",
@@ -237,6 +242,18 @@
       "OCBC-A1842": "客户在向澳大利亚汇款时停在账号这一步。语言：中文。",
       "OCBC-K2201": "客户询问 GIRO 是什么，并希望有人确认账单机构。",
       "OCBC-M7730": "关于一笔示例账单参考编号的问题。"
+    },
+    "lostLink": "卡丢失或怀疑诈骗？致电 1800 363 3333",
+    "placeholder": "请描述您需要的帮助",
+    "attached": "已附上：{what}",
+    "inApp": "应用内",
+    "topicLabel": "主题",
+    "topic": {
+      "transfer": "转账",
+      "card": "银行卡",
+      "account": "账户",
+      "login": "登录",
+      "other": "其他"
     }
   },
   "ai": {
@@ -405,7 +422,10 @@
     "otpBody": "Demo：任意 6 位数字",
     "otpLabel": "一次性 PIN",
     "iban": "IBAN",
-    "ibanHint": "示例：GB29 NWBK 6016 1331 9268 19"
+    "ibanHint": "示例：GB29 NWBK 6016 1331 9268 19",
+    "uen": "UEN",
+    "moreOptions": "更多选项",
+    "available": "可用 {amount}"
   },
   "shortcuts": {
     "transfer": "转账",
@@ -648,7 +668,8 @@
     "hakka": "客家话",
     "soon": "暂不可用",
     "request": "请一位会说{dialect}的职员联系我",
-    "cloud": "粤语在可用时使用云端语音。"
+    "cloud": "粤语在可用时使用云端语音。",
+    "ask": "想用方言？请职员用福建话、潮州话、客家话或粤语联系您"
   },
   "categories": {
     "food": "餐饮",
@@ -664,7 +685,11 @@
     "noVoice": "正在使用默认语音。",
     "listening": "正在听…",
     "voiceInput": "语音输入",
-    "micDenied": "麦克风已关闭。您可以改为输入。"
+    "micDenied": "麦克风已关闭。您可以改为输入。",
+    "readAloud": "朗读",
+    "slower": "更慢",
+    "faster": "更快",
+    "cantoneseDown": "粤语语音暂时不可用"
   },
   "info": {
     "investments": "投资",
@@ -796,5 +821,33 @@
     "normal": "正常",
     "fast": "快",
     "veryFast": "很快"
+  },
+  "tour": {
+    "home": "首页",
+    "accounts": "账户",
+    "pay": "付款与转账",
+    "cards": "银行卡",
+    "help": "帮助",
+    "settings": "设置",
+    "forYouTitle": "为你推荐",
+    "forYouBody": "练习任务列在这里。",
+    "accountsTitle": "您的账户",
+    "accountsBody": "打开账户可查看余额和交易。",
+    "txnsTitle": "查找交易",
+    "txnsBody": "按名称或日期搜索。",
+    "paynowTitle": "PayNow",
+    "paynowBody": "用手机号、身份证或 UEN 付款。",
+    "transferTitle": "本地转账",
+    "transferBody": "转账到新加坡账户。",
+    "billsTitle": "缴付账单",
+    "billsBody": "从列表中选择账单机构。",
+    "cardsTitle": "锁定银行卡",
+    "cardsBody": "找不到卡时可以在这里锁定。",
+    "assistantTitle": "助手",
+    "assistantBody": "询问如何办理。",
+    "staffTitle": "联系我们",
+    "staffBody": "给职员发消息。",
+    "aloudTitle": "朗读屏幕",
+    "aloudBody": "打开后可以听到每个屏幕。"
   }
 }

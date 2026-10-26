@@ -100,7 +100,7 @@ function Slot({
   return (
     <div
       ref={setNodeRef}
-      style={{ transform: CSS.Transform.toString(transform), transition }}
+      style={{ transform: CSS.Transform.toString(transform), transition: isDragging ? undefined : (transition || 'transform 200ms ease') }}
       className={`min-w-0 rounded-2xl ${target ? 'outline outline-2 outline-offset-2 outline-[var(--accent)]' : ''}`}
     >
       {shortcutId ? (
@@ -245,6 +245,14 @@ export function ShortcutPicker({ order, onChange }: { order: string[]; onChange:
         return
       }
       if (overSlot === from || from < 0) return
+      if (overSlot < selected.length) {
+        const next = [...selected]
+        const held = next[from]
+        next[from] = next[overSlot]
+        next[overSlot] = held
+        onChange(next)
+        return
+      }
       if (overSlot >= selected.length) {
         const next = [...selected]
         const [item] = next.splice(from, 1)
@@ -297,7 +305,7 @@ export function ShortcutPicker({ order, onChange }: { order: string[]; onChange:
         <p className="mt-1 font-semibold">{t('selectedCount', { n: selected.length })}</p>
         <p className="mt-1 text-sm leading-snug text-[var(--muted)]">{t('reorderHint')}</p>
         <SortableContext items={slots.map((_, index) => `slot-${index}`)} strategy={rectSortingStrategy}>
-          <div className="mt-3 grid grid-cols-3 gap-x-1 gap-y-4">
+          <div className="shortcut-grid mt-3 grid grid-cols-3 gap-3">
             {slots.map((id, index) => (
               <Slot
                 key={`slot-${index}`}

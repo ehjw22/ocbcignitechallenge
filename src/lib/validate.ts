@@ -1,4 +1,4 @@
-import { FX } from '@/data/bank'
+import { FX, lookupPaynow } from '@/data/bank'
 import { parseAmount } from './format'
 
 export interface Issue {
@@ -8,8 +8,6 @@ export interface Issue {
 }
 
 const SWIFT = /^[A-Za-z]{6}[A-Za-z0-9]{2}([A-Za-z0-9]{3})?$/
-const NRIC = /^[STFGM]\d{7}[A-Z]$/i
-const MOBILE = /^[89]\d{7}$/
 
 function issue(field: string, code: string, params?: Record<string, string | number>): Issue {
   return { field, code, params }
@@ -30,10 +28,10 @@ export function validateForm(flowId: string, form: Record<string, string>, balan
   }
 
   if (flowId === 'paynow' || flowId === 'topup') {
-    const value = (form.to || '').replace(/\s/g, '').toUpperCase()
-    if (flowId === 'paynow' && form.proxy === 'nric') {
-      if (!NRIC.test(value)) issues.push(issue('to', 'nric'))
-    } else if (!MOBILE.test(value)) issues.push(issue('to', 'paynow_mobile'))
+    const found = lookupPaynow(form.to || '', form.proxy || 'mobile')
+    if (flowId === 'paynow' && found.status !== 'ok') {
+      issues.push(issue('to', form.proxy === 'nric' ? 'nric' : form.proxy === 'uen' ? 'uen' : 'paynow_mobile'))
+    } else if (flowId === 'topup' && found.status !== 'ok') issues.push(issue('to', 'paynow_mobile'))
     const amount = amountIssue('amount', form.amount)
     if (amount) issues.push(amount)
   }
@@ -50,7 +48,6 @@ export function validateForm(flowId: string, form: Record<string, string>, balan
 
   if (flowId === 'overseas') {
     need('name', Boolean(form.name?.trim()))
-    need('purpose', Boolean(form.purpose))
     const spec = FX[form.country] || FX.Australia
     const raw = (form.account || '').replace(/\s/g, '')
     const digits = raw.replace(/\D/g, '')

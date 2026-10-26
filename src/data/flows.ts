@@ -36,6 +36,7 @@ export const FLOWS: FlowDef[] = [
       { id: 'proxy', guide: 'paynow-proxy', label: 'flows.proxyType', type: 'select', sample: 'mobile', options: [
         { value: 'mobile', label: 'flows.mobile' },
         { value: 'nric', label: 'flows.nric' },
+        { value: 'uen', label: 'flows.uen' },
       ] },
       { id: 'to', guide: 'paynow-to', label: 'flows.paynowTo', type: 'text', inputMode: 'numeric', placeholder: 'flows.paynowPh', sample: '91234567' },
       { id: 'from', guide: 'paynow-from', label: 'flows.from', type: 'account', sample: '360', options: depositAccounts },

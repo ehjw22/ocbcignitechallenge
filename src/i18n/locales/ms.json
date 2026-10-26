@@ -58,7 +58,10 @@
     "ready": "Anda sudah sedia",
     "readyBody": "Disimpan pada peranti ini.",
     "shortcuts": "Pilih 6 pintasan",
-    "colourAdjust": "Warna aksen mungkin berubah sedikit."
+    "colourAdjust": "Warna aksen mungkin berubah sedikit.",
+    "readAloud": "Baca skrin dengan kuat",
+    "readAloudBody": "Butang pembesar suara muncul di sebelah teks. Hidupkan untuk membaca setiap skrin secara automatik.",
+    "minutes": "3 minit. Boleh ditukar bila-bila masa dalam Tetapan."
   },
   "errors": {
     "account_digits": "Nombor akaun perlukan 10 digit. Anda masukkan {got}.",
@@ -75,7 +78,10 @@
     "phone": "Masukkan nombor telefon dengan sekurang-kurangnya 8 digit.",
     "otp": "Masukkan 6 digit.",
     "account_iban": "Masukkan IBAN, termasuk huruf di permulaan.",
-    "account_my": "Masukkan 10 hingga 16 digit. Anda masukkan {got}."
+    "account_my": "Masukkan 10 hingga 16 digit. Anda masukkan {got}.",
+    "count": "{n} perkara perlu dibetulkan",
+    "useMax": "Guna baki maksimum",
+    "uen": "Masukkan UEN, contoh 201234567A."
   },
   "unusual": {
     "body": "Ini lebih tinggi daripada pindahan biasa anda. Hantar {amount} kepada {name}?"
@@ -93,7 +99,19 @@
     "empty": "Belum ada mesej.",
     "yourRequests": "Mesej anda",
     "urgentQ": "Adakah ini tentang penipuan atau kad yang hilang?",
-    "needGeneral": "Perlukan bantuan."
+    "needGeneral": "Perlukan bantuan.",
+    "lostLink": "Kad hilang atau penipuan? Hubungi 1800 363 3333",
+    "placeholder": "Terangkan bantuan yang anda perlukan",
+    "attached": "Dilampirkan: {what}",
+    "inApp": "Dalam apl",
+    "topicLabel": "Topik",
+    "topic": {
+      "transfer": "Pindahan",
+      "card": "Kad",
+      "account": "Akaun",
+      "login": "Log masuk",
+      "other": "Lain-lain"
+    }
   },
   "ai": {
     "chipGiro": "Apa itu GIRO?",
@@ -161,7 +179,10 @@
     "lostNote": "Kad ini akan dikunci. Hubungi kami jika ia benar-benar hilang.",
     "nameUnknown": "Kami tidak dapat mengesahkan nama ini. Semak nombor.",
     "currentLimit": "Had semasa {amount}",
-    "nameSample": "Nama dalam rekod: {name}"
+    "nameSample": "Nama dalam rekod: {name}",
+    "uen": "UEN",
+    "moreOptions": "Pilihan lain",
+    "available": "Tersedia {amount}"
   },
   "demo": {
     "mei": "Menghantar wang kepada Tan Wei Ming di Australia.",
@@ -289,11 +310,16 @@
   },
   "dialects": {
     "soon": "Tidak tersedia",
-    "cloud": "Kantonis menggunakan suara awan apabila tersedia."
+    "cloud": "Kantonis menggunakan suara awan apabila tersedia.",
+    "ask": "Mahukan dialek? Minta kakitangan yang bertutur Hokkien, Teochew, Hakka atau Kantonis"
   },
   "speech": {
     "noVoice": "Menggunakan suara lalai.",
-    "micDenied": "Mikrofon dimatikan. Anda boleh menaip."
+    "micDenied": "Mikrofon dimatikan. Anda boleh menaip.",
+    "readAloud": "Baca dengan kuat",
+    "slower": "Lebih perlahan",
+    "faster": "Lebih laju",
+    "cantoneseDown": "Suara Kantonis tidak tersedia sekarang"
   },
   "turnOnInsights": "Hidupkan",
   "comingSoon": "Tidak tersedia",
@@ -336,5 +362,33 @@
   },
   "accounts": {
     "frank": "Akaun FRANK"
+  },
+  "tour": {
+    "home": "Utama",
+    "accounts": "Akaun",
+    "pay": "Bayar & Pindah",
+    "cards": "Kad",
+    "help": "Bantuan",
+    "settings": "Tetapan",
+    "forYouTitle": "Untuk anda",
+    "forYouBody": "Latihan disenaraikan di sini.",
+    "accountsTitle": "Akaun anda",
+    "accountsBody": "Buka akaun untuk melihat baki dan transaksi.",
+    "txnsTitle": "Cari transaksi",
+    "txnsBody": "Cari mengikut nama atau tarikh.",
+    "paynowTitle": "PayNow",
+    "paynowBody": "Bayar nombor mudah alih, NRIC atau UEN.",
+    "transferTitle": "Pindahan tempatan",
+    "transferBody": "Hantar wang ke akaun Singapura.",
+    "billsTitle": "Bayar bil",
+    "billsBody": "Bayar pengebil daripada senarai ini.",
+    "cardsTitle": "Kunci kad",
+    "cardsBody": "Kunci kad di sini jika anda tidak menjumpainya.",
+    "assistantTitle": "Pembantu",
+    "assistantBody": "Tanya cara membuat tugasan.",
+    "staffTitle": "Mesej kami",
+    "staffBody": "Hantar mesej kepada kakitangan.",
+    "aloudTitle": "Baca skrin",
+    "aloudBody": "Hidupkan untuk mendengar setiap skrin."
   }
 }

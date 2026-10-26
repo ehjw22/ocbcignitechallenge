@@ -6,7 +6,7 @@ import { useApp } from '@/context/AppContext'
 import { BottomNav, DemoBadge, HeaderHelp } from '@/components/Shell'
 import { translate } from '@/i18n'
 import { SHORTCUT_ICONS, SHORTCUT_ROUTES } from '@/lib/shortcutItems'
-import { playGuide } from '@/lib/tour'
+import { startAppTour } from '@/lib/appTour'
 import { formatSGD } from '@/lib/format'
 import { payeeName } from '@/data/bank'
 
@@ -33,7 +33,7 @@ export function Home() {
   useEffect(() => {
     app.setScreen('home')
     if (params.get('tour') !== '1') return
-    const timer = window.setTimeout(() => playGuide(app, 'home'), 400)
+    const timer = window.setTimeout(() => startAppTour(false), 400)
     return () => window.clearTimeout(timer)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params])
@@ -112,7 +112,7 @@ export function Home() {
             })}
           </div>
         </section>
-        <section className="px-5 pt-6">
+        <section className="px-5 pt-6" data-guide="home-foryou">
           <h2 className="mb-3 text-[1rem] font-semibold">{t('forYou')}</h2>
           <Link to="/flow/overseas?practice=1&tour=1" className="block rounded-card p-4 leading-normal text-[var(--on-accent)]" style={{ background: 'var(--accent)' }}>
             <p className="text-[0.8rem] opacity-90">{t('forYouKicker')}</p>
@@ -171,7 +171,7 @@ export function Home() {
           <div role="dialog" aria-modal="true" aria-labelledby="tour-offer" className="w-full rounded-3xl bg-[var(--card)] p-4 text-[var(--text)]">
             <h2 id="tour-offer" className="text-xl font-semibold">{t('gate.tourTitle')}</h2>
             <p className="mt-2">{t('gate.tourBody')}</p>
-            <button type="button" className="mt-4 min-h-12 w-full rounded-2xl bg-[var(--accent)] font-semibold text-[var(--on-accent)]" onClick={() => { setOffer(false); navigate('/', { replace: true }); playGuide(app, 'home') }}>
+            <button type="button" className="mt-4 min-h-11 w-full rounded-2xl bg-[var(--accent)] font-semibold text-[var(--on-accent)]" onClick={() => { setOffer(false); navigate('/', { replace: true }); startAppTour(false) }}>
               {t('gate.tourStart')}
             </button>
             <button type="button" className="mt-2 min-h-12 w-full rounded-2xl border border-[var(--line)]" onClick={() => { setOffer(false); navigate('/', { replace: true }) }}>

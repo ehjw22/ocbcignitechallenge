@@ -1,12 +1,13 @@
 export const SPEECH_RATES = [0.6, 0.8, 1, 1.2, 1.5] as const
 
 export function snapRate(value: number) {
-  return SPEECH_RATES.reduce((best, rate) => (Math.abs(rate - value) < Math.abs(best - value) ? rate : best), 1 as number)
+  const clamped = Math.min(1.5, Math.max(0.6, Number(value) || 1))
+  return Math.round(clamped * 10) / 10
 }
 
 export function formatRate(value: number) {
   const rate = snapRate(value)
-  return `${rate === 1 ? '1' : rate}x`
+  return rate === 1 ? '1x' : `${rate.toFixed(1)}x`
 }
 
 export function nextRate(value: number) {

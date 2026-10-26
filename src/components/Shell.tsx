@@ -6,8 +6,10 @@ import { JOURNEY_IDS } from '@/data/flows'
 import { translate } from '@/i18n'
 import { journeyRoute } from '@/lib/showHow'
 import { themeVars } from '@/lib/accent'
+import { AppTour } from './AppTour'
 import { AiPanel } from './AiPanel'
 import { StaffPanel } from './StaffPanel'
+import { speak, stopSpeaking } from '@/lib/speech'
 
 const NAV = [
   { to: '/', key: 'nav.home', icon: Home, guide: 'nav-home', end: true },
@@ -147,9 +149,20 @@ function HelpLayer() {
   const aiFull = app.helpOpen && app.helpView === 'ai'
 
   useEffect(() => {
+    if (!app.helpOpen) stopSpeaking()
+  }, [app.helpOpen])
+  useEffect(() => {
+    const onCantonese = () => app.setNotice(t('speech.cantoneseDown'))
+    window.addEventListener('ocbc-cantonese', onCantonese)
+    return () => window.removeEventListener('ocbc-cantonese', onCantonese)
+  }, [app, t])
+  useEffect(() => {
     if (!app.helpOpen) return
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') app.setHelpOpen(false)
+      if (event.key === 'Escape') {
+        stopSpeaking()
+        app.setHelpOpen(false)
+      }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
@@ -227,6 +240,7 @@ function HelpLayer() {
           </div>
         </div>
       )}
+      <AppTour />
       {app.guidePrompt && (
         <div className="absolute inset-0 z-50 flex items-end bg-black/40 p-4">
           <div role="dialog" aria-modal="true" aria-labelledby="guide-done" className="w-full rounded-3xl bg-[var(--card)] p-4 text-[var(--text)]">
@@ -268,6 +282,10 @@ export function Page({
   const mainRef = useRef<HTMLElement>(null)
   useEffect(() => {
     mainRef.current?.scrollTo(0, 0)
+    if (sessionStorage.getItem('ocbc-app-tour')?.includes('"active":true')) return
+    stopSpeaking()
+    if (!prefs.readAloud || !title) return
+    void speak(title, { language: prefs.language, rate: prefs.speechRate, dialect: prefs.dialect })
   }, [location.pathname])
   return (
     <div className="flex h-full min-h-0 flex-col bg-[var(--bg)] text-[var(--text)]">

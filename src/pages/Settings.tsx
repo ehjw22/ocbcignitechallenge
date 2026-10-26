@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { Check, ChevronDown } from 'lucide-react'
+import { ChevronDown } from 'lucide-react'
+import { Choice } from '@/components/Choice'
 import { ShortcutPicker } from '@/components/ShortcutPicker'
 import { SpeechSpeed } from '@/components/SpeechSpeed'
 import { Page } from '@/components/Shell'
@@ -8,7 +9,7 @@ import { translate } from '@/i18n'
 import { prepareBackground } from '@/lib/contrast'
 import { beginShowHow, takeShowHow } from '@/lib/showHow'
 import { DEFAULT_SHORTCUTS, DIALECTS, LANGUAGES, SHORTCUTS, THEMES } from '@/lib/languages'
-import type { ColourVision, Dialect, HelpPreference, ThemeId } from '@/lib/types'
+import type { ColourVision, HelpPreference, ThemeId } from '@/lib/types'
 
 function Section({
   id,
@@ -119,40 +120,27 @@ export function Settings() {
           open={!!open.language}
           onToggle={toggle}
         >
-          <div className="grid gap-2">
+          <div role="radiogroup" aria-label={t('onboarding.language')}>
             {LANGUAGES.map((item) => (
-              <button key={item.id} type="button" aria-pressed={app.prefs.language === item.id} className="flex min-h-12 items-center justify-between rounded-2xl border border-[var(--line)] bg-[var(--card)] px-3 text-left" onClick={() => app.updatePrefs({ language: item.id })}>
-                <span>
-                  <span className="block font-semibold leading-normal">{item.native}</span>
-                  {app.prefs.language === 'en' && <span className="text-sm text-[var(--muted)]">{item.english}</span>}
-                </span>
-                {app.prefs.language === item.id && <Check aria-hidden />}
-              </button>
+              <Choice key={item.id} selected={app.prefs.language === item.id} onClick={() => app.updatePrefs({ language: item.id })}>
+                <span className="block">{item.native}</span>
+                {app.prefs.language === 'en' && <span className="block text-sm font-medium text-[var(--muted)]">{item.english}</span>}
+              </Choice>
             ))}
           </div>
-          <div className="mt-4">
-            {DIALECTS.map((dialect) => (
-              <div key={dialect.id} className="mb-2 rounded-2xl border border-[var(--line)] bg-[var(--card)] px-3 py-2">
-                {dialect.ready ? (
-                  <label className="flex min-h-12 items-center gap-3">
-                    <input type="radio" name="dialect" checked={app.prefs.dialect === dialect.id} onChange={() => app.updatePrefs({ dialect: dialect.id as Dialect })} />
-                    {t(`dialects.${dialect.id}`)}
-                  </label>
-                ) : (
-                  <div className="flex flex-col gap-2">
-                    <p className="font-semibold">{t(`dialects.${dialect.id}`)} <span className="rounded-full bg-[var(--soft)] px-2 py-0.5 text-sm font-normal">{t('dialects.soon')}</span></p>
-                    <button type="button" className="min-h-12 rounded-xl border border-[var(--line)] px-3 text-left" onClick={() => { app.setStaffSeed(t('dialects.request', { dialect: t(`dialects.${dialect.id}`) })); app.openHelp('staff') }}>
-                      {t('dialects.request', { dialect: t(`dialects.${dialect.id}`) })}
-                    </button>
-                  </div>
-                )}
-              </div>
-            ))}
-            <p className="text-sm text-[var(--muted)]">{t('dialects.cloud')}</p>
+          <div className="mt-2" role="radiogroup" aria-label={t('dialects.title')}>
+            <Choice selected={app.prefs.dialect !== 'cantonese'} onClick={() => app.updatePrefs({ dialect: 'standard' })}>{t('dialects.standard')}</Choice>
+            <Choice selected={app.prefs.dialect === 'cantonese'} onClick={() => app.updatePrefs({ dialect: 'cantonese' })}>{t('dialects.cantonese')}</Choice>
           </div>
-          <label className="mt-3 flex min-h-12 items-center gap-3">
-            <input type="checkbox" checked={app.prefs.readAloud} onChange={(event) => app.updatePrefs({ readAloud: event.target.checked })} />
-            {t('onboarding.readAloud')}
+          <button type="button" className="mt-1 text-left text-sm font-semibold text-[var(--link)]" onClick={() => { app.setStaffSeed(t('dialects.ask')); app.openHelp('staff') }}>
+            {t('dialects.ask')}
+          </button>
+          <label className="mt-3 flex min-h-11 items-start gap-3" data-guide="settings-read">
+            <input className="mt-1" type="checkbox" checked={app.prefs.readAloud} onChange={(event) => app.updatePrefs({ readAloud: event.target.checked })} />
+            <span>
+              <span className="block font-semibold">{t('onboarding.readAloud')}</span>
+              <span className="block text-sm font-normal text-[var(--muted)]">{t('onboarding.readAloudBody')}</span>
+            </span>
           </label>
           <SpeechSpeed />
         </Section>
@@ -249,23 +237,25 @@ export function Settings() {
           open={!!open.help}
           onToggle={toggle}
         >
+          <div role="radiogroup" aria-label={t('settings.helpPref')}>
           {([
             ['ai', 'help.ai'],
             ['guide', 'help.guide'],
             ['staff', 'help.staff'],
           ] as const).map(([id, key]) => (
-            <label key={id} className="mb-2 flex min-h-12 items-center gap-3 rounded-2xl border border-[var(--line)] bg-[var(--card)] px-3">
-              <input type="radio" name="helpPref" checked={app.prefs.helpPreference === id} onChange={() => app.updatePrefs({ helpPreference: id as HelpPreference })} />
+            <Choice key={id} selected={app.prefs.helpPreference === id} onClick={() => app.updatePrefs({ helpPreference: id as HelpPreference })}>
               {t(key)}
-            </label>
+            </Choice>
           ))}
+          </div>
           <p className="mb-2 mt-3 font-semibold">{t('settings.explain')}</p>
+          <div role="radiogroup" aria-label={t('settings.explain')}>
           {(['short', 'full'] as const).map((detail) => (
-            <label key={detail} className="mb-2 flex min-h-12 items-center gap-3 rounded-2xl border border-[var(--line)] bg-[var(--card)] px-3">
-              <input type="radio" name="detail" checked={app.prefs.detail === detail} onChange={() => app.updatePrefs({ detail })} />
+            <Choice key={detail} selected={app.prefs.detail === detail} onClick={() => app.updatePrefs({ detail })}>
               {t(`detail.${detail}`)}
-            </label>
+            </Choice>
           ))}
+          </div>
         </Section>
 
         <Section

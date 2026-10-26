@@ -1,6 +1,7 @@
 import { driver, type Driver, type PopoverDOM } from 'driver.js'
 import 'driver.js/dist/driver.css'
 import guides from '@/guides/guides.json'
+import { stopSpeaking } from '@/lib/speech'
 
 export interface GuideStep {
   id: string
@@ -62,23 +63,6 @@ export function startGuide(options: {
   let current = steps[0].id
   options.onStart(guide.id)
 
-  const paint = (description: HTMLElement, body: string, start: number, end: number) => {
-    description.replaceChildren()
-    if (start < 0) {
-      description.textContent = body
-      return
-    }
-    let cursor = 0
-    body.split(/(\s+)/).forEach((part) => {
-      const from = cursor
-      cursor += part.length
-      const span = document.createElement('span')
-      span.textContent = part
-      if (part.trim() && from < end && cursor > start) span.className = 'word-on'
-      description.appendChild(span)
-    })
-  }
-
   active = driver({
     showProgress: true,
     overlayOpacity: 0.55,
@@ -122,46 +106,19 @@ export function startGuide(options: {
       if (!step) return
       const button = document.createElement('button')
       button.type = 'button'
-      button.textContent = options.text('listen')
-      button.setAttribute('aria-label', options.text('listen'))
-      button.style.minHeight = '44px'
-      button.style.marginLeft = '8px'
-      button.style.padding = '0 12px'
+      button.setAttribute('aria-label', options.text('speech.readAloud'))
+      button.style.width = '40px'
+      button.style.height = '40px'
+      button.style.marginRight = '8px'
       button.style.borderRadius = '999px'
-      button.style.border = '1px solid #111'
+      button.style.border = '1px solid #ddd'
       button.style.background = '#fff'
-      button.style.color = '#111'
+      button.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>'
       button.onclick = () => {
         const body = options.text(step.body)
-        options.speak(`${options.text(step.title)}. ${body}`, (start, end) => paint(popover.description, body, start, end))
+        options.speak(`${options.text(step.title)}. ${body}`)
       }
-      popover.footer.appendChild(button)
-      if (options.rate && options.setRate && options.formatRate && options.nextRate) {
-        const format = options.formatRate
-        const speed = document.createElement('button')
-        speed.type = 'button'
-        const paintRate = () => {
-          speed.textContent = format(options.rate?.() ?? 1)
-        }
-        paintRate()
-        speed.setAttribute('aria-label', options.text('speakingSpeed'))
-        speed.style.minHeight = '44px'
-        speed.style.minWidth = '44px'
-        speed.style.marginLeft = '8px'
-        speed.style.padding = '0 12px'
-        speed.style.borderRadius = '999px'
-        speed.style.border = '1px solid #111'
-        speed.style.background = '#fff'
-        speed.style.color = '#111'
-        speed.onclick = (event) => {
-          event.preventDefault()
-          event.stopPropagation()
-          const next = options.nextRate?.(options.rate?.() ?? 1) ?? 1
-          options.setRate?.(next)
-          paintRate()
-        }
-        popover.footer.appendChild(speed)
-      }
+      popover.footer.prepend(button)
     },
     onNextClick: (_el, _step, { driver: drv, state }) => {
       const last = (state.activeIndex ?? 0) >= steps.length - 1
@@ -172,6 +129,7 @@ export function startGuide(options: {
       } else drv.moveNext()
     },
     onDestroyed: () => {
+      stopSpeaking()
       if (!finished) options.onDrop(guide.id, current)
       active = null
     },

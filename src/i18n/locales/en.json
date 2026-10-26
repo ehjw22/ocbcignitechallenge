@@ -126,14 +126,16 @@
     "colour": "Colour settings",
     "colourBody": "Colour settings",
     "detail": "How much detail?",
-    "readAloud": "Read aloud",
+    "readAloud": "Read screens aloud",
     "readBody": "Tips and replies can be read aloud.",
     "help": "How would you like help?",
     "ready": "You're ready",
     "readyBody": "Saved on this device.",
     "enter": "Done",
     "colourAdjust": "Accent colours may change slightly.",
-    "shortcuts": "Choose 6 shortcuts"
+    "shortcuts": "Choose 6 shortcuts",
+    "readAloudBody": "A speaker button appears next to text. Turn on to read each screen automatically.",
+    "minutes": "3 minutes. Change anytime in Settings."
   },
   "detail": {
     "short": "Short",
@@ -175,13 +177,18 @@
     "hakka": "Hakka",
     "soon": "Not available",
     "request": "Request a staff member who speaks {dialect}",
-    "cloud": "Cantonese uses a cloud voice when available."
+    "cloud": "Cantonese uses a cloud voice when available.",
+    "ask": "Prefer a dialect? Ask for a staff member who speaks Hokkien, Teochew, Hakka or Cantonese"
   },
   "speech": {
     "noVoice": "Using the default voice.",
     "listening": "Listening…",
     "voiceInput": "Voice input",
-    "micDenied": "Microphone is off. You can type instead."
+    "micDenied": "Microphone is off. You can type instead.",
+    "readAloud": "Read aloud",
+    "slower": "Slower",
+    "faster": "Faster",
+    "cantoneseDown": "Cantonese voice is unavailable right now"
   },
   "settings": {
     "title": "Settings",
@@ -230,7 +237,10 @@
     "phone": "Enter a phone number with at least 8 digits.",
     "otp": "Enter 6 digits.",
     "account_iban": "Enter the IBAN, including the letters at the start.",
-    "account_my": "Enter 10 to 16 digits. You entered {got}."
+    "account_my": "Enter 10 to 16 digits. You entered {got}.",
+    "count": "{n} things to fix",
+    "useMax": "Use max balance",
+    "uen": "Enter a UEN, for example 201234567A."
   },
   "unusual": {
     "title": "Check this amount",
@@ -302,6 +312,18 @@
       "OCBC-A1842": "Customer paused on an overseas transfer to Australia at the account number step. Language: Chinese.",
       "OCBC-K2201": "Customer asked what GIRO means and wants a person to confirm the billing organisation.",
       "OCBC-M7730": "Question about a sample bill payment reference."
+    },
+    "lostLink": "Lost card or fraud? Call 1800 363 3333",
+    "placeholder": "Describe what you need help with",
+    "attached": "Attached: {what}",
+    "inApp": "In-app",
+    "topicLabel": "Topic",
+    "topic": {
+      "transfer": "Transfer",
+      "card": "Card",
+      "account": "Account",
+      "login": "Login",
+      "other": "Other"
     }
   },
   "ai": {
@@ -470,7 +492,10 @@
     "otpBody": "Demo: any 6 digits",
     "otpLabel": "One-time PIN",
     "iban": "IBAN",
-    "ibanHint": "Example: GB29 NWBK 6016 1331 9268 19"
+    "ibanHint": "Example: GB29 NWBK 6016 1331 9268 19",
+    "uen": "UEN",
+    "moreOptions": "More options",
+    "available": "Available {amount}"
   },
   "shortcuts": {
     "transfer": "Transfer",
@@ -796,5 +821,33 @@
     "normal": "Normal",
     "fast": "Fast",
     "veryFast": "Very fast"
+  },
+  "tour": {
+    "home": "Home",
+    "accounts": "Accounts",
+    "pay": "Pay & Transfer",
+    "cards": "Cards",
+    "help": "Help",
+    "settings": "Settings",
+    "forYouTitle": "For you",
+    "forYouBody": "Practice tasks are listed here.",
+    "accountsTitle": "Your accounts",
+    "accountsBody": "Open an account to see the balance and transactions.",
+    "txnsTitle": "Find a transaction",
+    "txnsBody": "Search by name or date.",
+    "paynowTitle": "PayNow",
+    "paynowBody": "Pay a mobile number, NRIC or UEN.",
+    "transferTitle": "Local transfer",
+    "transferBody": "Send money to a Singapore account.",
+    "billsTitle": "Pay bills",
+    "billsBody": "Pay a biller from this list.",
+    "cardsTitle": "Lock a card",
+    "cardsBody": "Lock a card here if you cannot find it.",
+    "assistantTitle": "Assistant",
+    "assistantBody": "Ask how to do a task.",
+    "staffTitle": "Message us",
+    "staffBody": "Send a message to staff.",
+    "aloudTitle": "Read screens aloud",
+    "aloudBody": "Turn this on to hear each screen."
   }
 }

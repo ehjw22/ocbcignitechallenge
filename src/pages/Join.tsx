@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { CheckCircle2, AlertTriangle } from 'lucide-react'
+import { Choice } from '@/components/Choice'
 import { ShortcutPicker } from '@/components/ShortcutPicker'
 import { SpeechSpeed } from '@/components/SpeechSpeed'
 import { useApp } from '@/context/AppContext'
@@ -9,7 +10,7 @@ import { translate } from '@/i18n'
 import { LANGUAGES } from '@/lib/languages'
 import type { ColourVision, DetailLevel, HelpPreference } from '@/lib/types'
 
-const STEPS = 8
+const STEPS = 7
 
 export function Join() {
   const app = useApp()
@@ -43,35 +44,33 @@ export function Join() {
         <main id="join-main" className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-4 pb-4">
           {step === 0 && (
             <section>
-              <h2 id="quiz-title" className="text-2xl font-semibold">{t('onboarding.welcome')}</h2>
-              <p className="mt-2">{t('onboarding.welcomeBody')}</p>
-            </section>
-          )}
-          {step === 1 && (
-            <section>
-              <h2 id="quiz-title" className="text-2xl font-semibold">{t('onboarding.language')}</h2>
-              <div role="radiogroup" aria-label={t('onboarding.language')} className="mt-3 space-y-2">
+              <h2 id="quiz-title" className="text-xl font-semibold">{t('onboarding.language')}</h2>
+              <p className="mt-1 text-sm text-[var(--muted)]">{t('onboarding.minutes')}</p>
+              <div role="radiogroup" aria-label={t('onboarding.language')} className="mt-3">
                 {LANGUAGES.map((language) => (
-                  <button key={language.id} type="button" role="radio" aria-checked={app.prefs.language === language.id} className="flex min-h-12 w-full items-center justify-between gap-2 rounded-2xl border border-[var(--line)] bg-[var(--card)] px-3 text-left" onClick={() => app.updatePrefs({ language: language.id })}>
-                    <span className="font-semibold">{language.native}</span>
-                  </button>
+                  <Choice key={language.id} selected={app.prefs.language === language.id} onClick={() => app.updatePrefs({ language: language.id })}>
+                    {language.native}
+                  </Choice>
                 ))}
               </div>
             </section>
           )}
-          {step === 2 && (
+          {step === 1 && (
             <section>
-              <h2 id="quiz-title" className="text-2xl font-semibold">{t('speakingSpeed')}</h2>
-              <label className="mt-3 flex min-h-12 items-center gap-3">
-                <input type="checkbox" checked={app.prefs.readAloud} onChange={(event) => app.updatePrefs({ readAloud: event.target.checked })} />
-                {t('onboarding.readAloud')}
+              <h2 id="quiz-title" className="text-xl font-semibold">{t('speakingSpeed')}</h2>
+              <label className="mt-3 flex min-h-11 items-start gap-3">
+                <input className="mt-1" type="checkbox" checked={app.prefs.readAloud} onChange={(event) => app.updatePrefs({ readAloud: event.target.checked })} />
+                <span>
+                  <span className="block font-semibold">{t('onboarding.readAloud')}</span>
+                  <span className="block text-sm text-[var(--muted)]">{t('onboarding.readAloudBody')}</span>
+                </span>
               </label>
               <SpeechSpeed />
             </section>
           )}
-          {step === 3 && (
+          {step === 2 && (
             <section className="space-y-3">
-              <h2 id="quiz-title" className="text-2xl font-semibold">{t('onboarding.text')}</h2>
+              <h2 id="quiz-title" className="text-xl font-semibold">{t('onboarding.text')}</h2>
               <label className="block font-semibold" htmlFor="quiz-size">
                 {app.prefs.textSize}px
                 <input id="quiz-size" type="range" min={16} max={24} step={1} value={app.prefs.textSize} onChange={(event) => app.updatePrefs({ textSize: Number(event.target.value) })} className="mt-2 w-full" />
@@ -79,41 +78,41 @@ export function Join() {
               <p className="rounded-2xl border border-[var(--line)] bg-[var(--card)] p-3">{t('onboarding.preview')}</p>
             </section>
           )}
-          {step === 4 && (
+          {step === 3 && (
             <section className="space-y-3">
-              <h2 id="quiz-title" className="text-2xl font-semibold">{t('onboarding.detail')}</h2>
+              <h2 id="quiz-title" className="text-xl font-semibold">{t('onboarding.detail')}</h2>
               <div role="radiogroup" aria-label={t('onboarding.detail')} className="space-y-2">
                 {(['short', 'full'] as DetailLevel[]).map((detail) => (
-                  <button key={detail} type="button" role="radio" aria-checked={app.prefs.detail === detail} className="min-h-12 w-full rounded-2xl border border-[var(--line)] bg-[var(--card)] px-3 py-2 text-left" onClick={() => app.updatePrefs({ detail })}>
-                    <span className="font-semibold">{t(`detail.${detail}`)}</span>
-                    <span className="mt-1 block">{t(`detail.${detail}Sample`)}</span>
-                  </button>
+                  <Choice key={detail} selected={app.prefs.detail === detail} onClick={() => app.updatePrefs({ detail })}>
+                    <span className="block">{t(`detail.${detail}`)}</span>
+                    <span className="mt-1 block text-sm font-medium">{t(`detail.${detail}Sample`)}</span>
+                  </Choice>
                 ))}
               </div>
             </section>
           )}
-          {step === 5 && (
+          {step === 4 && (
             <section className="space-y-2">
-              <h2 id="quiz-title" className="text-2xl font-semibold">{t('onboarding.help')}</h2>
+              <h2 id="quiz-title" className="text-xl font-semibold">{t('onboarding.help')}</h2>
               <div role="radiogroup" aria-label={t('onboarding.help')}>
                 {([
                   ['ai', 'help.ai'],
                   ['guide', 'help.guide'],
                   ['staff', 'help.staff'],
                 ] as [HelpPreference, string][]).map(([id, key]) => (
-                  <button key={id} type="button" role="radio" aria-checked={app.prefs.helpPreference === id} className="mb-2 min-h-12 w-full rounded-2xl border border-[var(--line)] bg-[var(--card)] px-3 text-left font-semibold" onClick={() => app.updatePrefs({ helpPreference: id })}>
+                  <Choice key={id} selected={app.prefs.helpPreference === id} onClick={() => app.updatePrefs({ helpPreference: id })}>
                     {t(key)}
-                  </button>
+                  </Choice>
                 ))}
               </div>
             </section>
           )}
-          {step === 6 && (
+          {step === 5 && (
             <section>
-              <h2 id="quiz-title" className="text-2xl font-semibold">{t('onboarding.colour')}</h2>
+              <h2 id="quiz-title" className="text-xl font-semibold">{t('onboarding.colour')}</h2>
               <div role="radiogroup" aria-label={t('onboarding.colour')} className="mt-3 space-y-2">
                 {(['default', 'protanopia', 'deuteranopia', 'tritanopia', 'monochrome'] as ColourVision[]).map((mode) => (
-                  <button key={mode} type="button" role="radio" aria-checked={app.prefs.colourVision === mode} className="min-h-12 w-full rounded-2xl border border-[var(--line)] bg-[var(--card)] px-3 py-2 text-left" onClick={() => app.updatePrefs({ colourVision: mode })}>
+                  <button key={mode} type="button" role="radio" aria-checked={app.prefs.colourVision === mode} className={`min-h-11 w-full rounded-xl px-3 py-2 text-left ${app.prefs.colourVision === mode ? 'border-2 border-[var(--accent)] bg-[color-mix(in_srgb,var(--accent)_12%,var(--card))] font-bold' : 'border border-[#d9d9d9] bg-[var(--card)]'}`} onClick={() => app.updatePrefs({ colourVision: mode })}>
                     <span className="font-semibold">{t(`cvd.${mode}`)}</span>
                     <span className="mt-1 flex flex-wrap gap-3 text-sm">
                       <span className="inline-flex items-center gap-1 text-[var(--success)]"><CheckCircle2 aria-hidden size={16} />{t('cvd.paid')}</span>
@@ -124,23 +123,23 @@ export function Join() {
               </div>
             </section>
           )}
-          {step === 7 && (
+          {step === 6 && (
             <section>
-              <h2 id="quiz-title" className="text-2xl font-semibold">{t('onboarding.shortcuts')}</h2>
+              <h2 id="quiz-title" className="text-xl font-semibold">{t('onboarding.shortcuts')}</h2>
               <div className="mt-3">
                 <ShortcutPicker order={picked} onChange={setPicked} />
               </div>
             </section>
           )}
         </main>
-        <div className="flex flex-wrap gap-2 border-t border-[var(--line)] p-3">
-          <button type="button" className="min-h-12 min-w-0 flex-1 whitespace-normal rounded-2xl border border-[var(--line)] px-2" onClick={() => (step === 0 ? app.logout() : setStep((value) => value - 1))}>
+        <div className="flex items-center gap-3 border-t border-[var(--line)] px-4 py-3">
+          <button type="button" className="text-sm font-semibold text-[var(--link)]" onClick={() => (step === 0 ? app.logout() : setStep((value) => value - 1))}>
             {t('back')}
           </button>
-          <button type="button" className="min-h-12 min-w-0 flex-1 whitespace-normal rounded-2xl border border-[var(--line)] px-2" onClick={() => (step === STEPS - 1 ? finish(false) : setStep((value) => value + 1))}>
+          <button type="button" className="text-sm font-semibold text-[var(--link)]" onClick={() => (step === STEPS - 1 ? finish(false) : setStep((value) => value + 1))}>
             {t('skipStep')}
           </button>
-          <button type="button" className="min-h-12 min-w-0 flex-1 whitespace-normal rounded-2xl bg-[var(--accent)] px-2 font-semibold text-[var(--on-accent)]" disabled={step === STEPS - 1 && picked.length !== 6} onClick={() => (step === STEPS - 1 ? finish(true) : setStep((value) => value + 1))}>
+          <button type="button" className="ml-auto min-h-11 rounded-xl bg-[var(--accent)] px-4 font-semibold text-[var(--on-accent)]" disabled={step === STEPS - 1 && picked.length !== 6} onClick={() => (step === STEPS - 1 ? finish(true) : setStep((value) => value + 1))}>
             {step === STEPS - 1 ? t('done') : t('continue')}
           </button>
         </div>

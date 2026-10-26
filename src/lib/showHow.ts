@@ -38,7 +38,7 @@ export function beginShowHow(app: App, getPrefs: () => Preferences, journeyId: s
   return startGuide({
     guideId: journeyId,
     text,
-    readAloud: true,
+    readAloud: getPrefs().readAloud,
     waitForTap: true,
     rate: () => getPrefs().speechRate,
     setRate: (rate) => app.updatePrefs({ speechRate: rate }),

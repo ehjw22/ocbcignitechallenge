@@ -57,8 +57,18 @@ html[data-bold="1"] #customer-app button {
   font-family: inherit;
 }
 
+.tour-target {
+  outline: 2px solid var(--accent, #e30613);
+  outline-offset: 4px;
+  border-radius: 12px;
+}
+
+.shortcut-grid {
+  grid-auto-rows: 7.25rem;
+}
+
 .driver-popover.ocbc-tour .driver-popover-title {
-  font-size: 1.05rem;
+  font-size: 1rem;
 }
 
 .driver-popover.ocbc-tour .driver-popover-description {

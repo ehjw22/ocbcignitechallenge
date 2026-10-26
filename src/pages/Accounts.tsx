@@ -20,7 +20,7 @@ export function Accounts() {
   }), [app.txns, accountId, query])
   return (
     <Page title={t('accounts.title')}>
-      <div className="space-y-3 px-4 py-4">
+      <div className="space-y-3 px-4 py-4" data-guide="accounts-list">
         {app.accounts.map((account) => (
           <Link key={account.id} to={`/accounts/${account.id}`} className="card block px-4 py-4">
             <h2 className="text-[0.9rem] font-medium leading-normal">{t(account.nameKey)}</h2>
@@ -34,7 +34,7 @@ export function Accounts() {
         <h2 className="pt-2 text-lg font-semibold">{t('recent')}</h2>
         <label className="block text-[0.85rem] font-medium" htmlFor="txn-search">
           {t('txn.search')}
-          <input id="txn-search" value={query} onChange={(e) => setQuery(e.target.value)} className="ocbc-field mt-1" />
+          <input id="txn-search" data-guide="txn-search" value={query} onChange={(e) => setQuery(e.target.value)} className="ocbc-field mt-1" />
         </label>
         <label className="block text-[0.85rem] font-medium" htmlFor="txn-account">
           {t('txn.filterAccount')}

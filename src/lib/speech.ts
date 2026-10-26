@@ -74,8 +74,20 @@ export async function speak(
       body: JSON.stringify({ text: clean, lang: lang.bcp47, rate: options.rate, dialect: options.dialect }),
     })
     if (!res.ok) throw new Error('tts')
-    const data = (await res.json()) as { audio?: string }
-    if (!data.audio || myToken !== token) return 'none'
+    const data = (await res.json()) as { audio?: string; fallback?: string; error?: string }
+    if (options.dialect === 'cantonese' && (data.fallback === 'mandarin' || data.error === 'cantonese_unavailable')) {
+      window.dispatchEvent(new Event('ocbc-cantonese'))
+    }
+    if (!data.audio || myToken !== token) {
+      if (options.dialect === 'cantonese') {
+        const utter = new SpeechSynthesisUtterance(clean)
+        utter.lang = 'zh-CN'
+        utter.rate = options.rate
+        window.speechSynthesis.speak(utter)
+        return 'device'
+      }
+      return 'none'
+    }
     const audio = new Audio(`data:audio/mpeg;base64,${data.audio}`)
     currentAudio = audio
     const words = clean.split(/\s+/).filter(Boolean)
@@ -108,11 +120,12 @@ export async function speak(
     })
     return 'cloud'
   } catch {
+    if (options.dialect === 'cantonese') window.dispatchEvent(new Event('ocbc-cantonese'))
     const utter = new SpeechSynthesisUtterance(clean)
-    utter.lang = lang.bcp47
+    utter.lang = options.dialect === 'cantonese' ? 'zh-CN' : lang.bcp47
     utter.rate = options.rate
     window.speechSynthesis.speak(utter)
-    return 'none'
+    return options.dialect === 'cantonese' ? 'device' : 'none'
   }
 }
 

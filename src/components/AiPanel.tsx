@@ -54,6 +54,10 @@ export function AiPanel() {
           detail: app.prefs.detail,
           screen: app.screen,
           step: app.guideStep || app.step,
+          accounts: app.accounts.filter((account) => account.kind === 'deposit').map((account) => ({
+            name: t(account.nameKey),
+            balance: app.balances[account.id] ?? account.balance,
+          })),
         }),
       })
       if (!res.ok) throw new Error('chat')
@@ -125,7 +129,7 @@ export function AiPanel() {
           <article key={`${message.role}-${index}`} className={message.role === 'user' ? 'ml-auto max-w-[85%] rounded-2xl bg-[var(--soft)] p-3' : 'card max-w-[85%] p-3'}>
             <p className="mb-1 text-sm font-semibold">{message.role === 'user' ? t('you') : t('ai.title')}</p>
             {message.role === 'assistant' ? (
-              <Speakable text={message.content} auto={app.prefs.readAloud} />
+              <Speakable text={message.content} auto={app.prefs.readAloud && index === app.messages.length - 1} corner />
             ) : (
               <p>{message.content}</p>
             )}
@@ -180,23 +184,25 @@ export function AiPanel() {
         ))}
         {busy && <p>{t('loading') === 'loading' ? '…' : '…'}</p>}
       </div>
-      <div>
-        <p className="mb-2 text-sm font-semibold">{t('ai.suggestions')}</p>
-        <div className="flex flex-wrap gap-2">
+      {app.messages.length === 0 && (
+        <div className="flex gap-2 overflow-x-auto pb-1">
           {chipsFor(app.screen).map((key) => (
-            <button key={key} type="button" className="tap rounded-full border border-[var(--line)] px-3 text-left" onClick={() => void ask(t(key))}>
+            <button key={key} type="button" className="min-h-8 shrink-0 rounded-full border border-[var(--line)] px-3 text-sm" onClick={() => void ask(t(key))}>
               {t(key)}
             </button>
           ))}
         </div>
-      </div>
+      )}
       <form
-        className="flex w-full flex-col gap-2"
+        className="flex w-full items-end gap-2 rounded-full border border-[var(--line)] bg-[var(--card)] px-2 py-1"
         onSubmit={(e) => {
           e.preventDefault()
           void ask(draft)
         }}
       >
+        <button type="button" className="flex h-10 w-10 shrink-0 items-center justify-center" onClick={toggleMic} aria-pressed={listening} aria-label={t('speech.voiceInput')}>
+          {listening ? <Square aria-hidden size={16} /> : <Mic aria-hidden size={20} />}
+        </button>
         <label className="sr-only" htmlFor="ai-draft">{t('ai.placeholder')}</label>
         <textarea
           id="ai-draft"
@@ -209,17 +215,12 @@ export function AiPanel() {
             }
           }}
           placeholder={t('ai.placeholder')}
-          rows={3}
-          className="min-h-24 w-full rounded-xl border border-[var(--line)] bg-[var(--card)] p-3 text-[1rem] leading-normal text-[var(--text)]"
+          rows={1}
+          className="max-h-24 min-h-10 flex-1 resize-none bg-transparent py-2 text-[15px] leading-normal text-[var(--text)] outline-none"
         />
-        <div className="flex gap-2">
-          <button type="button" className="tap rounded-xl border border-[var(--line)] px-3" onClick={toggleMic} aria-pressed={listening} aria-label={t('speech.voiceInput')}>
-            {listening ? <Square aria-hidden size={18} /> : <Mic aria-hidden size={18} />}
-          </button>
-          <button type="submit" className="tap flex-1 rounded-xl bg-[var(--accent)] px-3 text-[var(--on-accent)]" aria-label={t('ai.send')}>
-            <Send aria-hidden size={18} />
-          </button>
-        </div>
+        <button type="submit" className="mb-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--accent)] text-[var(--on-accent)]" aria-label={t('ai.send')}>
+          <Send aria-hidden size={16} />
+        </button>
       </form>
       {listening && <p role="status">{t('speech.listening')}</p>}
       {about && (

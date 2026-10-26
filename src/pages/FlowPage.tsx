@@ -4,7 +4,7 @@ import { CircleAlert, TriangleAlert } from 'lucide-react'
 import { Page } from '@/components/Shell'
 import { Speakable } from '@/components/Speakable'
 import { useApp } from '@/context/AppContext'
-import { FX, PAYNOW_DIRECTORY, payeeName } from '@/data/bank'
+import { FX, lookupPaynow, payeeName } from '@/data/bank'
 import { flowById, type FlowField } from '@/data/flows'
 import { translate } from '@/i18n'
 import { formatSGD } from '@/lib/format'
@@ -32,6 +32,8 @@ export function FlowPage() {
   const [otpError, setOtpError] = useState('')
   const [unusual, setUnusual] = useState(false)
   const [ref, setRef] = useState('')
+  const [wstep, setWstep] = useState(0)
+  const [more, setMore] = useState(false)
   const alertRef = useRef<HTMLDivElement>(null)
   const guided = useRef(false)
 
@@ -58,6 +60,8 @@ export function FlowPage() {
     }
     setForm(next)
     setStage('form')
+    setWstep(0)
+    setMore(false)
     if (demo === 'mei' && flow.id === 'overseas') {
       const found = validateForm(flow.id, next, app.balances['360'] ?? 0)
       setIssues(found)
@@ -133,8 +137,11 @@ export function FlowPage() {
   const title = flow.id === 'card-lock' ? t('flows.cardLock') : flow.id === 'card-lost' ? t('flows.cardLost') : flow.id === 'limit' ? t('flows.limit') : t(flow.title)
   const balance = app.balances[form.from || '360'] ?? 0
   const payee = flow.payeeField ? form[flow.payeeField] : ''
-  const lookedUp = PAYNOW_DIRECTORY[(form.to || '').replace(/\s/g, '')]
+  const paynowHit = flow.id === 'paynow' || flow.id === 'topup' ? lookupPaynow(form.to || '', form.proxy || 'mobile') : null
+  const lookedUp = paynowHit?.status === 'ok' ? paynowHit.name : ''
   const displayPayee = lookedUp || payeeName(payee)
+  const reviewAt = wizardReview(flow.id)
+  const stepIds = wizardFields(flow.id, wstep)
   const fx = flow.id === 'overseas' ? FX[form.country] || FX.Australia : null
   const sendAmount = Number(String(form.amount || '').replace(/,/g, '')) || 0
   const received = fx ? Math.max(0, sendAmount - fx.fee) * fx.perSgd : 0
@@ -229,10 +236,35 @@ export function FlowPage() {
             className="space-y-3"
             onSubmit={(e) => {
               e.preventDefault()
+              if (reviewAt >= 0 && wstep < reviewAt) {
+                const ids = new Set(stepIds || [])
+                const found = validateForm(flow.id, form, balance).filter((issue) => ids.has(issue.field))
+                setIssues(found)
+                found.forEach((issue) => app.log('error_shown', { code: issue.code, flowId: flow.id }))
+                if (found.length) {
+                  if (app.prefs.readAloud) app.setAnnounce(describe(found[0]))
+                  alertRef.current?.focus()
+                  return
+                }
+                setWstep((value) => value + 1)
+                return
+              }
+              if (reviewAt >= 0) {
+                const found = validateForm(flow.id, form, balance)
+                setIssues(found)
+                found.forEach((issue) => app.log('error_shown', { code: issue.code, flowId: flow.id }))
+                if (found.length) {
+                  if (app.prefs.readAloud) app.setAnnounce(describe(found[0]))
+                  alertRef.current?.focus()
+                  return
+                }
+                setStage('otp')
+                return
+              }
               submit()
             }}
           >
-            {fx && (
+            {fx && (reviewAt < 0 || wstep >= 2) && (
               <section className="card space-y-1 p-3" aria-label={t('fx.sample')}>
                 <p className="font-semibold">{t('fx.sample')}</p>
                 <p>{t('fx.currency')}: {t(fx.currencyKey)}</p>
@@ -257,7 +289,42 @@ export function FlowPage() {
                 ))}
               </section>
             )}
-            {groups.filter((group) => group.fields.some((field) => field.id !== 'lock')).map((group) => (
+            {issues.length > 0 && (
+              <div ref={alertRef} tabIndex={-1} role="alert" className="rounded-xl border-2 border-[var(--danger)] bg-[#fff1f2] p-3 text-[var(--danger)]">
+                <p className="flex items-center gap-2 font-bold">
+                  <CircleAlert aria-hidden size={18} /> {t('errors.count', { n: issues.length })}
+                </p>
+                <ul className="mt-2 space-y-1">
+                  {issues.map((issue) => (
+                    <li key={`${issue.field}-${issue.code}`}>
+                      <a className="font-semibold underline" href={`#field-${issue.field}`} onClick={(event) => { event.preventDefault(); document.getElementById(`field-${issue.field}`)?.focus() }}>
+                        {describe(issue)}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+                <div className="mt-2 flex gap-2">
+                  {issues.some((issue) => issue.code === 'insufficient') && (
+                    <button type="button" className="min-h-11 flex-1 rounded-xl border border-[var(--danger)] px-2 font-semibold" onClick={() => setForm((prev) => ({ ...prev, amount: Math.max(0, balance).toFixed(2) }))}>{t('errors.useMax')}</button>
+                  )}
+                  <button type="button" className="min-h-11 flex-1 rounded-xl border border-[var(--danger)] px-2 font-semibold" onClick={() => app.openHelp('staff')}>{t('getHelp')}</button>
+                </div>
+                {app.prefs.readAloud && <Speakable text={issues.map(describe).join('. ')} auto hideText />}
+              </div>
+            )}
+            {reviewAt >= 0 && wstep === reviewAt && (
+              <section className="card space-y-2 p-3">
+                <h2 className="text-lg font-semibold">{t('review')}</h2>
+                {flow.fields.filter((field) => !moreFields(flow.id).includes(field.id) && field.id !== 'laterDate').map((field) => (
+                  <p key={field.id} className="flex justify-between gap-3 text-sm">
+                    <span className="text-[var(--muted)]">{t(field.label)}</span>
+                    <span className="text-right font-semibold">{display(field, form[field.id] || '', t)}</span>
+                  </p>
+                ))}
+                {lookedUp && <p className="font-semibold">{lookedUp}</p>}
+              </section>
+            )}
+            {groups.filter((group) => group.fields.some((field) => field.id !== 'lock' && (!stepIds || stepIds.includes(field.id)))).map((group) => (
               <fieldset key={group.guide} data-guide={flow.id === 'scan' && group.guide === 'scan-frame' ? undefined : group.guide} className="card space-y-3 p-3">
                 {group.fields.map((field) => {
                   if (field.id === 'laterDate' && form.when !== 'later') return null
@@ -272,6 +339,8 @@ export function FlowPage() {
                     hint={iban ? t('flows.ibanHint') : undefined}
                     placeholder={iban ? 'GB29 NWBK 6016 1331 9268 19' : undefined}
                     options={field.type === 'account' ? app.accounts.filter((account) => account.kind === 'deposit').map((account) => ({ value: account.id, label: account.nameKey })) : undefined}
+                    error={issues.find((issue) => issue.field === field.id) ? describe(issues.find((issue) => issue.field === field.id) as Issue) : ''}
+                    balanceHint={field.id === 'amount' || field.id === 'from' ? t('flows.available', { amount: formatSGD(balance) }) : ''}
                     onChange={(value) => {
                       setForm((prev) => ({ ...prev, [field.id]: value }))
                       app.setScreen(flow.id, field.id)
@@ -280,10 +349,13 @@ export function FlowPage() {
                   />
                   )
                 })}
-                {(flow.id === 'paynow' || flow.id === 'topup') && group.fields.some((field) => field.id === 'to') && (
-                  <p className="flex items-start gap-2 text-sm leading-normal">
+                {(flow.id === 'paynow' || flow.id === 'topup') && group.fields.some((field) => field.id === 'to') && paynowHit?.status === 'ok' && (
+                  <p className="text-sm font-semibold">{t('flows.nameCheck', { name: paynowHit.name || '' })}</p>
+                )}
+                {(flow.id === 'paynow' || flow.id === 'topup') && group.fields.some((field) => field.id === 'to') && paynowHit?.status === 'bad' && (
+                  <p className="flex items-start gap-2 text-sm font-semibold text-[var(--danger)]">
                     <TriangleAlert aria-hidden className="mt-0.5 shrink-0" size={18} />
-                    {lookedUp ? t('flows.nameCheck', { name: lookedUp }) : form.to ? t('flows.nameUnknown') : t('flows.nameSample', { name: PAYNOW_DIRECTORY['91234567'] })}
+                    {t('flows.nameUnknown')}
                   </p>
                 )}
               </fieldset>
@@ -300,23 +372,24 @@ export function FlowPage() {
                 />
               </label>
             )}
-            {issues.length > 0 && (
-              <div ref={alertRef} tabIndex={-1} role="alert" className="status-danger card space-y-2 p-3">
-                <p className="flex items-center gap-2 font-semibold text-[var(--danger)]">
-                  <CircleAlert aria-hidden /> {t('errors.summary')}
-                </p>
-                <ul className="space-y-2">
-                  {issues.map((issue) => (
-                    <li key={`${issue.field}-${issue.code}`}>
-                      <Speakable text={describe(issue)} auto={app.prefs.readAloud} />
-                    </li>
+            {reviewAt >= 0 && wstep === reviewAt && (
+              <details className="card p-3" open={more} onToggle={(event) => setMore((event.target as HTMLDetailsElement).open)}>
+                <summary className="cursor-pointer font-semibold">{t('flows.moreOptions')}</summary>
+                <div className="mt-3 space-y-3">
+                  {flow.fields.filter((field) => moreFields(flow.id).includes(field.id) && (field.id !== 'laterDate' || form.when === 'later')).map((field) => (
+                    <Field
+                      key={field.id}
+                      field={field}
+                      value={form[field.id] ?? ''}
+                      onChange={(value) => setForm((prev) => ({ ...prev, [field.id]: value }))}
+                      t={t}
+                    />
                   ))}
-                </ul>
-                <div className="flex gap-2">
-                  <button type="button" className="tap flex-1 rounded-xl border border-[var(--line)]" onClick={() => { app.setAiSeed(describe(issues[0])); app.openHelp('ai') }}>{t('askAi')}</button>
-                  <button type="button" className="tap flex-1 rounded-xl border border-[var(--line)]" onClick={() => app.openHelp('staff')}>{t('getHelp')}</button>
                 </div>
-              </div>
+              </details>
+            )}
+            {reviewAt >= 0 && wstep > 0 && (
+              <button type="button" className="text-sm font-semibold text-[var(--link)]" onClick={() => { setIssues([]); setWstep((value) => value - 1) }}>{t('back')}</button>
             )}
             <button type="submit" data-guide={reviewGuide(flow.id)} className="ocbc-btn">
               {t('flows.submit')}
@@ -466,6 +539,26 @@ function display(field: FlowField, value: string, t: (key: string) => string) {
   return value
 }
 
+function wizardReview(flowId: string) {
+  if (flowId === 'overseas') return 3
+  if (flowId === 'paynow' || flowId === 'transfer') return 2
+  return -1
+}
+
+function wizardFields(flowId: string, step: number) {
+  if (wizardReview(flowId) < 0) return null
+  if (flowId === 'paynow') return step === 0 ? ['proxy', 'to'] : step === 1 ? ['amount', 'from'] : []
+  if (flowId === 'transfer') return step === 0 ? ['name', 'bank', 'account'] : step === 1 ? ['amount', 'from'] : []
+  return step === 0 ? ['country'] : step === 1 ? ['name', 'swift', 'account'] : step === 2 ? ['amount', 'from'] : []
+}
+
+function moreFields(flowId: string) {
+  if (flowId === 'paynow') return ['reference', 'savePayee', 'when', 'laterDate']
+  if (flowId === 'transfer') return ['savePayee', 'when', 'laterDate']
+  if (flowId === 'overseas') return ['purpose', 'savePayee', 'when', 'laterDate']
+  return []
+}
+
 function Field({
   field,
   value,
@@ -475,6 +568,8 @@ function Field({
   hint,
   placeholder,
   options,
+  error,
+  balanceHint,
 }: {
   field: FlowField
   value: string
@@ -484,6 +579,8 @@ function Field({
   hint?: string
   placeholder?: string
   options?: { value: string; label: string }[]
+  error?: string
+  balanceHint?: string
 }) {
   if (field.type === 'toggle') {
     if (field.id === 'lock') return null
@@ -495,14 +592,16 @@ function Field({
     )
   }
   const id = `field-${field.id}`
+  const errorId = error ? `${id}-error` : undefined
+  const invalid = error ? 'true' : undefined
   return (
     <label className="block" htmlFor={id}>
-      <span className="mb-1 block text-[12px] font-medium text-[#6B6B6B]">
+      <span className="mb-1 block text-[12px] font-medium text-[var(--muted)]">
         {label || t(field.label)} {field.placeholder === 'optional' && <span className="font-normal text-[var(--muted)]">({t('optional')})</span>}
       </span>
       {hint && <span className="mb-1 block text-[0.85rem] font-normal text-[var(--muted)]">{hint}</span>}
       {field.type === 'select' || field.type === 'account' ? (
-        <select id={id} value={value} onChange={(e) => onChange(e.target.value)} className="ocbc-field">
+        <select id={id} value={value} aria-invalid={invalid} aria-describedby={errorId} onChange={(e) => onChange(e.target.value)} className={`ocbc-field ${error ? 'border-2 border-[var(--danger)]' : ''}`}>
           {(options || field.options)?.map((option) => (
             <option key={option.value} value={option.value}>{t(option.label)}</option>
           ))}
@@ -514,9 +613,18 @@ function Field({
           inputMode={field.inputMode}
           autoComplete="off"
           placeholder={placeholder || (field.placeholder ? t(field.placeholder) : undefined)}
+          aria-invalid={invalid}
+          aria-describedby={errorId}
           onChange={(e) => onChange(e.target.value)}
-          className={`ocbc-field ${field.type === 'amount' ? 'text-center text-[28px] font-semibold' : ''}`}
+          className={`ocbc-field ${error ? 'border-2 border-[var(--danger)]' : ''} ${field.type === 'amount' ? 'text-center text-[28px] font-semibold' : ''}`}
         />
+      )}
+      {balanceHint && <span className="mt-1 block text-sm text-[var(--muted)]">{balanceHint}</span>}
+      {error && (
+        <span id={errorId} className="mt-2 flex gap-2 rounded-xl border border-[var(--danger)] bg-[#fff1f2] p-2 text-sm font-bold text-[var(--danger)]">
+          <TriangleAlert aria-hidden size={18} className="mt-0.5 shrink-0" />
+          <span>{error}</span>
+        </span>
       )}
     </label>
   )

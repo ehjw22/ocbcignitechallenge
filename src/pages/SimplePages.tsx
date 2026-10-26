@@ -10,7 +10,7 @@ import { translate } from '@/i18n'
 import { requestText } from '@/lib/staffSummary'
 import { themeVars } from '@/lib/accent'
 import { formatSGD } from '@/lib/format'
-import { clearTourSeen } from '@/lib/storage'
+import { startAppTour, tourState } from '@/lib/appTour'
 
 const PAY_LINKS = [
   ['paynow', '/flow/paynow'],
@@ -59,7 +59,7 @@ export function PayHub() {
             const Icon = icons[id] ?? ArrowLeftRight
             return (
               <li key={id} className="border-b border-[#F2F2F2] last:border-0">
-                <Link to={to} className="ocbc-row">
+                <Link to={to} data-guide={`pay-${id}`} className="ocbc-row">
                   <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--soft)] text-[var(--link)]">
                     <Icon aria-hidden size={18} />
                   </span>
@@ -86,9 +86,9 @@ export function HelpPage() {
   return (
     <Page title={t('nav.help')}>
       <div className="space-y-3 p-4">
-        <button type="button" className="tap w-full rounded-2xl bg-[var(--accent)] text-[var(--on-accent)]" onClick={() => app.openHelp('ai')}>{t('help.ai')}</button>
+        <button type="button" data-guide="help-assistant" className="tap w-full rounded-2xl bg-[var(--accent)] text-[var(--on-accent)]" onClick={() => app.openHelp('ai')}>{t('help.ai')}</button>
         <button type="button" className="tap w-full rounded-2xl border border-[var(--line)] bg-[var(--card)]" onClick={() => app.openHelp('guides')}>{t('help.guide')}</button>
-        <button type="button" className="tap w-full rounded-2xl border border-[var(--line)] bg-[var(--card)]" onClick={() => app.openHelp('staff')}>{t('help.staff')}</button>
+        <button type="button" data-guide="help-staff" className="tap w-full rounded-2xl border border-[var(--line)] bg-[var(--card)]" onClick={() => app.openHelp('staff')}>{t('help.staff')}</button>
         <h2 className="pt-2 text-lg font-semibold">{t('help.journeys')}</h2>
         {JOURNEY_IDS.map((id) => (
           <button key={id} type="button" className="tap w-full rounded-2xl border border-[var(--line)] bg-[var(--card)] px-3 text-left" onClick={() => navigate(`/flow/${id}?practice=1&tour=1`)}>
@@ -115,7 +115,6 @@ export function HelpPage() {
 
 export function More() {
   const app = useApp()
-  const navigate = useNavigate()
   const t = (key: string) => translate(app.prefs.language, key)
   const [about, setAbout] = useState(false)
   useEffect(() => { app.setScreen('more') }, [])
@@ -136,10 +135,7 @@ export function More() {
         <button
           type="button"
           className="card tap w-full px-3 text-left font-semibold"
-          onClick={() => {
-            clearTourSeen()
-            navigate('/?tour=1')
-          }}
+          onClick={() => startAppTour(tourState().index > 0)}
         >
           {t('more.tour')}
         </button>
@@ -177,7 +173,7 @@ export function Cards() {
             </p>
           </article>
         ))}
-        <Link to="/flow/card-lock" className="tap flex items-center justify-center rounded-xl bg-[var(--accent)] text-[var(--on-accent)]">{t('cards.lock')}</Link>
+        <Link to="/flow/card-lock" data-guide="cards-lock" className="tap flex items-center justify-center rounded-xl bg-[var(--accent)] text-[var(--on-accent)]">{t('cards.lock')}</Link>
         <Link to="/flow/card-lost" className="tap flex items-center justify-center rounded-xl border border-[var(--line)] bg-[var(--card)]">{t('cards.lost')}</Link>
       </div>
     </Page>

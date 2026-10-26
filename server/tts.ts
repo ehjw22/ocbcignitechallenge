@@ -97,6 +97,24 @@ export async function handleTts(req: IncomingMessage, res: ServerResponse) {
       send(res, 200, { audio: buf.toString('base64'), provider: 'azure' })
       return
     }
+    if (cantonese) {
+      const mandarin = `<speak version='1.0' xml:lang='zh-CN'><voice name='zh-CN-XiaoxiaoNeural'><prosody rate='${rate.toFixed(1)}'>${escapeXml(text)}</prosody></voice></speak>`
+      const retry = await fetch(`https://${region}.tts.speech.microsoft.com/cognitiveservices/v1`, {
+        method: 'POST',
+        headers: {
+          'Ocp-Apim-Subscription-Key': azureKey,
+          'Content-Type': 'application/ssml+xml',
+          'X-MICROSOFT-OutputFormat': 'audio-16khz-128kbitrate-mono-mp3',
+        },
+        body: mandarin,
+      })
+      if (retry.ok) {
+        const buf = Buffer.from(await retry.arrayBuffer())
+        send(res, 200, { audio: buf.toString('base64'), provider: 'azure', fallback: 'mandarin' })
+        return
+      }
+      console.error('cantonese tts failed', upstream.status)
+    }
   }
-  send(res, 501, { error: 'no tts configured' })
+  send(res, 501, { error: cantonese ? 'cantonese_unavailable' : 'no tts configured' })
 }

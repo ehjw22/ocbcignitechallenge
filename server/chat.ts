@@ -20,6 +20,7 @@ type ChatBody = {
   detail?: 'short' | 'full'
   screen?: string
   step?: string
+  accounts?: { name: string; balance: number }[]
 }
 
 function stripFlags(text: string) {
@@ -89,9 +90,12 @@ export async function handleChat(req: IncomingMessage, res: ServerResponse) {
   const { key, baseURL, model } = llmSettings()
   const busy = () => withBusyNote(pack, demoReply(pack, demoInput))
   if (!key) {
-    send(res, 200, busy())
+    send(res, 200, demoReply(pack, demoInput))
     return
   }
+  const balances = Array.isArray(raw.accounts)
+    ? raw.accounts.map((account) => `${account.name} S$${Number(account.balance).toFixed(2)}`).join('; ')
+    : ''
   const detailLine = raw.detail === 'short' ? 'short and simple' : 'full detail'
   const system = [
     'You are the OCBC Adaptive in-app banking assistant in a demo app. Only help with banking and using this app: accounts, transfers, PayNow, GIRO, bills, cards, savings, fees, security and scams, and the current screen.',
@@ -103,6 +107,7 @@ export async function handleChat(req: IncomingMessage, res: ServerResponse) {
     'Suggest contacting staff when the user asks for a person, is still stuck after two tries, or mentions fraud, scams, disputes or a lost card.',
     'For suspected fraud or a lost card, also show the 24-hour hotline +65 6363 3333 and the option to lock the card immediately.',
     `Current screen: ${raw.screen || 'unknown'}. Current step: ${raw.step || 'none'}.`,
+    balances ? `Sample balances for this signed-in customer: ${balances}. Use these figures when asked about a balance.` : '',
     'Balances in the app are samples. Do not say a payment reached a real bank, and do not call the app a prototype.',
     'If you refuse an off-topic question, start with [[REFUSE]]. If you escalate to a person, start with [[ESCALATE]]. If this is fraud, a scam, a dispute or a lost card, start with [[FRAUD]]. Then write the customer-facing reply. Do not mention these markers.',
   ].join(' ')
@@ -116,12 +121,32 @@ export async function handleChat(req: IncomingMessage, res: ServerResponse) {
         ...messages.map((message) => ({ role: message.role, content: String(message.content).slice(0, MAX_MESSAGE) })),
       ],
     })
-    const text = completion.choices[0]?.message?.content || ''
+    const content = completion.choices[0]?.message?.content as unknown
+    const text = typeof content === 'string'
+      ? content
+      : Array.isArray(content)
+        ? content.map((part) => (typeof part === 'string' ? part : String((part as { text?: string })?.text || ''))).join('')
+        : ''
     if (!text.trim()) throw new Error('empty reply')
     const flags = stripFlags(text)
     const journeyId = flags.refused || flags.fraud ? null : journeyFor(last, demoReply(pack, demoInput).intent)
     send(res, 200, { reply: flags.reply, source: 'llm', journeyId, flags: { refused: flags.refused, escalated: flags.escalated, fraud: flags.fraud } })
-  } catch {
+  } catch (err) {
+    console.error('chat failed', err instanceof Error ? err.message : err)
     send(res, 200, busy())
   }
+}
+
+export function handleHealth(req: IncomingMessage, res: ServerResponse) {
+  if (req.method !== 'GET') {
+    send(res, 405, { error: 'method' })
+    return
+  }
+  send(res, 200, {
+    LLM_API_KEY: Boolean(process.env.LLM_API_KEY || process.env.OPENAI_API_KEY),
+    LLM_BASE_URL: Boolean(process.env.LLM_BASE_URL),
+    LLM_MODEL: Boolean(process.env.LLM_MODEL),
+    AZURE_SPEECH_KEY: Boolean(process.env.AZURE_SPEECH_KEY),
+    AZURE_SPEECH_REGION: Boolean(process.env.AZURE_SPEECH_REGION),
+  })
 }

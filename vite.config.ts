@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import type { IncomingMessage, ServerResponse } from 'node:http'
-import { handleAssistant, handleChat } from './server/chat'
+import { handleAssistant, handleChat, handleHealth } from './server/chat'
 import { handleTts } from './server/tts'
 
 const root = path.dirname(fileURLToPath(import.meta.url))
@@ -33,6 +33,10 @@ function apiPlugin(): Plugin {
     try {
       if (url === '/api/assistant' && req.method === 'GET') {
         await handleAssistant(req, res)
+        return true
+      }
+      if (url === '/api/health' && req.method === 'GET') {
+        handleHealth(req, res)
         return true
       }
       if (url === '/api/chat' && req.method === 'POST') {
