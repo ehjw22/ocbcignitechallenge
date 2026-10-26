@@ -332,37 +332,36 @@ export function Page({
   }, [location.pathname])
   return (
     <div className="flex h-full min-h-0 flex-col bg-[var(--bg)] text-[var(--text)]">
-      <header className="relative flex min-h-14 items-center justify-center border-b border-[var(--line)] bg-[var(--card)] px-12 py-2">
-        {back && (
-          <button type="button" className="absolute left-1 flex min-h-11 min-w-11 items-center justify-center" onClick={() => navigate(-1)} aria-label={t('back')}>
-            <ChevronLeft aria-hidden size={26} />
-          </button>
-        )}
-        <div className="flex min-w-0 flex-col items-center gap-1">
-          {title && (
-            <span className="flex items-center gap-1">
-              <h1 className="text-center text-[1.05rem] font-semibold leading-normal">{title}</h1>
-              <SpeakButton
-                playing={speakingTitle}
-                listenLabel={t('speech.readAloud')}
-                stopLabel={t('stop')}
-                onClick={() => {
-                  if (speakingTitle) {
-                    stopSpeaking()
-                    setSpeakingTitle(false)
-                    return
-                  }
-                  setSpeakingTitle(true)
-                  void speak(title, { language: prefs.language, rate: prefs.speechRate, dialect: prefs.dialect }).finally(() => setSpeakingTitle(false))
-                }}
-              />
-            </span>
+      <header className="relative flex min-h-14 items-center justify-center border-b border-[var(--line)] bg-[var(--card)] px-3 py-2">
+        <span className="absolute left-1 flex items-center">
+          {back && (
+            <button type="button" className="flex h-11 w-11 items-center justify-center" onClick={() => navigate(-1)} aria-label={t('back')}>
+              <ChevronLeft aria-hidden size={26} />
+            </button>
           )}
+          {title && (
+            <SpeakButton
+              playing={speakingTitle}
+              listenLabel={t('speech.readAloud')}
+              stopLabel={t('stop')}
+              onClick={() => {
+                if (speakingTitle) {
+                  stopSpeaking()
+                  setSpeakingTitle(false)
+                  return
+                }
+                setSpeakingTitle(true)
+                void speak(title, { language: prefs.language, rate: prefs.speechRate, dialect: prefs.dialect }).finally(() => setSpeakingTitle(false))
+              }}
+            />
+          )}
+        </span>
+        <div className="flex max-w-[52%] flex-col items-center">
+          {title && <h1 className="w-full truncate text-center text-[1.05rem] font-semibold leading-normal">{title}</h1>}
           <DemoBadge />
         </div>
-        <span className="absolute right-1 top-1 flex items-center gap-1">
+        <span className="absolute right-1 flex items-center">
           <ExplainButton />
-          <HeaderHelp />
         </span>
       </header>
       <main id="main" ref={mainRef} key={location.pathname} className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[var(--bg)] pb-8">

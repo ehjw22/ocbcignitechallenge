@@ -34,7 +34,7 @@ export function Welcome() {
   }
 
   return (
-    <div className="relative flex h-full min-h-0 flex-col bg-white text-[#1a1a1a]">
+    <div className="relative flex h-full min-h-0 flex-col bg-[var(--bg)] text-[var(--text)]">
       <div className="min-h-0 flex-1 overflow-y-auto">
       <section className="relative h-64 shrink-0 overflow-hidden">
         <img src="/welcome-hero.jpg" alt="" className="absolute inset-0 h-full w-full object-cover" style={{ objectPosition: 'center 12%' }} />

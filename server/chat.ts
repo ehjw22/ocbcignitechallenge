@@ -83,7 +83,9 @@ export async function handleChat(req: IncomingMessage, res: ServerResponse) {
     return
   }
   const last = messages.filter((message) => message.role === 'user').at(-1)?.content ?? ''
-  const pack = localePack(raw.language || 'en')
+  const selectedLanguage = raw.language || 'en'
+  const cantonese = (selectedLanguage === 'zh' || selectedLanguage === 'zh-TW') && raw.dialect === 'cantonese'
+  const pack = localePack(cantonese ? 'zh-TW' : selectedLanguage)
   const userTurns = messages.filter((message) => message.role === 'user').length
   const detail: 'short' | 'full' = raw.detail === 'short' ? 'short' : 'full'
   const demoInput = { message: last, detail, screen: raw.screen || 'app', userTurns }
@@ -95,7 +97,7 @@ export async function handleChat(req: IncomingMessage, res: ServerResponse) {
   const { key, baseURL, model, fallback } = llmSettings()
   if (!key) {
     if (raw.explain) {
-      send(res, 200, explainPayload(raw.dialect === 'cantonese' ? 'yue' : (raw.language || 'en'), raw.screen || 'home'))
+      send(res, 200, explainPayload(cantonese ? 'yue' : selectedLanguage, raw.screen || 'home'))
       return
     }
     send(res, 200, attachTask(demoReply(pack, demoInput), last, raw.payees || []))
@@ -105,9 +107,13 @@ export async function handleChat(req: IncomingMessage, res: ServerResponse) {
     ? raw.accounts.map((account) => `${account.name} S$${Number(account.balance).toFixed(2)}`).join('; ')
     : ''
   const detailLine = raw.detail === 'short' ? 'Use 1 or 2 short sentences.' : 'Use 2 or 3 short sentences.'
-  const languageRule = raw.dialect === 'cantonese'
-    ? 'Write every word in spoken Cantonese, using Traditional Chinese characters such as 呢個, 唔好, 而家. Do not write English or Mandarin.'
-    : `Write every word in ${raw.languageName || 'English'}. Do not switch language.`
+  const languageRule = cantonese
+    ? 'Write every word in spoken Cantonese, using Traditional Chinese characters such as 呢個, 唔好, 而家. Do not write English, Simplified Chinese, or Mandarin.'
+    : selectedLanguage === 'zh'
+      ? 'Write every word in Simplified Chinese. Do not use Traditional characters, Cantonese, or English.'
+      : selectedLanguage === 'zh-TW'
+        ? 'Write every word in Traditional Chinese. Do not use Simplified characters, Cantonese, or English.'
+        : `Write every word in ${raw.languageName || 'English'}. Do not switch language.`
   const system = [
     'You are Ollie, a warm and patient OCBC assistant for older and first-time digital banking customers. Use short sentences and explain jargon in plain words.',
     `${languageRule} ${detailLine}`,
@@ -136,7 +142,7 @@ export async function handleChat(req: IncomingMessage, res: ServerResponse) {
         { role: 'system' as const, content: system },
         ...messages.map((message) => ({ role: message.role, content: String(message.content).slice(0, MAX_MESSAGE) })),
       ]
-  const replyLanguage = raw.dialect === 'cantonese' ? 'zh' : (raw.language || answerLanguage(last, 'en'))
+  const replyLanguage = cantonese ? 'zh-TW' : selectedLanguage
   const busyPack = localePack(replyLanguage)
   const detected = raw.explain ? { action: null, scamRisk: 'none' as const, handover: false } : detectTask(last, raw.payees || [])
   const finish = (text: string, source: 'llm' | 'demo') => {
@@ -161,67 +167,63 @@ export async function handleChat(req: IncomingMessage, res: ServerResponse) {
       flags: { refused: flags.refused, escalated: handover || flags.escalated, fraud: flags.fraud || scamRisk === 'high' },
     }
   }
-  const primaryController = new AbortController()
   const primaryUnresponsive = ['gemini-flash-lite-latest', 'gemini-flash-latest', 'gemini-3.5-flash-lite', 'gemini-3.8-flash'].includes(model)
   if (primaryUnresponsive) console.error('chat model not responding', model, 'using', fallback || model)
-  const primaryPromise = primaryUnresponsive
-    ? Promise.resolve(new Error('primary skipped'))
-    : completeModel(key, baseURL, model, chatMessages, false, 12000, primaryController.signal).catch((err: unknown) => err)
-  try {
-    const raced = primaryUnresponsive
-      ? new Error('primary skipped')
-      : await Promise.race([
-          primaryPromise,
-          new Promise<never>((_, reject) => setTimeout(() => reject(new Error('primary timed out')), 4500)),
-        ])
-    if (typeof raced !== 'string' || !raced.trim()) throw raced instanceof Error ? raced : new Error('empty reply')
-    send(res, 200, finish(raced, 'llm'))
-  } catch (err) {
-    primaryController.abort()
-    console.error('chat failed', model, errorDetail(err))
-    if (fallback && fallback !== model) {
-      try {
-        const text = await completeModel(key, baseURL, fallback, chatMessages, true, 15000)
-        if (!text.trim()) throw new Error('empty reply')
-        send(res, 200, finish(text, 'llm'))
-        return
-      } catch (fallbackErr) {
-        console.error('chat fallback failed', fallback, errorDetail(fallbackErr))
-      }
+  res.statusCode = 200
+  res.setHeader('Content-Type', 'text/event-stream; charset=utf-8')
+  res.setHeader('Cache-Control', 'no-cache')
+  const emit = (payload: unknown) => res.write(`data: ${JSON.stringify(payload)}\n\n`)
+  const models = [primaryUnresponsive ? '' : model, fallback].filter((item, index, list) => item && list.indexOf(item) === index)
+  let produced = ''
+  for (const [index, name] of models.entries()) {
+    try {
+      produced = await streamModel(key, baseURL, name, chatMessages, (full) => emit({ text: full }), index > 0, index === 0 ? 12000 : 15000)
+      if (produced.trim()) break
+    } catch (err) {
+      console.error(index === 0 ? 'chat failed' : 'chat fallback failed', name, errorDetail(err))
     }
-    if (raw.explain) {
-      send(res, 200, explainPayload(raw.dialect === 'cantonese' ? 'yue' : replyLanguage, raw.screen || 'home'))
-      return
-    }
-    const local = withBusyNote(busyPack, demoReply(busyPack, demoInput))
-    send(res, 200, attachTask(local, last, raw.payees || []))
   }
+  if (!produced.trim()) {
+    const local = raw.explain
+      ? explainPayload(cantonese ? 'yue' : replyLanguage, raw.screen || 'home')
+      : attachTask(withBusyNote(busyPack, demoReply(busyPack, demoInput)), last, raw.payees || [])
+    emit({ text: local.reply, done: local })
+    res.end()
+    return
+  }
+  emit({ text: produced, done: finish(produced, 'llm') })
+  res.end()
 }
 
-const SCREEN_COPY: Record<string, { en: string; zh: string; yue: string }> = {
+const SCREEN_COPY: Record<string, { en: string; zh: string; hant: string; yue: string }> = {
   home: {
     en: 'This is your home screen. It shows a sample balance, the shortcuts you chose, a tip, and your latest sample transactions.',
     zh: '这是首页。这里有示例余额、你选好的快捷方式、一条提示，以及最近的示例交易。',
+    hant: '這是主頁。這裡有示例餘額、你選好的快捷方式、一項提示，以及最近的示例交易。',
     yue: '呢個係主頁。你會見到示例結餘、你揀咗嘅快捷方式、一項提示，同最近嘅示例交易。',
   },
   accounts: {
     en: 'This is your accounts screen. It lists your sample accounts and the latest sample transactions.',
     zh: '这是账户页。这里列出示例账户和最近的示例交易。',
+    hant: '這是帳戶頁。這裡列出示例帳戶和最近的示例交易。',
     yue: '呢個係戶口頁。呢度有示例戶口同最近嘅示例交易。',
   },
   overseas: {
     en: 'This is an overseas transfer. You enter who you are paying, the country, and the amount. Nothing is sent until you review it and enter your PIN. The rate shown is sample data.',
     zh: '这是海外转账。你要填写收款人、国家和金额。核对并输入 PIN 之前，钱不会汇出。页面上的汇率是示例。',
+    hant: '這是海外轉賬。你要填寫收款人、國家和金額。核對並輸入 PIN 之前，錢不會匯出。頁面上的匯率是示例。',
     yue: '呢個係海外轉賬。你要填收款人、國家同金額。你核對並輸入 PIN 之前，錢唔會匯出。頁面上嘅匯率係示例。',
   },
   paynow: {
     en: 'This is PayNow. You pay someone with a mobile number, then check their name and the amount before you confirm.',
     zh: '这是 PayNow。你用手机号付款，确认前要核对姓名和金额。',
+    hant: '這是 PayNow。你用手機號碼付款，確認前要核對姓名和金額。',
     yue: '呢個係 PayNow。你用電話號碼付款，確認之前要核對姓名同金額。',
   },
   settings: {
     en: 'This is Settings. You can change the language, text size, colours, and whether screens are read aloud.',
     zh: '这是设置。你可以改语言、文字大小、颜色，以及是否朗读页面。',
+    hant: '這是設定。你可以改語言、文字大小、顏色，以及是否朗讀頁面。',
     yue: '呢個係設定。你可以改語言、字體大細、顏色，同埋係咪要讀出嚟。',
   },
 }
@@ -229,7 +231,7 @@ const SCREEN_COPY: Record<string, { en: string; zh: string; yue: string }> = {
 function explainPayload(language: string, screen: string) {
   const key = screen.includes('overseas') ? 'overseas' : screen.includes('paynow') ? 'paynow' : screen.includes('account') ? 'accounts' : screen.includes('setting') ? 'settings' : 'home'
   const copy = SCREEN_COPY[key]
-  const reply = language === 'yue' ? copy.yue : language.startsWith('zh') ? copy.zh : copy.en
+  const reply = language === 'yue' ? copy.yue : language === 'zh-TW' ? copy.hant : language.startsWith('zh') ? copy.zh : copy.en
   return {
     reply,
     source: 'demo' as const,
@@ -253,43 +255,54 @@ function shouldRetry(err: unknown) {
   return status === 503 || status === 429
 }
 
-function answerLanguage(text: string, fallback: string) {
-  if (/[\u0b80-\u0bff]/.test(text)) return 'ta'
-  if (/[\u4e00-\u9fff]/.test(text)) return 'zh'
-  if (/[A-Za-z]/.test(text) && !/[^\u0000-\u007f]/.test(text)) return 'en'
-  return fallback
+function textOf(content: unknown) {
+  if (typeof content === 'string') return content
+  if (Array.isArray(content)) {
+    return content.map((part) => (typeof part === 'string' ? part : String((part as { text?: string })?.text || ''))).join('')
+  }
+  return ''
 }
 
-async function completeModel(
+async function streamModel(
   key: string,
   baseURL: string,
   model: string,
   messages: { role: 'system' | 'user' | 'assistant'; content: string }[],
-  retry = true,
-  timeout = 8000,
-  signal?: AbortSignal,
+  onText: (full: string) => void,
+  retry: boolean,
+  timeout: number,
 ) {
   const client = new OpenAI({ apiKey: key, baseURL, timeout, maxRetries: 0 })
   const once = async () => {
-    const completion = await client.chat.completions.create({
-      model,
-      temperature: 0.3,
-      messages,
-    }, { signal })
-    const content = completion.choices[0]?.message?.content as unknown
-    if (typeof content === 'string') return content
-    if (Array.isArray(content)) {
-      return content.map((part) => (typeof part === 'string' ? part : String((part as { text?: string })?.text || ''))).join('')
+    try {
+      const completion = await client.chat.completions.create({
+        model,
+        temperature: 0.3,
+        messages,
+        stream: true,
+      })
+      let full = ''
+      for await (const chunk of completion) {
+        const piece = textOf(chunk.choices[0]?.delta?.content)
+        if (!piece) continue
+        full += piece
+        onText(full)
+      }
+      return full
+    } catch (err) {
+      const status = (err as { status?: number })?.status
+      if (status === 404) throw err
+      const completion = await client.chat.completions.create({ model, temperature: 0.3, messages })
+      const full = textOf(completion.choices[0]?.message?.content)
+      if (full) onText(full)
+      return full
     }
-    return ''
   }
   try {
     return await once()
   } catch (err) {
-    if (signal?.aborted) throw err
-    const status = (err as { status?: number })?.status
     console.error('chat attempt failed', model, errorDetail(err))
-    if (retry && status !== 404 && shouldRetry(err)) {
+    if (retry && shouldRetry(err)) {
       console.error('chat retrying', model)
       await new Promise((resolve) => setTimeout(resolve, 1200))
       return once()

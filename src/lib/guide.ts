@@ -24,7 +24,8 @@ export function guideById(id: string) {
 
 let active: Driver | null = null
 
-const SPEAKER_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>'
+const SPEAKER_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>'
+const STOP_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor"/></svg>'
 
 function placeTourPopover(wrapper: HTMLElement, element?: Element, nudge = true) {
   const frame = document.querySelector('.phone-frame') || document.getElementById('customer-root')
@@ -160,14 +161,16 @@ export function startGuide(options: {
       button.type = 'button'
       button.className = 'speak-btn'
       button.setAttribute('aria-label', options.text('speech.readAloud'))
-      button.innerHTML = `${SPEAKER_SVG}<span class="speak-waves" aria-hidden="true"><i></i><i></i><i></i></span><span class="speak-word"></span>`
+      button.innerHTML = SPEAKER_SVG
       const idle = () => {
         button.classList.remove('is-on')
+        button.innerHTML = SPEAKER_SVG
         button.setAttribute('aria-label', options.text('speech.readAloud'))
         button.setAttribute('aria-pressed', 'false')
       }
       const play = () => {
         button.classList.add('is-on')
+        button.innerHTML = STOP_SVG
         button.setAttribute('aria-label', options.text('stop'))
         button.setAttribute('aria-pressed', 'true')
       }

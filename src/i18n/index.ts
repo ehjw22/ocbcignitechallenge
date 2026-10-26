@@ -21,7 +21,8 @@ function lookup(dict: Dict | undefined, key: string): string | undefined {
 const missing = new Set<string>()
 
 export function translate(lang: string, key: string, vars?: Record<string, string | number>) {
-  const local = lookup(locales[lang], key)
+  const localRaw = lookup(locales[lang], key)
+  const local = localRaw && localRaw.trim() ? localRaw : undefined
   const english = lookup(locales.en, key)
   if (import.meta.env.DEV) {
     const token = `${lang}:${key}`

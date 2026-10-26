@@ -84,7 +84,7 @@ export function Speakable({
   }
 
   return (
-    <span className={corner ? 'flex w-full flex-col items-stretch gap-1' : 'inline-flex items-start gap-2'}>
+    <span className={corner ? 'flex w-full flex-col items-stretch gap-1' : 'flex w-full items-start gap-2'}>
       {!hideText && <span className={corner ? 'whitespace-pre-wrap' : ''}>{label || text}</span>}
       <span className={corner ? 'self-end' : ''}>
         <SpeakButton playing={playing} onClick={() => void onClick()} listenLabel={t('speech.readAloud')} stopLabel={t('stop')} />

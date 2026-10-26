@@ -69,6 +69,7 @@
     "giroTip": "Upcoming GIRO: SP Group S$84 on 28 Oct.",
     "budgets": "Budgets",
     "budgetFor": "Monthly budget for {name}",
+    "sampleGoal": "Laptop",
     "goalAction": "Put S$50 into {name} goal",
     "goalDone": "S$50 added to {name}.",
     "empty": "No spending in this view.",
@@ -196,10 +197,19 @@
     "upload": "Upload a photo",
     "removePhoto": "Remove photo"
   },
+  "months": {
+    "2026-05": "May",
+    "2026-06": "Jun",
+    "2026-07": "Jul",
+    "2026-08": "Aug",
+    "2026-09": "Sep",
+    "2026-10": "Oct"
+  },
   "dialects": {
     "title": "Spoken language",
-    "standard": "Match my language",
-    "cantonese": "Cantonese (粤语)",
+    "standard": "Mandarin",
+    "cantonese": "Cantonese",
+    "note": "Simplified Chinese and Traditional Chinese are separate choices. Cantonese applies only after you choose one of them. It changes the voice and how Ollie writes. English always stays English.",
     "hokkien": "Hokkien",
     "teochew": "Teochew",
     "hakka": "Hakka",

@@ -139,10 +139,13 @@ export function Settings() {
               </Choice>
             ))}
           </div>
-          <div className="mt-2" role="radiogroup" aria-label={t('dialects.title')}>
-            <Choice selected={app.prefs.dialect !== 'cantonese'} onClick={() => app.updatePrefs({ dialect: 'standard' })}>{t('dialects.standard')}</Choice>
-            <Choice selected={app.prefs.dialect === 'cantonese'} onClick={() => app.updatePrefs({ dialect: 'cantonese' })}>{t('dialects.cantonese')}</Choice>
-          </div>
+          <p className="mt-3 text-sm font-normal leading-snug text-[var(--muted)]">{t('dialects.note')}</p>
+          {(app.prefs.language === 'zh' || app.prefs.language === 'zh-TW') && (
+            <div className="mt-2" role="radiogroup" aria-label={t('dialects.title')}>
+              <Choice selected={app.prefs.dialect !== 'cantonese'} onClick={() => app.updatePrefs({ dialect: 'standard' })}>{t('dialects.standard')}</Choice>
+              <Choice selected={app.prefs.dialect === 'cantonese'} onClick={() => app.updatePrefs({ dialect: 'cantonese' })}>{t('dialects.cantonese')}</Choice>
+            </div>
+          )}
           <p className="mt-1 text-left text-sm font-normal leading-snug">
             <button type="button" className="font-normal text-[var(--link)] underline" onClick={() => { app.setStaffSeed(t('dialects.ask')); app.openHelp('staff') }}>
               {t('dialects.ask')}

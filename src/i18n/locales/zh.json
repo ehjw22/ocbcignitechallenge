@@ -10,7 +10,7 @@
   "show": "显示余额",
   "hide": "隐藏余额",
   "appName": "OCBC Adaptive",
-  "prototype": "Demo",
+  "prototype": "演示",
   "skipToContent": "跳到主要内容",
   "back": "返回",
   "close": "关闭",
@@ -75,6 +75,7 @@
     "giroTip": "即将扣款：SP Group S$84，10 月 28 日。",
     "budgets": "预算",
     "budgetFor": "{name}的每月预算",
+    "sampleGoal": "笔记本电脑",
     "goalAction": "存入 S$50 到{name}目标",
     "goalDone": "已存入 S$50 到{name}。",
     "empty": "此视图没有支出。",
@@ -506,7 +507,7 @@
     "topup": "充值",
     "investments": "投资",
     "insurance": "保险",
-    "rewards": "奖励",
+    "rewards": "奖赏",
     "staff": "联系职员",
     "accounts": "账户",
     "help": "帮助",
@@ -726,10 +727,19 @@
     "plum": "梅子",
     "custom": "自定义"
   },
+  "months": {
+    "2026-05": "5月",
+    "2026-06": "6月",
+    "2026-07": "7月",
+    "2026-08": "8月",
+    "2026-09": "9月",
+    "2026-10": "10月"
+  },
   "dialects": {
     "title": "朗读语言",
-    "standard": "跟我的语言一致",
+    "standard": "普通话",
     "cantonese": "粤语",
+    "note": "中文是简体。繁体中文是繁体。只有选了中文之后，粤语才会改变朗读和助手的写法。选了英文，界面、助手和朗读都用英文。",
     "hokkien": "福建话",
     "teochew": "潮州话",
     "hakka": "客家话",
@@ -764,8 +774,8 @@
     "investmentsBody": "投资详情在这里不可用。",
     "insurance": "保险",
     "insuranceBody": "保险详情在这里不可用。",
-    "rewards": "奖励",
-    "rewardsBody": "奖励积分余额：1,240 分。"
+    "rewards": "奖赏",
+    "rewardsBody": "您有 1,240 奖赏积分。"
   },
   "totalBalance": "总余额",
   "totalBalanceHint": "360 账户和结单储蓄",
@@ -817,7 +827,7 @@
     "none": "没有符合的交易。",
     "sample": "没有转移资金。"
   },
-  "demoBadge": "Demo",
+  "demoBadge": "演示",
   "admin": {
     "title": "设计面板",
     "note": "本设备上的示例数据。",

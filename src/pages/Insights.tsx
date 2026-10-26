@@ -6,7 +6,6 @@ import { chartPalette } from '@/data/bank'
 import {
   INSIGHT_CATEGORIES,
   INSIGHT_MONTHS,
-  MONTH_LABELS,
   byCategory,
   dailyTotals,
   monthTotals,
@@ -78,7 +77,7 @@ export function Insights() {
   const foodPct = percentChange(foodNow, foodPrev)
   const direction = (value: number) => (value > 0 ? t('insight.more') : value < 0 ? t('insight.less') : t('insight.same'))
   const goal = app.goals.find((item) => /laptop/i.test(item.name)) || app.goals[0]
-  const goalName = goal?.name || 'Laptop'
+  const goalName = goal?.name === 'Laptop' || !goal?.name ? t('insight.sampleGoal') : goal.name
   const accounts = app.accounts.filter((account) => account.kind === 'deposit')
 
   const saveBudget = (key: string, value: number) => {
@@ -114,7 +113,7 @@ export function Insights() {
             {t('insight.month')}
             <select className="ocbc-field mt-1" value={month} onChange={(event) => setMonth(event.target.value)}>
               {INSIGHT_MONTHS.map((id) => (
-                <option key={id} value={id}>{MONTH_LABELS[id]}</option>
+                <option key={id} value={id}>{t(`months.${id}`)}</option>
               ))}
             </select>
           </label>
@@ -186,7 +185,7 @@ export function Insights() {
           <h2 className="text-base font-semibold">{t('insight.trend')}</h2>
           <div aria-hidden className="h-36">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={trend}>
+              <BarChart data={trend.map((item) => ({ ...item, label: t(`months.${item.month}`) }))}>
                 <XAxis dataKey="label" tick={{ fontSize: 12 }} />
                 <YAxis hide />
                 <Bar dataKey="amount" fill={accent} radius={4} />
@@ -198,7 +197,7 @@ export function Insights() {
             <tbody>
               {trend.map((item) => (
                 <tr key={item.month} className="border-t border-[var(--line)]">
-                  <th scope="row" className="py-1 font-medium">{item.label}</th>
+                  <th scope="row" className="py-1 font-medium">{t(`months.${item.month}`)}</th>
                   <td className="py-1 text-right tabular-nums">{formatSGD(item.amount)}</td>
                 </tr>
               ))}

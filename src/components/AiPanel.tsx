@@ -24,8 +24,54 @@ function chipsFor(screen: string) {
 }
 
 function speechLang(language: string, dialect: string) {
-  if (dialect === 'cantonese') return 'zh-HK'
+  if ((language === 'zh' || language === 'zh-TW') && dialect === 'cantonese') return 'zh-HK'
   return languageById(language).bcp47
+}
+
+function visibleReply(raw: string) {
+  const trimmed = raw.trim()
+  if (!trimmed.startsWith('{') && !trimmed.startsWith('```')) return trimmed
+  const match = trimmed.match(/"reply"\s*:\s*"/)
+  if (!match || match.index == null) return ''
+  let out = ''
+  for (let i = match.index + match[0].length; i < trimmed.length; i += 1) {
+    const ch = trimmed[i]
+    if (ch === '\\') {
+      const next = trimmed[i + 1]
+      out += next === 'n' ? '\n' : next || ''
+      i += 1
+      continue
+    }
+    if (ch === '"') break
+    out += ch
+  }
+  return out
+}
+
+async function readChatStream(res: Response, onText: (text: string) => void): Promise<ChatMessage & { reply?: string }> {
+  const reader = res.body?.getReader()
+  if (!reader) throw new Error('chat')
+  const decoder = new TextDecoder()
+  let buffer = ''
+  let donePayload: (ChatMessage & { reply?: string }) | null = null
+  while (true) {
+    const chunk = await reader.read()
+    if (chunk.done) break
+    buffer += decoder.decode(chunk.value, { stream: true })
+    const parts = buffer.split('\n\n')
+    buffer = parts.pop() || ''
+    for (const part of parts) {
+      const line = part.split('\n').find((item) => item.startsWith('data: '))
+      if (!line) continue
+      const payload = JSON.parse(line.slice(6)) as { text?: string; done?: ChatMessage & { reply?: string } }
+      if (payload.text) {
+        const shown = visibleReply(payload.text)
+        if (shown) onText(shown)
+      }
+      if (payload.done) donePayload = payload.done
+    }
+  }
+  return donePayload || { role: 'assistant', content: '', reply: '' }
 }
 
 function confirmCopy(action: ChatAction, t: (key: string, vars?: Record<string, string | number>) => string) {
@@ -88,7 +134,7 @@ export function AiPanel() {
   const ask = async (question: string, retry = false) => {
     const explain = question.startsWith('__explain__:')
     const text = explain ? t('ai.what') : question.trim()
-    if (!text || (busy && !retry)) return
+    if (!text) return
     abortRef.current?.abort()
     const nextHistory = retry ? app.messages : [...app.messages, { role: 'user' as const, content: text }]
     if (!retry) app.setMessages(nextHistory)
@@ -109,9 +155,9 @@ export function AiPanel() {
         body: JSON.stringify({
           messages: nextHistory.slice(-8).map((m) => ({ role: m.role, content: m.content })),
           language: app.prefs.language,
-          languageName: lang.english,
+          languageName: app.prefs.language === 'zh' ? 'Simplified Chinese' : app.prefs.language === 'zh-TW' ? 'Traditional Chinese' : lang.english,
           detail: app.prefs.detail,
-          dialect: app.prefs.dialect,
+          dialect: app.prefs.language === 'zh' || app.prefs.language === 'zh-TW' ? app.prefs.dialect : 'standard',
           screen: app.screen,
           step: app.guideStep || app.step,
           explain,
@@ -124,7 +170,16 @@ export function AiPanel() {
         }),
       })
       if (!res.ok) throw new Error('chat')
-      const data = (await res.json()) as ChatMessage & { reply?: string }
+      const streamed = (res.headers.get('content-type') || '').includes('text/event-stream')
+      const data = streamed ? await readChatStream(res, (partial) => {
+        app.setMessages((prev) => {
+          const next = [...prev]
+          const last = next[next.length - 1]
+          if (last?.role === 'assistant' && last.source === 'llm') next[next.length - 1] = { ...last, content: partial }
+          else next.push({ role: 'assistant', content: partial, source: 'llm' })
+          return next
+        })
+      }) : (await res.json()) as ChatMessage & { reply?: string }
       const reply = data.reply || t('ai.faq.general.short')
       const flags = data.flags || {}
       if (flags.refused) app.log('ai_refused', { question: text, screen: app.screen, reason: 'refused' })
@@ -141,7 +196,13 @@ export function AiPanel() {
         suggestions: data.suggestions,
         handover: data.handover || flags.escalated,
       }
-      app.setMessages((prev) => [...prev, message])
+      app.setMessages((prev) => {
+        const next = [...prev]
+        const last = next[next.length - 1]
+        if (last?.role === 'assistant') next[next.length - 1] = message
+        else next.push(message)
+        return next
+      })
       const spoken = plainSpeech(reply)
       setLive(spoken)
       const speechOptions = { language: app.prefs.language, rate: app.prefs.speechRate, dialect: app.prefs.dialect }
@@ -354,7 +415,6 @@ export function AiPanel() {
           id="ai-draft"
           ref={box}
           value={draft}
-          disabled={busy}
           onChange={(e) => {
             setDraft(e.target.value)
             e.target.style.height = 'auto'
@@ -370,8 +430,8 @@ export function AiPanel() {
           rows={1}
           className="max-h-24 min-h-10 min-w-0 flex-1 resize-none bg-transparent py-2 text-[15px] leading-normal text-[var(--text)] outline-none"
         />
-        <button type="submit" disabled={busy || !draft.trim()} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--accent)] text-[var(--on-accent)] disabled:opacity-40" aria-label={t('ai.send')}>
-          <Send aria-hidden size={16} />
+        <button type="submit" disabled={!draft.trim()} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[var(--accent)] text-white shadow-sm disabled:bg-zinc-300 disabled:text-zinc-600" aria-label={t('ai.send')}>
+          <Send aria-hidden size={20} strokeWidth={2.4} />
         </button>
       </form>
       {!micOk && <p className="text-sm text-[var(--muted)]">{t('ai.micMissing')}</p>}

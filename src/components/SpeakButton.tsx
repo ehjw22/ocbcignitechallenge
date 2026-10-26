@@ -1,4 +1,4 @@
-import { Volume2 } from 'lucide-react'
+import { Square, Volume2 } from 'lucide-react'
 
 export function SpeakButton({
   playing,
@@ -20,15 +20,7 @@ export function SpeakButton({
       aria-pressed={playing}
       aria-busy={playing}
     >
-      {playing ? (
-        <span className="speak-waves" aria-hidden>
-          <span />
-          <span />
-          <span />
-        </span>
-      ) : (
-        <Volume2 aria-hidden size={18} />
-      )}
+      {playing ? <Square aria-hidden size={14} fill="currentColor" /> : <Volume2 aria-hidden size={20} />}
     </button>
   )
 }

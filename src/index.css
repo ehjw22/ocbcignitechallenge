@@ -84,12 +84,11 @@ html[data-bold="1"] #customer-app button {
 
 .speak-btn.is-on {
   border-color: var(--accent, #e30613);
-  animation: speak-ring 1.2s ease-out infinite;
+  color: var(--accent, #e30613);
+  background: #fff;
 }
 
-.speak-btn .speak-waves { display: none; }
-.speak-btn.is-on .speak-waves { display: inline-flex; }
-.speak-btn.is-on svg { display: none; }
+.speak-btn svg { display: block; }
 
 .speak-waves {
   display: inline-flex;
@@ -221,6 +220,27 @@ html[data-bold="1"] #customer-app button {
 .driver-popover.ocbc-tour .driver-popover-next-btn {
   background: #e30613;
   color: #fff;
+}
+
+.driver-popover.ocbc-tour .driver-popover-prev-btn.driver-popover-btn-disabled,
+.driver-popover.ocbc-tour .driver-popover-prev-btn:disabled {
+  opacity: 1;
+  color: #3f3f46;
+  background: #f4f4f5;
+  border: 1px solid #a1a1aa;
+}
+
+.phone-frame,
+#customer-root,
+#customer-root main {
+  scrollbar-width: none;
+}
+
+.phone-frame::-webkit-scrollbar,
+#customer-root::-webkit-scrollbar,
+#customer-root *::-webkit-scrollbar {
+  width: 0;
+  height: 0;
 }
 
 .driver-popover.ocbc-tour-dark {

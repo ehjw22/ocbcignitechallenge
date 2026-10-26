@@ -4,7 +4,7 @@ import { useApp } from '@/context/AppContext'
 import { SpeakButton } from '@/components/SpeakButton'
 import { translate } from '@/i18n'
 import { APP_TOUR, tourSections, tourState, writeTour } from '@/lib/appTour'
-import { speak, stopSpeaking } from '@/lib/speech'
+import { prefetchSpeech, speak, stopSpeaking } from '@/lib/speech'
 
 export function AppTour() {
   const app = useApp()
@@ -29,6 +29,15 @@ export function AppTour() {
     if (!state.active || !step) return
     if (location.pathname !== step.route) navigate(step.route)
   }, [state.active, state.index, step, location.pathname, navigate])
+
+  useEffect(() => {
+    if (!state.active || !step) return
+    prefetchSpeech(`${t(step.title)}. ${t(step.body)}`, {
+      language: app.prefs.language,
+      rate: app.prefs.speechRate,
+      dialect: app.prefs.dialect,
+    })
+  }, [state.active, state.index, step, app.prefs.language, app.prefs.speechRate, app.prefs.dialect, t])
 
   useLayoutEffect(() => {
     if (!state.active || !step) return

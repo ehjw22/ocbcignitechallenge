@@ -71,7 +71,7 @@ async function fetchAudio(text: string, options: SpeakOptions) {
 export function prefetchSpeech(text: string, options: SpeakOptions) {
   const clean = text.replace(/\s+/g, ' ').trim()
   if (!clean) return
-  void fetchAudio(clean, options)
+  void fetchAudio(clean, voiceOptions(options))
 }
 
 function playUrl(url: string, text: string, options: SpeakOptions, myToken: number) {
@@ -146,11 +146,17 @@ async function speakOnDevice(text: string, options: SpeakOptions) {
   })
 }
 
+function voiceOptions(options: SpeakOptions): SpeakOptions {
+  const chinese = options.language === 'zh' || options.language === 'zh-TW'
+  return { ...options, dialect: chinese && options.dialect === 'cantonese' ? 'cantonese' : 'standard' }
+}
+
 export async function speak(text: string, options: SpeakOptions): Promise<'device' | 'cloud' | 'none' | 'cancelled'> {
   stopSpeaking()
   const myToken = token
   const clean = text.replace(/\s+/g, ' ').trim()
   if (!clean) return 'none'
+  options = voiceOptions(options)
   const url = await fetchAudio(clean, options)
   if (myToken !== token) return 'cancelled'
   if (url) {
@@ -158,13 +164,8 @@ export async function speak(text: string, options: SpeakOptions): Promise<'devic
     if (myToken !== token) return 'cancelled'
     return played ? 'cloud' : 'none'
   }
-  if (options.dialect === 'cantonese') {
-    window.dispatchEvent(new Event('ocbc-cantonese'))
-    return 'none'
-  }
-  if (!window.speechSynthesis) return 'none'
-  await speakOnDevice(clean, options)
-  return 'device'
+  if (options.dialect === 'cantonese') window.dispatchEvent(new Event('ocbc-cantonese'))
+  return 'none'
 }
 
 export function speakableWords(text: string) {

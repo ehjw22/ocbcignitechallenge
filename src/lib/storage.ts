@@ -174,7 +174,7 @@ export function clearTourSeen() {
   localStorage.removeItem(keys.tour)
 }
 
-export type GuestDisplay = Pick<Preferences, 'language' | 'textSize' | 'boldText' | 'scheme' | 'highContrast' | 'colourVision'>
+export type GuestDisplay = Pick<Preferences, 'language' | 'dialect' | 'textSize' | 'boldText' | 'scheme' | 'highContrast' | 'colourVision'>
 
 function mergePrefs(prefs: Preferences): Preferences {
   const next = { ...defaultPrefs(), ...prefs }
@@ -189,6 +189,7 @@ function mergePrefs(prefs: Preferences): Preferences {
 export function loadGuest(): GuestDisplay {
   const base: GuestDisplay = {
     language: 'en',
+    dialect: 'standard',
     textSize: 16,
     boldText: false,
     scheme: 'light',
@@ -201,6 +202,7 @@ export function loadGuest(): GuestDisplay {
 export function saveGuest(prefs: Preferences) {
   const guest: GuestDisplay = {
     language: prefs.language,
+    dialect: prefs.language === 'zh' || prefs.language === 'zh-TW' ? prefs.dialect : 'standard',
     textSize: prefs.textSize,
     boldText: prefs.boldText,
     scheme: prefs.scheme,

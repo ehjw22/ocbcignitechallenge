@@ -119,12 +119,10 @@ export function NotFound() {
   const app = useApp()
   const t = (key: string) => translate(app.prefs.language, key)
   return (
-    <Page title={t('notFound.title')}>
-      <div className="space-y-3 p-4">
-        <h2 className="text-xl font-semibold">{t('notFound.title')}</h2>
-        <p>{t('notFound.body')}</p>
-        <Link to="/" className="ocbc-btn">{t('notFound.home')}</Link>
-      </div>
-    </Page>
+    <main id="main" className="flex h-full flex-col items-start justify-center gap-3 bg-[var(--bg)] p-6 text-[var(--text)]">
+      <h1 className="text-2xl font-semibold">{t('notFound.title')}</h1>
+      <p>{t('notFound.body')}</p>
+      <Link to="/" className="ocbc-btn">{t('notFound.home')}</Link>
+    </main>
   )
 }

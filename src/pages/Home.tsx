@@ -3,7 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { ArrowLeftRight, Bell, ChevronRight, Eye, EyeOff } from 'lucide-react'
 import { percentChange, rowsFor, sum } from '@/data/insights'
 import { useApp } from '@/context/AppContext'
-import { BottomNav, DemoBadge, ExplainButton, GuideDone, HeaderHelp } from '@/components/Shell'
+import { BottomNav, DemoBadge, GuideDone, HeaderHelp } from '@/components/Shell'
 import { translate } from '@/i18n'
 import { SHORTCUT_ICONS, SHORTCUT_ROUTES } from '@/lib/shortcutItems'
 import { startAppTour } from '@/lib/appTour'
@@ -50,8 +50,7 @@ export function Home() {
               </span>
               <DemoBadge />
             </span>
-            <span className="flex shrink-0 items-center gap-1 text-[var(--text)]" style={hero ? { color: '#fff' } : undefined}>
-              <ExplainButton />
+            <span className="flex shrink-0 items-center text-[var(--text)]" style={hero ? { color: '#fff' } : undefined}>
               <HeaderHelp guide />
               <Link to="/notifications" className="flex min-h-11 min-w-11 items-center justify-center" aria-label={t('notifications.title')}>
                 <Bell aria-hidden size={22} />

@@ -181,12 +181,12 @@ export function Admin() {
       transcript: 'Customer: What is this?\nOllie: This is your spending screen. The chart uses sample transactions.',
     },
   ]
-  const liveRows: QueueRow[] = app.requests.map((request) => {
+  const liveRows: QueueRow[] = app.requests.filter((request) => request.customerName && Date.now() - new Date(request.createdAt).getTime() < 12 * 60 * 60 * 1000).map((request) => {
     const waited = Math.max(1, Math.round((Date.now() - new Date(request.createdAt).getTime()) / 60000))
     const cantonese = request.needs?.includes('Cantonese') || request.summary.includes('Cantonese')
     return {
       id: request.ref,
-      name: request.customerName || 'Customer',
+      name: request.customerName || '',
       language: cantonese ? 'Cantonese' : languageById(request.language).english,
       needs: request.needs || 'None recorded',
       topic: named(t, `staff.topic.${request.task}`, request.task),

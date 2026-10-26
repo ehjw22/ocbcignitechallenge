@@ -146,7 +146,7 @@ export function FlowPage() {
 
   if (!flow) {
     return (
-      <Page title={t('pay.title')} back>
+      <Page title={t('notFound.title')} back>
         <p className="p-4">{t('guideEmpty')}</p>
       </Page>
     )
