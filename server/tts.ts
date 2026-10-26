@@ -1,7 +1,7 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
-import { speechSettings } from './env'
-import { clientIp, readBody, send } from './http'
-import { rateLimited } from './limit'
+import { speechSettings } from './env.js'
+import { clientIp, readBody, send } from './http.js'
+import { rateLimited } from './limit.js'
 
 const MAX_TEXT = 1_200
 const TTS_PER_MINUTE = 30

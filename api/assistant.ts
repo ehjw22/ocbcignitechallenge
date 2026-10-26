@@ -1,5 +1,5 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
-import { handleAssistant } from '../server/chat'
+import { handleAssistant } from '../server/chat.js'
 
 export default function handler(req: IncomingMessage, res: ServerResponse) {
   if (req.method !== 'GET') {

@@ -1,16 +1,16 @@
-import bn from '../src/i18n/locales/bn.json'
-import en from '../src/i18n/locales/en.json'
-import hi from '../src/i18n/locales/hi.json'
-import id from '../src/i18n/locales/id.json'
-import ja from '../src/i18n/locales/ja.json'
-import ko from '../src/i18n/locales/ko.json'
-import ms from '../src/i18n/locales/ms.json'
-import ta from '../src/i18n/locales/ta.json'
-import th from '../src/i18n/locales/th.json'
-import tl from '../src/i18n/locales/tl.json'
-import vi from '../src/i18n/locales/vi.json'
-import zh from '../src/i18n/locales/zh.json'
-import zhTW from '../src/i18n/locales/zh-TW.json'
+import bn from '../src/i18n/locales/bn.json' with { type: 'json' }
+import en from '../src/i18n/locales/en.json' with { type: 'json' }
+import hi from '../src/i18n/locales/hi.json' with { type: 'json' }
+import id from '../src/i18n/locales/id.json' with { type: 'json' }
+import ja from '../src/i18n/locales/ja.json' with { type: 'json' }
+import ko from '../src/i18n/locales/ko.json' with { type: 'json' }
+import ms from '../src/i18n/locales/ms.json' with { type: 'json' }
+import ta from '../src/i18n/locales/ta.json' with { type: 'json' }
+import th from '../src/i18n/locales/th.json' with { type: 'json' }
+import tl from '../src/i18n/locales/tl.json' with { type: 'json' }
+import vi from '../src/i18n/locales/vi.json' with { type: 'json' }
+import zh from '../src/i18n/locales/zh.json' with { type: 'json' }
+import zhTW from '../src/i18n/locales/zh-TW.json' with { type: 'json' }
 
 const PACKS: Record<string, Record<string, unknown>> = {
   bn,

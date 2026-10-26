@@ -1,6 +1,6 @@
 type Pack = Record<string, unknown>
 
-import journeys from '../src/guides/journeys.json'
+import journeys from '../src/guides/journeys.json' with { type: 'json' }
 
 export type DemoResult = {
   reply: string

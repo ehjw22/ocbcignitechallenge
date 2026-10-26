@@ -1,10 +1,10 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import OpenAI from 'openai'
-import { demoReply, journeyFor, type DemoResult } from './assistant'
-import { llmSettings } from './env'
-import { clientIp, readBody, send } from './http'
-import { rateLimited } from './limit'
-import { localePack, readPath } from './locales'
+import { demoReply, journeyFor, type DemoResult } from './assistant.js'
+import { llmSettings } from './env.js'
+import { clientIp, readBody, send } from './http.js'
+import { rateLimited } from './limit.js'
+import { localePack, readPath } from './locales.js'
 
 const MAX_BODY = 20_000
 const MAX_MESSAGES = 8
