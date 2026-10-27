@@ -146,11 +146,6 @@ export function Settings() {
               <Choice selected={app.prefs.dialect === 'cantonese'} onClick={() => app.updatePrefs({ dialect: 'cantonese' })}>{t('dialects.cantonese')}</Choice>
             </div>
           )}
-          <p className="mt-1 text-left text-sm font-normal leading-snug">
-            <button type="button" className="font-normal text-[var(--link)] underline" onClick={() => { app.setStaffSeed(t('dialects.ask')); app.openHelp('staff') }}>
-              {t('dialects.ask')}
-            </button>
-          </p>
           <div className="mt-3 flex min-h-11 items-center justify-between gap-3" data-guide="settings-read">
             <span className="min-w-0">
               <span className="block font-semibold">{t('onboarding.readAloud')}</span>

@@ -309,7 +309,7 @@
   "dialects": {
     "soon": "Tidak tersedia",
     "cloud": "Kantonis menggunakan suara awan apabila tersedia.",
-    "ask": "Mahukan dialek? Minta kakitangan yang bertutur Hokkien, Teochew, Hakka atau Kantonis"
+    "note": "Suara Kantonis tersedia dengan Cina Ringkas atau Cina Tradisional."
   },
   "speech": {
     "noVoice": "Menggunakan suara lalai.",

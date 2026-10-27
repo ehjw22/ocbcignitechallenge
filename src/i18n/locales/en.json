@@ -210,14 +210,13 @@
     "title": "Spoken language",
     "standard": "Mandarin",
     "cantonese": "Cantonese",
-    "note": "Simplified Chinese and Traditional Chinese are separate choices. Cantonese applies only after you choose one of them. It changes the voice and how Ollie writes. English always stays English.",
+    "note": "Cantonese voice is available with Simplified or Traditional Chinese.",
     "hokkien": "Hokkien",
     "teochew": "Teochew",
     "hakka": "Hakka",
     "soon": "Not available",
     "request": "Request a staff member who speaks {dialect}",
-    "cloud": "Cantonese uses a cloud voice when available.",
-    "ask": "Prefer a dialect? Ask for a staff member who speaks Hokkien, Teochew, Hakka or Cantonese"
+    "cloud": "Cantonese uses a cloud voice when available."
   },
   "speech": {
     "noVoice": "This line could not be read aloud.",

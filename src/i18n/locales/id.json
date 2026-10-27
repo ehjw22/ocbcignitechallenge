@@ -259,7 +259,8 @@
   },
   "dialects": {
     "soon": "Tidak tersedia",
-    "cloud": "Kanton menggunakan suara cloud jika tersedia."
+    "cloud": "Kanton menggunakan suara cloud jika tersedia.",
+    "note": "Suara Kanton tersedia dengan bahasa Tionghoa Sederhana atau Tradisional."
   },
   "speech": {
     "noVoice": "Menggunakan suara bawaan.",

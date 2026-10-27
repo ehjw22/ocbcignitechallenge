@@ -259,7 +259,8 @@
   },
   "dialects": {
     "soon": "Hindi available",
-    "cloud": "Gumagamit ang Cantonese ng cloud voice kapag available."
+    "cloud": "Gumagamit ang Cantonese ng cloud voice kapag available.",
+    "note": "Available ang Cantonese voice sa Simplified o Traditional Chinese."
   },
   "speech": {
     "noVoice": "Ginagamit ang default na boses.",

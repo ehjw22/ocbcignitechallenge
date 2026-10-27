@@ -259,7 +259,8 @@
   },
   "dialects": {
     "soon": "Không có",
-    "cloud": "Tiếng Quảng Đông dùng giọng đám mây khi có."
+    "cloud": "Tiếng Quảng Đông dùng giọng đám mây khi có.",
+    "note": "Giọng Quảng Đông dùng được với tiếng Trung giản thể hoặc phồn thể."
   },
   "speech": {
     "noVoice": "Đang dùng giọng mặc định.",
