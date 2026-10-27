@@ -941,6 +941,8 @@
     "continue": "繼續",
     "cooling": "請先想一想",
     "coolingLeft": "{n} 秒後可繼續",
+        "continueAnyway": "仍要繼續",
+    "callShort": "致電 ScamShield 1799",
     "helpline": "ScamShield 防詐騙熱線 1799（免費，全日）"
   }
 }

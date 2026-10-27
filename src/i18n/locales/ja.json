@@ -300,6 +300,8 @@
     "continue": "続ける",
     "cooling": "少し考えてください",
     "coolingLeft": "{n} 秒後に続けられます",
+        "continueAnyway": "それでも続ける",
+    "callShort": "ScamShield 1799 に電話",
     "helpline": "ScamShield 相談 1799（無料、24時間）"
   }
 }

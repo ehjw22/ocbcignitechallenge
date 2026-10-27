@@ -8,6 +8,24 @@ export const SCAM_COOLING_SECONDS = 10
 
 export const SCAM_FLOWS = ['paynow', 'transfer', 'overseas', 'scan'] as const
 
+let sheetOpen = false
+const sheetListeners = new Set<() => void>()
+
+export function setScamSheetOpen(open: boolean) {
+  if (sheetOpen === open) return
+  sheetOpen = open
+  sheetListeners.forEach((listener) => listener())
+}
+
+export function scamSheetOpen() {
+  return sheetOpen
+}
+
+export function subscribeScamSheet(listener: () => void) {
+  sheetListeners.add(listener)
+  return () => sheetListeners.delete(listener)
+}
+
 const KEYWORDS = [
   'investment', 'job', 'refund', 'police', 'customs',
   '投资', '工作', '退款', '警察', '海关',

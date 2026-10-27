@@ -300,6 +300,8 @@
     "continue": "Tiếp tục",
     "cooling": "Hãy suy nghĩ một chút",
     "coolingLeft": "Tiếp tục sau {n} giây",
+        "continueAnyway": "Vẫn tiếp tục",
+    "callShort": "Gọi ScamShield 1799",
     "helpline": "Đường dây ScamShield 1799 (miễn phí, 24/7)"
   }
 }

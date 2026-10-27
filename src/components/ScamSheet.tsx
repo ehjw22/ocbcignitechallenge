@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useApp } from '@/context/AppContext'
 import { Speakable } from '@/components/Speakable'
 import { translate } from '@/i18n'
 import { formatSGD } from '@/lib/format'
-import { SCAM_COOLING_LIMIT, SCAM_COOLING_SECONDS, type ScamReason } from '@/lib/scamCheck'
+import { SCAM_COOLING_LIMIT, SCAM_COOLING_SECONDS, setScamSheetOpen, type ScamReason } from '@/lib/scamCheck'
 
 type Answer = 'yes' | 'no' | null
 
@@ -36,20 +37,35 @@ export function ScamSheet({
 }) {
   const app = useApp()
   const t = (key: string, vars?: Record<string, string | number>) => translate(app.prefs.language, key, vars)
+  const [host, setHost] = useState<HTMLElement | null>(null)
   const [answers, setAnswers] = useState<Answer[]>([null, null, null])
   const [left, setLeft] = useState(SCAM_COOLING_SECONDS)
   const flagged = answers.some((item) => item === 'yes')
+  const answered = answers.every((item) => item !== null)
   const allNo = answers.every((item) => item === 'no')
   const cooling = allNo && amount >= SCAM_COOLING_LIMIT
   const answerText = answers.map((item) => item || 'blank').join(',')
+  const money = formatSGD(amount)
   const spoken = [
     t('scamCheck.title'),
-    t('scamCheck.amountLine', { amount: formatSGD(amount), name }),
+    t('scamCheck.amountLine', { amount: money, name }),
     t('scamCheck.q1'),
     t('scamCheck.q2'),
     t('scamCheck.q3'),
     flagged ? t('scamCheck.warning') : '',
   ].filter(Boolean).join(' ')
+
+  useEffect(() => {
+    setHost(document.getElementById('customer-root'))
+    setScamSheetOpen(true)
+    const main = document.getElementById('main')
+    const previous = main?.style.overflow ?? ''
+    if (main) main.style.overflow = 'hidden'
+    return () => {
+      setScamSheetOpen(false)
+      if (main) main.style.overflow = previous
+    }
+  }, [])
 
   useEffect(() => {
     if (!cooling) return
@@ -60,8 +76,12 @@ export function ScamSheet({
     return () => window.clearInterval(timer)
   }, [cooling])
 
+  const choose = (slot: number, value: Answer) => {
+    setAnswers((prev) => prev.map((item, index) => (index === slot ? value : item)))
+  }
+
   const talk = () => {
-    const summary = `Possible scam. ${formatSGD(amount)} to ${name}.`
+    const summary = `Possible scam. ${money} to ${name}.`
     const request = app.addRequest({
       summary,
       summaryEn: `${summary} Flow: ${flowId}. Reasons: ${reasons.join(', ')}. Answers: ${answerText}.`,
@@ -83,59 +103,82 @@ export function ScamSheet({
     onClose()
   }
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50" role="presentation">
-      <div className="flex h-full w-full max-w-[390px] items-end">
+  if (!host) return null
+
+  const continueLabel = cooling && left > 0 ? t('scamCheck.coolingLeft', { n: left }) : t('scamCheck.continueAnyway')
+
+  return createPortal(
+    <div className="absolute inset-0 z-[70] flex items-end bg-black/60" role="presentation">
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="scam-check-title"
-        className="max-h-[88%] w-full overflow-y-auto rounded-t-2xl bg-[var(--surface)] p-4 shadow-xl"
+        className="flex max-h-[85%] w-full flex-col overflow-hidden rounded-t-3xl bg-[var(--card)] text-[var(--text)] shadow-[0_-12px_40px_rgba(0,0,0,0.35)]"
       >
-        <div className="mb-3 flex items-center gap-2">
-          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-lg font-semibold text-white" style={{ background: '#E30613' }} aria-hidden>O</span>
-          <p className="text-sm font-semibold">{t('ai.header')}</p>
-        </div>
-        <h2 id="scam-check-title" className="text-lg font-semibold">{t('scamCheck.title')}</h2>
-        <p className="mt-1 text-base font-semibold">{t('scamCheck.amountLine', { amount: formatSGD(amount), name })}</p>
-        <Speakable text={spoken} auto={app.prefs.readAloud} hideText />
-        <div className="mt-3 space-y-3">
-          {(['scamCheck.q1', 'scamCheck.q2', 'scamCheck.q3'] as const).map((key, slot) => (
-            <div key={key}>
-              <p>{t(key)}</p>
-              <div className="mt-1 grid grid-cols-2 gap-2">
-                <button type="button" className="min-h-11 rounded-xl border border-[var(--line)] font-semibold" aria-pressed={answers[slot] === 'yes'} onClick={() => setAnswers((prev) => prev.map((item, index) => (index === slot ? 'yes' : item)))}>{t('scamCheck.yes')}</button>
-                <button type="button" className="min-h-11 rounded-xl border border-[var(--line)] font-semibold" aria-pressed={answers[slot] === 'no'} onClick={() => setAnswers((prev) => prev.map((item, index) => (index === slot ? 'no' : item)))}>{t('scamCheck.no')}</button>
-              </div>
+        <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-3 pt-4">
+          <div className="mb-3 flex items-center gap-2">
+            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-lg font-semibold text-white" style={{ background: '#E30613' }} aria-hidden>O</span>
+            <p className="min-w-0 flex-1 text-sm font-semibold">{t('ai.header')}</p>
+            <div className="shrink-0 [&>span]:w-auto">
+              <Speakable text={spoken} auto={app.prefs.readAloud} hideText />
             </div>
-          ))}
+          </div>
+          <h2 id="scam-check-title" className="text-lg font-semibold leading-snug">{t('scamCheck.title')}</h2>
+          <p className="mt-3 rounded-2xl bg-[var(--soft)] px-3 py-3 text-base font-semibold">
+            {t('scamCheck.amountLine', { amount: money, name })}
+          </p>
+          <div className="mt-4 space-y-4">
+            {(['scamCheck.q1', 'scamCheck.q2', 'scamCheck.q3'] as const).map((key, slot) => (
+              <div key={key}>
+                <p id={`scam-q-${slot}`} className="mb-2 leading-snug">{t(key)}</p>
+                <div className="grid grid-cols-2 overflow-hidden rounded-xl border border-[var(--line)]" role="group" aria-labelledby={`scam-q-${slot}`}>
+                  <button
+                    type="button"
+                    className={`min-h-12 border-r border-[var(--line)] px-2 font-semibold ${answers[slot] === 'yes' ? 'bg-[var(--accent)] text-[var(--on-accent)]' : 'bg-[var(--card)] text-[var(--text)]'}`}
+                    aria-pressed={answers[slot] === 'yes'}
+                    onClick={() => choose(slot, 'yes')}
+                  >
+                    {t('scamCheck.yes')}
+                  </button>
+                  <button
+                    type="button"
+                    className={`min-h-12 px-2 font-semibold ${answers[slot] === 'no' ? 'bg-[var(--accent)] text-[var(--on-accent)]' : 'bg-[var(--card)] text-[var(--text)]'}`}
+                    aria-pressed={answers[slot] === 'no'}
+                    onClick={() => choose(slot, 'no')}
+                  >
+                    {t('scamCheck.no')}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+          {cooling && left > 0 && !flagged && <p className="mt-3 font-semibold">{t('scamCheck.cooling')}</p>}
         </div>
-        {!flagged && (
-          <button type="button" className="tap mt-3 w-full rounded-xl border border-[var(--line)]" onClick={() => onCancel(answerText)}>{t('scamCheck.cancel')}</button>
-        )}
-        {flagged && (
-          <div className="mt-3 space-y-2">
-            <p className="font-semibold text-[var(--danger)]">{t('scamCheck.warning')}</p>
-            <button type="button" className="ocbc-btn" onClick={() => onCancel(answerText)}>{t('scamCheck.cancel')}</button>
-            <ScamHelpline />
-            <button type="button" className="tap w-full rounded-xl border border-[var(--line)]" onClick={talk}>{t('scamCheck.staff')}</button>
-          </div>
-        )}
-        {allNo && (
-          <div className="mt-3 space-y-2">
-            {cooling && left > 0 && <p className="font-semibold">{t('scamCheck.cooling')}</p>}
-            <button
-              type="button"
-              className="ocbc-btn disabled:opacity-50"
-              disabled={cooling && left > 0}
-              onClick={() => onContinue(answerText)}
-            >
-              {cooling && left > 0 ? t('scamCheck.coolingLeft', { n: left }) : t('scamCheck.continue')}
-            </button>
-          </div>
-        )}
+        <div className="shrink-0 space-y-2 border-t border-[var(--line)] bg-[var(--card)] px-4 py-3">
+          {flagged ? (
+            <>
+              <p className="font-semibold text-[var(--danger)]">{t('scamCheck.warning')}</p>
+              <button type="button" className="ocbc-btn" onClick={() => onCancel(answerText)}>{t('scamCheck.cancel')}</button>
+              <a className="phone-number flex min-h-12 items-center justify-center rounded-lg border border-[var(--line)] px-3 text-center font-semibold text-[var(--link)]" href="tel:1799">{t('scamCheck.callShort')}</a>
+              <button type="button" className="tap w-full rounded-lg border border-[var(--line)] bg-[var(--card)] font-semibold" onClick={talk}>{t('scamCheck.staff')}</button>
+            </>
+          ) : (
+            <>
+              <button type="button" className="ocbc-btn" onClick={() => onCancel(answerText)}>{t('scamCheck.cancel')}</button>
+              <button
+                type="button"
+                className="ocbc-btn-secondary disabled:opacity-50"
+                disabled={!answered || (cooling && left > 0)}
+                onClick={() => onContinue(answerText)}
+              >
+                {continueLabel}
+              </button>
+              <a className="phone-number block py-1 text-center text-sm font-semibold text-[var(--link)] underline" href="tel:1799">{t('scamCheck.callShort')}</a>
+            </>
+          )}
+        </div>
       </div>
-      </div>
-    </div>
+    </div>,
+    host,
   )
 }

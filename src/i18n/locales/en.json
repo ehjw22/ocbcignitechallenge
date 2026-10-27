@@ -941,6 +941,8 @@
     "continue": "Continue",
     "cooling": "Take a moment",
     "coolingLeft": "Continue in {n}s",
+        "continueAnyway": "Continue anyway",
+    "callShort": "Call ScamShield 1799",
     "helpline": "ScamShield Helpline 1799 (free, 24/7)"
   }
 }

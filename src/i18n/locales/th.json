@@ -300,6 +300,8 @@
     "continue": "ทำต่อ",
     "cooling": "ใช้เวลาคิดสักครู่",
     "coolingLeft": "ทำต่อใน {n} วินาที",
+        "continueAnyway": "ทำต่อไปอยู่ดี",
+    "callShort": "โทร ScamShield 1799",
     "helpline": "สายด่วน ScamShield 1799 (ฟรี ตลอด 24 ชม.)"
   }
 }

@@ -300,6 +300,8 @@
     "continue": "जारी रखें",
     "cooling": "एक पल सोचिए",
     "coolingLeft": "{n} सेकंड में जारी रखें",
+        "continueAnyway": "फिर भी जारी रखें",
+    "callShort": "ScamShield 1799 पर कॉल करें",
     "helpline": "ScamShield हेल्पलाइन 1799 (मुफ़्त, 24/7)"
   }
 }

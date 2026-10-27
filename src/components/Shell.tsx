@@ -9,6 +9,7 @@ import { themeVars } from '@/lib/accent'
 import { AppTour } from './AppTour'
 import { FlowTour } from './TourFrame'
 import { getFlowTour, subscribeFlowTour } from '@/lib/guide'
+import { scamSheetOpen, subscribeScamSheet } from '@/lib/scamCheck'
 import { tourState } from '@/lib/appTour'
 import { AiPanel } from './AiPanel'
 import { StaffPanel } from './StaffPanel'
@@ -103,8 +104,10 @@ export function HeaderHelp({ guide = false }: { guide?: boolean }) {
 
 export function BottomNav() {
   const { prefs } = useApp()
+  const scamOpen = useSyncExternalStore(subscribeScamSheet, scamSheetOpen, () => false)
   const t = (key: string) => translate(prefs.language, key)
   const iconsOnly = prefs.textSize >= 20
+  if (scamOpen) return null
   return (
     <nav aria-label={t('nav.home')} className="grid min-h-[64px] grid-cols-5 border-t border-[var(--line)] bg-[var(--card)]">
       {NAV.map((item) => {
@@ -148,6 +151,7 @@ function OllieFab() {
     () => tourState().active,
     () => false,
   )
+  const scamOpen = useSyncExternalStore(subscribeScamSheet, scamSheetOpen, () => false)
   const [showLabel, setShowLabel] = useState(() => localStorage.getItem(OLLIE_LABEL_KEY) !== '1')
   const [lift, setLift] = useState(88)
   const [tucked, setTucked] = useState(false)
@@ -179,7 +183,7 @@ function OllieFab() {
     observer.observe(root)
     return () => observer.disconnect()
   }, [location.pathname, app.helpOpen])
-  if (hiddenPath || tucked || appTour || flowTour || (app.helpOpen && app.helpView === 'ai')) return null
+  if (hiddenPath || tucked || appTour || flowTour || scamOpen || (app.helpOpen && app.helpView === 'ai')) return null
   const label = translate(app.prefs.language, 'help.askOllie')
   return (
     <button

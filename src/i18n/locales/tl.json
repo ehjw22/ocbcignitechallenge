@@ -300,6 +300,8 @@
     "continue": "Magpatuloy",
     "cooling": "Mag-isip muna sandali",
     "coolingLeft": "Magpatuloy sa {n}s",
+        "continueAnyway": "Magpatuloy pa rin",
+    "callShort": "Tawagan ang ScamShield 1799",
     "helpline": "ScamShield Helpline 1799 (libre, 24/7)"
   }
 }

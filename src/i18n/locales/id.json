@@ -300,6 +300,8 @@
     "continue": "Lanjut",
     "cooling": "Luangkan waktu sejenak",
     "coolingLeft": "Lanjut dalam {n} dtk",
+        "continueAnyway": "Tetap lanjutkan",
+    "callShort": "Hubungi ScamShield 1799",
     "helpline": "Saluran ScamShield 1799 (gratis, 24/7)"
   }
 }
