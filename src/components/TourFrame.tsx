@@ -38,7 +38,9 @@ export function TourFrame({
   const t = (key: string) => translate(app.prefs.language, key)
   const cardRef = useRef<HTMLDivElement>(null)
   const speakRef = useRef(speak)
+  const closeRef = useRef(onClose)
   speakRef.current = speak
+  closeRef.current = onClose
   const [playing, setPlaying] = useState(false)
   const [hole, setHole] = useState<Box | null>(null)
   const [top, setTop] = useState(12)
@@ -78,9 +80,13 @@ export function TourFrame({
       if (scroller) {
         const frame = scroller.getBoundingClientRect()
         const box = target.getBoundingClientRect()
-        const pad = 16
-        if (box.top < frame.top + pad || box.bottom > frame.bottom - pad) {
-          scroller.scrollTop += box.top - frame.top - Math.max(pad, (frame.height - box.height) / 2)
+        const view = root.getBoundingClientRect()
+        const navH = root.querySelector('nav')?.getBoundingClientRect().height ?? 0
+        const tallTarget = box.height > view.height * 0.6
+        const hidden = box.top < frame.top + 12 || box.bottom > view.bottom - navH - 12
+        if (tallTarget || hidden) {
+          const align = tallTarget ? 12 : Math.max(12, (frame.height - box.height) / 3)
+          scroller.scrollTop += box.top - frame.top - align
         }
       }
     }
@@ -89,13 +95,19 @@ export function TourFrame({
     })
     const block = (event: Event) => {
       const card = (event.target as HTMLElement | null)?.closest?.('[data-tour-card]')
-      if (card && card.scrollHeight > card.clientHeight + 2) return
+      if (card) return
       event.preventDefault()
     }
     const keys = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        closeRef.current()
+        return
+      }
       if (!['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' '].includes(event.key)) return
       const tag = (event.target as HTMLElement | null)?.tagName
       if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || tag === 'BUTTON') return
+      if ((event.target as HTMLElement | null)?.closest?.('[data-tour-card]')) return
       event.preventDefault()
     }
     root.addEventListener('wheel', block, { passive: false })
@@ -124,26 +136,36 @@ export function TourFrame({
           radius: radius + pad,
         }
       }
-      card.style.maxHeight = ''
       const gap = 12
-      const cardH = card.offsetHeight
-      const limit = root.clientHeight - gap
-      let nextTop = Math.max(gap, limit - cardH)
-      if (holeBox) {
-        const maxHole = Math.max(88, limit - cardH - gap * 2)
-        if (holeBox.height > maxHole) holeBox.height = maxHole
-        const spaceBelow = limit - (holeBox.top + holeBox.height)
-        const spaceAbove = holeBox.top - gap
-        const below = spaceBelow >= cardH || spaceBelow >= spaceAbove
-        const room = Math.max(96, (below ? spaceBelow : spaceAbove) - gap)
-        if (card.scrollHeight > room) card.style.maxHeight = `${room}px`
-        const used = card.offsetHeight
-        nextTop = below ? holeBox.top + holeBox.height + gap : Math.max(gap, holeBox.top - used - gap)
-        const holeBottom = holeBox.top + holeBox.height
-        if (nextTop < holeBottom && nextTop + used > holeBox.top) {
-          nextTop = holeBottom + gap
-        }
+      const navH = root.querySelector('nav')?.offsetHeight ?? 0
+      const floor = root.clientHeight - navH - 8
+      card.style.maxHeight = ''
+      const natural = card.offsetHeight
+      const fit = (room: number) => {
+        const limit = Math.max(160, Math.min(room, floor - gap))
+        if (natural > limit) card.style.maxHeight = `${limit}px`
+        else card.style.maxHeight = ''
+        return card.offsetHeight
       }
+      const tall = Boolean(holeBox && holeBox.height > root.clientHeight * 0.6)
+      let nextTop = gap
+      if (!holeBox || tall) {
+        const used = fit(floor - gap)
+        nextTop = Math.max(gap, floor - used)
+        if (holeBox && holeBox.top + holeBox.height > nextTop - gap) {
+          holeBox.height = Math.max(48, nextTop - gap - holeBox.top)
+        }
+      } else {
+        const spaceBelow = floor - (holeBox.top + holeBox.height) - gap
+        const spaceAbove = holeBox.top - gap
+        const below = spaceBelow >= natural || (spaceBelow >= spaceAbove && spaceBelow >= 160)
+        const used = fit(below ? spaceBelow : spaceAbove)
+        nextTop = below ? holeBox.top + holeBox.height + gap : holeBox.top - used - gap
+        if (nextTop < gap) nextTop = gap
+        if (nextTop + used > floor) nextTop = Math.max(gap, floor - used)
+      }
+      const used = card.offsetHeight
+      if (nextTop + used > floor) nextTop = Math.max(gap, floor - used)
       setHole(holeBox)
       setTop(nextTop)
     }
@@ -151,6 +173,7 @@ export function TourFrame({
     const observer = new ResizeObserver(place)
     observer.observe(root)
     if (target) observer.observe(target)
+    if (cardRef.current) observer.observe(cardRef.current)
     window.addEventListener('resize', place)
     return () => {
       mains.forEach((node, index) => {
@@ -188,16 +211,16 @@ export function TourFrame({
           ref={cardRef}
           role="dialog"
           aria-labelledby="tour-title"
-          className="overflow-auto rounded-2xl border border-[var(--line)] bg-[var(--card)] p-3 text-[var(--text)] shadow-lg"
+          className="flex flex-col overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--card)] p-3 text-[var(--text)] shadow-lg"
         >
-          <div className="flex items-start gap-2">
+          <div className="flex shrink-0 items-start gap-2">
             <h2 id="tour-title" className="min-w-0 flex-1 text-[1.05rem] font-semibold leading-snug">{title}</h2>
             <button type="button" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-2xl leading-none" aria-label={t('close')} onClick={onClose}>
               ×
             </button>
           </div>
-          <p className="mt-1 text-[1rem] leading-snug">{body}</p>
-          <div className="mt-3 flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+          <p className="mt-1 min-h-0 overflow-y-auto text-[1rem] leading-snug">{body}</p>
+          <div className="mt-3 flex shrink-0 flex-wrap items-center justify-between gap-x-3 gap-y-2">
             <div className="flex items-center gap-2">
               <SpeakButton
                 playing={playing}
