@@ -17,6 +17,7 @@
   "aiTranslated": "",
   "help": {
     "fab": "Trợ giúp",
+    "askOllie": "Hỏi Ollie",
     "title": "Trợ giúp",
     "ai": "Trợ lý AI",
     "guide": "Hướng dẫn từng bước",
@@ -92,6 +93,7 @@
     "nameSample": "Tên trong hồ sơ: {name}"
   },
   "ai": {
+    "scamPause": "Hãy dừng khoản chuyển này. Việc này giống lừa đảo thường gặp. Gọi đường dây ScamShield 1799, hoặc nhắn nhân viên OCBC. Tôi sẽ không điền biểu mẫu.",
     "faq": {
       "giro": {
         "short": "GIRO"
@@ -106,11 +108,11 @@
       },
       "secret": {
         "short": "Đừng chia sẻ mật khẩu, PIN hoặc mã một lần.",
-        "full": "Đừng chia sẻ mật khẩu, PIN, mã một lần hoặc số thẻ đầy đủ. Nếu ai đó hỏi những thông tin này, hãy gọi +65 6363 3333."
+        "full": "Đừng chia sẻ mật khẩu, PIN, mã một lần hoặc số thẻ đầy đủ. Nếu ai đó hỏi những thông tin này, hãy gọi [Đường dây ScamShield 1799 (miễn phí, 24/7)](tel:1799)."
       },
       "fraud": {
-        "short": "Nếu đây có thể là lừa đảo, hãy gọi +65 6363 3333. Bạn cũng có thể khóa thẻ.",
-        "full": "Nếu bạn không thực hiện khoản thanh toán, hoặc ai đó yêu cầu bạn gửi tiền, hãy gọi +65 6363 3333 và khóa thẻ."
+        "short": "Nếu đây có thể là lừa đảo, hãy gọi [Đường dây ScamShield 1799 (miễn phí, 24/7)](tel:1799). Bạn cũng có thể khóa thẻ.",
+        "full": "Nếu bạn không thực hiện khoản thanh toán, hoặc ai đó yêu cầu bạn gửi tiền, hãy gọi [Đường dây ScamShield 1799 (miễn phí, 24/7)](tel:1799). Bạn cũng có thể khóa thẻ."
       },
       "lostcard": {
         "short": "Khóa thẻ, rồi gọi +65 6363 3333.",
@@ -283,5 +285,21 @@
   "allShortcuts": "Mọi lối tắt",
   "emptySlot": "Trống",
   "moveUp": "Lên",
-  "moveDown": "Xuống"
+  "moveDown": "Xuống",
+  "scamCheck": {
+    "title": "Bạn chắc chứ? Đây là khoản chuyển lớn cho người mới.",
+    "amountLine": "{amount} tới {name}",
+    "q1": "Có ai bảo bạn thực hiện khoản chuyển này không?",
+    "q2": "Họ liên hệ qua điện thoại, tin nhắn hay mạng xã hội chứ?",
+    "q3": "Họ có hứa trả lại tiền hoặc một giải thưởng không?",
+    "yes": "Có",
+    "no": "Không",
+    "warning": "Hãy dừng lại. Việc này giống lừa đảo. Ollie không chuyển tiền. Bạn tự quyết định.",
+    "cancel": "Huỷ chuyển tiền",
+    "staff": "Nói chuyện với nhân viên",
+    "continue": "Tiếp tục",
+    "cooling": "Hãy suy nghĩ một chút",
+    "coolingLeft": "Tiếp tục sau {n} giây",
+    "helpline": "Đường dây ScamShield 1799 (miễn phí, 24/7)"
+  }
 }

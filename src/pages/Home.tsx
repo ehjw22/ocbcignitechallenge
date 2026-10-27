@@ -40,7 +40,7 @@ export function Home() {
 
   return (
     <div className="relative flex h-full min-h-0 flex-col bg-[var(--bg)] text-[var(--text)]">
-      <main id="main" className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[var(--bg)] pb-8">
+      <main id="main" className="mb-[76px] min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[var(--bg)]">
         <GuideDone />
         <header className="px-5 pb-2 pt-4" style={hero ? { background: hero, color: '#fff' } : undefined}>
           <div className="flex items-center justify-between gap-2">

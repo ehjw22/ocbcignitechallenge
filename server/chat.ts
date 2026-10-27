@@ -124,6 +124,7 @@ export async function handleChat(req: IncomingMessage, res: ServerResponse) {
     'When the user wants to pay, transfer, pay a bill, set up GIRO, save toward a goal, or lock a card, fill action with the intent and any fields you heard. You never complete a payment.',
     'Set scamRisk to high if they mention a call from the police or government, a job, an investment, or promised returns. Set scamRisk to check for a first overseas transfer, a new payee, or an amount over 1000. Otherwise none.',
     'Set handover to true if they ask for a person, seem stuck, or a scam is suspected.',
+    'For a possible scam, tell them to call the ScamShield Helpline 1799 (free, 24/7). For a lost or stolen card, tell them to call +65 6363 3333. Do not swap those numbers.',
     'Do not put button labels such as "Guide me step by step" in the reply. Put up to 3 short follow-up phrases, in the same language as the reply, in suggestions.',
     raw.explain ? `The customer asked what this screen is. Screen id: ${raw.screen || 'home'}. Explain that screen in plain words. Do not list button labels, icons, or symbols.` : '',
     `Current screen: ${raw.screen || 'unknown'}. Current step: ${raw.step || 'none'}.`,

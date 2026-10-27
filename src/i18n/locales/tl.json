@@ -17,6 +17,7 @@
   "aiTranslated": "",
   "help": {
     "fab": "Tulong",
+    "askOllie": "Tanong kay Ollie",
     "title": "Tulong",
     "ai": "AI na katulong",
     "guide": "Gabay nang hakbang-hakbang",
@@ -92,6 +93,7 @@
     "nameSample": "Pangalan sa record: {name}"
   },
   "ai": {
+    "scamPause": "Itigil ang transfer na ito. Mukhang karaniwang scam. Tumawag sa ScamShield Helpline 1799, o mag-message sa staff ng OCBC. Hindi ko pupunan ang form.",
     "faq": {
       "giro": {
         "short": "GIRO"
@@ -106,11 +108,11 @@
       },
       "secret": {
         "short": "Huwag ibahagi ang password, PIN, o one-time code.",
-        "full": "Huwag ibahagi ang password, PIN, one-time code, o buong card number. Kung may humingi nito, tumawag sa +65 6363 3333."
+        "full": "Huwag ibahagi ang password, PIN, one-time code, o buong card number. Kung may humingi nito, tumawag sa [ScamShield Helpline 1799 (libre, 24/7)](tel:1799)."
       },
       "fraud": {
-        "short": "Kung maaaring panloloko ito, tumawag sa +65 6363 3333. Maaari mo ring i-lock ang card.",
-        "full": "Kung hindi ikaw ang gumawa ng bayad, o may nagpapadala sa iyo ng pera, tumawag sa +65 6363 3333 at i-lock ang card."
+        "short": "Kung maaaring panloloko ito, tumawag sa [ScamShield Helpline 1799 (libre, 24/7)](tel:1799). Maaari mo ring i-lock ang card.",
+        "full": "Kung hindi ikaw ang gumawa ng bayad, o may nagpapadala sa iyo ng pera, tumawag sa [ScamShield Helpline 1799 (libre, 24/7)](tel:1799). Maaari mo ring i-lock ang card."
       },
       "lostcard": {
         "short": "I-lock ang card, tapos tumawag sa +65 6363 3333.",
@@ -283,5 +285,21 @@
   "allShortcuts": "Lahat ng shortcut",
   "emptySlot": "Walang laman",
   "moveUp": "Itaas",
-  "moveDown": "Ibaba"
+  "moveDown": "Ibaba",
+  "scamCheck": {
+    "title": "Sigurado ka ba? Malaking transfer ito sa bagong tao.",
+    "amountLine": "{amount} kay {name}",
+    "q1": "May humiling ba sa iyo na gawin ang transfer na ito?",
+    "q2": "Nakipag-ugnayan ba sila sa telepono, SMS, o social media?",
+    "q3": "Nangako ba sila ng ibabalik na pera o premyo?",
+    "yes": "Oo",
+    "no": "Hindi",
+    "warning": "Huminto. Mukhang scam ito. Hindi maglilipat ng pera si Ollie. Ikaw ang magdedesisyon.",
+    "cancel": "Kanselahin ang transfer",
+    "staff": "Kausapin ang staff",
+    "continue": "Magpatuloy",
+    "cooling": "Mag-isip muna sandali",
+    "coolingLeft": "Magpatuloy sa {n}s",
+    "helpline": "ScamShield Helpline 1799 (libre, 24/7)"
+  }
 }

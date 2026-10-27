@@ -94,6 +94,7 @@
   },
   "help": {
     "fab": "Help",
+    "askOllie": "Ask Ollie",
     "title": "Help",
     "intro": "Choose one.",
     "ai": "AI assistant",
@@ -408,7 +409,7 @@
     "scamQ3": "Did they promise you money back or a reward?",
     "scamYes": "Yes",
     "scamNo": "No",
-    "scamPause": "Please stop this transfer. This looks like a common scam. Call the anti-scam hotline, or message OCBC staff. I will not fill in the form.",
+    "scamPause": "Please stop this transfer. This looks like a common scam. Call the ScamShield Helpline 1799, or message OCBC staff. I will not fill in the form.",
     "handoverLabel": "Message staff",
     "summaryHint": "Topic, screen and your last question. You can edit this.",
     "micMissing": "Voice input is not available in this browser.",
@@ -430,11 +431,11 @@
       },
       "secret": {
         "short": "Do not share passwords, PINs or one-time codes.",
-        "full": "Do not share passwords, PINs, one-time codes or full card numbers. If someone asked you for those, call +65 6363 3333."
+        "full": "Do not share passwords, PINs, one-time codes or full card numbers. If someone asked you for those, call the [ScamShield Helpline 1799 (free, 24/7)](tel:1799)."
       },
       "fraud": {
-        "short": "If this may be a scam, call +65 6363 3333. You can also lock your card.",
-        "full": "If you did not make a payment, or someone is asking you to send money, call +65 6363 3333 and lock the card."
+        "short": "If this may be a scam, call the [ScamShield Helpline 1799 (free, 24/7)](tel:1799). You can also lock your card.",
+        "full": "If you did not make a payment, or someone is asking you to send money, call the [ScamShield Helpline 1799 (free, 24/7)](tel:1799). You can also lock the card."
       },
       "lostcard": {
         "short": "Lock the card, then call +65 6363 3333.",
@@ -925,5 +926,21 @@
     "staffBody": "Send a message to staff.",
     "aloudTitle": "Read screens aloud",
     "aloudBody": "Turn this on to hear each screen."
+  },
+  "scamCheck": {
+    "title": "Are you sure? This is a large transfer to someone new.",
+    "amountLine": "{amount} to {name}",
+    "q1": "Did someone ask you to make this transfer?",
+    "q2": "Were you contacted by phone, SMS or social media?",
+    "q3": "Were you promised money back or a prize?",
+    "yes": "Yes",
+    "no": "No",
+    "warning": "Stop. This looks like a scam. Ollie will not move any money. You decide what happens next.",
+    "cancel": "Cancel transfer",
+    "staff": "Talk to staff",
+    "continue": "Continue",
+    "cooling": "Take a moment",
+    "coolingLeft": "Continue in {n}s",
+    "helpline": "ScamShield Helpline 1799 (free, 24/7)"
   }
 }

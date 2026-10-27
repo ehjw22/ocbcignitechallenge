@@ -92,9 +92,13 @@ export function demoReply(
     const extra = textOf('ai.stuck')
     if (!reply.includes(extra)) reply = `${reply}\n\n${extra}`
   }
-  if (fraud) {
+  if (intent === 'lostcard') {
     const hotline = textOf('ai.hotline')
     if (!reply.includes('+65')) reply = `${reply}\n\n${hotline}`
+  }
+  if (intent === 'fraud') {
+    const helpline = textOf('scamCheck.helpline')
+    if (helpline && !reply.includes('1799')) reply = `${reply}\n\n${helpline}`
   }
   const journeyId = refused || fraud ? null : journeyFor(message, intent)
   return { reply, source: 'demo', flags: { refused, escalated, fraud }, intent, journeyId }

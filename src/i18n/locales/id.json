@@ -17,6 +17,7 @@
   "aiTranslated": "",
   "help": {
     "fab": "Bantuan",
+    "askOllie": "Tanya Ollie",
     "title": "Bantuan",
     "ai": "Asisten AI",
     "guide": "Panduan langkah demi langkah",
@@ -92,6 +93,7 @@
     "nameSample": "Nama tercatat: {name}"
   },
   "ai": {
+    "scamPause": "Hentikan transfer ini. Ini terlihat seperti penipuan yang umum. Hubungi saluran ScamShield 1799, atau kirim pesan ke staf OCBC. Saya tidak akan mengisi formulir.",
     "faq": {
       "giro": {
         "short": "GIRO"
@@ -106,11 +108,11 @@
       },
       "secret": {
         "short": "Jangan bagikan kata sandi, PIN, atau kode sekali pakai.",
-        "full": "Jangan bagikan kata sandi, PIN, kode sekali pakai, atau nomor kartu lengkap. Jika seseorang memintanya, hubungi +65 6363 3333."
+        "full": "Jangan bagikan kata sandi, PIN, kode sekali pakai, atau nomor kartu lengkap. Jika seseorang memintanya, hubungi [Saluran ScamShield 1799 (gratis, 24/7)](tel:1799)."
       },
       "fraud": {
-        "short": "Jika ini mungkin penipuan, hubungi +65 6363 3333. Anda juga dapat mengunci kartu.",
-        "full": "Jika Anda tidak melakukan pembayaran, atau seseorang meminta Anda mengirim uang, hubungi +65 6363 3333 dan kunci kartu."
+        "short": "Jika ini mungkin penipuan, hubungi [Saluran ScamShield 1799 (gratis, 24/7)](tel:1799). Anda juga dapat mengunci kartu.",
+        "full": "Jika Anda tidak melakukan pembayaran, atau seseorang meminta Anda mengirim uang, hubungi [Saluran ScamShield 1799 (gratis, 24/7)](tel:1799). Anda juga dapat mengunci kartu."
       },
       "lostcard": {
         "short": "Kunci kartu, lalu hubungi +65 6363 3333.",
@@ -283,5 +285,21 @@
   "allShortcuts": "Semua pintasan",
   "emptySlot": "Kosong",
   "moveUp": "Naik",
-  "moveDown": "Turun"
+  "moveDown": "Turun",
+  "scamCheck": {
+    "title": "Yakin? Ini transfer besar ke seseorang yang baru.",
+    "amountLine": "{amount} ke {name}",
+    "q1": "Apakah seseorang meminta Anda melakukan transfer ini?",
+    "q2": "Apakah mereka menghubungi lewat telepon, SMS, atau media sosial?",
+    "q3": "Apakah mereka menjanjikan uang kembali atau hadiah?",
+    "yes": "Ya",
+    "no": "Tidak",
+    "warning": "Berhenti. Ini terlihat seperti penipuan. Ollie tidak memindahkan uang. Anda yang memutuskan.",
+    "cancel": "Batalkan transfer",
+    "staff": "Bicara dengan staf",
+    "continue": "Lanjut",
+    "cooling": "Luangkan waktu sejenak",
+    "coolingLeft": "Lanjut dalam {n} dtk",
+    "helpline": "Saluran ScamShield 1799 (gratis, 24/7)"
+  }
 }

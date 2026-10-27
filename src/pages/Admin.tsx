@@ -889,7 +889,7 @@ function AnalyticsPanel({ palette, events }: { palette: string[]; events: { id?:
         <ul className="space-y-2 text-sm">
           {SEED_REFUSED.map((item) => <li key={item.q} className="rounded-lg bg-zinc-50 p-3">{item.q} <span className="text-zinc-500">({item.reason})</span></li>)}
           {events.filter((event) => event.type === 'scam_check').map((event, index) => (
-            <li key={event.id || index} className="rounded-lg bg-red-50 p-3">Scam check · {String(event.data.trigger)} · {String(event.data.result)}</li>
+            <li key={event.id || index} className="rounded-lg bg-red-50 p-3">Scam check · {String(event.data.trigger)} · {String(event.data.answers || 'no answers')} · {String(event.data.result)}</li>
           ))}
         </ul>
       </article>

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { ArrowLeftRight, ChevronLeft, CircleHelp, Home, Menu, Wallet, X } from 'lucide-react'
 import { useApp } from '@/context/AppContext'
@@ -8,6 +8,8 @@ import { journeyRoute } from '@/lib/showHow'
 import { themeVars } from '@/lib/accent'
 import { AppTour } from './AppTour'
 import { FlowTour } from './TourFrame'
+import { getFlowTour, subscribeFlowTour } from '@/lib/guide'
+import { tourState } from '@/lib/appTour'
 import { AiPanel } from './AiPanel'
 import { StaffPanel } from './StaffPanel'
 import { speak, stopSpeaking } from '@/lib/speech'
@@ -132,6 +134,71 @@ export function BottomNav() {
   )
 }
 
+const OLLIE_LABEL_KEY = 'ocbc-ollie-fab-label'
+
+function OllieFab() {
+  const app = useApp()
+  const location = useLocation()
+  const flowTour = useSyncExternalStore(subscribeFlowTour, getFlowTour, getFlowTour)
+  const appTour = useSyncExternalStore(
+    (listener) => {
+      window.addEventListener('ocbc-tour', listener)
+      return () => window.removeEventListener('ocbc-tour', listener)
+    },
+    () => tourState().active,
+    () => false,
+  )
+  const [showLabel, setShowLabel] = useState(() => localStorage.getItem(OLLIE_LABEL_KEY) !== '1')
+  const [lift, setLift] = useState(88)
+  const [tucked, setTucked] = useState(false)
+  const hiddenPath = ['/welcome', '/login', '/join', '/onboarding'].includes(location.pathname) || location.pathname.startsWith('/pre')
+  useEffect(() => {
+    if (!showLabel) return
+    const timer = window.setTimeout(() => {
+      localStorage.setItem(OLLIE_LABEL_KEY, '1')
+      setShowLabel(false)
+    }, 6000)
+    return () => window.clearTimeout(timer)
+  }, [showLabel])
+  useEffect(() => {
+    const root = document.getElementById('customer-root')
+    if (!root) return
+    const measure = () => {
+      const nav = root.querySelector('nav')
+      const navH = nav?.getBoundingClientRect().height ?? 64
+      const sticky = [...root.querySelectorAll('.sticky')].find((el) => {
+        if (el.closest('nav')) return false
+        const style = getComputedStyle(el)
+        return style.position === 'sticky' && style.bottom === '0px' && Boolean(el.querySelector('button'))
+      })
+      setTucked(Boolean(sticky))
+      setLift(navH + 12)
+    }
+    measure()
+    const observer = new ResizeObserver(measure)
+    observer.observe(root)
+    return () => observer.disconnect()
+  }, [location.pathname, app.helpOpen])
+  if (hiddenPath || tucked || appTour || flowTour || (app.helpOpen && app.helpView === 'ai')) return null
+  const label = translate(app.prefs.language, 'help.askOllie')
+  return (
+    <button
+      type="button"
+      className="absolute right-3 z-30 flex items-center rounded-full text-white"
+      style={{ bottom: lift, height: 56, background: '#E30613', boxShadow: '0 4px 14px rgba(0,0,0,0.28)' }}
+      aria-label={label}
+      onClick={() => {
+        localStorage.setItem(OLLIE_LABEL_KEY, '1')
+        setShowLabel(false)
+        app.openHelp('ai')
+      }}
+    >
+      {showLabel && <span className="max-w-[11rem] truncate pl-4 pr-1 text-[15px] font-semibold leading-none">{label}</span>}
+      <span aria-hidden className="grid shrink-0 place-items-center text-lg font-bold" style={{ width: 56, height: 56 }}>O</span>
+    </button>
+  )
+}
+
 function HelpLayer() {
   const app = useApp()
   const navigate = useNavigate()
@@ -221,6 +288,7 @@ function HelpLayer() {
           </div>
         </div>
       )}
+      <OllieFab />
       <AppTour />
       <FlowTour />
     </>
@@ -366,7 +434,7 @@ export function Page({
           <ExplainButton />
         </span>
       </header>
-      <main id="main" ref={mainRef} key={location.pathname} className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[var(--bg)] pb-8">
+      <main id="main" ref={mainRef} key={location.pathname} className="mb-[76px] min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[var(--bg)]">
         <GuideDone />
         {children}
       </main>

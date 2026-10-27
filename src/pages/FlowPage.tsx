@@ -13,7 +13,9 @@ import { getFlowTour, startGuide, subscribeFlowTour } from '@/lib/guide'
 import { formatRate, nextRate } from '@/lib/rates'
 import { beginShowHow, peekShowHow, takeShowHow } from '@/lib/showHow'
 import { speak } from '@/lib/speech'
+import { assessTransfer, SCAM_FLOWS } from '@/lib/scamCheck'
 import { validateForm, type Issue } from '@/lib/validate'
+import { ScamSheet } from '@/components/ScamSheet'
 
 export function FlowPage() {
   const { flowId = '' } = useParams()
@@ -33,6 +35,8 @@ export function FlowPage() {
   const [otp, setOtp] = useState('')
   const [otpError, setOtpError] = useState('')
   const [unusual, setUnusual] = useState(false)
+  const [guard, setGuard] = useState<{ amount: number; name: string; reasons: ReturnType<typeof assessTransfer> } | null>(null)
+  const proceedRef = useRef<(() => void) | null>(null)
   const [ref, setRef] = useState('')
   const [wstep, setWstep] = useState(0)
   const [highlights, setHighlights] = useState<string[]>([])
@@ -216,6 +220,7 @@ export function FlowPage() {
       return
     }
     const amount = Number(String(form[flow.amountField || ''] || '').replace(/,/g, ''))
+    if (openScamCheck(amount, () => { setIssues([]); setStage('review') })) return
     const high = flow.amountField && (amount >= 3000 || amount > app.profile.usualTransfer * 3)
     if (high) {
       setUnusual(true)
@@ -223,6 +228,22 @@ export function FlowPage() {
     }
     setIssues([])
     setStage('review')
+  }
+
+  const openScamCheck = (amount: number, proceed: () => void) => {
+    if (!SCAM_FLOWS.includes(flow.id as (typeof SCAM_FLOWS)[number])) return false
+    const reasons = assessTransfer({
+      flowId: flow.id,
+      amount,
+      usual: app.profile.usualTransfer,
+      fields: form,
+      payees: app.payees,
+    })
+    if (!reasons.length) return false
+    proceedRef.current = proceed
+    app.log('scam_check', { trigger: reasons.join(','), answers: '', result: 'shown', screen: flow.id, amount })
+    setGuard({ amount, name: displayPayee || t('flows.recipient'), reasons })
+    return true
   }
 
   const lockCard = (id: string, locked: boolean) => {
@@ -299,6 +320,8 @@ export function FlowPage() {
                   focusIssues(found)
                   return
                 }
+                const amount = Number(String(form[flow.amountField || ''] || '').replace(/,/g, ''))
+                if (wstep + 1 === reviewAt && openScamCheck(amount, () => setWstep(reviewAt))) return
                 setWstep((value) => value + 1)
                 return
               }
@@ -541,6 +564,25 @@ export function FlowPage() {
           </section>
         )}
       </div>
+      {guard && (
+        <ScamSheet
+          amount={guard.amount}
+          name={guard.name}
+          reasons={guard.reasons}
+          flowId={flow.id}
+          onCancel={(answers) => {
+            app.log('scam_check', { trigger: guard.reasons.join(','), answers, result: 'cancelled', screen: flow.id, amount: guard.amount })
+            setGuard(null)
+          }}
+          onContinue={(answers) => {
+            app.log('scam_check', { trigger: guard.reasons.join(','), answers, result: 'continued', screen: flow.id, amount: guard.amount })
+            const proceed = proceedRef.current
+            setGuard(null)
+            proceed?.()
+          }}
+          onClose={() => setGuard(null)}
+        />
+      )}
       {unusual && (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/45 p-3 md:items-center" role="dialog" aria-modal="true" aria-labelledby="unusual-title">
           <div className="card w-full max-w-sm space-y-3 p-4">

@@ -34,6 +34,7 @@
   "recent": "Terkini",
   "help": {
     "fab": "Bantuan",
+    "askOllie": "Tanya Ollie",
     "title": "Bantuan",
     "ai": "Pembantu AI",
     "guide": "Panduan langkah demi langkah",
@@ -115,6 +116,7 @@
   },
   "ai": {
     "chipGiro": "Apa itu GIRO?",
+    "scamPause": "Sila hentikan pemindahan ini. Ini kelihatan seperti penipuan biasa. Hubungi talian ScamShield 1799, atau mesej kakitangan OCBC. Saya tidak akan isi borang.",
     "faq": {
       "giro": {
         "short": "GIRO membenarkan syarikat mengutip bil dari akaun anda secara automatik, sehingga had yang anda pilih."
@@ -129,11 +131,11 @@
       },
       "secret": {
         "short": "Jangan kongsi kata laluan, PIN atau kod sekali guna.",
-        "full": "Jangan kongsi kata laluan, PIN, kod sekali guna atau nombor kad penuh. Jika seseorang memintanya, hubungi +65 6363 3333."
+        "full": "Jangan kongsi kata laluan, PIN, kod sekali guna atau nombor kad penuh. Jika seseorang memintanya, hubungi [Talian ScamShield 1799 (percuma, 24/7)](tel:1799)."
       },
       "fraud": {
-        "short": "Jika ini mungkin penipuan, hubungi +65 6363 3333. Anda juga boleh kunci kad.",
-        "full": "Jika anda tidak membuat bayaran, atau seseorang meminta anda menghantar wang, hubungi +65 6363 3333 dan kunci kad."
+        "short": "Jika ini mungkin penipuan, hubungi [Talian ScamShield 1799 (percuma, 24/7)](tel:1799). Anda juga boleh kunci kad.",
+        "full": "Jika anda tidak membuat bayaran, atau seseorang meminta anda menghantar wang, hubungi [Talian ScamShield 1799 (percuma, 24/7)](tel:1799). Anda juga boleh kunci kad."
       },
       "lostcard": {
         "short": "Kunci kad, kemudian hubungi +65 6363 3333.",
@@ -413,5 +415,21 @@
     "staffBody": "Hantar mesej kepada kakitangan.",
     "aloudTitle": "Baca skrin",
     "aloudBody": "Hidupkan untuk mendengar setiap skrin."
+  },
+  "scamCheck": {
+    "title": "Adakah anda pasti? Ini pemindahan besar kepada seseorang yang baharu.",
+    "amountLine": "{amount} kepada {name}",
+    "q1": "Adakah seseorang meminta anda membuat pemindahan ini?",
+    "q2": "Adakah mereka menghubungi anda melalui telefon, SMS atau media sosial?",
+    "q3": "Adakah mereka menjanjikan wang balik atau hadiah?",
+    "yes": "Ya",
+    "no": "Tidak",
+    "warning": "Berhenti. Ini kelihatan seperti penipuan. Ollie tidak akan memindahkan wang. Anda yang memutuskan.",
+    "cancel": "Batalkan pemindahan",
+    "staff": "Bercakap dengan kakitangan",
+    "continue": "Teruskan",
+    "cooling": "Luangkan masa sekejap",
+    "coolingLeft": "Teruskan dalam {n}s",
+    "helpline": "Talian ScamShield 1799 (percuma, 24/7)"
   }
 }

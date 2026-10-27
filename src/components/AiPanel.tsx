@@ -317,7 +317,7 @@ export function AiPanel() {
                 {(paused[index] || message.scamRisk === 'high') && message.role === 'assistant' && (
                   <div className="mt-3 space-y-2">
                     <p>{t('ai.scamPause')}</p>
-                    <p className="phone-number font-semibold">{t('staff.hotline')}</p>
+                    <a className="phone-number block font-semibold text-[var(--link)]" href="tel:1799">{t('scamCheck.helpline')}</a>
                     <button type="button" className="min-h-11 rounded-xl bg-[var(--accent)] px-3 font-semibold text-[var(--on-accent)]" onClick={() => { setSummaries((prev) => ({ ...prev, [index]: summary })); app.setStaffSeed(summary); app.setHelpView('staff') }}>{t('ai.handoverLabel')}</button>
                   </div>
                 )}
@@ -331,7 +331,7 @@ export function AiPanel() {
                   </div>
                 )}
                 {message.flags?.fraud && message.scamRisk !== 'high' && (
-                  <p className="phone-number mt-3 font-semibold">{t('staff.hotline')}</p>
+                  <a className="phone-number mt-3 block font-semibold text-[var(--link)]" href="tel:1799">{t('scamCheck.helpline')}</a>
                 )}
                 {message.role === 'assistant' && (message.handover || message.flags?.escalated) && message.scamRisk !== 'high' && !paused[index] && (
                   <div className="mt-3 space-y-2">
