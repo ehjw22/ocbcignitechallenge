@@ -124,7 +124,7 @@ export function Home() {
           </Link>
           </div>
         </section>
-        <section className="px-5 pb-4 pt-6">
+        {app.txns.length > 0 && <section className="px-5 pb-4 pt-6">
           <h2 className="mb-3 text-[16px] font-semibold">{t('recent')}</h2>
           <ul className="overflow-hidden rounded-card border border-[var(--line)] bg-[var(--card)]">
             {app.txns.slice(0, 4).map((txn) => (
@@ -139,7 +139,7 @@ export function Home() {
               </li>
             ))}
           </ul>
-        </section>
+        </section>}
         {app.goals.length > 0 && (
           <section className="px-5 pb-2">
             <h2 className="mb-2 text-[16px] font-semibold">{t('shortcuts.goals')}</h2>
@@ -171,8 +171,8 @@ export function Home() {
       </main>
       <BottomNav />
       {offer && (
-        <div className="absolute inset-0 z-40 flex items-end bg-black/40 p-4">
-          <div role="dialog" aria-modal="true" aria-labelledby="tour-offer" className="w-full rounded-3xl bg-[var(--card)] p-4 text-[var(--text)]">
+        <div className="absolute inset-0 z-40 flex items-center justify-center bg-black/40 px-5 py-8">
+          <div role="dialog" aria-modal="true" aria-labelledby="tour-offer" className="w-full max-w-sm rounded-3xl bg-[var(--card)] p-4 text-[var(--text)] shadow-xl">
             <h2 id="tour-offer" className="text-xl font-semibold">{t('gate.tourTitle')}</h2>
             <p className="mt-2">{t('gate.tourBody')}</p>
             <button type="button" className="mt-4 min-h-11 w-full rounded-2xl bg-[var(--accent)] font-semibold text-[var(--on-accent)]" onClick={() => { setOffer(false); navigate('/', { replace: true }); startAppTour(false) }}>

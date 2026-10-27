@@ -376,7 +376,10 @@ html[data-bold="1"] #customer-app button {
 }
 
 #customer-root .choice,
-#customer-root .choice span {
+#customer-root .choice span,
+#customer-root .keep-words,
+#customer-root .keep-words span,
+#customer-root .keep-words button {
   overflow-wrap: normal;
   word-break: normal;
 }

@@ -154,6 +154,7 @@
     "contrast": "High contrast",
     "colour": "Colour settings",
     "colourBody": "Colour settings",
+    "colourHint": "This is how status colours will look",
     "detail": "How much detail?",
     "readAloud": "Read screens aloud",
     "readBody": "Tips and replies can be read aloud.",

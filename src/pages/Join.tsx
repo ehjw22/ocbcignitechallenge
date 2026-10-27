@@ -7,7 +7,7 @@ import { SpeechSpeed } from '@/components/SpeechSpeed'
 import { useApp } from '@/context/AppContext'
 import { peekAfterLogin } from '@/lib/storage'
 import { translate } from '@/i18n'
-import { LANGUAGES } from '@/lib/languages'
+import { DEFAULT_SHORTCUTS, LANGUAGES } from '@/lib/languages'
 import type { ColourVision, DetailLevel, HelpPreference } from '@/lib/types'
 
 const STEPS = 7
@@ -25,8 +25,12 @@ export function Join() {
 
   const finish = (offer: boolean) => {
     if (offer) sessionStorage.setItem('ocbc-tour-offer', '1')
-    const patch = { quizCompleted: true, onboarded: true, ...(picked.length === 6 ? { shortcuts: picked } : {}) }
-    app.updatePrefs(patch)
+    const shortcuts = [...picked]
+    for (const id of DEFAULT_SHORTCUTS) {
+      if (shortcuts.length >= 6) break
+      if (!shortcuts.includes(id)) shortcuts.push(id)
+    }
+    app.updatePrefs({ quizCompleted: true, onboarded: true, shortcuts: shortcuts.slice(0, 6) })
     navigate(peekAfterLogin() || (offer ? '/?offer=1' : '/'))
   }
 
@@ -75,13 +79,17 @@ export function Join() {
                 {app.prefs.textSize}px
                 <input id="quiz-size" type="range" min={16} max={24} step={1} value={app.prefs.textSize} onChange={(event) => app.updatePrefs({ textSize: Number(event.target.value) })} className="mt-2 w-full" />
               </label>
-              <p className="rounded-2xl border border-[var(--line)] bg-[var(--card)] p-3">{t('onboarding.preview')}</p>
+              <div className="rounded-2xl border border-[var(--line)] bg-[var(--card)] p-4">
+                <p className="text-sm text-[var(--muted)]">{t('totalBalance')}</p>
+                <p className="mt-1 font-semibold tabular-nums" style={{ fontSize: app.prefs.textSize + 8 }}>S$1,230.55</p>
+                <p className="mt-2" style={{ fontSize: app.prefs.textSize }}>{t('onboarding.preview')}</p>
+              </div>
             </section>
           )}
           {step === 3 && (
             <section className="space-y-3">
               <h2 id="quiz-title" className="text-xl font-semibold">{t('onboarding.detail')}</h2>
-              <div role="radiogroup" aria-label={t('onboarding.detail')} className="space-y-2">
+              <div role="radiogroup" aria-label={t('onboarding.detail')} className="grid w-full grid-cols-1 gap-2 [&>button]:mb-0 [&>button]:h-full">
                 {(['short', 'full'] as DetailLevel[]).map((detail) => (
                   <Choice key={detail} selected={app.prefs.detail === detail} onClick={() => app.updatePrefs({ detail })}>
                     <span className="block">{t(`detail.${detail}`)}</span>
@@ -94,7 +102,7 @@ export function Join() {
           {step === 4 && (
             <section className="space-y-2">
               <h2 id="quiz-title" className="text-xl font-semibold">{t('onboarding.help')}</h2>
-              <div role="radiogroup" aria-label={t('onboarding.help')}>
+              <div role="radiogroup" aria-label={t('onboarding.help')} className="grid w-full grid-cols-1 gap-2 [&>button]:mb-0">
                 {([
                   ['ai', 'help.ai'],
                   ['guide', 'help.guide'],
@@ -110,16 +118,31 @@ export function Join() {
           {step === 5 && (
             <section>
               <h2 id="quiz-title" className="text-xl font-semibold">{t('onboarding.colour')}</h2>
-              <div role="radiogroup" aria-label={t('onboarding.colour')} className="mt-3 space-y-2">
+              <p className="mt-1 text-sm text-[var(--muted)]">{t('onboarding.colourHint')}</p>
+              <div className="keep-words mt-3 overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--card)]">
+                {[
+                  ['Hawker centre', '26 Oct', 'paid', '−S$6.50', 'var(--success)'],
+                  ['Grab', '25 Oct', 'check', '−S$12.40', 'var(--warning)'],
+                ].map(([name, date, status, amount, colour], index) => (
+                  <div key={name} className={`flex items-start justify-between gap-3 px-3 py-3 ${index === 0 ? 'border-b border-[var(--line)]' : ''}`}>
+                    <span className="min-w-0">
+                      <span className="block font-semibold">{name}</span>
+                      <span className="block text-sm text-[var(--muted)]">{date}</span>
+                    </span>
+                    <span className="flex shrink-0 flex-col items-end gap-1">
+                      <span className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-sm font-semibold" style={{ color: colour, background: `color-mix(in srgb, ${colour} 16%, transparent)` }}>
+                        {status === 'paid' ? <CheckCircle2 aria-hidden size={14} /> : <AlertTriangle aria-hidden size={14} />}
+                        {t(`cvd.${status}`)}
+                      </span>
+                      <span className="font-semibold tabular-nums">{amount}</span>
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <div role="radiogroup" aria-label={t('onboarding.colour')} className="mt-3 grid w-full grid-cols-1 gap-2">
                 {(['default', 'protanopia', 'deuteranopia', 'tritanopia', 'monochrome'] as ColourVision[]).map((mode) => (
                   <button key={mode} type="button" role="radio" aria-checked={app.prefs.colourVision === mode} className={`${choiceClass(app.prefs.colourVision === mode)} flex min-h-11 w-full items-center justify-between gap-3 rounded-xl px-3 py-2 text-left`} onClick={() => app.updatePrefs({ colourVision: mode })}>
-                    <span>
-                      <span className="font-semibold">{t(`cvd.${mode}`)}</span>
-                      <span className="mt-1 flex flex-wrap gap-3 text-sm font-medium">
-                        <span className="inline-flex items-center gap-1 text-[var(--success)]"><CheckCircle2 aria-hidden size={16} />{t('cvd.paid')}</span>
-                        <span className="inline-flex items-center gap-1 text-[var(--warning)]"><AlertTriangle aria-hidden size={16} />{t('cvd.check')}</span>
-                      </span>
-                    </span>
+                    <span className="font-semibold">{t(`cvd.${mode}`)}</span>
                     <Check aria-hidden size={18} className={`shrink-0 text-[var(--accent)] ${app.prefs.colourVision === mode ? 'opacity-100' : 'opacity-0'}`} />
                   </button>
                 ))}
@@ -135,14 +158,14 @@ export function Join() {
             </section>
           )}
         </main>
-        <div className="sticky bottom-0 grid shrink-0 grid-cols-3 gap-2 border-t border-[var(--line)] bg-[var(--bg)] px-4 py-3">
-          <button type="button" className="min-h-11 rounded-xl border-2 border-[#d9d9d9] bg-[var(--card)] px-1 font-semibold" onClick={() => (step === 0 ? app.logout() : setStep((value) => value - 1))}>
+        <div className="keep-words sticky bottom-0 grid shrink-0 grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.35fr)] gap-2 border-t border-[var(--line)] bg-[var(--bg)] px-4 py-3">
+          <button type="button" className="min-h-11 rounded-xl border border-[var(--line)] bg-[var(--card)] px-2 font-semibold leading-tight text-[var(--text)]" onClick={() => (step === 0 ? app.logout() : setStep((value) => value - 1))}>
             {t('back')}
           </button>
-          <button type="button" className="min-h-11 rounded-xl border-2 border-[#d9d9d9] bg-[var(--card)] px-1 font-semibold" onClick={() => (step === STEPS - 1 ? finish(false) : setStep((value) => value + 1))}>
+          <button type="button" className="min-h-11 rounded-xl border border-[var(--line)] bg-[var(--card)] px-2 font-semibold leading-tight text-[var(--text)]" onClick={() => (step === STEPS - 1 ? finish(false) : setStep((value) => value + 1))}>
             {t('skipStep')}
           </button>
-          <button type="button" className="min-h-11 rounded-xl bg-[var(--accent)] px-1 font-semibold text-[var(--on-accent)] disabled:opacity-50" disabled={step === STEPS - 1 && picked.length !== 6} onClick={() => (step === STEPS - 1 ? finish(true) : setStep((value) => value + 1))}>
+          <button type="button" className="min-h-11 rounded-xl bg-[var(--accent)] px-2 font-semibold leading-tight text-[var(--on-accent)] disabled:opacity-50" disabled={step === STEPS - 1 && picked.length !== 6} onClick={() => (step === STEPS - 1 ? finish(true) : setStep((value) => value + 1))}>
             {step === STEPS - 1 ? t('done') : t('continue')}
           </button>
         </div>

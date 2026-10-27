@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import {
-  Bar, BarChart, CartesianGrid, Cell, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis,
+  Bar, BarChart, CartesianGrid, Cell, Line, LineChart, Pie, PieChart, Tooltip, XAxis, YAxis,
 } from 'recharts'
 import {
   Activity, BarChart3, Bell, BookOpen, CheckCircle2, Clock, Headphones, LayoutDashboard, MessageSquare,
@@ -87,11 +87,11 @@ function statusText(status: QueueRow['status']) {
 }
 
 function languageLabel(code: string, cantonese: boolean) {
-  if (cantonese) return '粵語'
-  if (code === 'zh') return '中文'
-  if (code === 'zh-TW') return '繁體中文'
-  if (code === 'ms') return 'Bahasa Melayu'
-  if (code === 'ta') return 'தமிழ்'
+  if (cantonese) return 'Cantonese'
+  if (code === 'zh') return 'Mandarin'
+  if (code === 'zh-TW') return 'Traditional Chinese'
+  if (code === 'ms') return 'Malay'
+  if (code === 'ta') return 'Tamil'
   return languageById(code).english || 'English'
 }
 
@@ -102,7 +102,7 @@ function sample(partial: Omit<QueueRow, 'createdAt' | 'waitSec'> & { waitSec: nu
 const SAMPLES: QueueRow[] = [
   sample({
     id: 'sample-mei', ticket: 'OC-18421', name: 'Auntie Mei', age: 67, segment: 'Premier', nric: 'S****452G',
-    language: '粵語', chinese: true, needs: ['Large text', 'Read aloud'], topic: 'Overseas transfer',
+    language: 'Cantonese', chinese: true, needs: ['Large text', 'Read aloud'], topic: 'Overseas transfer',
     stepLabel: 'Account number', stepIndex: 4, stepTotal: 7, journeyId: 'overseas', source: 'Ollie handoff',
     waitSec: 372, priority: 'High', status: 'received', sample: true,
     summary: 'Auntie Mei is sending money to her son in Australia and stopped on the account number.',
@@ -132,7 +132,7 @@ const SAMPLES: QueueRow[] = [
   }),
   sample({
     id: 'sample-siti', ticket: 'OC-18377', name: 'Siti Rahman', age: 41, segment: 'Personal', nric: 'S****226H',
-    language: 'Bahasa Melayu', chinese: false, needs: ['Read aloud'], topic: 'Bill payment',
+    language: 'Malay', chinese: false, needs: ['Read aloud'], topic: 'Bill payment',
     stepLabel: 'Bill reference', stepIndex: 2, stepTotal: 4, journeyId: 'bill', source: 'Guided journey',
     waitSec: 520, priority: 'Med', status: 'received', sample: true,
     summary: 'Siti is paying SP Group and stopped while reading the bill reference aloud.',
@@ -142,7 +142,7 @@ const SAMPLES: QueueRow[] = [
   }),
   sample({
     id: 'sample-lim', ticket: 'OC-18361', name: 'Lim Hui Ying', age: 73, segment: 'Premier', nric: 'S****014C',
-    language: '中文', chinese: true, needs: ['Large text', 'Read aloud'], topic: 'Card lock',
+    language: 'Mandarin', chinese: true, needs: ['Large text', 'Read aloud'], topic: 'Card lock',
     stepLabel: 'Lock card', stepIndex: 2, stepTotal: 3, journeyId: 'card-lock', source: 'Ollie handoff',
     waitSec: 665, priority: 'High', status: 'received', sample: true,
     summary: 'Lim Hui Ying wants her credit card locked after a charge she does not recognise.',
@@ -230,6 +230,17 @@ export function Admin() {
   const [from, setFrom] = useState(() => new Date(Date.now() - 6 * 86400000).toISOString().slice(0, 10))
   const [to, setTo] = useState(() => new Date().toISOString().slice(0, 10))
   const [navOpen, setNavOpen] = useState(false)
+  const headerRef = useRef<HTMLElement>(null)
+  const [headerH, setHeaderH] = useState(72)
+  useEffect(() => {
+    const el = headerRef.current
+    if (!el) return
+    const sync = () => setHeaderH(el.offsetHeight)
+    sync()
+    const observer = new ResizeObserver(sync)
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [authed])
 
   const checkService = () => {
     setServiceError('')
@@ -288,6 +299,8 @@ export function Admin() {
   const selected = rows.find((row) => row.id === selectedId) || null
   const waiting = ranged.filter((row) => row.status === 'received')
   const resolved = ranged.filter((row) => row.status === 'replied').length
+  const pageFrom = sorted.length ? page * pageSize + 1 : 0
+  const pageTo = Math.min(sorted.length, page * pageSize + visible.length)
   const avgSec = ranged.length ? Math.round(ranged.reduce((sum, row) => sum + row.waitSec, 0) / ranged.length) : 0
   const started = Object.values(FUNNELS).reduce((sum, steps) => sum + steps[0].reached, 0) + app.events.filter((event) => event.type === 'guide_started').length
   const completed = Object.values(FUNNELS).reduce((sum, steps) => sum + steps[steps.length - 1].reached, 0) + app.events.filter((event) => event.type === 'guide_completed').length
@@ -299,10 +312,18 @@ export function Admin() {
     const live = rows.filter((row) => !row.sample && new Date(row.createdAt).getHours() === hour).length
     return { name: `${String(hour).padStart(2, '0')}:00`, value: base + live }
   })
-  const topics = Object.entries(ranged.reduce<Record<string, number>>((map, row) => {
-    map[row.topic] = (map[row.topic] || 0) + 1
-    return map
-  }, {})).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value)
+  const topicBase: Record<string, number> = {
+    PayNow: 27,
+    'Overseas transfer': 18,
+    'Local transfer': 16,
+    'Bill payment': 14,
+    'GIRO setup': 11,
+    'Card lock': 9,
+    'Spending insights': 6,
+  }
+  const topics = Object.entries(topicBase)
+    .map(([name, base]) => ({ name, value: base + ranged.filter((row) => row.topic === name && !row.sample).length }))
+    .sort((a, b) => b.value - a.value)
   const languages = Object.entries(ranged.reduce<Record<string, number>>((map, row) => {
     map[row.language] = (map[row.language] || 0) + 1
     return map
@@ -379,7 +400,7 @@ export function Admin() {
           </div>
         </aside>
         <div className="min-w-0 flex-1">
-          <header className="sticky top-0 z-30 flex flex-wrap items-center gap-3 border-b border-zinc-200 bg-white px-4 py-3">
+          <header ref={headerRef} className="sticky top-0 z-30 flex flex-wrap items-center gap-3 border-b border-zinc-200 bg-white px-4 py-3">
             <button type="button" className="h-10 rounded-lg border border-zinc-300 px-3 text-sm lg:hidden" onClick={() => setNavOpen(true)}>Menu</button>
             <div className="min-w-[10rem]">
               <p className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">Staff console / {title}</p>
@@ -426,7 +447,7 @@ export function Admin() {
                 <article className="min-w-0 overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm">
                   <div className="flex flex-wrap items-center justify-between gap-2 border-b border-zinc-100 px-4 py-3">
                     <h2 className="font-semibold">{section === 'chats' ? 'Live chats' : 'Live assistance queue'}</h2>
-                    <p className="text-xs text-zinc-500">{sorted.length} shown · Sample data is labelled</p>
+                    <p className="text-xs text-zinc-500">{sorted.length ? `Showing ${pageFrom}–${pageTo} of ${sorted.length}` : 'No rows'} · {waiting.length} waiting</p>
                   </div>
                   <div className="flex gap-2 overflow-x-auto px-4 py-2">
                     {FILTERS.map((item) => (
@@ -438,18 +459,24 @@ export function Admin() {
                   ) : (
                     <div className="overflow-x-auto">
                       <table className="w-full min-w-[1080px] text-left text-sm">
-                        <thead className="bg-zinc-50 text-[11px] uppercase tracking-wide text-zinc-500">
+                        <thead className="bg-zinc-50 text-[11px] font-semibold uppercase tracking-wide text-zinc-500">
                           <tr>
-                            <th className="px-3 py-2 font-semibold">Ticket</th>
-                            <th className="px-3 py-2 font-semibold"><button type="button" onClick={() => toggleSort('name')}>Customer</button></th>
-                            <th className="px-3 py-2 font-semibold">Language</th>
-                            <th className="px-3 py-2 font-semibold">Needs</th>
-                            <th className="px-3 py-2 font-semibold">Topic</th>
-                            <th className="px-3 py-2 font-semibold">Source</th>
-                            <th className="px-3 py-2 font-semibold"><button type="button" onClick={() => toggleSort('wait')}>Wait</button></th>
-                            <th className="px-3 py-2 font-semibold"><button type="button" onClick={() => toggleSort('priority')}>Priority</button></th>
-                            <th className="px-3 py-2 font-semibold">Status</th>
-                            <th className="px-3 py-2 font-semibold">Actions</th>
+                            {([
+                              ['Ticket', null],
+                              ['Customer', 'name'],
+                              ['Language', null],
+                              ['Needs', null],
+                              ['Topic', null],
+                              ['Source', null],
+                              ['Wait', 'wait'],
+                              ['Priority', 'priority'],
+                              ['Status', null],
+                              ['Actions', null],
+                            ] as const).map(([label, key]) => (
+                              <th key={label} className="px-3 py-2">
+                                {key ? <button type="button" className="uppercase tracking-wide" onClick={() => toggleSort(key)}>{label}</button> : label}
+                              </th>
+                            ))}
                           </tr>
                         </thead>
                         <tbody>
@@ -510,39 +537,45 @@ export function Admin() {
               </section>
             )}
             {section === 'overview' && (
-              <section className="grid gap-4 lg:grid-cols-3">
+              <section className="grid items-start gap-4 lg:grid-cols-3">
                 <ChartCard title="Requests per hour">
-                  <ResponsiveContainer width="100%" height={220}>
-                    <LineChart data={hourly}>
-                      <CartesianGrid stroke="#eee" />
-                      <XAxis dataKey="name" tick={{ fontSize: 11 }} />
-                      <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
-                      <Tooltip />
-                      <Line dataKey="value" stroke="#E30613" strokeWidth={2} dot={false} />
-                    </LineChart>
-                  </ResponsiveContainer>
+                  <ChartFrame>
+                    {(width, height) => (
+                      <LineChart width={width} height={height} data={hourly}>
+                        <CartesianGrid stroke="#eee" />
+                        <XAxis dataKey="name" tick={{ fontSize: 11 }} />
+                        <YAxis allowDecimals={false} tick={{ fontSize: 11 }} width={28} />
+                        <Tooltip />
+                        <Line dataKey="value" stroke="#E30613" strokeWidth={2} dot={false} />
+                      </LineChart>
+                    )}
+                  </ChartFrame>
                 </ChartCard>
                 <ChartCard title="Top issue topics">
-                  <ResponsiveContainer width="100%" height={220}>
-                    <BarChart data={topics}>
-                      <CartesianGrid stroke="#eee" />
-                      <XAxis dataKey="name" tick={{ fontSize: 10 }} interval={0} angle={-20} height={48} />
-                      <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
-                      <Tooltip />
-                      <Bar dataKey="value" fill="#1b2430" radius={4} />
-                    </BarChart>
-                  </ResponsiveContainer>
+                  <ChartFrame>
+                    {(width, height) => (
+                      <BarChart width={width} height={height} data={topics} layout="vertical" margin={{ left: 8, right: 12 }}>
+                        <CartesianGrid stroke="#eee" horizontal={false} />
+                        <XAxis type="number" allowDecimals={false} tick={{ fontSize: 11 }} />
+                        <YAxis type="category" dataKey="name" width={148} tick={{ fontSize: 11 }} />
+                        <Tooltip />
+                        <Bar dataKey="value" fill="#1b2430" radius={4} barSize={14} />
+                      </BarChart>
+                    )}
+                  </ChartFrame>
                 </ChartCard>
                 <ChartCard title="Language split">
-                  <ResponsiveContainer width="100%" height={220}>
-                    <PieChart>
-                      <Pie data={languages} dataKey="value" nameKey="name" innerRadius={48} outerRadius={72}>
-                        {languages.map((entry, index) => <Cell key={entry.name} fill={palette[index % palette.length]} />)}
-                      </Pie>
-                      <Tooltip />
-                    </PieChart>
-                  </ResponsiveContainer>
-                  <ul className="mt-1 space-y-1 text-xs text-zinc-600">{languages.map((item) => <li key={item.name} className="flex justify-between"><span>{item.name}</span><span className="tabular-nums">{item.value}</span></li>)}</ul>
+                  <ChartFrame height={180}>
+                    {(width, height) => (
+                      <PieChart width={width} height={height}>
+                        <Pie data={languages} dataKey="value" nameKey="name" innerRadius={46} outerRadius={70} cx="50%" cy="50%">
+                          {languages.map((entry, index) => <Cell key={entry.name} fill={palette[index % palette.length]} />)}
+                        </Pie>
+                        <Tooltip />
+                      </PieChart>
+                    )}
+                  </ChartFrame>
+                  <ul className="mt-2 space-y-1 text-xs text-zinc-600">{languages.map((item) => <li key={item.name} className="flex justify-between"><span>{item.name}</span><span className="tabular-nums">{item.value}</span></li>)}</ul>
                 </ChartCard>
               </section>
             )}
@@ -571,6 +604,7 @@ export function Admin() {
         </div>
       </div>
       {selected && (
+        <div className="fixed bottom-0 right-0 z-40 flex justify-end bg-black/40 lg:left-60" style={{ top: headerH }} onClick={() => setSelectedId(null)}>
         <CustomerDrawer
           row={selected}
           tab={tab}
@@ -584,6 +618,7 @@ export function Admin() {
           onResolve={() => mark(selected, 'replied')}
           onNote={(text) => addNote(selected, text)}
         />
+        </div>
       )}
     </div>
   )
@@ -639,6 +674,29 @@ function Skeleton() {
   )
 }
 
+function ChartFrame({ children, height = 240 }: { children: (width: number, height: number) => ReactNode; height?: number }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [width, setWidth] = useState(0)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const sync = () => setWidth(Math.max(0, Math.floor(el.clientWidth)))
+    sync()
+    const observer = new ResizeObserver(sync)
+    observer.observe(el)
+    window.addEventListener('resize', sync)
+    return () => {
+      observer.disconnect()
+      window.removeEventListener('resize', sync)
+    }
+  }, [])
+  return (
+    <div ref={ref} className="w-full" style={{ height }}>
+      {width > 0 ? children(width, height) : null}
+    </div>
+  )
+}
+
 function ChartCard({ title, children }: { title: string; children: ReactNode }) {
   return (
     <article className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
@@ -667,8 +725,7 @@ function CustomerDrawer({
   const guide = guideById(row.journeyId)
   const steps = guide?.steps || []
   return (
-    <div className="fixed inset-0 z-50 flex justify-end bg-black/40" role="presentation" onClick={onClose}>
-      <article className="flex h-full w-full max-w-xl flex-col bg-white shadow-xl" role="dialog" aria-labelledby="customer-title" onClick={(event) => event.stopPropagation()}>
+    <article className="flex h-full w-full max-w-xl flex-col bg-white shadow-xl" role="dialog" aria-labelledby="customer-title" onClick={(event) => event.stopPropagation()}>
         <header className="border-b border-zinc-200 p-4">
           <div className="flex items-start justify-between gap-3">
             <div>
@@ -757,7 +814,6 @@ function CustomerDrawer({
           <button type="button" className="col-span-2 h-10 rounded-lg border border-zinc-300 text-sm font-semibold" onClick={onResolve}><CheckCircle2 size={14} className="mr-1 inline" aria-hidden /> Mark resolved</button>
         </footer>
       </article>
-    </div>
   )
 }
 
@@ -777,15 +833,17 @@ function JourneyPanel({ guide, setGuide, palette, events }: { guide: string; set
           </select>
         </label>
       </div>
-      <ResponsiveContainer width="100%" height={260}>
-        <BarChart data={data}>
-          <CartesianGrid stroke="#eee" />
-          <XAxis dataKey="name" tick={{ fontSize: 11 }} />
-          <YAxis allowDecimals={false} />
-          <Tooltip />
-          <Bar dataKey="value">{data.map((entry, index) => <Cell key={entry.name} fill={palette[index % palette.length]} />)}</Bar>
-        </BarChart>
-      </ResponsiveContainer>
+      <ChartFrame height={260}>
+        {(width, height) => (
+          <BarChart width={width} height={height} data={data}>
+            <CartesianGrid stroke="#eee" />
+            <XAxis dataKey="name" tick={{ fontSize: 11 }} interval={0} />
+            <YAxis allowDecimals={false} width={32} />
+            <Tooltip />
+            <Bar dataKey="value">{data.map((entry, index) => <Cell key={entry.name} fill={palette[index % palette.length]} />)}</Bar>
+          </BarChart>
+        )}
+      </ChartFrame>
       <p className="text-sm text-zinc-600">{def ? def.steps.length : 0} steps in this guide. {device} events recorded on this device.</p>
     </section>
   )
@@ -807,14 +865,16 @@ function AnalyticsPanel({ palette, events }: { palette: string[]; events: { id?:
     <section className="grid gap-4 lg:grid-cols-2">
       <article className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
         <h2 className="mb-2 font-semibold">Questions asked</h2>
-        <ResponsiveContainer width="100%" height={240}>
-          <BarChart data={bars} layout="vertical" margin={{ left: 8 }}>
-            <XAxis type="number" allowDecimals={false} />
-            <YAxis type="category" dataKey="name" width={140} tick={{ fontSize: 11 }} />
-            <Tooltip />
-            <Bar dataKey="value" fill={palette[0]} />
-          </BarChart>
-        </ResponsiveContainer>
+        <ChartFrame>
+          {(width, height) => (
+            <BarChart width={width} height={height} data={bars} layout="vertical" margin={{ left: 8, right: 8 }}>
+              <XAxis type="number" allowDecimals={false} />
+              <YAxis type="category" dataKey="name" width={150} tick={{ fontSize: 11 }} />
+              <Tooltip />
+              <Bar dataKey="value" fill={palette[0]} barSize={16} />
+            </BarChart>
+          )}
+        </ChartFrame>
       </article>
       <article className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
         <h2 className="mb-2 font-semibold">Field errors</h2>

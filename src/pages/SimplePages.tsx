@@ -174,8 +174,9 @@ export function Cards() {
   )
 }
 
-export function InfoPage() {
-  const { topic = 'rewards' } = useParams()
+export function InfoPage({ topic: topicProp }: { topic?: string } = {}) {
+  const { topic: topicParam = 'rewards' } = useParams()
+  const topic = topicProp || topicParam
   const app = useApp()
   const t = (key: string) => translate(app.prefs.language, key)
   useEffect(() => { app.setScreen(topic) }, [topic])
