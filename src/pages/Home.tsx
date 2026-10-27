@@ -64,8 +64,8 @@ export function Home() {
           <h1 data-guide="home-greeting" className="text-[26px] font-semibold leading-8 tracking-tight">{app.profile.shortName}</h1>
         </header>
         {app.prefs.contrastWarning && <p role="status" className="mx-5 mt-3 rounded-card bg-[var(--soft)] p-3 text-[0.85rem] text-[var(--text)]">{t('contrastWarn')}</p>}
-        <section className="px-5 pt-4" data-guide="home-balance">
-          <article className="card px-4 py-4">
+        <section className="px-5 pt-4">
+          <article className="card px-4 py-4" data-guide="home-balance">
             <Link to="/accounts" className="flex items-center justify-between text-[0.9rem] font-medium">
               {t('totalBalance')}
               <ChevronRight aria-hidden size={18} className="text-[var(--muted)]" />
@@ -79,7 +79,8 @@ export function Home() {
             <p className="text-[0.75rem] text-[var(--muted)]">{app.accounts.filter((account) => account.kind === 'deposit').map((account) => t(account.nameKey)).join(' · ') || t('totalBalanceHint')}</p>
           </article>
         </section>
-        <section className="px-5 pt-6" data-guide="home-shortcuts" aria-labelledby="shortcuts-title">
+        <section className="px-5 pt-6" aria-labelledby="shortcuts-title">
+          <div data-guide="home-shortcuts">
           <div className="mb-3 flex items-center justify-between">
             <h2 id="shortcuts-title" className="text-[16px] font-semibold">{t('quickActions')}</h2>
             <Link
@@ -112,13 +113,16 @@ export function Home() {
               )
             })}
           </div>
+          </div>
         </section>
-        <section className="px-5 pt-6" data-guide="home-foryou">
+        <section className="px-5 pt-6">
+          <div data-guide="home-foryou">
           <h2 className="mb-3 text-[1rem] font-semibold">{t('forYou')}</h2>
           <Link to="/flow/overseas?practice=1&tour=1" className="block rounded-card p-4 leading-normal text-[var(--on-accent)]" style={{ background: 'var(--accent)' }}>
             <p className="text-[0.8rem] opacity-90">{t('forYouKicker')}</p>
             <p className="text-[1.05rem] font-semibold">{t('forYouBody')}</p>
           </Link>
+          </div>
         </section>
         <section className="px-5 pb-4 pt-6">
           <h2 className="mb-3 text-[16px] font-semibold">{t('recent')}</h2>

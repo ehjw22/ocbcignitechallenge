@@ -181,7 +181,6 @@
     "currentLimit": "Had semasa {amount}",
     "nameSample": "Nama dalam rekod: {name}",
     "uen": "UEN",
-    "moreOptions": "Pilihan lain",
     "available": "Tersedia {amount}"
   },
   "demo": {
@@ -245,7 +244,6 @@
     "about": "Perihal",
     "aboutBody": "Ini ialah demo. Baki dan mesej ialah data sampel.",
     "practice": "Latihan seterusnya",
-    "admin": "Papan pemuka",
     "tour": "Lawatan laman"
   },
   "pay": {

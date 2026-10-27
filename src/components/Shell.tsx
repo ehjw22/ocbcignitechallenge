@@ -7,6 +7,7 @@ import { translate } from '@/i18n'
 import { journeyRoute } from '@/lib/showHow'
 import { themeVars } from '@/lib/accent'
 import { AppTour } from './AppTour'
+import { FlowTour } from './TourFrame'
 import { AiPanel } from './AiPanel'
 import { StaffPanel } from './StaffPanel'
 import { speak, stopSpeaking } from '@/lib/speech'
@@ -221,6 +222,7 @@ function HelpLayer() {
         </div>
       )}
       <AppTour />
+      <FlowTour />
     </>
   )
 }

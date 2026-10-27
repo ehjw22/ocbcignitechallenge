@@ -492,7 +492,6 @@
     "iban": "IBAN",
     "ibanHint": "示例：GB29 NWBK 6016 1331 9268 19",
     "uen": "UEN",
-    "moreOptions": "更多选项",
     "available": "可用 {amount}"
   },
   "shortcuts": {
@@ -535,7 +534,6 @@
     "cards": "银行卡",
     "limit": "转账限额",
     "tour": "首页导览",
-    "admin": "控制面板",
     "about": "关于",
     "practice": "接着练习",
     "aboutBody": "这是演示。余额和消息为示例数据。"
@@ -756,7 +754,7 @@
     "subscriptions": "订阅",
     "other": "其他"
   },
-  "adminNote": "设计者视图",
+  "adminNote": "职员控制台",
   "from": "从",
   "imageTooBig": "这张照片太大。请换一张较小的。",
   "speech": {

@@ -570,7 +570,6 @@
     "iban": "IBAN",
     "ibanHint": "Example: GB29 NWBK 6016 1331 9268 19",
     "uen": "UEN",
-    "moreOptions": "More options",
     "available": "Available {amount}"
   },
   "shortcuts": {
@@ -614,7 +613,6 @@
     "limit": "Transfer limit",
     "practice": "Practice next",
     "tour": "Home tour",
-    "admin": "Dashboard",
     "about": "About",
     "aboutBody": "This is a demo. Balances and messages are sample data."
   },
@@ -775,7 +773,7 @@
     "subscriptions": "Subscriptions",
     "other": "Others"
   },
-  "adminNote": "Designer view",
+  "adminNote": "Staff console",
   "totalBalance": "Total balance",
   "totalBalanceHint": "360 Account and Statement Savings",
   "forYou": "For you",

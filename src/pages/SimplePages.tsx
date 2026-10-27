@@ -135,12 +135,10 @@ export function More() {
         >
           {t('more.tour')}
         </button>
-        <div className="flex items-center gap-2">
-          <a href="/admin" className="card tap flex min-w-0 flex-1 items-center px-3 font-semibold">{t('more.admin')}</a>
-          <button type="button" className="tap flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[var(--line)] bg-[var(--card)]" aria-label={t('more.about')} aria-expanded={about} onClick={() => setAbout((open) => !open)}>
-            <Info aria-hidden size={20} />
-          </button>
-        </div>
+        <button type="button" className="card tap flex w-full items-center gap-2 px-3 text-left font-semibold" aria-expanded={about} onClick={() => setAbout((open) => !open)}>
+          <Info aria-hidden size={20} />
+          {t('more.about')}
+        </button>
         {about && (
           <article className="card p-3">
             <h2 className="font-semibold">{t('more.about')}</h2>

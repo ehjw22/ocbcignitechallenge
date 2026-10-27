@@ -204,7 +204,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const root = document.documentElement
-    const admin = location.pathname.startsWith('/admin')
+    const admin = location.pathname.startsWith('/admin') || location.pathname === '/staff'
     root.style.fontSize = admin ? '16px' : `${prefs.textSize}px`
     const htmlLang = prefs.language === 'zh' ? 'zh-Hans' : prefs.language === 'zh-TW' ? 'zh-Hant' : prefs.language
     root.lang = htmlLang

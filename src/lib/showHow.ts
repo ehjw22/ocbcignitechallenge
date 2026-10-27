@@ -17,6 +17,19 @@ export function queueShowHow(journeyId: string, practice: boolean) {
   sessionStorage.setItem(KEY, JSON.stringify({ journeyId, practice }))
 }
 
+export function peekShowHow(pageId: string) {
+  const raw = sessionStorage.getItem(KEY)
+  if (!raw) return false
+  try {
+    const job = JSON.parse(raw) as { journeyId?: string }
+    const route = journeyRoute(job.journeyId || '')
+    const page = route === '/settings' ? 'settings' : route.split('/').pop()
+    return page === pageId
+  } catch {
+    return false
+  }
+}
+
 export function takeShowHow(pageId: string) {
   const raw = sessionStorage.getItem(KEY)
   if (!raw) return null

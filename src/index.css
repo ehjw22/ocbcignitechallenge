@@ -175,59 +175,8 @@ html[data-bold="1"] #customer-app button {
   line-height: 1.4;
 }
 
-.driver-popover.ocbc-tour {
-  max-width: min(320px, calc(100vw - 24px));
-  border-radius: 16px;
-  font-family: inherit;
-  box-sizing: border-box;
-}
-
-.driver-popover.ocbc-tour .driver-popover-footer {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-}
-
-.tour-target {
-  outline: 2px solid var(--accent, #e30613);
-  outline-offset: 4px;
-  border-radius: 12px;
-}
-
 .shortcut-grid {
   grid-auto-rows: 7.25rem;
-}
-
-.driver-popover.ocbc-tour .driver-popover-title {
-  font-size: 1rem;
-}
-
-.driver-popover.ocbc-tour .driver-popover-description {
-  font-size: 0.98rem;
-  line-height: 1.45;
-}
-
-.driver-popover.ocbc-tour .driver-popover-next-btn,
-.driver-popover.ocbc-tour .driver-popover-prev-btn,
-.driver-popover.ocbc-tour .driver-popover-close-btn {
-  min-height: 44px;
-  min-width: 44px;
-  border-radius: 10px;
-  text-shadow: none;
-}
-
-.driver-popover.ocbc-tour .driver-popover-next-btn {
-  background: #e30613;
-  color: #fff;
-}
-
-.driver-popover.ocbc-tour .driver-popover-prev-btn.driver-popover-btn-disabled,
-.driver-popover.ocbc-tour .driver-popover-prev-btn:disabled {
-  opacity: 1;
-  color: #3f3f46;
-  background: #f4f4f5;
-  border: 1px solid #a1a1aa;
 }
 
 .phone-frame,
@@ -241,16 +190,6 @@ html[data-bold="1"] #customer-app button {
 #customer-root *::-webkit-scrollbar {
   width: 0;
   height: 0;
-}
-
-.driver-popover.ocbc-tour-dark {
-  background: #1c1c1c;
-  color: #f5f5f5;
-}
-
-.driver-popover.ocbc-tour-dark .driver-popover-title,
-.driver-popover.ocbc-tour-dark .driver-popover-description {
-  color: #f5f5f5;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -460,11 +399,6 @@ html[data-bold="1"] #customer-app button {
 
 .ollie-md ul { list-style: disc; }
 .ollie-md ol { list-style: decimal; }
-
-.driver-popover.ocbc-tour .driver-popover-title,
-.driver-popover.ocbc-tour .driver-popover-description {
-  font-size: 1rem;
-}
 
 #customer-root input,
 #customer-root select,

@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { ChevronDown, CircleAlert, TriangleAlert } from 'lucide-react'
+import { CircleAlert, TriangleAlert } from 'lucide-react'
 import { FieldError } from '@/components/FieldError'
 import { Page } from '@/components/Shell'
 import { Speakable } from '@/components/Speakable'
@@ -9,9 +9,9 @@ import { FX, lookupPaynow, payeeName } from '@/data/bank'
 import { flowById, type FlowField } from '@/data/flows'
 import { translate } from '@/i18n'
 import { formatSGD } from '@/lib/format'
-import { startGuide } from '@/lib/guide'
+import { getFlowTour, startGuide, subscribeFlowTour } from '@/lib/guide'
 import { formatRate, nextRate } from '@/lib/rates'
-import { beginShowHow, takeShowHow } from '@/lib/showHow'
+import { beginShowHow, peekShowHow, takeShowHow } from '@/lib/showHow'
 import { speak } from '@/lib/speech'
 import { validateForm, type Issue } from '@/lib/validate'
 
@@ -35,8 +35,8 @@ export function FlowPage() {
   const [unusual, setUnusual] = useState(false)
   const [ref, setRef] = useState('')
   const [wstep, setWstep] = useState(0)
-  const [more, setMore] = useState(false)
   const [highlights, setHighlights] = useState<string[]>([])
+  const guideOn = useSyncExternalStore(subscribeFlowTour, () => getFlowTour()?.guideId === (flow?.guideId || ''), () => false)
   const alertRef = useRef<HTMLDivElement>(null)
   const guided = useRef(false)
 
@@ -79,7 +79,6 @@ export function FlowPage() {
     setForm(next)
     setStage('form')
     setWstep(filled.length && wizardReview(flow.id) >= 0 ? wizardReview(flow.id) : 0)
-    setMore(false)
     if (demo === 'mei' && flow.id === 'overseas') {
       const found = validateForm(flow.id, next, app.balances['360'] ?? 0)
       setIssues(found)
@@ -93,9 +92,11 @@ export function FlowPage() {
   }, [flowId, practice, demo])
 
   useEffect(() => {
-    if (!flow || params.get('tour') !== '1' || guided.current) return
-    guided.current = true
+    guided.current = false
+    if (!flow || params.get('tour') !== '1') return
     const timer = window.setTimeout(() => {
+      if (guided.current) return
+      guided.current = true
       const result = startGuide({
         guideId: flow.guideId,
         text: t,
@@ -160,7 +161,15 @@ export function FlowPage() {
   const displayPayee = lookedUp || payeeName(payee)
   const reviewAt = wizardReview(flow.id)
   const stepIds = wizardFields(flow.id, wstep)
+  const showAll = touring || guideOn || peekShowHow(flow.id)
   const fx = flow.id === 'overseas' ? FX[form.country] || FX.Australia : null
+  const shown = (field: FlowField) => {
+    if (field.id === 'lock') return false
+    if (!showAll && stepIds && !stepIds.includes(field.id)) return false
+    if (field.id === 'laterDate' && form.when !== 'later') return false
+    if (field.id === 'swift' && fx?.account === 'iban') return false
+    return true
+  }
   const sendAmount = Number(String(form.amount || '').replace(/,/g, '')) || 0
   const received = fx ? Math.max(0, sendAmount - fx.fee) * fx.perSgd : 0
 
@@ -359,7 +368,7 @@ export function FlowPage() {
             {reviewAt >= 0 && wstep === reviewAt && (
               <section className="card space-y-2 p-3">
                 <h2 className="text-lg font-semibold">{t('review')}</h2>
-                {flow.fields.filter((field) => !moreFields(flow.id).includes(field.id) && field.id !== 'laterDate').map((field) => (
+                {flow.fields.filter((field) => field.id !== 'laterDate' && field.id !== 'lock').map((field) => (
                   <p key={field.id} className="flex justify-between gap-3 text-sm">
                     <span className="text-[var(--muted)]">{t(field.label)}</span>
                     <span className="text-right font-semibold">{display(field, form[field.id] || '', t)}</span>
@@ -376,13 +385,12 @@ export function FlowPage() {
                 )}
               </section>
             )}
-            {groups.filter((group) => group.fields.some((field) => field.id !== 'lock' && (touring || !stepIds || stepIds.includes(field.id)))).map((group) => (
+            {groups.map((group) => {
+              const fields = group.fields.filter(shown)
+              if (!fields.length) return null
+              return (
               <fieldset key={group.guide} className="card space-y-3 p-3">
-                {group.fields.map((field) => {
-                  if (moreFields(flow.id).includes(field.id)) return null
-                  if (!touring && stepIds && !stepIds.includes(field.id)) return null
-                  if (field.id === 'laterDate' && form.when !== 'later') return null
-                  if (field.id === 'swift' && fx?.account === 'iban') return null
+                {fields.map((field) => {
                   const iban = field.id === 'account' && fx?.account === 'iban'
                   return (
                   <Field
@@ -395,7 +403,7 @@ export function FlowPage() {
                     options={field.type === 'account' ? app.accounts.filter((account) => account.kind === 'deposit').map((account) => ({ value: account.id, label: account.nameKey })) : undefined}
                     highlight={highlights.includes(field.id)}
                     error={issues.find((issue) => issue.field === field.id) ? describe(issues.find((issue) => issue.field === field.id) as Issue) : ''}
-                    balanceHint={field.id === 'amount' || field.id === 'from' ? t('flows.available', { amount: formatSGD(balance) }) : ''}
+                    balanceHint={field.id === 'from' ? t('flows.available', { amount: formatSGD(balance) }) : ''}
                     onChange={(value) => changeField(field.id, value)}
                     t={t}
                   />
@@ -411,7 +419,8 @@ export function FlowPage() {
                   </p>
                 )}
               </fieldset>
-            ))}
+              )
+            })}
             {flow.id === 'card-lock' && (
               <label data-guide="card-toggle" className="card flex min-h-tap items-center justify-between px-3">
                 <span className="font-semibold">{t('flows.lockCard')}</span>
@@ -423,25 +432,6 @@ export function FlowPage() {
                   onChange={(e) => setForm((prev) => ({ ...prev, lock: e.target.checked ? 'yes' : 'no' }))}
                 />
               </label>
-            )}
-            {(touring || (reviewAt >= 0 && wstep === reviewAt)) && (
-              <div className="card p-3">
-                <button type="button" className="flex min-h-11 w-full items-center justify-between gap-2 font-semibold" aria-expanded={more || touring} onClick={() => setMore((value) => !value)}>
-                  {t('flows.moreOptions')}
-                  <ChevronDown aria-hidden className={more || touring ? 'rotate-180' : ''} />
-                </button>
-                {(more || touring) && <div className="mt-3 space-y-3">
-                  {flow.fields.filter((field) => moreFields(flow.id).includes(field.id) && (field.id !== 'laterDate' || form.when === 'later')).map((field) => (
-                    <Field
-                      key={field.id}
-                      field={field}
-                      value={form[field.id] ?? ''}
-                      onChange={(value) => changeField(field.id, value)}
-                      t={t}
-                    />
-                  ))}
-                </div>}
-              </div>
             )}
             {reviewAt >= 0 && wstep > 0 && (
               <button type="button" className="text-sm font-semibold text-[var(--link)]" onClick={() => { setIssues([]); setWstep((value) => value - 1) }}>{t('back')}</button>
@@ -619,16 +609,9 @@ function wizardReview(flowId: string) {
 
 function wizardFields(flowId: string, step: number) {
   if (wizardReview(flowId) < 0) return null
-  if (flowId === 'paynow') return step === 0 ? ['proxy', 'to'] : step === 1 ? ['amount', 'from'] : []
-  if (flowId === 'transfer') return step === 0 ? ['name', 'bank', 'account'] : step === 1 ? ['amount', 'from'] : []
-  return step === 0 ? ['country'] : step === 1 ? ['name', 'swift', 'account'] : step === 2 ? ['amount', 'from'] : []
-}
-
-function moreFields(flowId: string) {
-  if (flowId === 'paynow') return ['reference', 'savePayee', 'when', 'laterDate']
-  if (flowId === 'transfer') return ['savePayee', 'when', 'laterDate']
-  if (flowId === 'overseas') return ['purpose', 'savePayee', 'when', 'laterDate']
-  return []
+  if (flowId === 'paynow') return step === 0 ? ['proxy', 'to'] : step === 1 ? ['amount', 'from', 'reference', 'savePayee', 'when', 'laterDate'] : []
+  if (flowId === 'transfer') return step === 0 ? ['name', 'bank', 'account'] : step === 1 ? ['amount', 'from', 'savePayee', 'when', 'laterDate'] : []
+  return step === 0 ? ['country'] : step === 1 ? ['name', 'swift', 'account'] : step === 2 ? ['amount', 'from', 'purpose', 'savePayee', 'when', 'laterDate'] : []
 }
 
 function Field({
@@ -659,7 +642,7 @@ function Field({
   if (field.type === 'toggle') {
     if (field.id === 'lock') return null
     return (
-      <label className="flex min-h-11 items-center justify-between gap-3 leading-normal">
+      <label className="flex min-h-11 items-center justify-between gap-3 leading-normal" data-guide={field.guide}>
         <span>{t(field.label)}</span>
         <input type="checkbox" role="switch" checked={value === 'yes'} aria-checked={value === 'yes'} onChange={(e) => onChange(e.target.checked ? 'yes' : 'no')} />
       </label>

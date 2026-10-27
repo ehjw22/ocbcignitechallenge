@@ -156,7 +156,7 @@ export const FLOWS: FlowDef[] = [
     payeeField: 'merchant',
     amountField: 'amount',
     fields: [
-      { id: 'merchant', guide: 'scan-frame', label: 'flows.merchant', type: 'text', sample: 'Hawker Stall 12' },
+      { id: 'merchant', guide: 'scan-merchant', label: 'flows.merchant', type: 'text', sample: 'Hawker Stall 12' },
       { id: 'from', guide: 'scan-from', label: 'flows.from', type: 'account', sample: '360', options: depositAccounts },
       { id: 'amount', guide: 'scan-amount', label: 'amount', type: 'amount', inputMode: 'decimal', sample: '6.50' },
     ],
