@@ -19,7 +19,7 @@ export function llmSettings() {
   const model = usableModel(requested, 'gemini-flash-lite-latest')
   if (requested && requested !== model) console.error('chat model retired', requested, 'using', model)
   return {
-    key: process.env.LLM_API_KEY || process.env.OPENAI_API_KEY || '',
+    key: process.env.LLM_API_KEY || process.env.OPENAI_API_KEY || process.env.GEMINI_API_KEY || '',
     baseURL: process.env.LLM_BASE_URL || 'https://generativelanguage.googleapis.com/v1beta/openai/',
     model,
     fallback: usableModel(process.env.LLM_FALLBACK_MODEL, 'gemini-3.5-flash'),

@@ -79,7 +79,13 @@ export function Home() {
 
         <section className="relative z-10 -mt-8 px-4" data-guide="home-shortcuts">
           <div className="grid grid-cols-4 rounded-xl bg-[var(--card)] px-1 py-3 shadow-[0_8px_24px_rgba(47,53,61,0.08)]">
-            {[...app.prefs.shortcuts.filter((id) => id !== 'rewards' && SHORTCUT_ICONS[id]).slice(0, 3), 'customise'].map((id) => (
+            {[...app.prefs.shortcuts.filter((id) => {
+              if (id === 'rewards' || !SHORTCUT_ICONS[id]) {
+                if (id !== 'rewards' && !SHORTCUT_ICONS[id] && import.meta.env.DEV) console.warn('shortcut skipped', id)
+                return false
+              }
+              return true
+            }).slice(0, 3), 'customise'].map((id) => (
               <Link key={id} to={id === 'customise' ? '/settings/shortcuts' : (SHORTCUT_ROUTES[id] ?? '/pay')} data-guide={id === 'paynow' ? 'home-paynow' : id === 'customise' ? 'home-customise' : undefined} className="flex min-h-11 min-w-0 flex-col items-center justify-center gap-1 text-[var(--text)]">
                 <ShortcutMark id={id} />
                 <span className="w-full truncate text-center text-[12px] font-normal leading-none">{id === 'customise' ? t('look.customise') : t(`shortcuts.${id}`)}</span>

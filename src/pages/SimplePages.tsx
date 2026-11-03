@@ -1,12 +1,13 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { Check, ChevronRight, Globe, Lock, Receipt, ScanLine, Smartphone, ArrowLeftRight, Headset, MessageSquare } from 'lucide-react'
+import { Check, ChevronRight, Compass, Globe, House, Lock, PieChart, Receipt, ScanLine, Smartphone, ArrowLeftRight, Headset, MessageSquare, CircleHelp } from 'lucide-react'
 import { BottomNav, Page } from '@/components/Shell'
 import { useApp } from '@/context/AppContext'
 import { JOURNEY_IDS } from '@/data/flows'
 import { translate } from '@/i18n'
 import { requestText } from '@/lib/staffSummary'
-import { startAppTour, tourState } from '@/lib/appTour'
+import { startAppTour } from '@/lib/appTour'
+import { tourSeen } from '@/lib/storage'
 
 const PAY_LINKS = [
   ['paynow', '/flow/paynow'],
@@ -168,10 +169,72 @@ export function Rewards() {
   )
 }
 
+const TOUR_LIST = [
+  { id: 'home', title: 'tours.home', body: 'tours.homeBody', icon: House, start: '/', practice: '' },
+  { id: 'paynow', title: 'flows.paynow', body: 'tours.paynowBody', icon: Smartphone, start: '/flow/paynow?tour=1', practice: '/flow/paynow?practice=1&tour=1' },
+  { id: 'transfer', title: 'flows.transfer', body: 'tours.transferBody', icon: ArrowLeftRight, start: '/flow/transfer?tour=1', practice: '/flow/transfer?practice=1&tour=1' },
+  { id: 'overseas', title: 'flows.overseas', body: 'tours.overseasBody', icon: Globe, start: '/flow/overseas?tour=1', practice: '/flow/overseas?practice=1&tour=1' },
+  { id: 'bill', title: 'flows.bill', body: 'tours.billBody', icon: Receipt, start: '/flow/bill?tour=1', practice: '/flow/bill?practice=1&tour=1' },
+  { id: 'scan', title: 'flows.scan', body: 'tours.scanBody', icon: ScanLine, start: '/flow/scan?tour=1', practice: '/flow/scan?practice=1&tour=1' },
+  { id: 'card-lock', title: 'flows.cardLock', body: 'tours.cardBody', icon: Lock, start: '/flow/card-lock?tour=1', practice: '/flow/card-lock?practice=1&tour=1' },
+  { id: 'insights', title: 'insights', body: 'tours.insightsBody', icon: PieChart, start: '/insights', practice: '' },
+] as const
+
+function tourDone(id: string) {
+  if (id === 'home') return tourSeen()
+  try {
+    const raw = localStorage.getItem('ocbc-tours-done')
+    return raw ? (JSON.parse(raw) as string[]).includes(id) : false
+  } catch {
+    return false
+  }
+}
+
+export function GuidedTours() {
+  const app = useApp()
+  const navigate = useNavigate()
+  const t = (key: string) => translate(app.prefs.language, key)
+  const setScreen = app.setScreen
+  useEffect(() => { setScreen('tours') }, [setScreen])
+  return (
+    <Page title={t('tours.guided')} back>
+      <ul className="divide-y divide-[var(--line)]">
+        {TOUR_LIST.map((tour) => {
+          const Icon = tour.icon
+          const done = tourDone(tour.id)
+          return (
+            <li key={tour.id} className="flex items-start gap-3 px-4 py-3 text-[var(--text)]">
+              <Icon aria-hidden size={24} strokeWidth={1.75} className="mt-1 shrink-0 text-[var(--text)]" />
+              <div className="min-w-0 flex-1">
+                <p className="flex flex-wrap items-center gap-2 font-semibold">
+                  {t(tour.title)}
+                  <span className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${done ? 'bg-[var(--soft)] text-[var(--muted)]' : 'bg-[var(--accent)] text-white'}`}>{done ? t('tours.done') : t('look.new')}</span>
+                </p>
+                <p className="text-[var(--muted)]">{t(tour.body)}</p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <button type="button" className="min-h-11 rounded-lg bg-[var(--slate)] px-3 font-semibold text-white underline" onClick={() => { if (tour.id === 'home') { navigate('/'); window.setTimeout(() => startAppTour(false), 300); return }; navigate(tour.start) }}>{t('tours.start')}</button>
+                  {tour.practice && <button type="button" className="min-h-11 rounded-lg border border-[var(--line)] px-3 font-semibold" onClick={() => navigate(tour.practice)}>{t('practise')}</button>}
+                </div>
+              </div>
+            </li>
+          )
+        })}
+      </ul>
+    </Page>
+  )
+}
+
+const GUIDE_ROWS = [
+  { to: '/tours', key: 'tours.guided', icon: Compass, guide: 'more-guided-tours' },
+  { to: '/?tour=1', key: 'tours.home', icon: House, guide: 'more-home-tour' },
+  { to: '/help', key: 'look.howHelp', icon: CircleHelp, guide: 'more-help' },
+  { to: '/insights', key: 'settings.insights', icon: PieChart, guide: 'more-insights' },
+] as const
+
 export function More() {
   const app = useApp()
+  const navigate = useNavigate()
   const t = (key: string) => translate(app.prefs.language, key)
-  const [about, setAbout] = useState(false)
   const setScreen = app.setScreen
   useEffect(() => { setScreen('more') }, [setScreen])
   return (
@@ -196,22 +259,31 @@ export function More() {
             ))}
           </div>
         </section>
-        <section className="px-4 pt-2">
-          <button type="button" className="flex min-h-12 w-full items-center justify-between text-left text-[15px] font-semibold" aria-expanded={about} onClick={() => setAbout((open) => !open)}>
-            {t('look.access')}
-            <ChevronRight className={about ? 'rotate-90' : ''} size={18} />
-          </button>
-          {about && (
-            <div className="grid grid-cols-2 gap-2 pb-3">
-              <Link to="/settings" className="rounded-xl bg-[var(--soft)] p-3 text-[13px] font-semibold">{t('more.settings')}</Link>
-              <button type="button" className="rounded-xl bg-[var(--soft)] p-3 text-left text-[13px] font-semibold" onClick={() => startAppTour(tourState().index > 0)}>{t('more.tour')}</button>
-              <Link to="/help" className="rounded-xl bg-[var(--soft)] p-3 text-[13px] font-semibold">{t('look.howHelp')}</Link>
-              <label className="flex items-center gap-2 rounded-xl bg-[var(--soft)] p-3 text-[13px] font-semibold">
-                <input type="checkbox" checked={app.prefs.spendingInsights} onChange={(e) => app.updatePrefs({ spendingInsights: e.target.checked })} />
-                {t('settings.insights')}
-              </label>
-            </div>
-          )}
+        <section className="px-4 pt-4">
+          <h2 className="text-[18px] font-bold text-[var(--text)]">{t('look.access')}</h2>
+          <div className="mt-2 divide-y divide-[var(--line)]">
+            {GUIDE_ROWS.map((row) => {
+              const Icon = row.icon
+              return (
+                <Link
+                  key={row.guide}
+                  to={row.to}
+                  data-guide={row.guide}
+                  className="flex min-h-12 items-center gap-3 text-[var(--text)]"
+                  onClick={(event) => {
+                    if (row.to !== '/?tour=1') return
+                    event.preventDefault()
+                    navigate('/')
+                    window.setTimeout(() => startAppTour(false), 300)
+                  }}
+                >
+                  <Icon aria-hidden size={24} strokeWidth={1.75} className="shrink-0 text-[var(--text)]" />
+                  <span className="min-w-0 flex-1 font-semibold">{t(row.key)}</span>
+                  <ChevronRight size={18} className="shrink-0" />
+                </Link>
+              )
+            })}
+          </div>
         </section>
         <section className="px-4 pt-4">
           <h2 className="text-[18px] font-bold">{t('look.apply')}</h2>

@@ -4,7 +4,7 @@ import { PhoneFrame } from '@/components/Shell'
 import { useApp } from '@/context/AppContext'
 import { Accounts } from '@/pages/Accounts'
 import { Admin } from '@/pages/Admin'
-import { Cards, HelpPage, InfoPage, More, PayHub, Rewards } from '@/pages/SimplePages'
+import { Cards, GuidedTours, HelpPage, InfoPage, More, PayHub, Rewards } from '@/pages/SimplePages'
 import { Insights } from '@/pages/Insights'
 import { FlowPage } from '@/pages/FlowPage'
 import { Home } from '@/pages/Home'
@@ -22,7 +22,7 @@ function Gate({ children }: { children: ReactNode }) {
   const path = useLocation().pathname
   const welcome = path === '/welcome' || path === '/login' || path.startsWith('/pre')
   const known = path === '/' || welcome || path === '/join' || path === '/onboarding'
-    || ['/accounts', '/txn/', '/notifications', '/profile', '/pay', '/plan', '/rewards', '/flow/', '/help', '/more', '/settings', '/cards', '/info/', '/insights', '/investments', '/insurance', '/loans'].some((item) => path === item || path.startsWith(item))
+    || ['/accounts', '/txn/', '/notifications', '/profile', '/pay', '/plan', '/rewards', '/tours', '/flow/', '/help', '/more', '/settings', '/cards', '/info/', '/insights', '/investments', '/insurance', '/loans'].some((item) => path === item || path.startsWith(item))
   const quizDone = prefs.quizCompleted
   if (!known) return children
   if (!sessionId && path === '/join') return <Navigate to="/login" replace />
@@ -56,6 +56,7 @@ function Customer() {
         <Route path="/flow/:flowId" element={<FlowPage />} />
         <Route path="/help" element={<HelpPage />} />
         <Route path="/rewards" element={<Rewards />} />
+        <Route path="/tours" element={<GuidedTours />} />
         <Route path="/more" element={<More />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/settings/:panel" element={<Settings />} />

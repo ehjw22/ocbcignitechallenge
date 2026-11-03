@@ -401,7 +401,8 @@
     "chipLimit": "How do I change my transfer limit?",
     "chipHow": "Show me how",
     "chipSimpler": "Explain more simply",
-    "chipStaff": "Talk to staff",
+    "chipTours": "Guided tours",
+    "chipStaff": "Message staff",
     "what": "What is this?",
     "fillIn": "Fill it in for me",
     "cancelTask": "Cancel",
@@ -581,6 +582,8 @@
     "transfer": "Transfer",
     "paynow": "PayNow",
     "bills": "Pay Bills",
+    "bill": "Pay Bills",
+    "tours": "Guided tours",
     "overseas": "Overseas Transfer",
     "scan": "Scan & Pay",
     "cards": "Cards",
@@ -664,7 +667,11 @@
       "refTitle": "Add a note",
       "refBody": "A reference is optional. It helps you remember the payment.",
       "reviewTitle": "Review before sending",
-      "reviewBody": "Read the name and amount, then continue."
+      "reviewBody": "Read the name and amount, then continue.",
+      "nameTitle": "Check the name",
+      "nameBody": "The masked name should match the person you chose.",
+      "slideTitle": "Slide to pay",
+      "slideBody": "Slide all the way across to confirm."
     },
     "transfer": {
       "title": "Local transfer",
@@ -821,6 +828,20 @@
   "profile": {
     "title": "Profile",
     "sample": "Saved on this device."
+  },
+  "tours": {
+    "guided": "Guided tours",
+    "home": "Home tour",
+    "homeBody": "A short walk through Home.",
+    "paynowBody": "Pay someone with a mobile number.",
+    "transferBody": "Send money to a local account.",
+    "overseasBody": "Send money to another country.",
+    "billBody": "Pay a bill from your account.",
+    "scanBody": "Pay by scanning a code.",
+    "cardBody": "Lock or unlock your card.",
+    "insightsBody": "See where your money went.",
+    "start": "Start",
+    "done": "Done"
   },
   "rewards": {
     "title": "Rewards",

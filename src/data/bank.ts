@@ -28,6 +28,7 @@ export const SPENDING = [
 
 export const PAYNOW_DIRECTORY: Record<string, string> = {
   '81234567': 'Siti Aminah',
+  '91234567': 'Tan Wei Ming',
   '92345678': 'Lim Jia Hui',
 }
 
@@ -50,7 +51,8 @@ export function lookupPaynow(raw: string, proxy = 'mobile') {
   const ok = proxy === 'nric' ? NRIC.test(value) : proxy === 'uen' ? UEN.test(value) : MOBILE.test(value)
   if (!ok) return { status: 'bad' as const }
   const known = PAYNOW_DIRECTORY[value]
-  return { status: 'ok' as const, name: maskPayee(known || 'Alex Ngoh') }
+  if (!known) return { status: 'unknown' as const }
+  return { status: 'ok' as const, name: maskPayee(known) }
 }
 
 export function payeeName(title: string | undefined) {

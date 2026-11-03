@@ -157,7 +157,8 @@ export async function handleChat(req: IncomingMessage, res: ServerResponse) {
     if (!action && detected.action) action = detected.action
     let scamRisk = strongerRisk(parsed?.scamRisk || 'none', detected.scamRisk)
     if (scamRisk === 'high' || /system\s*override|ignore previous|ignore all/i.test(last)) action = null
-    const handover = Boolean(parsed?.handover) || detected.handover || (userTurns >= 3 && /stuck|don't understand|不懂|不明白|help me/i.test(last))
+    const asksStaff = /staff|职员|工作人员|stuck|don't understand|不懂|不明白|help me/i.test(last)
+    const handover = Boolean(parsed?.handover) || detected.handover || asksStaff
     const journeyId = flags.refused || scamRisk === 'high' ? null : journeyFor(last, action?.intent || demo.intent)
     const suggestions = (parsed?.suggestions || []).map((item) => item.trim()).filter(Boolean).slice(0, 3)
     let reply = flags.reply.replace(/guide me step by step/gi, '').trim() || demo.reply
@@ -173,13 +174,11 @@ export async function handleChat(req: IncomingMessage, res: ServerResponse) {
       flags: { refused: flags.refused, escalated: handover || flags.escalated, fraud: flags.fraud || scamRisk === 'high' },
     }
   }
-  const primaryUnresponsive = ['gemini-flash-lite-latest', 'gemini-flash-latest', 'gemini-3.5-flash-lite', 'gemini-3.8-flash'].includes(model)
-  if (primaryUnresponsive) console.error('chat model not responding', model, 'using', fallback || model)
   res.statusCode = 200
   res.setHeader('Content-Type', 'text/event-stream; charset=utf-8')
   res.setHeader('Cache-Control', 'no-cache')
   const emit = (payload: unknown) => res.write(`data: ${JSON.stringify(payload)}\n\n`)
-  const models = [primaryUnresponsive ? '' : model, fallback].filter((item, index, list) => item && list.indexOf(item) === index)
+  const models = [model, fallback].filter((item, index, list) => item && list.indexOf(item) === index)
   let produced = ''
   for (const [index, name] of models.entries()) {
     try {
@@ -193,8 +192,8 @@ export async function handleChat(req: IncomingMessage, res: ServerResponse) {
     const local = raw.explain
       ? explainPayload(writtenYue ? 'yue' : replyLanguage, raw.screen || 'home')
       : attachTask(withBusyNote(busyPack, demoReply(busyPack, demoInput)), last, raw.payees || [])
-    const honest = replyLanguage.startsWith('zh') ? 'Ollie 现在无法回答。请打开帮助并给我们留言。' : 'Ollie can\'t answer right now. Open Help and Message us.'
-    emit({ text: honest, done: { ...local, reply: honest } })
+    const offline = replyLanguage.startsWith('zh') ? 'Ollie 处于离线模式，回答有限。' : 'Ollie is in offline mode, answers are limited.'
+    emit({ text: `${local.reply} ${offline}`, done: { ...local, reply: `${local.reply} ${offline}` } })
     res.end()
     return
   }

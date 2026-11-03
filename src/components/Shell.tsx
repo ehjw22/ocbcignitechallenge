@@ -128,7 +128,7 @@ export function BottomNav() {
             data-guide={item.guide}
             aria-label={label}
             className={({ isActive }) =>
-              `flex h-[64px] min-w-0 flex-col items-center justify-center overflow-hidden px-0.5 text-center text-[12px] font-normal ${isActive ? 'text-[#E30613]' : 'text-[var(--text)]'}`
+              `flex h-[64px] min-w-0 flex-col items-center justify-start overflow-hidden px-0.5 pt-1.5 text-center text-[11px] font-normal leading-[13px] ${isActive ? 'text-[#E30613]' : 'text-[var(--text)]'}`
             }
             style={{ gap: 4 }}
           >
@@ -145,7 +145,7 @@ export function BottomNav() {
                 ) : (
                   <MoreGlyph active={isActive} />
                 )}
-                <span className="w-full truncate whitespace-nowrap text-[12px] font-normal leading-[16px]">{label}</span>
+                <span className="line-clamp-2 w-full whitespace-normal text-center text-[11px] font-normal leading-[13px]">{label}</span>
               </>
             )}
           </NavLink>

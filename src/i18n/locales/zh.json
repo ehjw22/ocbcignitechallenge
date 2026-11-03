@@ -398,7 +398,8 @@
     "chipLimit": "如何更改转账限额？",
     "chipHow": "示范给我看",
     "chipSimpler": "用更简单的话说明",
-    "chipStaff": "联系工作人员",
+    "chipTours": "导览",
+    "chipStaff": "联系职员",
     "what": "这是什么？",
     "fillIn": "帮我填好",
     "cancelTask": "取消",
@@ -504,6 +505,8 @@
     "transfer": "转账",
     "paynow": "PayNow",
     "bills": "付账单",
+    "bill": "付账单",
+    "tours": "导览",
     "overseas": "海外转账",
     "scan": "扫码支付",
     "cards": "银行卡",
@@ -623,7 +626,11 @@
       "refTitle": "加一个备注",
       "refBody": "参考是可选的。它帮助你记住这笔付款。",
       "reviewTitle": "发送前检查",
-      "reviewBody": "请阅读姓名和金额，然后继续。"
+      "reviewBody": "请阅读姓名和金额，然后继续。",
+      "nameTitle": "核对姓名",
+      "nameBody": "掩码姓名应与您选择的人一致。",
+      "slideTitle": "滑动付款",
+      "slideBody": "滑到尽头即可确认。"
     },
     "transfer": {
       "title": "本地转账",
@@ -822,6 +829,20 @@
   "profile": {
     "title": "个人资料",
     "sample": "保存在此设备上。"
+  },
+  "tours": {
+    "guided": "导览",
+    "home": "首页导览",
+    "homeBody": "带您快速看一遍首页。",
+    "paynowBody": "用手机号付款。",
+    "transferBody": "转账到本地账户。",
+    "overseasBody": "汇款到其他国家。",
+    "billBody": "从您的账户付账单。",
+    "scanBody": "扫码付款。",
+    "cardBody": "锁定或解锁您的卡。",
+    "insightsBody": "查看钱花到哪里。",
+    "start": "开始",
+    "done": "已完成"
   },
   "rewards": {
     "title": "奖励",

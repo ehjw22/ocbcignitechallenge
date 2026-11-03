@@ -27,10 +27,10 @@ import { SHORTCUT_ICONS } from '@/lib/shortcutItems'
 const SLOT_COUNT = 6
 
 const GROUPS: { label: string; ids: string[] }[] = [
-  { label: 'nav.pay', ids: ['paynow', 'scan', 'transfer', 'bills', 'overseas', 'giro', 'topup'] },
+  { label: 'nav.pay', ids: ['paynow', 'scan', 'transfer', 'bill', 'overseas', 'giro', 'topup'] },
   { label: 'nav.accounts', ids: ['goals', 'investments', 'accounts', 'insights'] },
   { label: 'shortcuts.cards', ids: ['cards'] },
-  { label: 'nav.help', ids: ['insurance', 'help', 'staff'] },
+  { label: 'nav.help', ids: ['insurance', 'help', 'staff', 'tours'] },
 ]
 
 type DragData = { source: 'slot' | 'list'; shortcutId: string; index: number }

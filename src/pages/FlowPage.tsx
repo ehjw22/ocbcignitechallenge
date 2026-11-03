@@ -109,8 +109,14 @@ export function FlowPage() {
         sessionStorage.removeItem('ocbc-fill')
       }
     }
+    if (flow.id === 'paynow' && practice) {
+      const mei = app.profile.id === 'auntiemei' || app.profile.id === 'persona-mei' || app.payees.some((payee) => payee.name === 'Tan Wei Ming')
+      next.to = mei ? '91234567' : '81234567'
+    }
     setHighlights(filled)
     setForm(next)
+    const known = PAYNOW_CONTACTS.find((contact) => contact.mobile === next.to)
+    if (known) setPayeeLabel(known.name)
     setStage('form')
     setWstep(filled.length && wizardReview(flow.id) >= 0 ? wizardReview(flow.id) : 0)
     if (demo === 'mei' && flow.id === 'overseas') {
@@ -501,9 +507,12 @@ export function FlowPage() {
                 ))}
                 <button type="button" className="min-h-11 font-semibold text-[var(--link)] underline" onClick={() => document.getElementById('paynow-mobile')?.focus()}>{t('look.enterMobile')}</button>
                 {lookupPaynow(form.to || '', form.proxy || 'mobile').status === 'ok' && (
-                  <button type="button" className="flex min-h-11 w-full items-center text-left font-bold" onClick={() => { const known = payeeName(form.to); setPayeeLabel(known && known !== form.to ? known : 'Alex Ngoh'); setWstep(1) }}>
+                  <button type="button" data-guide="paynow-name" className="flex min-h-11 w-full items-center text-left font-bold" onClick={() => { setPayeeLabel(payeeName(form.to) || ''); setWstep(1) }}>
                     {lookupPaynow(form.to || '', form.proxy || 'mobile').name}
                   </button>
+                )}
+                {lookupPaynow(form.to || '', form.proxy || 'mobile').status === 'unknown' && (
+                  <p className="font-semibold text-[var(--danger)]">{t('flows.nameUnknown')}</p>
                 )}
               </section>
             )}
@@ -558,7 +567,7 @@ export function FlowPage() {
             {flow.id === 'paynow' && wstep === 1 && (
               <section className="space-y-3">
                 <p className="text-[14px] text-[var(--muted)]">{t('look.payTo')}</p>
-                <p className="text-[22px] font-bold">{maskPayee(payeeLabel || 'Alex Ngoh')}</p>
+                <p className="text-[22px] font-bold">{maskPayee(payeeLabel || payeeName(form.to) || form.to || '')}</p>
                 <p className="text-[13px] text-[var(--muted)]">+65 {String(form.to || '').replace(/\D/g, '').slice(0, 4)} ••••</p>
                 <div data-guide="pay-amount" className="flex items-baseline gap-2">
                   <input data-guide="paynow-amount" className="w-full bg-transparent text-[32px] font-bold outline-none placeholder:text-[#A0A6AD]" inputMode="decimal" aria-label={t('amount')} placeholder="0.00" value={form.amount ? liveAmount(form.amount) : ''} onChange={(event) => changeField('amount', event.target.value.replace(/,/g, '').replace(/[^\d.]/g, ''))} onBlur={() => { const n = Number(form.amount); if (form.amount && !Number.isNaN(n)) changeField('amount', n.toFixed(2)) }} />
@@ -610,6 +619,7 @@ export function FlowPage() {
         {stage === 'review' && (
           <section className="card space-y-2 p-4">
             <h2 className="text-lg font-semibold">{t('review')}</h2>
+            {flow.id === 'paynow' && <p data-guide="paynow-review-name" className="text-[22px] font-bold">{maskPayee(payeeLabel || payeeName(form.to) || form.to || '')}</p>}
             {flow.fields.filter((field) => {
               if (field.id === 'laterDate') return form.when === 'later'
               if (field.id === 'when') return form.when !== 'later'
@@ -618,7 +628,7 @@ export function FlowPage() {
             }).map((field) => (
               <p key={field.id} className={app.prefs.textSize >= 20 ? 'flex min-w-0 flex-col gap-1' : 'flex min-w-0 justify-between gap-3'}>
                 <span className="text-[var(--muted)]">{field.id === 'account' && fx?.account === 'iban' ? t('flows.iban') : t(field.label)}</span>
-                <span className="money min-w-0 font-semibold">{display(field, form[field.id] || '', t)}</span>
+                <span className="money min-w-0 whitespace-nowrap font-semibold">{field.id === 'to' && payeeLabel ? maskPayee(payeeLabel) : display(field, form[field.id] || '', t)}</span>
               </p>
             ))}
             {fx && (

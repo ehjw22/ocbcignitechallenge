@@ -13,7 +13,7 @@ import { RichText, plainSpeech } from './RichText'
 import { Speakable } from './Speakable'
 
 const CHIP_KEYS = ['ai.chipBalance', 'ai.chipPaynow', 'ai.chipGiro', 'ai.chipHow', 'ai.chipScam']
-const FOLLOW = ['ai.chipHow', 'ai.chipSimpler', 'ai.chipStaff'] as const
+const FOLLOW = ['ai.chipHow', 'ai.chipSimpler', 'ai.chipTours', 'ai.chipStaff'] as const
 
 function chipsFor(screen: string) {
   if (screen.includes('overseas')) return ['ai.chipOverseas', 'ai.chipHow', 'ai.chipScam']
@@ -348,12 +348,17 @@ export function AiPanel() {
                 )}
                 {message.role === 'assistant' && (
                   <div className="mt-3 flex flex-wrap gap-2">
-                    {FOLLOW.map((key) => ({ label: t(key), ask: key === 'ai.chipStaff' ? '' : t(key), staff: key === 'ai.chipStaff', how: key === 'ai.chipHow' })).map((chip) => (
+                    {FOLLOW.map((key) => ({ label: t(key), ask: key === 'ai.chipStaff' || key === 'ai.chipTours' ? '' : t(key), staff: key === 'ai.chipStaff', how: key === 'ai.chipHow', tours: key === 'ai.chipTours' })).map((chip) => (
                       <button
                         key={chip.label}
                         type="button"
                         className="min-h-11 rounded-full border border-[var(--line)] px-3 text-left text-sm"
                         onClick={() => {
+                          if ('tours' in chip && chip.tours) {
+                            app.setHelpOpen(false)
+                            navigate('/tours')
+                            return
+                          }
                           if ('staff' in chip && chip.staff) {
                             app.setStaffSeed(summary)
                             app.setHelpView('staff')

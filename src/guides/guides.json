@@ -13,14 +13,11 @@
     "id": "paynow",
     "title": "guides.paynow.title",
     "steps": [
-      { "id": "tabs", "element": "paynow-id-tabs", "title": "guides.paynow.toTitle", "body": "guides.paynow.toBody" },
-      { "id": "recipient", "element": "paynow-to", "title": "guides.paynow.toTitle", "body": "guides.paynow.toBody" },
+      { "id": "who", "element": "paynow-id-tabs", "title": "guides.paynow.toTitle", "body": "guides.paynow.toBody" },
+      { "id": "name", "element": "paynow-name", "title": "guides.paynow.nameTitle", "body": "guides.paynow.nameBody" },
       { "id": "amount", "element": "paynow-amount", "title": "guides.paynow.amountTitle", "body": "guides.paynow.amountBody" },
-      { "id": "reference", "element": "paynow-reference", "title": "guides.paynow.refTitle", "body": "guides.paynow.refBody" },
-      { "id": "from", "element": "pay-from", "title": "guides.paynow.amountTitle", "body": "guides.paynow.amountBody" },
-      { "id": "next", "element": "pay-next", "title": "guides.paynow.reviewTitle", "body": "guides.paynow.reviewBody" },
-      { "id": "review", "element": "paynow-review", "title": "guides.paynow.reviewTitle", "body": "guides.paynow.reviewBody" },
-      { "id": "slider", "element": "paynow-review", "title": "guides.paynow.reviewTitle", "body": "guides.paynow.reviewBody" }
+      { "id": "review", "element": "paynow-review-name", "title": "guides.paynow.reviewTitle", "body": "guides.paynow.reviewBody" },
+      { "id": "slider", "element": "paynow-review", "title": "guides.paynow.slideTitle", "body": "guides.paynow.slideBody" }
     ]
   },
   {

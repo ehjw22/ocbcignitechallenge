@@ -3,7 +3,7 @@
     "home": "Laman utama",
     "plan": "Rancang",
     "accounts": "Akaun",
-    "pay": "Bayar & Pindah",
+    "pay": "Bayaran & Pindahan",
     "rewards": "Ganjaran",
     "help": "Bantuan",
     "more": "Lagi"
@@ -328,6 +328,20 @@
   "profile": {
     "sample": "Disimpan pada peranti ini."
   },
+  "tours": {
+    "guided": "Lawatan berpandu",
+    "home": "Lawatan utama",
+    "homeBody": "Lawatan ringkas skrin utama.",
+    "paynowBody": "Bayar dengan nombor mudah alih.",
+    "transferBody": "Hantar wang ke akaun tempatan.",
+    "overseasBody": "Hantar wang ke negara lain.",
+    "billBody": "Bayar bil dari akaun anda.",
+    "scanBody": "Bayar dengan mengimbas kod.",
+    "cardBody": "Kunci atau buka kunci kad.",
+    "insightsBody": "Lihat ke mana wang pergi.",
+    "start": "Mula",
+    "done": "Selesai"
+  },
   "rewards": {
     "title": "Ganjaran",
     "earned": "Diperoleh daripada perbelanjaan kad anda",
@@ -435,7 +449,9 @@
     "staff": "Mesej kakitangan",
     "accounts": "Akaun",
     "help": "Bantuan",
-    "insights": "Wawasan perbelanjaan"
+    "insights": "Wawasan perbelanjaan",
+    "bill": "Bayar bil",
+    "tours": "Lawatan berpandu"
   },
   "accounts": {
     "title": "Akaun",

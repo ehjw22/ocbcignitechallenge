@@ -39,7 +39,7 @@ export const THEMES: { id: string; accent: string; labelKey: string }[] = [
 export const SHORTCUTS = [
   'transfer',
   'paynow',
-  'bills',
+  'bill',
   'overseas',
   'scan',
   'cards',
@@ -52,6 +52,7 @@ export const SHORTCUTS = [
   'accounts',
   'help',
   'insights',
+  'tours',
 ] as const
 
 export const DEFAULT_SHORTCUTS = ['transfer', 'paynow', 'bill', 'scan', 'goals', 'insights']
