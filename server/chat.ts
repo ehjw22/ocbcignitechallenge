@@ -160,8 +160,10 @@ export async function handleChat(req: IncomingMessage, res: ServerResponse) {
     const handover = Boolean(parsed?.handover) || detected.handover || (userTurns >= 3 && /stuck|don't understand|不懂|不明白|help me/i.test(last))
     const journeyId = flags.refused || scamRisk === 'high' ? null : journeyFor(last, action?.intent || demo.intent)
     const suggestions = (parsed?.suggestions || []).map((item) => item.trim()).filter(Boolean).slice(0, 3)
+    let reply = flags.reply.replace(/guide me step by step/gi, '').trim() || demo.reply
+    if (scamRisk === 'high' && !/1799/.test(reply)) reply = `Stop. Don't transfer. Call ScamShield 1799. ${reply}`
     return {
-      reply: flags.reply.replace(/guide me step by step/gi, '').trim() || demo.reply,
+      reply,
       source,
       journeyId,
       action,
@@ -191,7 +193,8 @@ export async function handleChat(req: IncomingMessage, res: ServerResponse) {
     const local = raw.explain
       ? explainPayload(writtenYue ? 'yue' : replyLanguage, raw.screen || 'home')
       : attachTask(withBusyNote(busyPack, demoReply(busyPack, demoInput)), last, raw.payees || [])
-    emit({ text: local.reply, done: local })
+    const honest = replyLanguage.startsWith('zh') ? 'Ollie 现在无法回答。请打开帮助并给我们留言。' : 'Ollie can\'t answer right now. Open Help and Message us.'
+    emit({ text: honest, done: { ...local, reply: honest } })
     res.end()
     return
   }

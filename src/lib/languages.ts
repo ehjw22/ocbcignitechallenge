@@ -54,7 +54,7 @@ export const SHORTCUTS = [
   'insights',
 ] as const
 
-export const DEFAULT_SHORTCUTS = ['paynow', 'scan', 'cards', 'goals', 'insights', 'transfer']
+export const DEFAULT_SHORTCUTS = ['transfer', 'paynow', 'bill', 'scan', 'goals', 'insights']
 
 export const DIALECTS: { id: string; ready: boolean }[] = [
   { id: 'standard', ready: true },

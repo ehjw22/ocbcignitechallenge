@@ -5,7 +5,7 @@ import { FieldError } from '@/components/FieldError'
 import { Page } from '@/components/Shell'
 import { Speakable } from '@/components/Speakable'
 import { useApp } from '@/context/AppContext'
-import { FX, lookupPaynow, payeeName } from '@/data/bank'
+import { FX, lookupPaynow, maskPayee, payeeName } from '@/data/bank'
 import { flowById, type FlowField } from '@/data/flows'
 import { translate } from '@/i18n'
 import { formatMoney } from '@/lib/format'
@@ -48,7 +48,11 @@ export function FlowPage() {
   const proceedRef = useRef<(() => void) | null>(null)
   const [ref, setRef] = useState('')
   const [wstep, setWstep] = useState(0)
-  const [directory, setDirectory] = useState(true)
+  const [directory] = useState(true)
+  const [payeeLabel, setPayeeLabel] = useState('')
+  const [showBal, setShowBal] = useState(false)
+  const [fromOpen, setFromOpen] = useState(false)
+  const [confirmPay, setConfirmPay] = useState(false)
   const [highlights, setHighlights] = useState<string[]>([])
   const guideOn = useSyncExternalStore(subscribeFlowTour, () => getFlowTour()?.guideId === (flow?.guideId || ''), () => false)
   const alertRef = useRef<HTMLDivElement>(null)
@@ -109,7 +113,6 @@ export function FlowPage() {
     setForm(next)
     setStage('form')
     setWstep(filled.length && wizardReview(flow.id) >= 0 ? wizardReview(flow.id) : 0)
-    setDirectory(flow.id === 'paynow' && filled.length === 0)
     if (demo === 'mei' && flow.id === 'overseas') {
       const found = validateForm(flow.id, next, app.balances['360'] ?? 0, app.payees)
       setIssues(found)
@@ -469,23 +472,26 @@ export function FlowPage() {
                   const order = ['mobile', 'nric', 'uen']
                   const index = order.indexOf(form.proxy || 'mobile')
                   if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
-                    const next = order[(index + (event.key === 'ArrowRight' ? 1 : order.length - 1)) % order.length]
+                    const nextIndex = (index + (event.key === 'ArrowRight' ? 1 : order.length - 1)) % order.length
+                    const next = order[nextIndex]
                     setForm((prev) => ({ ...prev, proxy: next, to: '' }))
+                    const tabs = event.currentTarget.querySelectorAll<HTMLButtonElement>('[role="tab"]')
+                    tabs[nextIndex]?.focus()
                   }
                 }}>
                   {(['mobile', 'nric', 'uen'] as const).map((id) => (
-                    <button key={id} type="button" role="tab" aria-selected={(form.proxy || 'mobile') === id} className={`min-h-11 text-[14px] ${(form.proxy || 'mobile') === id ? 'border-b-2 border-[#E30613] font-bold text-[#E30613]' : 'font-normal text-[#333]'}`} onClick={() => setForm((prev) => ({ ...prev, proxy: id, to: '' }))}>
+                    <button key={id} type="button" role="tab" aria-selected={(form.proxy || 'mobile') === id} className={`min-h-11 text-[14px] ${(form.proxy || 'mobile') === id ? 'border-b-2 border-[#E30613] font-bold text-[#E30613]' : 'font-normal text-[var(--text)]'}`} onClick={() => setForm((prev) => ({ ...prev, proxy: id, to: '' }))}>
                       {t(id === 'mobile' ? 'flows.mobile' : id === 'nric' ? 'look.nric' : 'look.uen')}
                     </button>
                   ))}
                 </div>
-                <input data-guide="paynow-to" className="ocbc-field" placeholder={t(form.proxy === 'nric' ? 'look.nricPh' : form.proxy === 'uen' ? 'look.uenPh' : 'look.mobilePh')} aria-label={t('look.searchPayee')} value={form.to || ''} onChange={(event) => setForm((prev) => ({ ...prev, to: event.target.value }))} />
+                <input id="paynow-mobile" data-guide="paynow-to" inputMode={form.proxy === 'mobile' || !form.proxy ? 'tel' : 'text'} className="ocbc-field" placeholder={t(form.proxy === 'nric' ? 'look.nricPh' : form.proxy === 'uen' ? 'look.uenPh' : 'look.mobilePh')} aria-label={t('look.searchPayee')} value={form.to || ''} onChange={(event) => setForm((prev) => ({ ...prev, to: event.target.value }))} />
                 <div className="flex gap-4 border-b border-[var(--line)] text-[15px]">
                   <span className="border-b-2 border-[#E30613] pb-2 font-semibold">{t('look.recentTab')}</span>
                   <span className="pb-2 text-[var(--muted)]">{t('look.contactsTab')}</span>
                 </div>
-                {PAYNOW_CONTACTS.filter((contact) => app.payees.some((payee) => payee.name === 'Tan Wei Ming') || contact.name !== 'Tan Wei Ming').map((contact) => (
-                  <button key={contact.mobile} type="button" className="flex min-h-11 w-full items-center gap-3 text-left" onClick={() => { setForm((prev) => ({ ...prev, proxy: 'mobile', to: contact.mobile })); setDirectory(false); setWstep(1) }}>
+                {(app.payees.some((payee) => payee.name === 'Tan Wei Ming') ? PAYNOW_CONTACTS.filter((contact) => contact.name === 'Tan Wei Ming') : PAYNOW_CONTACTS.filter((contact) => contact.name !== 'Tan Wei Ming')).map((contact) => (
+                  <button key={contact.mobile} type="button" className="flex min-h-11 w-full items-center gap-3 text-left" onClick={() => { setPayeeLabel(contact.name); setForm((prev) => ({ ...prev, proxy: 'mobile', to: contact.mobile })); setWstep(1) }}>
                     <span className="grid h-10 w-10 place-items-center rounded-full bg-[var(--soft)] text-[12px] font-bold">{contact.name.slice(0, 1)}</span>
                     <span>
                       <span className="block font-bold">{contact.name}</span>
@@ -493,7 +499,12 @@ export function FlowPage() {
                     </span>
                   </button>
                 ))}
-                <button type="button" className="min-h-11 font-semibold text-[var(--link)] underline" onClick={() => setDirectory(false)}>{t('look.enterMobile')}</button>
+                <button type="button" className="min-h-11 font-semibold text-[var(--link)] underline" onClick={() => document.getElementById('paynow-mobile')?.focus()}>{t('look.enterMobile')}</button>
+                {lookupPaynow(form.to || '', form.proxy || 'mobile').status === 'ok' && (
+                  <button type="button" className="flex min-h-11 w-full items-center text-left font-bold" onClick={() => { const known = payeeName(form.to); setPayeeLabel(known && known !== form.to ? known : 'Alex Ngoh'); setWstep(1) }}>
+                    {lookupPaynow(form.to || '', form.proxy || 'mobile').name}
+                  </button>
+                )}
               </section>
             )}
             {!(flow.id === 'paynow' && directory && wstep === 0) && groups.map((group) => {
@@ -547,34 +558,40 @@ export function FlowPage() {
             {flow.id === 'paynow' && wstep === 1 && (
               <section className="space-y-3">
                 <p className="text-[14px] text-[var(--muted)]">{t('look.payTo')}</p>
-                <p className="text-[22px] font-bold">{lookedUp || form.to}</p>
-                <p className="text-[13px] text-[var(--muted)]">{form.to}</p>
-                <div data-guide="pay-amount">
-                <input data-guide="paynow-amount" className="w-full bg-transparent text-[32px] font-bold outline-none" inputMode="decimal" aria-label={t('amount')} placeholder="0.00 SGD" value={form.amount || ''} onChange={(event) => changeField('amount', event.target.value)} />
+                <p className="text-[22px] font-bold">{maskPayee(payeeLabel || 'Alex Ngoh')}</p>
+                <p className="text-[13px] text-[var(--muted)]">+65 {String(form.to || '').replace(/\D/g, '').slice(0, 4)} ••••</p>
+                <div data-guide="pay-amount" className="flex items-baseline gap-2">
+                  <input data-guide="paynow-amount" className="w-full bg-transparent text-[32px] font-bold outline-none placeholder:text-[#A0A6AD]" inputMode="decimal" aria-label={t('amount')} placeholder="0.00" value={form.amount ? liveAmount(form.amount) : ''} onChange={(event) => changeField('amount', event.target.value.replace(/,/g, '').replace(/[^\d.]/g, ''))} onBlur={() => { const n = Number(form.amount); if (form.amount && !Number.isNaN(n)) changeField('amount', n.toFixed(2)) }} />
+                  <span className="text-[20px] font-bold text-[var(--muted)]">SGD</span>
                 </div>
                 <Link to="/flow/limit" className="block font-semibold text-[var(--link)] underline">{t('look.limitLeft', { amount: formatMoney(app.limit) })}</Link>
-                {Number(form.amount) > app.limit && <p className="font-semibold text-[var(--danger)]">{t('look.overLimit')}</p>}
-                {Number(form.amount) > balance && <p className="font-semibold text-[var(--danger)]">{t('look.moneyLockHint')}</p>}
                 <div data-guide="pay-message">
-                <input data-guide="paynow-reference" className="ocbc-field" maxLength={35} placeholder={t('look.addMessage')} aria-label={t('look.addMessage')} value={form.reference || ''} onChange={(event) => changeField('reference', event.target.value)} />
+                  <input data-guide="paynow-reference" className="min-h-11 w-full rounded-full bg-[var(--soft)] px-4" maxLength={35} placeholder={t('look.addMessage')} aria-label={t('look.addMessage')} value={form.reference || ''} onChange={(event) => changeField('reference', event.target.value)} />
                 </div>
-                <button type="button" data-guide="pay-from" className="min-h-11 w-full rounded-xl border border-[var(--line)] px-3 text-left" onClick={() => {
-                  const deposits = app.accounts.filter((account) => account.kind === 'deposit')
-                  const index = deposits.findIndex((account) => account.id === form.from)
-                  const next = deposits[(index + 1) % Math.max(deposits.length, 1)]
-                  if (next) changeField('from', next.id)
-                }}>
+                <button type="button" data-guide="pay-from" className="min-h-11 w-full rounded-xl border border-[var(--line)] px-3 text-left" onClick={() => setFromOpen(true)}>
                   <span className="block text-[13px] text-[var(--muted)]">{t('flows.from')}</span>
                   <span className="block font-bold">{t(app.accounts.find((account) => account.id === form.from)?.nameKey || 'accounts.a360')}</span>
                 </button>
-                <p className="text-[14px]">{t('look.available')} {formatMoney(balance)}</p>
+                <button type="button" className="min-h-11 text-[14px] underline" onClick={() => setShowBal((value) => !value)}>{showBal ? `${t('look.available')} ${formatMoney(balance)}` : t('look.showBalance')}</button>
+                {Number(form.amount) > app.limit && <p id="pay-alert" role="alert" className="rounded-lg border border-[#E30613] border-l-4 bg-[#FDECEC] p-3 text-[15px] font-bold text-[#1A1A1A]">{t('look.overLimit', { amount: formatMoney(app.limit) })} <Link to="/flow/limit" className="underline">{t('look.changeLimit')}</Link></p>}
+                {Number(form.amount) > balance && Number(form.amount) <= app.limit && <p id="pay-alert" role="alert" className="rounded-lg border border-[#E30613] border-l-4 bg-[#FDECEC] p-3 text-[15px] font-bold text-[#1A1A1A]">{t('look.overBalance', { amount: formatMoney(balance) })}</p>}
+                {Number(form.amount) <= 0 && <p id="pay-alert" className="text-[14px] text-[var(--muted)]">{t('look.enterAmount')}</p>}
               </section>
+            )}
+            {fromOpen && (
+              <div className="fixed inset-0 z-50 flex items-end bg-black/40" onClick={() => setFromOpen(false)}>
+                <div className="w-full rounded-t-2xl bg-[var(--card)] p-4" onClick={(event) => event.stopPropagation()}>
+                  {app.accounts.filter((account) => account.kind === 'deposit').map((account) => (
+                    <button key={account.id} type="button" className="block min-h-11 w-full text-left font-bold" onClick={() => { changeField('from', account.id); setFromOpen(false) }}>{t(account.nameKey)}</button>
+                  ))}
+                </div>
+              </div>
             )}
             {!(flow.id === 'paynow' && (directory && wstep === 0 || wstep === 1)) && reviewAt >= 0 && wstep > 0 && (
               <button type="button" className="text-sm font-semibold text-[var(--link)]" onClick={() => { setIssues([]); setWstep((value) => value - 1) }}>{t('back')}</button>
             )}
             {!(flow.id === 'paynow' && directory && wstep === 0) && (
-            <button type="submit" data-guide={flow.id === 'paynow' && wstep === 1 ? 'pay-next' : reviewGuide(flow.id)} className={flow.id === 'paynow' && wstep === 1 ? 'min-h-12 w-full rounded-lg bg-[#E30613] font-bold text-white disabled:opacity-40' : 'ocbc-btn'} disabled={flow.id === 'paynow' && (Number(form.amount) <= 0 || Number(form.amount) > app.limit || Number(form.amount) > balance)}>
+            <button type="submit" data-guide={flow.id === 'paynow' && wstep === 1 ? 'pay-next' : reviewGuide(flow.id)} aria-describedby={flow.id === 'paynow' && wstep === 1 ? 'pay-alert' : undefined} className={flow.id === 'paynow' && wstep === 1 ? 'min-h-12 w-full rounded-lg bg-[#E30613] font-bold text-white disabled:opacity-40' : 'ocbc-btn'} disabled={flow.id === 'paynow' && (Number(form.amount) <= 0 || Number(form.amount) > app.limit || Number(form.amount) > balance)}>
               {t('flows.submit')}
             </button>
             )}
@@ -613,24 +630,23 @@ export function FlowPage() {
             )}
             {flow.id === 'card-lost' && <p>{t('flows.lostNote')}</p>}
             {flow.kind === 'payment' ? (
-              <button
-                type="button"
-                data-guide={reviewGuide(flow.id)}
-                data-pay-review=""
-                className="flex h-14 w-full items-center rounded-full bg-[#2A3B43] px-2 text-white"
-                aria-label={practice ? t('look.slidePractice') : t('look.slide')}
-                onClick={() => { setOtp(''); setOtpError(''); setStage('otp') }}
-              >
-                <span className="grid h-10 w-10 place-items-center rounded-full bg-white text-[#2A3B43]" aria-hidden><ChevronsRight size={18} /></span>
-                <span className="flex-1 text-center font-semibold underline">{practice ? t('look.slidePractice') : t('look.slide')}</span>
-              </button>
+              <PaySlider label={practice ? t('look.slidePractice') : t('look.slide')} ariaLabel={`${t('look.slide')} ${formatMoney(Number(form.amount) || 0)}`} guide={reviewGuide(flow.id)} onPay={() => { setOtp(''); setOtpError(''); setStage('otp') }} />
             ) : null}
             {flow.kind === 'payment' ? (
-              <button type="button" className="min-h-11 w-full text-[15px] font-semibold text-[var(--link)] underline" onClick={() => { setOtp(''); setOtpError(''); setStage('otp') }}>{t('look.tapToPay')}</button>
+              <button type="button" className="min-h-11 w-full text-[15px] font-semibold text-[var(--link)] underline" onClick={() => setConfirmPay(true)}>{t('look.tapToPay')}</button>
             ) : (
               <button type="button" className="ocbc-btn" onClick={() => confirm()}>{t('confirm')}</button>
             )}
             <button type="button" className="tap w-full" onClick={() => setStage('form')}>{t('back')}</button>
+            {confirmPay && (
+              <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 p-4" role="dialog" aria-modal="true">
+                <div className="w-full max-w-sm rounded-2xl bg-[var(--card)] p-4">
+                  <p className="text-lg font-bold">{t('look.payAsk', { amount: formatMoney(Number(form.amount) || 0), name: maskPayee(payeeLabel || form.name || form.to || '') })}</p>
+                  <button type="button" className="ocbc-btn mt-3" onClick={() => { setConfirmPay(false); setOtp(''); setOtpError(''); setStage('otp') }}>{t('look.pay')}</button>
+                  <button type="button" className="mt-2 min-h-11 w-full font-semibold underline" onClick={() => setConfirmPay(false)}>{t('cancel')}</button>
+                </div>
+              </div>
+            )}
           </section>
         )}
         {stage === 'otp' && (
@@ -788,6 +804,60 @@ function wizardFields(flowId: string, step: number) {
   if (flowId === 'paynow') return step === 0 ? ['proxy', 'to'] : step === 1 ? ['amount', 'from', 'reference', 'savePayee', 'when', 'laterDate'] : []
   if (flowId === 'transfer') return step === 0 ? ['name', 'bank', 'account'] : step === 1 ? ['amount', 'from', 'savePayee', 'when', 'laterDate'] : []
   return step === 0 ? ['country'] : step === 1 ? ['name', 'swift', 'account'] : step === 2 ? ['amount', 'from', 'purpose', 'savePayee', 'when', 'laterDate'] : []
+}
+
+function liveAmount(value: string) {
+  const [whole, frac] = value.split('.')
+  const grouped = Number(whole || '0').toLocaleString('en-SG')
+  return frac === undefined ? grouped : `${grouped}.${frac}`
+}
+
+function PaySlider({ label, ariaLabel, guide, onPay }: { label: string; ariaLabel: string; guide?: string; onPay: () => void }) {
+  const [ratio, setRatio] = useState(0)
+  const ratioRef = useRef(0)
+  const drag = useRef<{ x: number; start: number } | null>(null)
+  const move = (value: number) => {
+    const next = Math.min(1, Math.max(0, value))
+    ratioRef.current = next
+    setRatio(next)
+  }
+  return (
+    <div
+      data-guide={guide}
+      data-pay-review=""
+      role="slider"
+      tabIndex={0}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-valuenow={Math.round(ratio * 100)}
+      aria-label={ariaLabel}
+      className="relative h-14 touch-none overflow-hidden rounded-full bg-[#2A3B43] text-white"
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ' || event.key === 'ArrowRight') {
+          event.preventDefault()
+          onPay()
+        }
+      }}
+      onPointerDown={(event) => {
+        drag.current = { x: event.clientX, start: ratioRef.current }
+        event.currentTarget.setPointerCapture(event.pointerId)
+      }}
+      onPointerMove={(event) => {
+        if (!drag.current) return
+        const width = event.currentTarget.clientWidth - 48
+        move(drag.current.start + (event.clientX - drag.current.x) / Math.max(width, 1))
+      }}
+      onPointerUp={() => {
+        const finished = ratioRef.current >= 0.85
+        drag.current = null
+        move(0)
+        if (finished) onPay()
+      }}
+    >
+      <span className="pointer-events-none absolute inset-0 grid place-items-center font-semibold underline">{label}</span>
+      <span className="absolute top-2 grid h-10 w-10 place-items-center rounded-full bg-white text-[#2A3B43]" style={{ left: `calc(${ratio} * (100% - 48px) + 4px)` }}><ChevronsRight size={18} /></span>
+    </div>
+  )
 }
 
 function Field({

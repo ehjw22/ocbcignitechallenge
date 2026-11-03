@@ -25,9 +25,9 @@ const NAV = [
 
 function MoreGlyph({ active }: { active: boolean }) {
   return (
-    <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden>
+    <svg width="24" height="24" viewBox="0 0 22 22" aria-hidden>
       {[4, 14].map((y) => [4, 14].map((x) => (
-        <circle key={`${x}-${y}`} cx={x + 2} cy={y + 2} r={active ? 2.4 : 2} fill="none" stroke="currentColor" strokeWidth="1.5" />
+        <circle key={`${x}-${y}`} cx={x + 2} cy={y + 2} r="2" fill="none" stroke="currentColor" strokeWidth="1.75" />
       )))}
     </svg>
   )
@@ -115,7 +115,7 @@ export function BottomNav() {
   const location = useLocation()
   if (scamOpen || location.pathname.startsWith('/flow')) return null
   return (
-    <nav aria-label={t('nav.home')} className="grid min-h-[72px] grid-cols-4 border-t border-[var(--line)] bg-[var(--card)]">
+    <nav aria-label={t('nav.home')} className="grid grid-cols-4 border-t border-[var(--line)] bg-[var(--card)]" style={{ padding: '8px 0 calc(8px + env(safe-area-inset-bottom))' }}>
       {NAV.map((item) => {
         const label = t(item.key)
         return (
@@ -126,7 +126,7 @@ export function BottomNav() {
             data-guide={item.guide}
             aria-label={label}
             className={({ isActive }) =>
-              `flex min-w-0 flex-col items-center justify-center gap-1 overflow-hidden px-0.5 py-1 text-center text-[12px] font-normal leading-none ${isActive ? 'text-[#E30613]' : 'text-[var(--text)]'}`
+              `flex min-w-0 flex-col items-center justify-center gap-1 overflow-hidden px-0.5 text-center text-[12px] font-normal leading-4 ${isActive ? 'text-[#E30613]' : 'text-[var(--text)]'}`
             }
           >
             {({ isActive }) => (
@@ -213,6 +213,7 @@ function OllieFab() {
   }, [location.pathname, app.helpOpen])
   if (hiddenPath || tucked || appTour || flowTour || scamOpen || hideReview || (app.helpOpen && app.helpView === 'ai')) return null
   const label = translate(app.prefs.language, 'help.askOllie')
+  const [avatarFailed, setAvatarFailed] = useState(false)
   return (
     <button
       type="button"
@@ -225,7 +226,7 @@ function OllieFab() {
         app.openHelp('ai')
       }}
     >
-      <span aria-hidden className="grid h-12 w-12 place-items-center text-lg font-bold">O</span>
+      {avatarFailed ? <span aria-hidden className="grid h-12 w-12 place-items-center text-lg font-bold">O</span> : <img src="/ollie-avatar.png" alt="" className="h-12 w-12 rounded-full object-cover" onError={() => setAvatarFailed(true)} />}
     </button>
   )
 }
@@ -465,7 +466,7 @@ export function Page({
           <ExplainButton />
         </span>
       </header>
-      <main id="main" ref={mainRef} key={location.pathname} className={`${location.pathname.startsWith('/flow') ? 'pb-24' : 'mb-[76px]'} min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[var(--bg)]`}>
+      <main id="main" ref={mainRef} key={location.pathname} className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[var(--bg)] pb-24">
         <GuideDone />
         {children}
       </main>

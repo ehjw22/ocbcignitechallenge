@@ -56,6 +56,7 @@ function Customer() {
         <Route path="/help" element={<HelpPage />} />
         <Route path="/more" element={<More />} />
         <Route path="/settings" element={<Settings />} />
+        <Route path="/settings/:panel" element={<Settings />} />
         <Route path="/cards" element={<Cards />} />
         <Route path="/info/:topic" element={<InfoPage />} />
         <Route path="/investments" element={<InfoPage topic="investments" />} />

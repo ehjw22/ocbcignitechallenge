@@ -34,8 +34,6 @@ export const PAYNOW_DIRECTORY: Record<string, string> = {
 const NRIC = /^[STFGM]\d{7}[A-Z]$/
 const MOBILE = /^[89]\d{7}$/
 const UEN = /^(\d{8}[A-Z]|\d{9}[A-Z]|[TSR]\d{2}[A-Z]{2}\d{4}[A-Z])$/
-const SAMPLE_NAMES = ['Tan Wei Ming', 'Lim Jia Hui', 'Nur Aisyah', 'Raj Kumar']
-
 export function maskPayee(name: string) {
   const parts = name.trim().split(/\s+/).filter(Boolean)
   return parts.map((part, index) => {
@@ -52,8 +50,7 @@ export function lookupPaynow(raw: string, proxy = 'mobile') {
   const ok = proxy === 'nric' ? NRIC.test(value) : proxy === 'uen' ? UEN.test(value) : MOBILE.test(value)
   if (!ok) return { status: 'bad' as const }
   const known = PAYNOW_DIRECTORY[value]
-  const seed = Number(value.replace(/\D/g, '').slice(-1) || '0') % SAMPLE_NAMES.length
-  return { status: 'ok' as const, name: maskPayee(known || SAMPLE_NAMES[seed]) }
+  return { status: 'ok' as const, name: maskPayee(known || 'Alex Ngoh') }
 }
 
 export function payeeName(title: string | undefined) {

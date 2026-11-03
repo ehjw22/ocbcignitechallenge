@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { Check, ChevronRight, Globe, Lock, Receipt, ScanLine, Smartphone, ArrowLeftRight, Headset } from 'lucide-react'
+import { Check, ChevronRight, Globe, Lock, Receipt, ScanLine, Smartphone, ArrowLeftRight, Headset, MessageSquare } from 'lucide-react'
 import { BottomNav, Page } from '@/components/Shell'
 import { useApp } from '@/context/AppContext'
 import { JOURNEY_IDS } from '@/data/flows'
@@ -99,7 +99,14 @@ export function HelpPage() {
           </button>
         ))}
         <h2 className="pt-2 text-lg font-semibold">{t('staff.yourRequests')}</h2>
-        {app.requests.length === 0 && <p>{t('staff.empty')}</p>}
+        {app.requests.filter((request) => request.userId === app.profile.id || (!request.userId && request.customerName === app.profile.name)).length === 0 && (
+          <div data-guide="help-messages-empty" className="flex flex-col items-center gap-2 py-6 text-center">
+            <MessageSquare size={32} strokeWidth={1.75} aria-hidden />
+            <p>{t('look.noMessages')}</p>
+            <button type="button" className="min-h-11 font-semibold text-[var(--link)] underline" onClick={() => app.openHelp('ai')}>{t('help.askOllie')}</button>
+            <button type="button" className="min-h-11 font-semibold text-[var(--link)] underline" onClick={() => app.openHelp('staff')}>{t('help.staff')}</button>
+          </div>
+        )}
         <ul className="space-y-2">
           {app.requests.filter((request) => request.userId === app.profile.id || (!request.userId && request.customerName === app.profile.name)).map((request) => (
             <li key={request.ref} className="card p-3">

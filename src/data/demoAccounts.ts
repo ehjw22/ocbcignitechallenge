@@ -74,7 +74,7 @@ const arifPrefs: Preferences = {
   speechRate: 1,
   scheme: 'dark',
   spendingInsights: true,
-  shortcuts: ['paynow', 'scan', 'goals', 'insights', 'giro', 'transfer'],
+  shortcuts: ['transfer', 'paynow', 'bill', 'scan', 'goals', 'insights'],
   quizCompleted: true,
   onboarded: true,
 }

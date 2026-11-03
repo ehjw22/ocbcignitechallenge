@@ -5,7 +5,7 @@ import { percentChange, rowsFor, sum } from '@/data/insights'
 import { useApp } from '@/context/AppContext'
 import { BottomNav, DemoBadge, GuideDone, HeaderHelp } from '@/components/Shell'
 import { translate } from '@/i18n'
-import { SHORTCUT_ICONS } from '@/lib/shortcutItems'
+import { SHORTCUT_ICONS, SHORTCUT_ROUTES } from '@/lib/shortcutItems'
 import { startAppTour } from '@/lib/appTour'
 import { formatMoney, formatTxnAmount } from '@/lib/format'
 import { payeeName } from '@/data/bank'
@@ -49,7 +49,7 @@ export function Home() {
 
   return (
     <div className="relative flex h-full min-h-0 flex-col bg-[var(--bg)] text-[var(--text)]">
-      <main id="main" className="mb-[76px] min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[var(--bg)] pb-24">
+      <main id="main" className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[var(--bg)] pb-24">
         <GuideDone />
         <header className="flex h-14 items-center justify-between bg-[var(--card)] px-4">
           <DemoBadge />
@@ -79,15 +79,10 @@ export function Home() {
 
         <section className="relative z-10 -mt-8 px-4" data-guide="home-shortcuts">
           <div className="grid grid-cols-4 rounded-xl bg-[var(--card)] px-1 py-3 shadow-[0_8px_24px_rgba(47,53,61,0.08)]">
-            {([
-              ['paynow', '/flow/paynow', t('shortcuts.paynow')],
-              ['scan', '/flow/scan', t('shortcuts.scan')],
-              ['goals', '/flow/goal', t('shortcuts.goals')],
-              ['customise', '/settings', t('look.customise')],
-            ] as const).map(([id, to, label]) => (
-              <Link key={id} to={to} className="flex min-h-11 min-w-0 flex-col items-center justify-center gap-1 text-[#333]">
+            {[...app.prefs.shortcuts.filter((id) => id !== 'rewards' && SHORTCUT_ICONS[id]).slice(0, 3), 'customise'].map((id) => (
+              <Link key={id} to={id === 'customise' ? '/settings/shortcuts' : (SHORTCUT_ROUTES[id] ?? '/pay')} data-guide={id === 'paynow' ? 'home-paynow' : id === 'customise' ? 'home-customise' : undefined} className="flex min-h-11 min-w-0 flex-col items-center justify-center gap-1 text-[var(--text)]">
                 <ShortcutMark id={id} />
-                <span className="w-full truncate text-center text-[12px] font-normal leading-none">{label}</span>
+                <span className="w-full truncate text-center text-[12px] font-normal leading-none">{id === 'customise' ? t('look.customise') : t(`shortcuts.${id}`)}</span>
               </Link>
             ))}
           </div>
@@ -253,7 +248,7 @@ export function Home() {
 function ShortcutMark({ id }: { id: string }) {
   if (id === 'paynow') {
     return (
-      <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden className="text-[#333]">
+      <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden>
         <rect x="7" y="3" width="10" height="18" rx="2" fill="none" stroke="currentColor" strokeWidth="1.75" />
         <path d="M10 18h4" fill="none" stroke="currentColor" strokeWidth="1.75" />
       </svg>

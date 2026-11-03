@@ -147,6 +147,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
   sessionRef.current = sessionId
   const [prefs, setPrefs] = useState<Preferences>(boot.prefs)
   const [profile, setProfileState] = useState<Profile>(boot.profile)
+  useEffect(() => {
+    if (profile.id !== 'auntiemei' && profile.id !== 'persona-mei') return
+    setCardsState((current) => current.some((card) => card.id === 'debit' && card.last4 !== '7810')
+      ? current.map((card) => (card.id === 'debit' ? { ...card, last4: '7810' } : card))
+      : current)
+  }, [profile.id])
   const [events, setEvents] = useState<AnalyticsEvent[]>(loadEvents)
   const [requests, setRequests] = useState<StaffRequest[]>(() => {
     const saved = loadRequests()

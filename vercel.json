@@ -7,7 +7,7 @@
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ],
   "functions": {
-    "api/chat.ts": { "maxDuration": 30 },
+    "api/chat.ts": { "maxDuration": 30, "regions": ["sin1"] },
     "api/tts.ts": { "maxDuration": 15 }
   }
 }

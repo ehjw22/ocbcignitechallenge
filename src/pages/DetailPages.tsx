@@ -6,6 +6,7 @@ import { NOTIFICATIONS, payeeName } from '@/data/bank'
 import { translate } from '@/i18n'
 import { CircleDollarSign, FileText, Info, LockKeyhole, SlidersHorizontal } from 'lucide-react'
 import { formatDay, formatMoney, formatSignedMoney } from '@/lib/format'
+import { txnKind } from '@/components/TxnSheet'
 
 export function AccountDetail() {
   const { accountId = '' } = useParams()
@@ -48,7 +49,7 @@ export function AccountDetail() {
         <div className="mb-3 flex gap-2 overflow-x-auto">
           {months.map((item) => (
             <button key={item} type="button" className={`min-h-11 shrink-0 rounded-full px-3 text-[13px] font-semibold ${item === month ? 'bg-[#E30613] text-white' : 'border border-[var(--line)]'}`} onClick={() => setMonth(item)}>
-              {formatDay(`${item}-01`, app.prefs.language).replace(/^\d+\s/, '')} {item.slice(0, 4)}
+              {new Intl.DateTimeFormat(app.prefs.language.startsWith('zh') ? 'zh-CN' : 'en-SG', { month: 'short', year: 'numeric' }).format(new Date(`${item}-01T00:00:00`))}
             </button>
           ))}
         </div>
@@ -59,7 +60,7 @@ export function AccountDetail() {
               <Link to={`/txn/${txn.id}`} className="flex items-start justify-between gap-3 px-3 py-3">
                 <span>
                   <span className="block text-[12px] text-[var(--muted)]">{formatDay(txn.date, app.prefs.language)}</span>
-                  <span className="block text-[13px] font-bold uppercase">{t('look.fastPayment')}</span>
+                  <span className="block text-[13px] font-bold uppercase">{t(txnKind(txn.title))}</span>
                   <span className="block text-[13px] text-[var(--muted)]">{payeeName(txn.title)}</span>
                 </span>
                 <span className={`text-[15px] font-bold tabular-nums ${txn.amount > 0 ? 'text-[#1E8E3E]' : ''}`}>{txn.amount < 0 ? txn.amount.toFixed(2) : txn.amount.toFixed(2)}</span>
@@ -113,7 +114,7 @@ export function Notifications() {
         {tab === 'bank' && NOTIFICATIONS.map((item) => (
           <li key={item.id} className="px-4 py-3">
             <p className="font-semibold leading-normal">{t(item.title)}</p>
-            <p className="leading-normal">{t(item.body)}</p>
+            <p className="leading-normal">{app.accounts.some((account) => account.id === 'frank') ? t(item.body).replace('360 Account', 'FRANK Account').replace('360账户', 'FRANK 账户').replace('360 账户', 'FRANK 账户') : t(item.body)}</p>
             <p className="text-sm text-[var(--muted)]">{formatDay(item.date, app.prefs.language)}</p>
           </li>
         ))}

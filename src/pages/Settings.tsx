@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useParams, useSearchParams } from 'react-router-dom'
 import { Check, ChevronDown, Search } from 'lucide-react'
 import { Choice, choiceClass } from '@/components/Choice'
 import { ShortcutPicker } from '@/components/ShortcutPicker'
@@ -78,7 +78,8 @@ export function Settings() {
   const [open, setOpen] = useState<Record<string, boolean>>({})
   const [shown, setShown] = useState<Record<string, boolean>>({})
   const [params, setParams] = useSearchParams()
-  const panel = params.get('panel') || ''
+  const routePanel = useParams().panel || ''
+  const panel = routePanel || params.get('panel') || ''
   const [greet, setGreet] = useState(app.profile.shortName)
   const remember = (id: string, value: boolean) => setShown((prev) => (prev[id] === value ? prev : { ...prev, [id]: value }))
   const prefsRef = useRef(app.prefs)
@@ -132,7 +133,6 @@ export function Settings() {
             <p className="mt-1 text-[13px] text-[var(--muted)]">{t('look.greetHelp')}</p>
           </div>
         )}
-        {panel && <button type="button" className="mb-2 min-h-11 font-semibold text-[var(--link)] underline" onClick={() => setParams({})}>{t('back')}</button>}
         <label className="relative mb-2 block pt-3 font-semibold" htmlFor="settings-search">
           {t('gate.search')}
           <Search aria-hidden size={18} className="pointer-events-none absolute bottom-3.5 left-3 text-[var(--muted)]" />

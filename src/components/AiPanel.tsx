@@ -91,11 +91,15 @@ function confirmCopy(action: ChatAction, t: (key: string, vars?: Record<string, 
 }
 
 function OllieAvatar() {
-  return (
-    <span aria-hidden className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--accent)] text-sm font-bold text-[var(--on-accent)]">
-      O
-    </span>
-  )
+  const [failed, setFailed] = useState(false)
+  if (failed) {
+    return (
+      <span aria-hidden className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--accent)] text-sm font-bold text-[var(--on-accent)]">
+        O
+      </span>
+    )
+  }
+  return <img src="/ollie-avatar.png" alt="" className="h-8 w-8 shrink-0 rounded-full object-cover" onError={() => setFailed(true)} />
 }
 
 export function AiPanel() {

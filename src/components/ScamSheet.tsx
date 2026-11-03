@@ -149,8 +149,8 @@ export function ScamSheet({
         </div>
         <div className="shrink-0 space-y-2 border-t border-[var(--line)] bg-[var(--card)] px-4 py-3">
           {hold && <p className="font-semibold text-[var(--danger)]">{t('scamCheck.warning')}</p>}
-          <button type="button" className="ocbc-btn !bg-[#E30613]" onClick={() => onCancel(answerText)}>{t('scamCheck.cancel')}</button>
-          <button type="button" className="ocbc-btn-secondary disabled:opacity-50" disabled={hold && left > 0} onClick={() => onContinue(answerText)}>{continueLabel}</button>
+          <button type="button" className="ocbc-btn disabled:opacity-50" disabled={hold && left > 0} onClick={() => onContinue(answerText)}>{continueLabel}</button>
+          <button type="button" className="min-h-12 w-full rounded-lg border border-[var(--line)] font-semibold" onClick={() => onCancel(answerText)}>{t('scamCheck.cancel')}</button>
           <a className="phone-number block py-1 text-center text-sm font-semibold text-[var(--link)] underline" href="tel:1799">{t('scamCheck.callShort')}</a>
           {hold && <button type="button" className="tap w-full rounded-lg border border-[var(--line)] bg-[var(--card)] font-semibold" onClick={talk}>{t('scamCheck.staff')}</button>}
         </div>
