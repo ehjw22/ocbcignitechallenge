@@ -45,6 +45,18 @@ export function FlowPage() {
   const guided = useRef(false)
 
   useEffect(() => {
+    const root = document.getElementById('customer-root')
+    if (!root) return
+    if (stage === 'review' || stage === 'otp') root.setAttribute('data-hide-fab', '1')
+    else root.removeAttribute('data-hide-fab')
+    window.dispatchEvent(new Event('ocbc-chrome'))
+    return () => {
+      root.removeAttribute('data-hide-fab')
+      window.dispatchEvent(new Event('ocbc-chrome'))
+    }
+  }, [stage])
+
+  useEffect(() => {
     if (!flow) return
     app.setScreen(flow.id)
     const next: Record<string, string> = {}
@@ -496,7 +508,21 @@ export function FlowPage() {
               </>
             )}
             {flow.id === 'card-lost' && <p>{t('flows.lostNote')}</p>}
-            <button type="button" className="ocbc-btn" onClick={() => { if (flow.kind === 'payment') { setOtp(''); setOtpError(''); setStage('otp') } else confirm() }}>{flow.kind === 'payment' ? t('continue') : t('confirm')}</button>
+            {flow.kind === 'payment' ? (
+              <button
+                type="button"
+                data-guide={reviewGuide(flow.id)}
+                data-pay-review=""
+                className="flex h-14 w-full items-center rounded-full bg-[#2A3B43] px-2 text-white"
+                aria-label={practice ? t('look.slidePractice') : t('look.slide')}
+                onClick={() => { setOtp(''); setOtpError(''); setStage('otp') }}
+              >
+                <span className="grid h-10 w-10 place-items-center rounded-full bg-white text-[18px] font-bold text-[#2A3B43]" aria-hidden>»</span>
+                <span className="flex-1 text-center font-semibold underline">{practice ? t('look.slidePractice') : t('look.slide')}</span>
+              </button>
+            ) : (
+              <button type="button" className="ocbc-btn" onClick={() => confirm()}>{t('confirm')}</button>
+            )}
             <button type="button" className="tap w-full" onClick={() => setStage('form')}>{t('back')}</button>
           </section>
         )}

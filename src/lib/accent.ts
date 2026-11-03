@@ -56,12 +56,14 @@ export function themeVars(prefs: { colourVision: string; scheme: string; accent:
   const accent = readableAccent(cvAccent[prefs.colourVision] || prefs.accent)
   const dark = prefs.scheme === 'dark'
   const hc = prefs.highContrast
-  const text = dark ? '#ffffff' : '#1a1a1a'
-  const bg = hc ? (dark ? '#000000' : '#ffffff') : dark ? '#121212' : '#ffffff'
-  const card = hc ? (dark ? '#0a0a0a' : '#ffffff') : dark ? '#1c1c1c' : '#ffffff'
-  const muted = hc ? (dark ? '#f5f5f5' : '#1a1a1a') : dark ? '#d4d4d8' : '#4b4b4b'
-  const line = hc ? (dark ? '#ffffff' : '#000000') : dark ? '#3f3f46' : '#eeeeee'
-  const soft = hc ? (dark ? '#1a1a1a' : '#f2f2f2') : dark ? '#27272a' : '#f3f4f6'
+  const text = hc ? (dark ? '#ffffff' : '#000000') : dark ? '#F2F2F2' : '#2F353D'
+  const bg = hc ? (dark ? '#000000' : '#ffffff') : dark ? '#121416' : '#FFFFFF'
+  const card = hc ? (dark ? '#0a0a0a' : '#ffffff') : dark ? '#1C1F22' : '#FFFFFF'
+  const muted = hc ? (dark ? '#f5f5f5' : '#1a1a1a') : dark ? '#A0A6AD' : '#6B7178'
+  const line = hc ? (dark ? '#ffffff' : '#000000') : dark ? '#33383C' : '#E7E7E7'
+  const soft = hc ? (dark ? '#1a1a1a' : '#f2f2f2') : dark ? '#25292C' : '#F3ECEB'
+  const link = hc ? (dark ? '#ffffff' : '#000000') : dark ? '#6EA0FF' : '#1C65FF'
+  const slate = dark ? '#4A606C' : '#3D525D'
   let danger = dark ? '#ffb4b4' : '#9f1239'
   let ok = dark ? '#86efac' : '#0b7a3b'
   let warn = dark ? '#fde68a' : '#8a5a00'
@@ -80,7 +82,8 @@ export function themeVars(prefs: { colourVision: string; scheme: string; accent:
   }
   return {
     '--accent': accent,
-    '--link': linkColor(accent, bg),
+    '--link': linkColor(link, bg),
+    '--slate': slate,
     '--on-accent': ink(accent),
     '--bg': bg,
     '--card': card,

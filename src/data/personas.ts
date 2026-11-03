@@ -27,7 +27,7 @@ const arifPrefs: Preferences = {
   helpPreference: 'ai',
   theme: 'ocean',
   accent: '#0B4F9E',
-  shortcuts: ['giro', 'transfer', 'investments', 'goals', 'bills', 'rewards'],
+  shortcuts: ['giro', 'transfer', 'investments', 'goals', 'bills', 'scan'],
   spendingInsights: true,
   onboarded: true,
 }

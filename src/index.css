@@ -275,7 +275,7 @@ html[data-bold="1"] #customer-app button {
   --warning: #8a5a00;
   background: var(--bg);
   color: var(--text);
-  font-family: "Segoe UI", "Nirmala UI", "Helvetica Neue", Arial, sans-serif;
+  font-family: "Open Sans", "Segoe UI", "Nirmala UI", system-ui, sans-serif;
   line-height: 1.5;
   overflow-x: hidden;
 }
@@ -303,9 +303,11 @@ html[data-bold="1"] #customer-app button {
   width: 100%;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
-  background: var(--accent);
-  color: var(--on-accent);
+  border-radius: 6px;
+  background: var(--slate, #3D525D);
+  color: #fff;
+  text-decoration: underline;
+  text-underline-offset: 3px;
   font-size: 1rem;
   font-weight: 600;
   line-height: 1.5;

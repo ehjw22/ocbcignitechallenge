@@ -30,7 +30,7 @@ const GROUPS: { label: string; ids: string[] }[] = [
   { label: 'nav.pay', ids: ['paynow', 'scan', 'transfer', 'bills', 'overseas', 'giro', 'topup'] },
   { label: 'nav.accounts', ids: ['goals', 'investments', 'accounts', 'insights'] },
   { label: 'shortcuts.cards', ids: ['cards'] },
-  { label: 'nav.help', ids: ['insurance', 'rewards', 'help', 'staff'] },
+  { label: 'nav.help', ids: ['insurance', 'help', 'staff'] },
 ]
 
 type DragData = { source: 'slot' | 'list'; shortcutId: string; index: number }

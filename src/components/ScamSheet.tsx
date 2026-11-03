@@ -113,9 +113,12 @@ export function ScamSheet({
         role="dialog"
         aria-modal="true"
         aria-labelledby="scam-check-title"
-        className="flex max-h-[85%] w-full flex-col overflow-hidden rounded-t-3xl bg-[var(--card)] text-[var(--text)] shadow-[0_-12px_40px_rgba(0,0,0,0.35)]"
+        className="flex max-h-[85%] w-full flex-col overflow-hidden rounded-t-2xl bg-[var(--card)] text-[var(--text)] shadow-[0_-12px_40px_rgba(0,0,0,0.35)]"
       >
-        <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-3 pt-4">
+        <div className="mx-auto mt-2 h-1 w-10 rounded-full bg-[var(--line)]" />
+        <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-3 pt-3">
+          <p className="text-center text-[13px] font-semibold text-[var(--muted)]">{t('look.ollieSafety')} <span className="rounded-full bg-[var(--soft)] px-2 py-0.5 text-[11px]">{t('look.new')}</span></p>
+          <div className="mx-auto my-3 grid h-16 w-16 place-items-center rounded-full bg-[#FFF3D6] text-4xl" aria-hidden>!</div>
           <div className="mb-3 flex items-center gap-2">
             <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-lg font-semibold text-white" style={{ background: '#E30613' }} aria-hidden>O</span>
             <p className="min-w-0 flex-1 text-sm font-semibold">{t('ai.header')}</p>
@@ -134,7 +137,7 @@ export function ScamSheet({
                 <div className="grid grid-cols-2 overflow-hidden rounded-xl border border-[var(--line)]" role="group" aria-labelledby={`scam-q-${slot}`}>
                   <button
                     type="button"
-                    className={`min-h-12 border-r border-[var(--line)] px-2 font-semibold ${answers[slot] === 'yes' ? 'bg-[var(--accent)] text-[var(--on-accent)]' : 'bg-[var(--card)] text-[var(--text)]'}`}
+                    className={`min-h-12 border-r border-[var(--line)] px-2 font-semibold ${answers[slot] === 'yes' ? 'bg-[var(--slate)] text-white' : 'bg-[var(--card)] text-[var(--text)]'}`}
                     aria-pressed={answers[slot] === 'yes'}
                     onClick={() => choose(slot, 'yes')}
                   >
@@ -142,7 +145,7 @@ export function ScamSheet({
                   </button>
                   <button
                     type="button"
-                    className={`min-h-12 px-2 font-semibold ${answers[slot] === 'no' ? 'bg-[var(--accent)] text-[var(--on-accent)]' : 'bg-[var(--card)] text-[var(--text)]'}`}
+                    className={`min-h-12 px-2 font-semibold ${answers[slot] === 'no' ? 'bg-[var(--slate)] text-white' : 'bg-[var(--card)] text-[var(--text)]'}`}
                     aria-pressed={answers[slot] === 'no'}
                     onClick={() => choose(slot, 'no')}
                   >
@@ -158,7 +161,7 @@ export function ScamSheet({
           {flagged ? (
             <>
               <p className="font-semibold text-[var(--danger)]">{t('scamCheck.warning')}</p>
-              <button type="button" className="ocbc-btn" onClick={() => onCancel(answerText)}>{t('scamCheck.cancel')}</button>
+              <button type="button" className="ocbc-btn !bg-[#E30613]" onClick={() => onCancel(answerText)}>{t('scamCheck.cancel')}</button>
               <a className="phone-number flex min-h-12 items-center justify-center rounded-lg border border-[var(--line)] px-3 text-center font-semibold text-[var(--link)]" href="tel:1799">{t('scamCheck.callShort')}</a>
               <button type="button" className="tap w-full rounded-lg border border-[var(--line)] bg-[var(--card)] font-semibold" onClick={talk}>{t('scamCheck.staff')}</button>
             </>

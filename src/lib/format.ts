@@ -1,3 +1,13 @@
+export function formatMoney(value: number) {
+  const num = new Intl.NumberFormat('en-SG', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(value))
+  return `${num} SGD`
+}
+
+export function formatTxnAmount(value: number) {
+  const num = new Intl.NumberFormat('en-SG', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(value))
+  return value < 0 ? `-${num}` : num
+}
+
 export function formatSGD(value: number) {
   const abs = Math.abs(value)
   const num = new Intl.NumberFormat('en-SG', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(abs)

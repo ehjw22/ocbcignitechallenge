@@ -8,6 +8,7 @@ import { Cards, HelpPage, InfoPage, More, PayHub } from '@/pages/SimplePages'
 import { Insights } from '@/pages/Insights'
 import { FlowPage } from '@/pages/FlowPage'
 import { Home } from '@/pages/Home'
+import { Plan } from '@/pages/Plan'
 import { Join } from '@/pages/Join'
 import { Login } from '@/pages/Login'
 import { PreInfo } from '@/pages/PreInfo'
@@ -21,7 +22,7 @@ function Gate({ children }: { children: ReactNode }) {
   const path = useLocation().pathname
   const welcome = path === '/welcome' || path === '/login' || path.startsWith('/pre')
   const known = path === '/' || welcome || path === '/join' || path === '/onboarding'
-    || ['/accounts', '/txn/', '/notifications', '/profile', '/pay', '/flow/', '/help', '/more', '/settings', '/cards', '/info/', '/insights', '/rewards', '/investments', '/insurance'].some((item) => path === item || path.startsWith(item))
+    || ['/accounts', '/txn/', '/notifications', '/profile', '/pay', '/plan', '/flow/', '/help', '/more', '/settings', '/cards', '/info/', '/insights', '/investments', '/insurance'].some((item) => path === item || path.startsWith(item))
   const quizDone = prefs.quizCompleted
   if (!known) return children
   if (!sessionId && path === '/join') return <Navigate to="/login" replace />
@@ -44,6 +45,7 @@ function Customer() {
         <Route path="/pre/:topic" element={<PreInfo />} />
         <Route path="/onboarding" element={<Navigate to="/join" replace />} />
         <Route path="/" element={<Home />} />
+        <Route path="/plan" element={<Plan />} />
         <Route path="/accounts" element={<Accounts />} />
         <Route path="/accounts/:accountId" element={<AccountDetail />} />
         <Route path="/txn/:txnId" element={<TxnDetail />} />
@@ -56,7 +58,6 @@ function Customer() {
         <Route path="/settings" element={<Settings />} />
         <Route path="/cards" element={<Cards />} />
         <Route path="/info/:topic" element={<InfoPage />} />
-        <Route path="/rewards" element={<InfoPage topic="rewards" />} />
         <Route path="/investments" element={<InfoPage topic="investments" />} />
         <Route path="/insurance" element={<InfoPage topic="insurance" />} />
         <Route path="/insights" element={<Insights />} />

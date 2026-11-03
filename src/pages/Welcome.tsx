@@ -1,17 +1,17 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeftRight, Bell, Gift, LayoutGrid, LineChart, ScanLine, Send, X } from 'lucide-react'
+import { ArrowLeftRight, Bell, LayoutGrid, LineChart, ScanLine, Send, Smartphone, X } from 'lucide-react'
 import { useApp } from '@/context/AppContext'
 import { translate } from '@/i18n'
 import { loadLastUser, saveAfterLogin } from '@/lib/storage'
 import { SHORTCUT_ICONS, SHORTCUT_ROUTES } from '@/lib/shortcutItems'
 
 const ACTIONS = [
-  { id: 'fx', icon: ArrowLeftRight, label: 'gate.fx', to: '/flow/overseas' },
+  { id: 'token', icon: Smartphone, label: 'look.oneToken', to: '/login' },
   { id: 'scan', icon: ScanLine, label: 'gate.scanPay', to: '/flow/scan' },
   { id: 'paynow', icon: Send, label: 'gate.paynow', to: '/flow/paynow' },
   { id: 'wealth', icon: LineChart, label: 'gate.wealth', to: '/insights' },
-  { id: 'rewards', icon: Gift, label: 'gate.rewards', to: '/info/rewards' },
+  { id: 'fx', icon: ArrowLeftRight, label: 'gate.fx', to: '/flow/overseas' },
   { id: 'more', icon: LayoutGrid, label: 'gate.more', to: '' },
 ] as const
 

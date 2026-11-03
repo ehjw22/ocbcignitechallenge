@@ -29,7 +29,7 @@ export const SHORTCUT_ROUTES: Record<string, string> = {
   topup: '/flow/topup',
   investments: '/investments',
   insurance: '/insurance',
-  rewards: '/rewards',
+  rewards: '/plan',
   staff: '/help?staff=1',
   accounts: '/accounts',
   help: '/help',

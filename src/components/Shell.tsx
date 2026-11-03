@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
-import { ArrowLeftRight, ChevronLeft, CircleHelp, Home, Menu, Wallet, X } from 'lucide-react'
+import { ArrowLeftRight, ChevronLeft, Headset, House, Sprout, X } from 'lucide-react'
 import { useApp } from '@/context/AppContext'
 import { JOURNEY_IDS } from '@/data/flows'
 import { translate } from '@/i18n'
@@ -17,12 +17,21 @@ import { speak, stopSpeaking } from '@/lib/speech'
 import { SpeakButton } from './SpeakButton'
 
 const NAV = [
-  { to: '/', key: 'nav.home', icon: Home, guide: 'nav-home', end: true },
-  { to: '/accounts', key: 'nav.accounts', icon: Wallet, guide: 'nav-accounts', end: false },
-  { to: '/pay', key: 'nav.pay', icon: ArrowLeftRight, guide: 'nav-pay', end: false },
-  { to: '/help', key: 'nav.help', icon: CircleHelp, guide: 'nav-help', end: false },
-  { to: '/more', key: 'nav.more', icon: Menu, guide: 'nav-more', end: false },
+  { to: '/', key: 'nav.home', guide: 'nav-home', end: true, center: false },
+  { to: '/plan', key: 'nav.plan', guide: 'nav-plan', end: false, center: false },
+  { to: '/pay', key: 'nav.pay', guide: 'nav-pay', end: false, center: true },
+  { to: '/more', key: 'nav.more', guide: 'nav-more', end: false, center: false },
 ]
+
+function MoreGlyph({ active }: { active: boolean }) {
+  return (
+    <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden>
+      {[4, 14].map((y) => [4, 14].map((x) => (
+        <circle key={`${x}-${y}`} cx={x + 2} cy={y + 2} r={active ? 2.4 : 2} fill="none" stroke="currentColor" strokeWidth="1.5" />
+      )))}
+    </svg>
+  )
+}
 
 function usePhoneScale() {
   const [state, setState] = useState({ scale: 1, full: false })
@@ -85,20 +94,17 @@ export function DemoBadge() {
 }
 
 export function HeaderHelp({ guide = false }: { guide?: boolean }) {
-  const app = useApp()
-  const t = (key: string) => translate(app.prefs.language, key)
+  const { prefs } = useApp()
+  const t = (key: string) => translate(prefs.language, key)
   return (
-    <button
-      type="button"
-      data-guide={guide ? 'help-fab' : undefined}
-      className="flex min-h-11 min-w-11 items-center justify-center rounded-full text-[var(--link)]"
-      aria-label={t('help.fab')}
-      aria-haspopup="dialog"
-      aria-expanded={app.helpOpen}
-      onClick={() => app.openHelp('menu')}
+    <NavLink
+      to="/help"
+      data-guide={guide ? 'nav-help' : undefined}
+      className="flex min-h-11 min-w-11 items-center justify-center text-[var(--text)]"
+      aria-label={t('nav.help')}
     >
-      <CircleHelp aria-hidden size={24} />
-    </button>
+      <Headset aria-hidden size={22} strokeWidth={1.5} />
+    </NavLink>
   )
 }
 
@@ -106,12 +112,12 @@ export function BottomNav() {
   const { prefs } = useApp()
   const scamOpen = useSyncExternalStore(subscribeScamSheet, scamSheetOpen, () => false)
   const t = (key: string) => translate(prefs.language, key)
-  const iconsOnly = prefs.textSize >= 20
-  if (scamOpen) return null
+  const location = useLocation()
+  const iconsOnly = prefs.textSize >= 22
+  if (scamOpen || location.pathname.startsWith('/flow')) return null
   return (
-    <nav aria-label={t('nav.home')} className="grid min-h-[64px] grid-cols-5 border-t border-[var(--line)] bg-[var(--card)]">
+    <nav aria-label={t('nav.home')} className="grid min-h-[64px] grid-cols-4 border-t border-[var(--line)] bg-[var(--card)]">
       {NAV.map((item) => {
-        const Icon = item.icon
         const label = t(item.key)
         return (
           <NavLink
@@ -121,12 +127,22 @@ export function BottomNav() {
             data-guide={item.guide}
             aria-label={label}
             className={({ isActive }) =>
-              `flex min-w-0 flex-col items-center justify-center gap-1 overflow-hidden px-0.5 py-1 text-center text-[0.7rem] font-medium leading-snug ${isActive ? 'text-[var(--link)]' : 'text-[var(--muted)]'}`
+              `flex min-w-0 flex-col items-center justify-center gap-0.5 overflow-hidden px-0.5 py-1 text-center text-[11px] font-semibold leading-tight ${isActive ? 'text-[#E30613]' : 'text-[var(--muted)]'}`
             }
           >
             {({ isActive }) => (
               <>
-                <Icon aria-hidden size={24} strokeWidth={isActive ? 2.4 : 1.8} />
+                {item.center ? (
+                  <span className={`grid h-9 w-9 place-items-center rounded-full ${isActive ? 'bg-[#E30613] text-white' : 'border border-[var(--line)] text-[var(--text)]'}`}>
+                    <ArrowLeftRight aria-hidden size={18} strokeWidth={1.7} />
+                  </span>
+                ) : item.to === '/' ? (
+                  <House aria-hidden size={22} strokeWidth={1.5} fill={isActive ? 'currentColor' : 'none'} />
+                ) : item.to === '/plan' ? (
+                  <Sprout aria-hidden size={22} strokeWidth={1.5} />
+                ) : (
+                  <MoreGlyph active={isActive} />
+                )}
                 {!iconsOnly && <span className="w-full truncate">{label}</span>}
               </>
             )}
@@ -152,10 +168,17 @@ function OllieFab() {
     () => false,
   )
   const scamOpen = useSyncExternalStore(subscribeScamSheet, scamSheetOpen, () => false)
+  const [hideReview, setHideReview] = useState(false)
   const [showLabel, setShowLabel] = useState(() => localStorage.getItem(OLLIE_LABEL_KEY) !== '1')
   const [lift, setLift] = useState(88)
   const [tucked, setTucked] = useState(false)
   const hiddenPath = ['/welcome', '/login', '/join', '/onboarding'].includes(location.pathname) || location.pathname.startsWith('/pre')
+  useEffect(() => {
+    const sync = () => setHideReview(document.getElementById('customer-root')?.getAttribute('data-hide-fab') === '1')
+    sync()
+    window.addEventListener('ocbc-chrome', sync)
+    return () => window.removeEventListener('ocbc-chrome', sync)
+  }, [location.pathname])
   useEffect(() => {
     if (!showLabel) return
     const timer = window.setTimeout(() => {
@@ -183,7 +206,7 @@ function OllieFab() {
     observer.observe(root)
     return () => observer.disconnect()
   }, [location.pathname, app.helpOpen])
-  if (hiddenPath || tucked || appTour || flowTour || scamOpen || (app.helpOpen && app.helpView === 'ai')) return null
+  if (hiddenPath || tucked || appTour || flowTour || scamOpen || hideReview || (app.helpOpen && app.helpView === 'ai')) return null
   const label = translate(app.prefs.language, 'help.askOllie')
   return (
     <button
@@ -438,7 +461,7 @@ export function Page({
           <ExplainButton />
         </span>
       </header>
-      <main id="main" ref={mainRef} key={location.pathname} className="mb-[76px] min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[var(--bg)]">
+      <main id="main" ref={mainRef} key={location.pathname} className={`${location.pathname.startsWith('/flow') ? '' : 'mb-[76px]'} min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[var(--bg)]`}>
         <GuideDone />
         {children}
       </main>

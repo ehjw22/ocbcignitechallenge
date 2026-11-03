@@ -200,9 +200,7 @@ export function TourFrame({
             width: hole.width,
             height: hole.height,
             borderRadius: hole.radius,
-            boxShadow: '0 0 0 9999px rgba(0,0,0,0.5)',
-            outline: '2px solid var(--accent)',
-            outlineOffset: 0,
+            boxShadow: '0 0 0 9999px rgba(40,48,54,0.55)',
           }}
         />
       )}
@@ -211,11 +209,16 @@ export function TourFrame({
           ref={cardRef}
           role="dialog"
           aria-labelledby="tour-title"
-          className="flex flex-col overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--card)] p-3 text-[var(--text)] shadow-lg"
+          className="flex max-h-[45vh] flex-col overflow-hidden rounded-md bg-[#2A3B43] p-5 text-white shadow-lg"
         >
+          <div className="mb-3 flex gap-1" aria-hidden>
+            {Array.from({ length: total }, (_, index) => (
+              <span key={index} className={`h-1 flex-1 rounded-full ${index < step ? 'bg-white' : 'bg-white/30'}`} />
+            ))}
+          </div>
           <div className="flex shrink-0 items-start gap-2">
-            <h2 id="tour-title" className="min-w-0 flex-1 text-[1.05rem] font-semibold leading-snug">{title}</h2>
-            <button type="button" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-2xl leading-none" aria-label={t('close')} onClick={onClose}>
+            <h2 id="tour-title" className="min-w-0 flex-1 text-[15px] font-semibold leading-snug">{title}</h2>
+            <button type="button" className="flex h-11 w-11 shrink-0 items-center justify-center text-2xl leading-none text-white" aria-label={t('close')} onClick={onClose}>
               ×
             </button>
           </div>
@@ -236,18 +239,18 @@ export function TourFrame({
                   void Promise.resolve(speak(`${title}. ${body}`)).finally(() => setPlaying(false))
                 }}
               />
-              <span className="text-sm tabular-nums">{step} / {total}</span>
+              <span className="sr-only" aria-live="polite">{translate(app.prefs.language, 'practice.step', { n: step, total })}</span>
             </div>
             <div className="flex flex-wrap gap-2">
               <button
                 type="button"
-                className="h-11 shrink-0 rounded-xl border border-[var(--line)] bg-[var(--soft)] px-3 font-semibold disabled:opacity-40"
+                className="h-11 shrink-0 bg-transparent px-1 font-semibold text-white underline disabled:opacity-40"
                 disabled={step <= 1}
                 onClick={onBack}
               >
                 {t('back')}
               </button>
-              <button type="button" className="h-11 shrink-0 rounded-xl bg-[var(--accent)] px-3 font-semibold text-[var(--on-accent)]" onClick={onNext}>
+              <button type="button" className="h-11 shrink-0 bg-transparent px-1 font-semibold text-white underline" onClick={onNext}>
                 {nextLabel}
               </button>
             </div>
