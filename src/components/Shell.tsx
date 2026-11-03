@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
-import { ArrowLeftRight, ChevronLeft, Headset, House, Sprout, X } from 'lucide-react'
+import { ArrowLeftRight, ChevronLeft, Gift, Headset, House, Sprout, X } from 'lucide-react'
 import { useApp } from '@/context/AppContext'
 import { JOURNEY_IDS } from '@/data/flows'
 import { translate } from '@/i18n'
@@ -20,6 +20,7 @@ const NAV = [
   { to: '/', key: 'nav.home', guide: 'nav-home', end: true, center: false },
   { to: '/plan', key: 'nav.plan', guide: 'nav-plan', end: false, center: false },
   { to: '/pay', key: 'nav.pay', guide: 'nav-pay', end: false, center: true },
+  { to: '/rewards', key: 'nav.rewards', guide: 'nav-rewards', end: false, center: false },
   { to: '/more', key: 'nav.more', guide: 'nav-more', end: false, center: false },
 ]
 
@@ -116,7 +117,7 @@ export function BottomNav() {
   if (scamOpen || location.pathname.startsWith('/flow')) return null
   return (
     <nav aria-label={t('nav.home')} className="app-nav">
-      <div className="grid h-[64px] grid-cols-4">
+      <div className="grid h-[64px] grid-cols-5">
       {NAV.map((item) => {
         const label = t(item.key)
         return (
@@ -139,6 +140,8 @@ export function BottomNav() {
                   <House aria-hidden size={24} strokeWidth={1.75} />
                 ) : item.to === '/plan' ? (
                   <Sprout aria-hidden size={24} strokeWidth={1.75} />
+                ) : item.to === '/rewards' ? (
+                  <Gift aria-hidden size={24} strokeWidth={1.75} />
                 ) : (
                   <MoreGlyph active={isActive} />
                 )}

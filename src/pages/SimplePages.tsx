@@ -126,6 +126,48 @@ export function HelpPage() {
   )
 }
 
+const REWARDS = [
+  { title: 'rewards.dining', cost: 'rewards.diningCost' },
+  { title: 'rewards.grab', cost: 'rewards.grabCost' },
+  { title: 'rewards.cash', cost: 'rewards.cashCost' },
+] as const
+
+export function Rewards() {
+  const app = useApp()
+  const t = (key: string) => translate(app.prefs.language, key)
+  const setScreen = app.setScreen
+  useEffect(() => { setScreen('rewards') }, [setScreen])
+  return (
+    <div className="flex h-full min-h-0 flex-col bg-[var(--bg)] text-[var(--text)]">
+      <header className="flex h-14 items-center justify-between bg-[#E30613] px-3 text-white">
+        <span className="w-11" />
+        <h1 className="text-[16px] font-bold">{t('rewards.title')}</h1>
+        <span className="flex items-center">
+          <Link to="/help" className="flex h-11 w-11 items-center justify-center" aria-label={t('nav.help')}><Headset size={20} /></Link>
+          <button type="button" className="min-h-11 pr-1 text-[15px] font-semibold underline" onClick={app.logout}>{t('look.logout')}</button>
+        </span>
+      </header>
+      <main id="main" className="min-h-0 flex-1 overflow-y-auto px-4 pt-4" style={{ paddingBottom: 'calc(148px + var(--nav-safe, 0px))' }}>
+        <section className="rounded-xl bg-[var(--card)] p-4 shadow-[0_8px_24px_rgba(47,53,61,0.06)]">
+          <p className="text-[28px] font-bold leading-none">1,280 OCBC$</p>
+          <p className="mt-2 text-[14px] text-[var(--muted)]">{t('rewards.earned')}</p>
+        </section>
+        <ul className="mt-4 space-y-3">
+          {REWARDS.map((item) => (
+            <li key={item.title} className="rounded-xl bg-[var(--card)] p-4 shadow-[0_8px_24px_rgba(47,53,61,0.06)]">
+              <p className="text-[15px] font-bold">{t(item.title)}</p>
+              <p className="mt-1 text-[13px] text-[var(--muted)]">{t(item.cost)}</p>
+              <button type="button" disabled className="mt-3 min-h-11 rounded-lg bg-[var(--soft)] px-4 text-[14px] font-semibold text-[var(--muted)]">{t('rewards.redeem')}</button>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-4 text-[12px] text-[var(--muted)]">{t('rewards.note')}</p>
+      </main>
+      <BottomNav />
+    </div>
+  )
+}
+
 export function More() {
   const app = useApp()
   const t = (key: string) => translate(app.prefs.language, key)

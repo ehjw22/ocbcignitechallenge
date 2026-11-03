@@ -90,6 +90,7 @@
     "plan": "Plan",
     "accounts": "Accounts",
     "pay": "Pay & Transfer",
+    "rewards": "Rewards",
     "help": "Help",
     "more": "More"
   },
@@ -652,7 +653,7 @@
       "helpTitle": "Help is always here",
       "helpBody": "Choose the assistant, a step-by-step guide, or a message to us.",
       "navTitle": "Move around",
-      "navBody": "Use Home, Accounts, Pay & Transfer, Help and More."
+      "navBody": "Use Home, Plan, Pay & Transfer, Rewards and More."
     },
     "paynow": {
       "title": "PayNow",
@@ -820,6 +821,18 @@
   "profile": {
     "title": "Profile",
     "sample": "Saved on this device."
+  },
+  "rewards": {
+    "title": "Rewards",
+    "earned": "Earned from your card spending",
+    "dining": "5 SGD dining voucher",
+    "diningCost": "500 OCBC$",
+    "grab": "Grab ride credit",
+    "grabCost": "800 OCBC$",
+    "cash": "Cash rebate",
+    "cashCost": "1,000 OCBC$",
+    "redeem": "Redeem",
+    "note": "Rewards are view-only in this demo."
   },
   "notFound": {
     "title": "Page not found",

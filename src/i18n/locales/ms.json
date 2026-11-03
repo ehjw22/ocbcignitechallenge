@@ -4,6 +4,7 @@
     "plan": "Rancang",
     "accounts": "Akaun",
     "pay": "Bayar & Pindah",
+    "rewards": "Ganjaran",
     "help": "Bantuan",
     "more": "Lagi"
   },
@@ -326,6 +327,18 @@
   },
   "profile": {
     "sample": "Disimpan pada peranti ini."
+  },
+  "rewards": {
+    "title": "Ganjaran",
+    "earned": "Diperoleh daripada perbelanjaan kad anda",
+    "dining": "Baucar makan 5 SGD",
+    "diningCost": "500 OCBC$",
+    "grab": "Kredit perjalanan Grab",
+    "grabCost": "800 OCBC$",
+    "cash": "Rebat tunai",
+    "cashCost": "1,000 OCBC$",
+    "redeem": "Tebus",
+    "note": "Ganjaran hanya untuk dilihat dalam demo ini."
   },
   "notFound": {
     "body": "Halaman itu tidak tersedia.",

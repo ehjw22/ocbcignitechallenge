@@ -4,6 +4,7 @@
     "plan": "计划",
     "accounts": "账户",
     "pay": "转账与付款",
+    "rewards": "奖励",
     "help": "帮助",
     "more": "更多"
   },
@@ -594,7 +595,7 @@
       "helpTitle": "帮助一直都在",
       "helpBody": "请选择助手、分步指引，或给我们发消息。",
       "navTitle": "在应用里移动",
-      "navBody": "使用首页、账户、付款和转账、帮助和更多。"
+      "navBody": "使用首页、计划、转账与付款、奖励和更多。"
     },
     "overseas": {
       "title": "海外转账",
@@ -821,6 +822,18 @@
   "profile": {
     "title": "个人资料",
     "sample": "保存在此设备上。"
+  },
+  "rewards": {
+    "title": "奖励",
+    "earned": "来自您的信用卡消费",
+    "dining": "5 SGD 餐饮券",
+    "diningCost": "500 OCBC$",
+    "grab": "Grab 乘车额度",
+    "grabCost": "800 OCBC$",
+    "cash": "现金回扣",
+    "cashCost": "1,000 OCBC$",
+    "redeem": "兑换",
+    "note": "此演示中的奖励仅供查看。"
   },
   "notFound": {
     "title": "找不到页面",
