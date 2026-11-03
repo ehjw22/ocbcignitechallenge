@@ -50,9 +50,7 @@ export function Home() {
       <main id="main" className="mb-[76px] min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[var(--bg)]">
         <GuideDone />
         <header className="flex h-14 items-center justify-between bg-[var(--card)] px-4">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#E7A23A] px-3 py-1 text-[13px] font-semibold text-[var(--text)]">
-            <DemoBadge />
-          </span>
+          <DemoBadge />
           <span className="flex items-center">
             <Link to="/notifications" className="relative flex min-h-11 min-w-11 items-center justify-center" aria-label={t('notifications.title')}>
               <Bell aria-hidden size={22} strokeWidth={1.5} />
@@ -70,7 +68,7 @@ export function Home() {
             <path d="M0 0H150C210 20 230 70 190 110C150 150 190 168 240 168H0Z" fill="#E30613" />
           </svg>
           <div className="relative flex h-full items-center px-4 text-white">
-            <div className="max-w-[62%]">
+            <div className="max-w-[46%]">
               <p className="text-[16px] font-bold">{t('look.hi', { name: app.profile.shortName })}</p>
               <p className="mt-1 text-[13px] leading-snug">{tips[tip]}</p>
             </div>
@@ -99,10 +97,10 @@ export function Home() {
         </section>
 
         <div className="mt-4 flex items-center gap-2 px-4">
-          <button type="button" className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[var(--soft)]" aria-pressed={hidden} aria-label={hidden ? t('show') : t('hide')} onClick={() => setHidden((value) => !value)}>
+          <button type="button" className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-[var(--soft)]" aria-pressed={hidden} aria-label={hidden ? t('show') : t('hide')} onClick={() => setHidden((value) => !value)}>
             {hidden ? <EyeOff size={18} /> : <Eye size={18} />}
           </button>
-          <div className="flex gap-2 overflow-x-auto pb-1">
+          <div className="flex min-w-0 max-w-full gap-2 overflow-x-auto pb-1">
             {PILLS.map((id) => (
               <button
                 key={id}
@@ -148,16 +146,16 @@ export function Home() {
           )}
         </section>
 
-        <section className="flex gap-3 overflow-x-auto px-4 py-4">
-          <Link to="/flow/goal" className="w-[240px] shrink-0 rounded-xl bg-gradient-to-br from-[#F8E7E2] to-white p-4">
+        <section className="flex min-w-0 max-w-full gap-3 overflow-x-auto px-4 py-4">
+          <Link to="/flow/goal" className="w-[240px] shrink-0 rounded-xl bg-[var(--soft)] p-4 text-[var(--text)]">
             <p className="text-[10px] font-bold tracking-wide">{t('look.goalKicker')}</p>
             <p className="mt-1 text-[15px] font-bold">{t('look.goalLine')}</p>
           </Link>
-          <Link to="/insights" className="w-[240px] shrink-0 rounded-xl bg-gradient-to-br from-[#F8E7E2] to-white p-4">
+          <Link to="/insights" className="w-[240px] shrink-0 rounded-xl bg-[var(--soft)] p-4 text-[var(--text)]">
             <p className="text-[10px] font-bold tracking-wide">{t('look.insightKicker')}</p>
             <p className="mt-1 text-[15px] font-bold">{t('look.insightLine')}</p>
           </Link>
-          <Link to="/flow/overseas?practice=1&tour=1" data-guide="home-foryou" className="w-[240px] shrink-0 rounded-xl bg-gradient-to-br from-[#F8E7E2] to-white p-4">
+          <Link to="/flow/overseas?practice=1&tour=1" data-guide="home-foryou" className="w-[240px] shrink-0 rounded-xl bg-[var(--soft)] p-4 text-[var(--text)]">
             <span className="rounded-full bg-[var(--soft)] px-2 py-0.5 text-[11px] font-bold">{t('look.new')}</span>
             <p className="mt-2 text-[15px] font-bold">{t('forYouBody')}</p>
           </Link>
@@ -189,7 +187,7 @@ export function Home() {
 
         {app.prefs.spendingInsights && (
           <section className="px-4 pb-6">
-            <Link to="/insights" className="block rounded-xl bg-gradient-to-br from-[#F8E7E2] to-white p-4">
+            <Link to="/insights" className="block rounded-xl bg-[var(--soft)] p-4 text-[var(--text)]">
               <span className="rounded-full bg-[var(--soft)] px-2 py-0.5 text-[11px] font-bold">{t('look.new')}</span>
               <p className="mt-2 font-bold">{t('insights')}</p>
               <p className="text-[13px]">

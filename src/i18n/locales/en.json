@@ -44,7 +44,7 @@
   "available": "Available",
   "sampleBalance": "Available",
   "quickActions": "Your shortcuts",
-  "recent": "Recent",
+  "recent": "Recent transactions",
   "insights": "Spending insights",
   "insightsHint": "See a summary of your spending.",
   "turnOnInsights": "Turn on",
@@ -565,7 +565,7 @@
     "purposeOther": "Other",
     "germany": "Germany",
     "accountNumber": "Account number",
-    "nameSample": "Name on record: {name}",
+    "nameSample": "Demo name check: {name}",
     "otpTitle": "Enter one-time PIN",
     "otpBody": "Demo: any 6 digits",
     "otpLabel": "One-time PIN",
@@ -627,8 +627,12 @@
     "investmentsBody": "Investment details are not available here.",
     "insurance": "Insurance",
     "insuranceBody": "Insurance details are not available here.",
-    "rewards": "Rewards",
-    "rewardsBody": "Rewards balance: 1,240 points."
+    "loans": "Loans",
+    "loansBody": "You have no loans in this demo.",
+    "moneyLockBody": "Money Lock holds part of your balance so it cannot be transferred until you release it.",
+    "statements": "Statements",
+    "statementsBody": "These are sample e-statements. Nothing is sent to a real inbox.",
+    "lockMoney": "Lock money"
   },
   "demo": {
     "mei": "Sending money to Tan Wei Ming in Australia.",
@@ -976,9 +980,13 @@
     "showMe": "Show me how",
     "planTitle": "Plan your finances",
     "track": "TRACK",
+    "trackHint": "See where your money went",
     "invest": "INVEST",
+    "investHint": "Sample investments",
     "goals": "GOALS",
+    "goalsHint": "Save for something that matters",
     "insure": "INSURE",
+    "insureHint": "Sample cover",
     "paymentsTitle": "Payments & Transfers",
     "practiseStrip": "Practise a transfer first",
     "manage": "Manage",
@@ -997,5 +1005,19 @@
     "slide": "Slide to pay",
     "slidePractice": "Slide to pay (practice)",
     "ollieSafety": "Ollie · Safety check"
+  },
+  "risk": {
+    "titleCheck": "Quick safety check",
+    "titleHigh": "Stop and check: this may be a scam",
+    "check": "Check",
+    "high": "High risk",
+    "reason": {
+      "newPayee": "This is your first payment to this person.",
+      "large": "{amount} or more.",
+      "day": "You've sent {amount} to this person in the last 24 hours.",
+      "overseas": "Overseas, to someone new.",
+      "words": "The reference mentions '{word}', which scammers often use.",
+      "unusual": "Much more than you usually send (about {usual})."
+    }
   }
 }

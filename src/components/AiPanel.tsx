@@ -324,7 +324,7 @@ export function AiPanel() {
                 {showCard && message.action && (
                   <div className="mt-3 space-y-2 rounded-xl border border-[var(--line)] p-3">
                     <p>{confirmCopy(message.action, t)}</p>
-                    <p className="text-sm text-[var(--muted)]">{t('ai.sampleRate')}</p>
+                    {message.action.intent === 'overseas' && <p className="text-sm text-[var(--muted)]">{t('ai.sampleRate')}</p>}
                     <button type="button" className="min-h-11 w-full rounded-xl bg-[var(--accent)] px-3 font-semibold text-[var(--on-accent)]" onClick={() => fill(message.action as ChatAction)}>{t('ai.fillIn')}</button>
                     <button type="button" className="min-h-11 w-full rounded-xl border border-[var(--line)] px-3 font-semibold" onClick={() => { app.setHelpOpen(false); queueShowHow(message.action?.intent || message.journeyId || '', false); navigate(journeyRoute(message.action?.intent || '')) }}>{t('ai.chipHow')}</button>
                     <button type="button" className="min-h-11 w-full rounded-xl border border-[var(--line)] px-3 font-semibold" onClick={() => setCancelled((prev) => ({ ...prev, [index]: true }))}>{t('ai.cancelTask')}</button>
@@ -344,7 +344,7 @@ export function AiPanel() {
                 )}
                 {message.role === 'assistant' && (
                   <div className="mt-3 flex flex-wrap gap-2">
-                    {(message.suggestions?.length ? message.suggestions.map((item) => ({ label: item, ask: item })) : FOLLOW.map((key) => ({ label: t(key), ask: key === 'ai.chipStaff' ? '' : t(key), staff: key === 'ai.chipStaff', how: key === 'ai.chipHow' }))).map((chip) => (
+                    {FOLLOW.map((key) => ({ label: t(key), ask: key === 'ai.chipStaff' ? '' : t(key), staff: key === 'ai.chipStaff', how: key === 'ai.chipHow' })).map((chip) => (
                       <button
                         key={chip.label}
                         type="button"

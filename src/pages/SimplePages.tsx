@@ -43,8 +43,8 @@ export function PayHub() {
   ] as const
   return (
     <Page title="">
-      <div className="bg-gradient-to-b from-[#FFF6E8] to-[var(--bg)] px-4 pb-2 pt-2">
-        <h1 className="max-w-[70%] text-[24px] font-bold leading-tight">{t('look.paymentsTitle')}</h1>
+      <div className="px-4 pb-2 pt-2">
+        <h1 className="max-w-[70%] text-[24px] font-bold leading-tight text-[var(--text)]">{t('look.paymentsTitle')}</h1>
       </div>
       <div className="px-4">
         <div className="grid grid-cols-3 gap-y-4 rounded-xl bg-[var(--card)] p-4 shadow-[0_8px_24px_rgba(47,53,61,0.06)]">
@@ -55,7 +55,7 @@ export function PayHub() {
             </Link>
           ))}
         </div>
-        <Link to="/flow/transfer?practice=1&tour=1" className="mt-3 flex items-center justify-between rounded-xl bg-[#F8E7E2] px-4 py-3">
+        <Link to="/flow/transfer?practice=1&tour=1" className="mt-3 flex items-center justify-between rounded-xl bg-[var(--soft)] px-4 py-3 text-[var(--text)]">
           <span>
             <span className="mr-2 rounded-full bg-white px-2 py-0.5 text-[11px] font-bold">{t('look.new')}</span>
             <span className="text-[15px] font-bold">{t('look.practiseStrip')}</span>
@@ -134,9 +134,9 @@ export function More() {
       <main id="main" className="mb-[76px] min-h-0 flex-1 overflow-y-auto">
         <section className="px-4 pt-4">
           <h2 className="text-[18px] font-bold">{t('look.newForYou')}</h2>
-          <div className="mt-2 flex gap-3 overflow-x-auto pb-2">
+          <div className="mt-2 flex min-w-0 max-w-full gap-3 overflow-x-auto pb-2">
             {[t('look.cardOllie'), t('look.cardTours'), t('look.cardAccess'), t('look.cardScam')].map((text) => (
-              <article key={text} className="w-[220px] shrink-0 rounded-xl bg-[#F8E7E2] p-4">
+              <article key={text} className="w-[220px] shrink-0 rounded-xl bg-[var(--soft)] p-4 text-[var(--text)]">
                 <span className="rounded-full bg-white px-2 py-0.5 text-[11px] font-bold">{t('look.new')}</span>
                 <p className="mt-2 text-[15px] font-bold">{text}</p>
               </article>
@@ -196,6 +196,26 @@ export function InfoPage({ topic: topicProp }: { topic?: string } = {}) {
   const app = useApp()
   const t = (key: string) => translate(app.prefs.language, key)
   useEffect(() => { app.setScreen(topic) }, [topic])
+  if (topic === 'money-lock' || topic === 'statements') {
+    return (
+      <Page title={t(topic === 'money-lock' ? 'look.moneyLock' : 'info.statements')} back>
+        <div className="space-y-3 p-4">
+          <article className="card p-4">
+            <p>{t(topic === 'money-lock' ? 'info.moneyLockBody' : 'info.statementsBody')}</p>
+          </article>
+          {topic === 'money-lock' ? (
+            <Link to="/flow/limit" className="ocbc-btn">{t('info.lockMoney')}</Link>
+          ) : (
+            <ul className="divide-y divide-[var(--line)] rounded-xl bg-[var(--card)]">
+              {['Nov 2026', 'Oct 2026', 'Sep 2026'].map((month) => (
+                <li key={month} className="flex min-h-12 items-center justify-between px-3 text-[15px] font-semibold">{month}</li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </Page>
+    )
+  }
   const key = topic === 'investments' || topic === 'insurance' || topic === 'loans' ? topic : 'investments'
   return (
     <Page title={t(`info.${key}`)} back>

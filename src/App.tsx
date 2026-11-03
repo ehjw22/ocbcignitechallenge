@@ -22,7 +22,7 @@ function Gate({ children }: { children: ReactNode }) {
   const path = useLocation().pathname
   const welcome = path === '/welcome' || path === '/login' || path.startsWith('/pre')
   const known = path === '/' || welcome || path === '/join' || path === '/onboarding'
-    || ['/accounts', '/txn/', '/notifications', '/profile', '/pay', '/plan', '/flow/', '/help', '/more', '/settings', '/cards', '/info/', '/insights', '/investments', '/insurance'].some((item) => path === item || path.startsWith(item))
+    || ['/accounts', '/txn/', '/notifications', '/profile', '/pay', '/plan', '/flow/', '/help', '/more', '/settings', '/cards', '/info/', '/insights', '/investments', '/insurance', '/loans'].some((item) => path === item || path.startsWith(item))
   const quizDone = prefs.quizCompleted
   if (!known) return children
   if (!sessionId && path === '/join') return <Navigate to="/login" replace />
@@ -60,6 +60,7 @@ function Customer() {
         <Route path="/info/:topic" element={<InfoPage />} />
         <Route path="/investments" element={<InfoPage topic="investments" />} />
         <Route path="/insurance" element={<InfoPage topic="insurance" />} />
+        <Route path="/loans" element={<InfoPage topic="loans" />} />
         <Route path="/insights" element={<Insights />} />
         <Route path="*" element={<NotFound />} />
       </Routes>

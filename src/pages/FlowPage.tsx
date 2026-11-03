@@ -13,7 +13,8 @@ import { getFlowTour, startGuide, subscribeFlowTour } from '@/lib/guide'
 import { formatRate, nextRate } from '@/lib/rates'
 import { beginShowHow, peekShowHow, takeShowHow } from '@/lib/showHow'
 import { speak } from '@/lib/speech'
-import { assessTransfer, SCAM_FLOWS } from '@/lib/scamCheck'
+import { assessTransferRisk, candidateKeys, loadRiskConfig, type RiskLevel, type RiskReason } from '@/lib/transferRisk'
+import { loadTransferHistory, recordTransfer } from '@/lib/transferHistory'
 import { validateForm, type Issue } from '@/lib/validate'
 import { ScamSheet } from '@/components/ScamSheet'
 
@@ -34,8 +35,16 @@ export function FlowPage() {
   const [stage, setStage] = useState<'form' | 'review' | 'otp' | 'done'>('form')
   const [otp, setOtp] = useState('')
   const [otpError, setOtpError] = useState('')
-  const [unusual, setUnusual] = useState(false)
-  const [guard, setGuard] = useState<{ amount: number; name: string; reasons: ReturnType<typeof assessTransfer> } | null>(null)
+  const [guard, setGuard] = useState<{
+    amount: number
+    name: string
+    level: RiskLevel
+    reasons: RiskReason[]
+    words: string[]
+    dayTotal: number
+    usual: number
+    payeeKey: string
+  } | null>(null)
   const proceedRef = useRef<(() => void) | null>(null)
   const [ref, setRef] = useState('')
   const [wstep, setWstep] = useState(0)
@@ -233,28 +242,38 @@ export function FlowPage() {
     }
     const amount = Number(String(form[flow.amountField || ''] || '').replace(/,/g, ''))
     if (openScamCheck(amount, () => { setIssues([]); setStage('review') })) return
-    const high = flow.amountField && (amount >= 3000 || amount > app.profile.usualTransfer * 3)
-    if (high) {
-      setUnusual(true)
-      return
-    }
     setIssues([])
     setStage('review')
   }
 
   const openScamCheck = (amount: number, proceed: () => void) => {
-    if (!SCAM_FLOWS.includes(flow.id as (typeof SCAM_FLOWS)[number])) return false
-    const reasons = assessTransfer({
+    const watched = ['paynow', 'transfer', 'overseas', 'scan', 'bill', 'giro', 'topup']
+    if (!watched.includes(flow.id) || !flow.amountField) return false
+    const keys = candidateKeys(flow.id, form)
+    const history = loadTransferHistory(app.profile.id)
+    const result = assessTransferRisk({
       flowId: flow.id,
       amount,
-      usual: app.profile.usualTransfer,
-      fields: form,
+      keys,
       payees: app.payees,
+      history,
+      text: [form.reference, form.purpose, form.note, form.message].filter(Boolean).join(' '),
+      usualTransfer: app.profile.usualTransfer,
+      config: loadRiskConfig(),
     })
-    if (!reasons.length) return false
+    if (result.level === 'none') return false
     proceedRef.current = proceed
-    app.log('scam_check', { trigger: reasons.join(','), answers: '', result: 'shown', screen: flow.id, amount })
-    setGuard({ amount, name: displayPayee || t('flows.recipient'), reasons })
+    app.log('scam_check', { trigger: result.reasons.join(','), level: result.level, reasons: result.reasons.join(','), answers: '', result: 'shown', screen: flow.id, amount })
+    setGuard({
+      amount,
+      name: displayPayee || t('flows.recipient'),
+      level: result.level,
+      reasons: result.reasons,
+      words: result.words,
+      dayTotal: result.dayTotal,
+      usual: app.profile.usualTransfer,
+      payeeKey: keys[0] || flow.id,
+    })
     return true
   }
 
@@ -271,6 +290,8 @@ export function FlowPage() {
         const from = form.from || '360'
         app.setBalance(from, (app.balances[from] ?? 0) - amount)
         app.addTxn({ id: reference, title: displayPayee || title, amount: -amount, date: new Date().toISOString().slice(0, 10), accountId: from })
+        const keys = candidateKeys(flow.id, form)
+        if (keys[0]) recordTransfer({ userId: app.profile.id, payeeKey: keys[0], amount, at: Date.now() })
       }
       if (flow.id === 'card-lock') lockCard(form.card || 'credit', form.lock !== 'no')
       if (flow.id === 'card-lost') lockCard(form.card || 'credit', true)
@@ -370,7 +391,16 @@ export function FlowPage() {
                     key={payee.id}
                     type="button"
                     className="min-h-12 w-full rounded-xl border border-[var(--line)] bg-[var(--card)] px-3 text-left"
-                    onClick={() => setForm((prev) => ({ ...prev, name: payee.name, country: payee.country }))}
+                    onClick={() => {
+                      setForm((prev) => ({
+                        ...prev,
+                        name: payee.name,
+                        country: payee.country || prev.country,
+                        swift: payee.swift || prev.swift,
+                        account: payee.account || prev.account,
+                      }))
+                      setWstep(1)
+                    }}
                   >
                     {payee.label}
                   </button>
@@ -594,44 +624,24 @@ export function FlowPage() {
         <ScamSheet
           amount={guard.amount}
           name={guard.name}
+          level={guard.level}
           reasons={guard.reasons}
+          words={guard.words}
+          dayTotal={guard.dayTotal}
+          usual={guard.usual}
           flowId={flow.id}
           onCancel={(answers) => {
-            app.log('scam_check', { trigger: guard.reasons.join(','), answers, result: 'cancelled', screen: flow.id, amount: guard.amount })
+            app.log('scam_check', { trigger: guard.reasons.join(','), level: guard.level, reasons: guard.reasons.join(','), answers, result: 'cancelled', screen: flow.id, amount: guard.amount })
             setGuard(null)
           }}
           onContinue={(answers) => {
-            app.log('scam_check', { trigger: guard.reasons.join(','), answers, result: 'continued', screen: flow.id, amount: guard.amount })
+            app.log('scam_check', { trigger: guard.reasons.join(','), level: guard.level, reasons: guard.reasons.join(','), answers, result: 'continued', screen: flow.id, amount: guard.amount })
             const proceed = proceedRef.current
             setGuard(null)
             proceed?.()
           }}
           onClose={() => setGuard(null)}
         />
-      )}
-      {unusual && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/45 p-3 md:items-center" role="dialog" aria-modal="true" aria-labelledby="unusual-title">
-          <div className="card w-full max-w-sm space-y-3 p-4">
-            <h2 id="unusual-title" className="text-lg font-semibold">{t('unusual.title')}</h2>
-            <Speakable
-              text={t('unusual.body', { amount: formatSGD(Number(form[flow.amountField || 'amount'] || 0)), name: lookedUp || payee || t('flows.recipient') })}
-              auto={app.prefs.readAloud}
-            />
-            <button type="button" className="tap w-full rounded-xl bg-[var(--accent)] font-semibold text-[var(--on-accent)]" onClick={() => { setUnusual(false); setIssues([]); setStage('review') }}>
-              {t('yesContinue')}
-            </button>
-            <button
-              type="button"
-              className="tap w-full rounded-xl border border-[var(--line)]"
-              onClick={() => {
-                setUnusual(false)
-                document.getElementById(`field-${flow.amountField}`)?.focus()
-              }}
-            >
-              {t('changeAmount')}
-            </button>
-          </div>
-        </div>
       )}
     </Page>
   )

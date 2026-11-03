@@ -774,8 +774,12 @@
     "investmentsBody": "投资详情在这里不可用。",
     "insurance": "保险",
     "insuranceBody": "保险详情在这里不可用。",
-    "rewards": "奖赏",
-    "rewardsBody": "您有 1,240 奖赏积分。"
+    "loans": "贷款",
+    "loansBody": "这个演示里没有贷款。",
+    "moneyLockBody": "资金锁会留住一部分余额，锁定后不能转出，直到你解开。",
+    "statements": "结单",
+    "statementsBody": "这些是示例电子结单，不会发到真实邮箱。",
+    "lockMoney": "锁定资金"
   },
   "totalBalance": "总余额",
   "totalBalanceHint": "360 账户和结单储蓄",
@@ -977,9 +981,13 @@
     "showMe": "告诉我怎么做",
     "planTitle": "规划你的财务",
     "track": "追踪",
+    "trackHint": "看看钱花到哪里",
     "invest": "投资",
+    "investHint": "示例投资",
     "goals": "目标",
+    "goalsHint": "为重要的事储蓄",
     "insure": "保险",
+    "insureHint": "示例保障",
     "paymentsTitle": "付款与转账",
     "practiseStrip": "先练习一笔转账",
     "manage": "管理",
@@ -998,5 +1006,19 @@
     "slide": "滑动付款",
     "slidePractice": "滑动付款（练习）",
     "ollieSafety": "Ollie · 安全检查"
+  },
+  "risk": {
+    "titleCheck": "快速安全检查",
+    "titleHigh": "停下来核对：这可能是诈骗",
+    "check": "核对",
+    "high": "高风险",
+    "reason": {
+      "newPayee": "这是你第一次付款给这个人。",
+      "large": "{amount}或更多。",
+      "day": "过去 24 小时你已向这个人转了 {amount}。",
+      "overseas": "汇到海外，收款人是新的。",
+      "words": "附言提到“{word}”，骗子常用这个说法。",
+      "unusual": "比你平时转的多很多（大约 {usual}）。"
+    }
   }
 }

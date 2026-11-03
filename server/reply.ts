@@ -68,7 +68,7 @@ export function detectTask(message: string, payees: PayeeHint[] = []) {
   const amountMatch = text.match(/(?:s\$|sgd|aud|美元|新币|坡币)?\s*(\d{1,6}(?:[.,]\d{1,2})?)\s*(?:dollars|dollar|sgd|块|元|蚊)?/i)
   const amount = amountMatch ? amountMatch[1].replace(',', '') : ''
   const overThousand = Number(amount) > 1000
-  const police = /police|government|scam|investment|guaranteed return|promised return|job offer|\bjob\b|警察|政府|诈骗|骗局|投资|回报|工作|騙|投資|回報/i.test(text)
+  const police = /police|government|scam|investment|guaranteed return|promised return|job offer|\bjob\b|中奖|中獎|prize|lucky draw|hadiah|警察|政府|诈骗|骗局|投资|回报|工作|騙|投資|回報/i.test(text)
   const son = /son|儿子|兒子|仔/i.test(text)
   const overseas = /australia|australian|澳洲|澳大利亚|澳大利亞|overseas|海外|国外|國外/i.test(text)
   const send = /send|transfer|remit|汇|匯|转|轉|寄|送钱|送錢/i.test(text)
@@ -102,7 +102,7 @@ export function detectTask(message: string, payees: PayeeHint[] = []) {
   const firstTime = Boolean(named) && !payees.some((payee) => (payee.name || '').toLowerCase() === named.toLowerCase())
   let scamRisk: 'none' | 'check' | 'high' = 'none'
   if (police) scamRisk = 'high'
-  else if (action && (action.intent === 'overseas' || overThousand || firstTime)) scamRisk = 'check'
+  else if (action && (overThousand || (action.intent === 'overseas' && firstTime))) scamRisk = 'check'
   const handover = police || /person|human|staff|someone|客服|人工|工作人员|職員/i.test(text)
   return { action, scamRisk, handover }
 }

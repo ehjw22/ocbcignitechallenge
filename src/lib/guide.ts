@@ -109,7 +109,7 @@ export function startGuide(options: {
       missing.push(step.element)
       options.onMissing(step.element, step.id)
     }
-    return Boolean(found)
+    return true
   })
   if (!steps.length) return { started: false, missing }
   finished = false

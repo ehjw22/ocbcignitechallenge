@@ -12,6 +12,7 @@ import { FUNNELS, SEED_ERRORS, SEED_QUESTIONS, SEED_REFUSED } from '@/data/seed'
 import { chartPalette } from '@/data/bank'
 import { translate } from '@/i18n'
 import { guideById } from '@/lib/guide'
+import { loadRiskConfig, saveRiskConfig } from '@/lib/transferRisk'
 import { languageById } from '@/lib/languages'
 import type { StaffRequest } from '@/lib/types'
 
@@ -35,7 +36,7 @@ type QueueRow = {
   stepIndex: number
   stepTotal: number
   journeyId: string
-  source: 'Ollie handoff' | 'Guided journey'
+  source: 'Ollie handoff' | 'Guided journey' | 'Message staff'
   waitSec: number
   priority: Priority
   status: 'received' | 'in_progress' | 'replied'
@@ -194,7 +195,7 @@ function liveRow(request: StaffRequest, topic: string): QueueRow {
     stepIndex,
     stepTotal,
     journeyId: guide ? request.task : 'overseas',
-    source: 'Ollie handoff',
+    source: request.urgent ? 'Ollie handoff' : 'Message staff',
     waitSec,
     priority: request.urgent || /fraud|scam|lost/i.test(request.summary) ? 'High' : waitSec < 180 ? 'Low' : 'Med',
     status: request.status,
@@ -473,7 +474,7 @@ export function Admin() {
                               ['Status', null],
                               ['Actions', null],
                             ] as const).map(([label, key]) => (
-                              <th key={label} className="px-3 py-2">
+                              <th key={label} className={`px-3 py-2 ${label === 'Needs' ? 'hidden min-[1400px]:table-cell' : ''}`}>
                                 {key ? <button type="button" className="uppercase tracking-wide" onClick={() => toggleSort(key)}>{label}</button> : label}
                               </th>
                             ))}
@@ -482,7 +483,7 @@ export function Admin() {
                         <tbody>
                           {visible.map((row) => (
                             <tr key={row.id} className="cursor-pointer border-t border-zinc-100 hover:bg-zinc-50" onClick={() => openRow(row)}>
-                              <td className="px-3 py-3 font-medium tabular-nums">{row.ticket}</td>
+                              <td className="whitespace-nowrap px-3 py-3 font-medium tabular-nums">{row.ticket}</td>
                               <td className="px-3 py-3">
                                 <span className="flex items-center gap-2">
                                   <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-zinc-200 text-xs font-semibold">{initials(row.name)}</span>
@@ -493,7 +494,7 @@ export function Admin() {
                                 </span>
                               </td>
                               <td className="px-3 py-3"><Badge tone="lang">{row.language}</Badge></td>
-                              <td className="px-3 py-3"><NeedChips needs={row.needs} /></td>
+                              <td className="hidden px-3 py-3 min-[1400px]:table-cell"><NeedChips needs={row.needs} /></td>
                               <td className="px-3 py-3">{row.topic}<span className="block text-xs text-zinc-500">step {row.stepIndex} of {row.stepTotal}</span></td>
                               <td className="px-3 py-3">{row.source}</td>
                               <td className="px-3 py-3 tabular-nums">{formatWait(row.waitSec)}</td>
@@ -889,7 +890,7 @@ function AnalyticsPanel({ palette, events }: { palette: string[]; events: { id?:
         <ul className="space-y-2 text-sm">
           {SEED_REFUSED.map((item) => <li key={item.q} className="rounded-lg bg-zinc-50 p-3">{item.q} <span className="text-zinc-500">({item.reason})</span></li>)}
           {events.filter((event) => event.type === 'scam_check').map((event, index) => (
-            <li key={event.id || index} className="rounded-lg bg-red-50 p-3">Scam check · {String(event.data.trigger)} · {String(event.data.answers || 'no answers')} · {String(event.data.result)}</li>
+            <li key={event.id || index} className="rounded-lg bg-red-50 p-3">Scam check · {String(event.data.level || 'check')} · {String(event.data.reasons || event.data.trigger)} · {String(event.data.answers || 'no answers')} · {String(event.data.result)}</li>
           ))}
         </ul>
       </article>
@@ -898,9 +899,30 @@ function AnalyticsPanel({ palette, events }: { palette: string[]; events: { id?:
 }
 
 function SettingsPanel({ onExport }: { onExport: () => void }) {
+  const [risk, setRisk] = useState(loadRiskConfig())
+  const save = (key: keyof typeof risk, value: string) => {
+    const next = saveRiskConfig({ [key]: Number(value) || 0 })
+    setRisk(next)
+  }
   return (
     <section className="max-w-xl space-y-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
       <h2 className="font-semibold">Desk settings</h2>
+      <div className="space-y-2 rounded-lg bg-zinc-50 p-3 text-sm">
+        <p className="font-semibold">Transfer safety thresholds (SGD)</p>
+        {([
+          ['largeAmount', 'Any payee'],
+          ['newPayeeAmount', 'New payee'],
+          ['newPayee24hTotal', 'Same new payee in 24 hours'],
+          ['tinyAmount', 'Ignore amounts below'],
+          ['unusualMultiplier', 'Times the usual transfer'],
+          ['coolingHighSeconds', 'High-risk wait (seconds)'],
+        ] as const).map(([key, label]) => (
+          <label key={key} className="flex items-center justify-between gap-3">
+            {label}
+            <input className="h-9 w-24 rounded border border-zinc-300 px-2" inputMode="decimal" value={risk[key]} onChange={(event) => save(key, event.target.value)} />
+          </label>
+        ))}
+      </div>
       <p className="text-sm text-zinc-600">This console uses the same handoff records as Talk to staff. Sample rows are labelled and are not live customers.</p>
       <ul className="space-y-2 text-sm">
         <li className="rounded-lg bg-zinc-50 p-3">Branch: Tampines · Desk OC-04</li>

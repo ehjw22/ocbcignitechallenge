@@ -35,6 +35,7 @@ import {
   saveRequests,
   saveSessionId,
   saveUsers,
+  ticketRef,
   takeAfterLogin,
   setTourSeen,
 } from '@/lib/storage'
@@ -151,6 +152,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const saved = loadRequests()
     return saved.length ? saved : SEED_REQUESTS
   })
+  useEffect(() => {
+    const sync = (event: StorageEvent) => {
+      if (event.key && event.key !== 'ocbc-adaptive-requests') return
+      const saved = loadRequests()
+      if (saved.length) setRequests(saved)
+    }
+    window.addEventListener('storage', sync)
+    return () => window.removeEventListener('storage', sync)
+  }, [])
   const [cards, setCardsState] = useState<CardItem[]>(() => loadCards(SEED_CARDS))
   const [extraTxns, setExtraTxns] = useState<Txn[]>(() => (boot.sessionId && isDemoAccount(boot.sessionId) ? [] : loadExtraTxns()))
   const [baseTxns, setBaseTxns] = useState<Txn[]>(() => {
@@ -316,7 +326,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const addRequest = (input: RequestInput) => {
     const request: StaffRequest = {
       ...input,
-      ref: `OCBC-${Math.random().toString(36).slice(2, 6).toUpperCase()}${Date.now().toString().slice(-3)}`,
+      ref: ticketRef(),
       createdAt: new Date().toISOString(),
       status: 'received',
     }
@@ -368,6 +378,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
     saveProfile(user.profile)
     if (isDemoAccount(user.id)) {
       const book = loadBook(user.id) ?? demoBook(user.id)
+      const seed = demoBook(user.id)
+      if (book && seed && book.txns.length === 0 && seed.txns.length) book.txns = seed.txns
+      if (book && seed) {
+        book.payees = (book.payees.length ? book.payees : seed.payees).map((payee) => {
+          const match = seed.payees.find((item) => item.id === payee.id)
+          return match ? { ...match, ...payee, swift: payee.swift || match.swift, account: payee.account || match.account } : payee
+        })
+      }
       if (book) {
         saveBook(user.id, book)
         showBook(book)

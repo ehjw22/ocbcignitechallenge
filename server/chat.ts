@@ -84,8 +84,9 @@ export async function handleChat(req: IncomingMessage, res: ServerResponse) {
   }
   const last = messages.filter((message) => message.role === 'user').at(-1)?.content ?? ''
   const selectedLanguage = raw.language || 'en'
-  const cantonese = (selectedLanguage === 'zh' || selectedLanguage === 'zh-TW') && raw.dialect === 'cantonese'
-  const pack = localePack(cantonese ? 'zh-TW' : selectedLanguage)
+  const writtenYue = (selectedLanguage === 'zh-TW' || selectedLanguage === 'zh-HK') && raw.dialect === 'cantonese'
+  const askedMalay = /\b(saya|nak|macam|mana|tidak|boleh|pindahan|wang|tolong)\b/i.test(last)
+  const pack = localePack(askedMalay ? 'ms' : writtenYue ? 'zh-TW' : selectedLanguage)
   const userTurns = messages.filter((message) => message.role === 'user').length
   const detail: 'short' | 'full' = raw.detail === 'short' ? 'short' : 'full'
   const demoInput = { message: last, detail, screen: raw.screen || 'app', userTurns }
@@ -97,7 +98,7 @@ export async function handleChat(req: IncomingMessage, res: ServerResponse) {
   const { key, baseURL, model, fallback } = llmSettings()
   if (!key) {
     if (raw.explain) {
-      send(res, 200, explainPayload(cantonese ? 'yue' : selectedLanguage, raw.screen || 'home'))
+      send(res, 200, explainPayload(writtenYue ? 'yue' : askedMalay ? 'ms' : selectedLanguage, raw.screen || 'home'))
       return
     }
     send(res, 200, attachTask(demoReply(pack, demoInput), last, raw.payees || []))
@@ -107,13 +108,15 @@ export async function handleChat(req: IncomingMessage, res: ServerResponse) {
     ? raw.accounts.map((account) => `${account.name} S$${Number(account.balance).toFixed(2)}`).join('; ')
     : ''
   const detailLine = raw.detail === 'short' ? 'Use 1 or 2 short sentences.' : 'Use 2 or 3 short sentences.'
-  const languageRule = cantonese
+  const languageRule = askedMalay
+    ? 'Write every word in Malay. Do not answer in English.'
+    : writtenYue
     ? 'Write every word in spoken Cantonese, using Traditional Chinese characters such as 呢個, 唔好, 而家. Do not write English, Simplified Chinese, or Mandarin.'
     : selectedLanguage === 'zh'
-      ? 'Write every word in Simplified Chinese. Do not use Traditional characters, Cantonese, or English.'
+      ? 'The screen language is Simplified Chinese. Write every word in Simplified Chinese. Dialect only chooses the voice, so do not write Cantonese or Traditional characters.'
       : selectedLanguage === 'zh-TW'
-        ? 'Write every word in Traditional Chinese. Do not use Simplified characters, Cantonese, or English.'
-        : `Write every word in ${raw.languageName || 'English'}. Do not switch language.`
+        ? 'Write every word in Traditional Chinese. Do not use Simplified characters or English.'
+        : `Write every word in ${raw.languageName || 'English'}. If the customer writes in another language, answer in that language.`
   const system = [
     'You are Ollie, a warm and patient OCBC assistant for older and first-time digital banking customers. Use short sentences and explain jargon in plain words.',
     `${languageRule} ${detailLine}`,
@@ -122,7 +125,9 @@ export async function handleChat(req: IncomingMessage, res: ServerResponse) {
     'Never ask for or reveal passwords, OTPs, PINs or card numbers.',
     'Never invent real OCBC rates, fees or balances. If you mention a rate or fee from this demo, call it sample data.',
     'When the user wants to pay, transfer, pay a bill, set up GIRO, save toward a goal, or lock a card, fill action with the intent and any fields you heard. You never complete a payment.',
-    'Set scamRisk to high if they mention a call from the police or government, a job, an investment, or promised returns. Set scamRisk to check for a first overseas transfer, a new payee, or an amount over 1000. Otherwise none.',
+    'Set scamRisk to high only when the customer describes a scam, such as a prize they must pay for first, police, customs, a job offer, or an investment. A normal request to send money, including to their son, is scamRisk none. Set scamRisk to check only when the amount is over 1000 or the transfer is overseas to someone who is not a saved payee. Otherwise none.',
+    'The real menu is Home, Plan, Pay & Transfer, More. Under Pay & Transfer the items are Scan, PayNow, Local transfer, Overseas transfer, Pay a bill, Set up GIRO, Savings goal, Lock or unlock a card, Report a lost card, and Transfer limit. There is no Rewards tab and no Manage Daily Limits item.',
+    'Mention a sample rate only when the task is an overseas transfer or foreign exchange.',
     'Set handover to true if they ask for a person, seem stuck, or a scam is suspected.',
     'For a possible scam, tell them to call the ScamShield Helpline 1799 (free, 24/7). For a lost or stolen card, tell them to call +65 6363 3333. Do not swap those numbers.',
     'Do not put button labels such as "Guide me step by step" in the reply. Put up to 3 short follow-up phrases, in the same language as the reply, in suggestions.',
@@ -143,7 +148,7 @@ export async function handleChat(req: IncomingMessage, res: ServerResponse) {
         { role: 'system' as const, content: system },
         ...messages.map((message) => ({ role: message.role, content: String(message.content).slice(0, MAX_MESSAGE) })),
       ]
-  const replyLanguage = cantonese ? 'zh-TW' : selectedLanguage
+  const replyLanguage = askedMalay ? 'ms' : writtenYue ? 'zh-TW' : selectedLanguage
   const busyPack = localePack(replyLanguage)
   const detected = raw.explain ? { action: null, scamRisk: 'none' as const, handover: false } : detectTask(last, raw.payees || [])
   const finish = (text: string, source: 'llm' | 'demo') => {
@@ -186,7 +191,7 @@ export async function handleChat(req: IncomingMessage, res: ServerResponse) {
   }
   if (!produced.trim()) {
     const local = raw.explain
-      ? explainPayload(cantonese ? 'yue' : replyLanguage, raw.screen || 'home')
+      ? explainPayload(writtenYue ? 'yue' : replyLanguage, raw.screen || 'home')
       : attachTask(withBusyNote(busyPack, demoReply(busyPack, demoInput)), last, raw.payees || [])
     emit({ text: local.reply, done: local })
     res.end()

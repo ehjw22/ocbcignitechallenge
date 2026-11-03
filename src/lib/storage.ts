@@ -112,6 +112,14 @@ export function saveRequests(requests: StaffRequest[]) {
   localStorage.setItem(keys.requests, JSON.stringify(requests))
 }
 
+const TICKET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+
+export function ticketRef() {
+  let body = ''
+  for (let i = 0; i < 7; i += 1) body += TICKET[Math.floor(Math.random() * TICKET.length)]
+  return `OCBC-${body}`
+}
+
 export function loadExtraTxns(): Txn[] {
   try {
     const raw = localStorage.getItem(keys.txns)

@@ -27,6 +27,7 @@ export function Plan() {
               <Link key={tile.to} to={tile.to} className="flex min-h-[120px] flex-col justify-between rounded-xl bg-[var(--card)] p-4 shadow-[0_8px_24px_rgba(47,53,61,0.06)]">
                 <Icon aria-hidden size={22} strokeWidth={1.5} />
                 <span className="text-[13px] font-bold tracking-wide">{t(tile.key)}</span>
+                <span className="text-[12px] leading-snug text-[var(--muted)]">{t(`${tile.key}Hint`)}</span>
               </Link>
             )
           })}

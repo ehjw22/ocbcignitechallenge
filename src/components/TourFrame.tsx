@@ -201,6 +201,7 @@ export function TourFrame({
             height: hole.height,
             borderRadius: hole.radius,
             boxShadow: '0 0 0 9999px rgba(40,48,54,0.55)',
+            outline: '2px solid #fff',
           }}
         />
       )}
@@ -217,7 +218,7 @@ export function TourFrame({
             ))}
           </div>
           <div className="flex shrink-0 items-start gap-2">
-            <h2 id="tour-title" className="min-w-0 flex-1 text-[15px] font-semibold leading-snug">{title}</h2>
+            <h2 id="tour-title" className="min-w-0 flex-1 text-[1.15rem] font-semibold leading-snug">{title}</h2>
             <button type="button" className="flex h-11 w-11 shrink-0 items-center justify-center text-2xl leading-none text-white" aria-label={t('close')} onClick={onClose}>
               ×
             </button>
@@ -244,13 +245,13 @@ export function TourFrame({
             <div className="flex flex-wrap gap-2">
               <button
                 type="button"
-                className="h-11 shrink-0 bg-transparent px-1 font-semibold text-white underline disabled:opacity-40"
+                className="inline-flex min-h-11 min-w-11 items-center justify-center bg-transparent px-3 font-semibold text-white underline disabled:opacity-40"
                 disabled={step <= 1}
                 onClick={onBack}
               >
                 {t('back')}
               </button>
-              <button type="button" className="h-11 shrink-0 bg-transparent px-1 font-semibold text-white underline" onClick={onNext}>
+              <button type="button" className="inline-flex min-h-11 min-w-11 items-center justify-center bg-transparent px-3 font-semibold text-white underline" onClick={onNext}>
                 {nextLabel}
               </button>
             </div>

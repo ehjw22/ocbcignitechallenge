@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useApp } from '@/context/AppContext'
 import { translate } from '@/i18n'
-import { staffSummary } from '@/lib/staffSummary'
 import { Check } from 'lucide-react'
 import { Choice, choiceClass } from './Choice'
 import { FieldError } from './FieldError'
@@ -37,7 +36,7 @@ export function StaffPanel() {
       setError(t('errors.phone'))
       return
     }
-    const summary = `${t(`staff.topic.${topic}`)}: ${message.trim()}${attached && context ? ` (${context})` : ''}`
+    const summary = message.trim()
     const needs = [
       app.prefs.textSize >= 20 ? 'Large text' : '',
       app.prefs.readAloud ? 'Read aloud' : '',
@@ -46,7 +45,7 @@ export function StaffPanel() {
     ].filter(Boolean).join(', ')
     const request = app.addRequest({
       summary,
-      summaryEn: staffSummary('en', { guideId: '', stepId: app.step, screen: app.screen, question: app.lastQuestion, seed: app.staffSeed }),
+      summaryEn: summary,
       task: topic,
       step: app.step || '',
       language: app.prefs.language,

@@ -25,9 +25,9 @@ export function staffSummary(
 }
 
 export function requestText(lang: string, request: Pick<StaffRequest, 'ref' | 'summary' | 'summaryEn'>) {
+  if (request.summary?.trim()) return request.summary
   const key = `staff.tickets.${request.ref}`
   const translated = translate(lang, key)
   if (translated !== key) return translated
-  if (lang === 'en' && request.summaryEn) return request.summaryEn
-  return request.summary
+  return request.summaryEn
 }

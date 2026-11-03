@@ -13,18 +13,12 @@ export function AccountDetail() {
   const t = (key: string) => translate(app.prefs.language, key)
   const account = app.accounts.find((item) => item.id === accountId)
   useEffect(() => { app.setScreen('account') }, [])
-  if (!account) {
-    return (
-      <Page title={t('accounts.title')} back>
-        <p className="p-4">{t('notFound.body')}</p>
-      </Page>
-    )
-  }
+  if (!account) return <NotFound />
   const balance = account.kind === 'card' ? account.balance : app.balances[account.id] ?? account.balance
   const txns = app.txns.filter((txn) => txn.accountId === account.id)
   return (
     <Page title="" back>
-      <div className="bg-gradient-to-b from-[#F8F1F3] to-[var(--bg)] px-4 pb-4">
+      <div className="bg-[var(--bg)] px-4 pb-4 text-[var(--text)]">
         <h1 className="text-[22px] font-bold">{t(account.nameKey)}</h1>
         <p className="text-[13px] text-[var(--muted)]">{account.number}</p>
         <p className="text-[13px] text-[var(--muted)]">{app.profile.name}</p>
@@ -46,7 +40,7 @@ export function AccountDetail() {
             <FileText size={16} className="text-[var(--link)]" />
           </span>
         </div>
-        <p className="mb-3 flex gap-2 rounded-lg bg-[#E3E1F0] p-3 text-[13px]"><Info size={16} className="shrink-0 text-[#3B5BDB]" />{t('look.pending')}</p>
+        <p className="mb-3 flex gap-2 rounded-lg bg-[#E3E1F0] p-3 text-[13px] text-[#1F2933]"><Info size={16} className="shrink-0 text-[#3B5BDB]" />{t('look.pending')}</p>
         <ul className="divide-y divide-[var(--line)] rounded-xl bg-[var(--card)]">
           {txns.map((txn) => (
             <li key={txn.id}>
@@ -69,13 +63,7 @@ export function TxnDetail() {
   const t = (key: string) => translate(app.prefs.language, key)
   const txn = app.txns.find((item) => item.id === txnId)
   useEffect(() => { app.setScreen('transaction') }, [])
-  if (!txn) {
-    return (
-      <Page title={t('txn.title')} back>
-        <p className="p-4">{t('notFound.body')}</p>
-      </Page>
-    )
-  }
+  if (!txn) return <NotFound />
   const account = app.accounts.find((item) => item.id === txn.accountId)
   return (
     <Page title={t('txn.title')} back>

@@ -48,7 +48,6 @@ export const SHORTCUTS = [
   'topup',
   'investments',
   'insurance',
-  'rewards',
   'staff',
   'accounts',
   'help',

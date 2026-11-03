@@ -54,7 +54,7 @@ export function PhoneFrame({ children }: { children: React.ReactNode }) {
   const vars = themeVars(prefs)
   return (
     <div className="phone-stage" style={full ? { background: vars['--bg'] } : undefined}>
-      <div style={full ? undefined : { width: 390 * scale, height: 844 * scale }}>
+      <div className={full ? 'w-full min-w-0 max-w-full self-stretch' : undefined} style={full ? undefined : { width: 390 * scale, height: 844 * scale }}>
       <div className={full ? 'phone-frame is-full' : 'phone-frame'} style={full ? undefined : { transform: `scale(${scale})`, transformOrigin: 'top left' }}>
         {!full && <div className="phone-notch" aria-hidden />}
         <div
@@ -113,10 +113,9 @@ export function BottomNav() {
   const scamOpen = useSyncExternalStore(subscribeScamSheet, scamSheetOpen, () => false)
   const t = (key: string) => translate(prefs.language, key)
   const location = useLocation()
-  const iconsOnly = prefs.textSize >= 22
   if (scamOpen || location.pathname.startsWith('/flow')) return null
   return (
-    <nav aria-label={t('nav.home')} className="grid min-h-[64px] grid-cols-4 border-t border-[var(--line)] bg-[var(--card)]">
+    <nav aria-label={t('nav.home')} className="grid min-h-[72px] grid-cols-4 border-t border-[var(--line)] bg-[var(--card)]">
       {NAV.map((item) => {
         const label = t(item.key)
         return (
@@ -143,7 +142,7 @@ export function BottomNav() {
                 ) : (
                   <MoreGlyph active={isActive} />
                 )}
-                {!iconsOnly && <span className="w-full truncate">{label}</span>}
+                <span className="line-clamp-2 w-full text-[11px] leading-tight">{label}</span>
               </>
             )}
           </NavLink>

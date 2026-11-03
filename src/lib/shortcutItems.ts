@@ -1,7 +1,6 @@
 import {
   ArrowLeftRight,
   CreditCard,
-  Gift,
   Globe,
   CircleHelp,
   Landmark,
@@ -29,7 +28,6 @@ export const SHORTCUT_ROUTES: Record<string, string> = {
   topup: '/flow/topup',
   investments: '/investments',
   insurance: '/insurance',
-  rewards: '/plan',
   staff: '/help?staff=1',
   accounts: '/accounts',
   help: '/help',
@@ -50,7 +48,6 @@ export const SHORTCUT_ICONS: Record<string, LucideIcon> = {
   topup: Smartphone,
   investments: Landmark,
   insurance: Shield,
-  rewards: Gift,
   staff: MessageCircle,
   accounts: Wallet,
   help: CircleHelp,

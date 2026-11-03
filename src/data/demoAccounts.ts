@@ -31,6 +31,8 @@ export interface SavedPayee {
   label: string
   name: string
   country: string
+  swift?: string
+  account?: string
 }
 
 export interface DemoGoal {
@@ -104,9 +106,16 @@ const books: Record<string, BankBook> = {
   auntiemei: {
     accounts: [{ id: '360', nameKey: 'accounts.a360', number: '9012345671', balance: 8450.2, kind: 'deposit' }],
     balances: { '360': 8450.2 },
-    txns: [],
+    txns: [
+      { id: 'mei-1', title: 'NTUC FairPrice', amount: -42.3, date: '2026-11-02', accountId: '360' },
+      { id: 'mei-2', title: 'Tan Wei Ming', amount: -200, date: '2026-11-01', accountId: '360' },
+      { id: 'mei-3', title: 'Allowance', amount: 500, date: '2026-10-28', accountId: '360' },
+      { id: 'mei-4', title: 'Kopitiam', amount: -6.5, date: '2026-10-20', accountId: '360' },
+      { id: 'mei-5', title: 'SP Group', amount: -86.4, date: '2026-10-12', accountId: '360' },
+      { id: 'mei-6', title: 'Grab', amount: -14.2, date: '2026-09-18', accountId: '360' },
+    ],
     goals: [],
-    payees: [{ id: 'wei', label: 'Son - Wei Ming (Australia)', name: 'Tan Wei Ming', country: 'Australia' }],
+    payees: [{ id: 'wei', label: 'Son - Wei Ming (Australia)', name: 'Tan Wei Ming', country: 'Australia', swift: 'CTBAAU2S', account: '12345678' }],
   },
   arif: {
     accounts: [{ id: 'frank', nameKey: 'accounts.frank', number: '5011223344', balance: 1230.55, kind: 'deposit' }],
