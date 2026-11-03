@@ -156,7 +156,7 @@ export async function handleChat(req: IncomingMessage, res: ServerResponse) {
     let action = parsed?.action ?? null
     if (!action && detected.action) action = detected.action
     let scamRisk = strongerRisk(parsed?.scamRisk || 'none', detected.scamRisk)
-    if (scamRisk === 'high') action = null
+    if (scamRisk === 'high' || /system\s*override|ignore previous|ignore all/i.test(last)) action = null
     const handover = Boolean(parsed?.handover) || detected.handover || (userTurns >= 3 && /stuck|don't understand|不懂|不明白|help me/i.test(last))
     const journeyId = flags.refused || scamRisk === 'high' ? null : journeyFor(last, action?.intent || demo.intent)
     const suggestions = (parsed?.suggestions || []).map((item) => item.trim()).filter(Boolean).slice(0, 3)

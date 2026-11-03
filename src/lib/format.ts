@@ -13,7 +13,7 @@ export function formatDay(iso: string, language = 'en') {
   if (Number.isNaN(day.getTime())) return iso
   const sameYear = day.getFullYear() === new Date().getFullYear()
   return new Intl.DateTimeFormat(language.startsWith('zh') ? 'zh-CN' : language, {
-    day: '2-digit',
+    day: 'numeric',
     month: 'short',
     year: sameYear ? undefined : 'numeric',
   }).format(day)

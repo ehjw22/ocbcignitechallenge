@@ -1,19 +1,22 @@
 import { useEffect, useState } from 'react'
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
-import { Bell, Check, ChevronRight, CreditCard, Eye, EyeOff, Lock, ScanLine, Settings } from 'lucide-react'
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { Bell, Check, ChevronRight, Eye, EyeOff, Lock, ScanLine, Settings } from 'lucide-react'
 import { percentChange, rowsFor, sum } from '@/data/insights'
 import { useApp } from '@/context/AppContext'
 import { BottomNav, DemoBadge, GuideDone, HeaderHelp } from '@/components/Shell'
 import { translate } from '@/i18n'
-import { SHORTCUT_ICONS, SHORTCUT_ROUTES } from '@/lib/shortcutItems'
+import { SHORTCUT_ICONS } from '@/lib/shortcutItems'
 import { startAppTour } from '@/lib/appTour'
 import { formatMoney, formatTxnAmount } from '@/lib/format'
 import { payeeName } from '@/data/bank'
+import { TxnSheet, txnKind } from '@/components/TxnSheet'
 
 const PILLS = ['accounts', 'cards', 'investments', 'insurance', 'loans', 'net'] as const
 
 export function Home() {
   const app = useApp()
+  const { txnId = '' } = useParams()
+  const [sheetId, setSheetId] = useState(txnId)
   const [params] = useSearchParams()
   const [hidden, setHidden] = useState(false)
   const [pill, setPill] = useState<(typeof PILLS)[number]>('accounts')
@@ -42,12 +45,11 @@ export function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params])
 
-  const shortcuts = app.prefs.shortcuts.filter((id) => id !== 'rewards').slice(0, 3)
   const money = (value: number) => (hidden ? '•••••••• SGD' : formatMoney(value))
 
   return (
     <div className="relative flex h-full min-h-0 flex-col bg-[var(--bg)] text-[var(--text)]">
-      <main id="main" className="mb-[76px] min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[var(--bg)]">
+      <main id="main" className="mb-[76px] min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[var(--bg)] pb-24">
         <GuideDone />
         <header className="flex h-14 items-center justify-between bg-[var(--card)] px-4">
           <DemoBadge />
@@ -76,20 +78,18 @@ export function Home() {
         </section>
 
         <section className="relative z-10 -mt-8 px-4" data-guide="home-shortcuts">
-          <div className="flex items-stretch rounded-xl bg-[var(--card)] px-2 py-3 shadow-[0_8px_24px_rgba(47,53,61,0.08)]">
-            {shortcuts.map((id) => (
-                <Link key={id} to={SHORTCUT_ROUTES[id] ?? '/pay'} className="flex min-h-11 min-w-0 flex-1 flex-col items-center justify-center gap-1 px-1 text-center text-[var(--text)]">
-                  <ShortcutMark id={id} />
-                  <span className="line-clamp-2 text-[16px] font-normal leading-tight">{t(`shortcuts.${id}`)}</span>
-                </Link>
+          <div className="grid grid-cols-4 rounded-xl bg-[var(--card)] px-1 py-3 shadow-[0_8px_24px_rgba(47,53,61,0.08)]">
+            {([
+              ['paynow', '/flow/paynow', t('shortcuts.paynow')],
+              ['scan', '/flow/scan', t('shortcuts.scan')],
+              ['goals', '/flow/goal', t('shortcuts.goals')],
+              ['customise', '/settings', t('look.customise')],
+            ] as const).map(([id, to, label]) => (
+              <Link key={id} to={to} className="flex min-h-11 min-w-0 flex-col items-center justify-center gap-1 text-[#333]">
+                <ShortcutMark id={id} />
+                <span className="w-full truncate text-center text-[12px] font-normal leading-none">{label}</span>
+              </Link>
             ))}
-            <span className="my-2 w-px bg-[#D9D9D9]" />
-            <Link to="/settings" className="flex min-w-[72px] flex-col items-center justify-center gap-1 px-1">
-              <span className="grid h-12 w-12 place-items-center rounded-full bg-[#E9E4DF] text-[#333]">
-                <Settings aria-hidden size={22} strokeWidth={1.5} />
-              </span>
-              <span className="text-[16px] font-normal text-[var(--text)]">{t('look.customise')}</span>
-            </Link>
           </div>
         </section>
 
@@ -144,7 +144,7 @@ export function Home() {
                         {app.cards[0].locked ? t('look.cardLocked') : t('look.cardActive')}
                       </span>
                     </span>
-                    <span className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
+                    <span className="mt-2 flex flex-wrap gap-x-4 gap-y-1" aria-label={`${t('look.debitCard')} ${app.cards[0].last4}, ${app.cards[0].locked ? t('look.cardLocked') : t('look.cardActive')}`}>
                       <Link className="inline-flex min-h-11 items-center text-[15px] text-[#1C65FF] underline" to={`/flow/card-lock?card=${app.cards[0].id}`}>{app.cards[0].locked ? t('look.unlockCard') : t('look.lockCard')}</Link>
                       <Link className="inline-flex min-h-11 items-center text-[15px] text-[#1C65FF] underline" to={`/cards#${app.cards[0].id}`}>{t('look.cardDetails')}</Link>
                     </span>
@@ -189,13 +189,16 @@ export function Home() {
             <ul className="overflow-hidden rounded-xl bg-[var(--card)] shadow-[0_8px_24px_rgba(47,53,61,0.06)]">
               {app.txns.slice(0, 5).map((txn) => (
                 <li key={txn.id} className="border-b border-[var(--line)] last:border-0">
-                  <Link to={`/txn/${txn.id}`} className="flex items-center gap-3 px-3 py-3">
+                  <button type="button" className="flex w-full items-center gap-3 px-3 py-3 text-left" onClick={() => setSheetId(txn.id)}>
                     <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#2F353D] text-[10px] font-bold text-white">
                       {(txn.accountId === 'frank' ? 'FRA' : 'SAV')}
                     </span>
-                    <span className="min-w-0 flex-1 text-[12px] font-semibold uppercase leading-snug">{payeeName(txn.title)}</span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-[12px] font-bold uppercase">{t(txnKind(txn.title))}</span>
+                      <span className="block text-[12px] text-[var(--muted)]">{payeeName(txn.title)}</span>
+                    </span>
                     <span className={`text-[15px] font-bold tabular-nums ${txn.amount > 0 ? 'text-[#1E8E3E]' : ''}`}>{formatTxnAmount(txn.amount)}</span>
-                  </Link>
+                  </button>
                 </li>
               ))}
             </ul>
@@ -219,6 +222,15 @@ export function Home() {
         )}
       </main>
       <BottomNav />
+      {sheetId && app.txns.some((txn) => txn.id === sheetId) && (
+        <TxnSheet
+          txn={app.txns.find((txn) => txn.id === sheetId)!}
+          account={app.accounts.find((account) => account.id === app.txns.find((txn) => txn.id === sheetId)?.accountId)}
+          language={app.prefs.language}
+          t={t}
+          onClose={() => setSheetId('')}
+        />
+      )}
       {offer && (
         <div className="absolute inset-0 z-40 flex items-end bg-black/40 px-4 pb-24">
           <div role="dialog" aria-modal="true" aria-labelledby="tour-offer" className="w-full rounded-xl bg-[var(--card)] p-4 text-[var(--text)] shadow-xl">
@@ -241,20 +253,14 @@ export function Home() {
 function ShortcutMark({ id }: { id: string }) {
   if (id === 'paynow') {
     return (
-      <span className="grid h-8 w-8 place-items-center text-[9px] font-bold leading-none tracking-tight" aria-hidden>
-        PAY<br />N<span className="relative">O<span className="absolute -right-1 -top-1 text-[7px]">✓</span></span>W
-      </span>
+      <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden className="text-[#333]">
+        <rect x="7" y="3" width="10" height="18" rx="2" fill="none" stroke="currentColor" strokeWidth="1.75" />
+        <path d="M10 18h4" fill="none" stroke="currentColor" strokeWidth="1.75" />
+      </svg>
     )
   }
-  if (id === 'scan') return <ScanLine aria-hidden size={28} strokeWidth={1.5} />
-  if (id === 'cards' || id === 'card-lock') {
-    return (
-      <span className="relative" aria-hidden>
-        <CreditCard size={28} strokeWidth={1.5} />
-        <Lock size={12} strokeWidth={1.5} className="absolute -bottom-1 -right-1" />
-      </span>
-    )
-  }
+  if (id === 'scan') return <ScanLine aria-hidden size={24} strokeWidth={1.75} />
+  if (id === 'customise') return <Settings aria-hidden size={24} strokeWidth={1.75} />
   const Icon = SHORTCUT_ICONS[id]
-  return Icon ? <Icon aria-hidden size={28} strokeWidth={1.5} /> : <ScanLine aria-hidden size={28} strokeWidth={1.5} />
+  return Icon ? <Icon aria-hidden size={24} strokeWidth={1.75} /> : <ScanLine aria-hidden size={24} strokeWidth={1.75} />
 }

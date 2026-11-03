@@ -212,6 +212,7 @@ export function TourFrame({
           aria-labelledby="tour-title"
           className="flex max-h-[45vh] flex-col overflow-hidden rounded-md bg-[#2A3B43] p-5 text-white shadow-lg"
         >
+          <p className="mb-2 text-[13px]" aria-live="polite">{translate(app.prefs.language, 'practice.step', { n: step, total })}</p>
           <div className="mb-3 flex gap-1" aria-hidden>
             {Array.from({ length: total }, (_, index) => (
               <span key={index} className={`h-1 flex-1 rounded-full ${index < step ? 'bg-white' : 'bg-white/30'}`} />
@@ -237,7 +238,7 @@ export function TourFrame({
                     return
                   }
                   setPlaying(true)
-                  void Promise.resolve(speak(`${title}. ${body}`)).finally(() => setPlaying(false))
+                  void Promise.resolve(speak(`${translate(app.prefs.language, 'practice.step', { n: step, total })}. ${title}. ${body}`)).finally(() => setPlaying(false))
                 }}
               />
               <span className="sr-only" aria-live="polite">{translate(app.prefs.language, 'practice.step', { n: step, total })}</span>

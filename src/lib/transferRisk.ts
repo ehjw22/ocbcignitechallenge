@@ -115,7 +115,7 @@ export function assessTransferRisk(input: {
     if (amount >= config.largeAmount) reasons.push('large-amount')
     if (!saved && !knownMerchant) {
       if (amount >= config.newPayeeAmount && !hasHistory) reasons.push('new-payee-amount')
-      if (amount >= config.newPayeeAmount && hasHistory) reasons.push('paid-before')
+      if (amount >= config.newPayeeAmount && hasHistory && !(earlier.length >= 2 && prior + amount < config.newPayee24hTotal)) reasons.push('paid-before')
       if (input.flowId === 'overseas' && !hasHistory) reasons.push('overseas-new-payee')
       if (hasHistory && prior + amount >= config.newPayee24hTotal) reasons.push('new-payee-24h-total')
     }
@@ -126,7 +126,7 @@ export function assessTransferRisk(input: {
   }
   const high = reasons.includes('scam-words')
     || (reasons.includes('overseas-new-payee') && amount >= config.largeAmount)
-    || amount >= 5000
+    || (!saved && amount >= 5000)
   const level: RiskLevel = reasons.length === 0 ? 'none' : high ? 'high' : 'check'
   return { level, reasons, words, saved, dayTotal: prior + amount, prior }
 }

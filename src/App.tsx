@@ -14,7 +14,7 @@ import { Login } from '@/pages/Login'
 import { PreInfo } from '@/pages/PreInfo'
 import { Settings } from '@/pages/Settings'
 import { Welcome } from '@/pages/Welcome'
-import { AccountDetail, NotFound, Notifications, Profile, TxnDetail } from '@/pages/DetailPages'
+import { AccountDetail, NotFound, Notifications, Profile } from '@/pages/DetailPages'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 
 function Gate({ children }: { children: ReactNode }) {
@@ -48,7 +48,7 @@ function Customer() {
         <Route path="/plan" element={<Plan />} />
         <Route path="/accounts" element={<Accounts />} />
         <Route path="/accounts/:accountId" element={<AccountDetail />} />
-        <Route path="/txn/:txnId" element={<TxnDetail />} />
+        <Route path="/txn/:txnId" element={<Home />} />
         <Route path="/notifications" element={<Notifications />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/pay" element={<PayHub />} />

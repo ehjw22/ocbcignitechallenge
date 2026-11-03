@@ -27,8 +27,8 @@ export const SPENDING = [
 ]
 
 export const PAYNOW_DIRECTORY: Record<string, string> = {
-  '91234567': 'Tan Wei Ming',
   '81234567': 'Siti Aminah',
+  '92345678': 'Lim Jia Hui',
 }
 
 const NRIC = /^[STFGM]\d{7}[A-Z]$/

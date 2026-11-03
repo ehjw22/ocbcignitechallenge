@@ -17,7 +17,7 @@ import {
 } from '@/data/insights'
 import { translate } from '@/i18n'
 import { themeVars } from '@/lib/accent'
-import { formatSGD } from '@/lib/format'
+import { formatMoney } from '@/lib/format'
 
 const BUDGET_KEY = 'ocbc-budgets'
 const DEFAULT_BUDGETS: Record<string, number> = {
@@ -123,8 +123,8 @@ export function Insights() {
           <h2 className="text-base font-semibold">{t('insight.summary')}</h2>
           <p>
             {prevId
-              ? t('insight.vsLast', { amount: formatSGD(spent), pct: Math.abs(pct), dir: direction(pct) })
-              : t('insight.vsLastNone', { amount: formatSGD(spent) })}
+              ? t('insight.vsLast', { amount: formatMoney(spent), pct: Math.abs(pct), dir: direction(pct) })
+              : t('insight.vsLastNone', { amount: formatMoney(spent) })}
           </p>
         </section>
 
@@ -145,7 +145,7 @@ export function Insights() {
                 {slices.map((item, index) => (
                   <li key={item.key} className="flex items-center justify-between gap-2">
                     <span className="flex min-w-0 items-center gap-1"><span className="h-2.5 w-2.5 shrink-0 rounded-sm" style={{ background: index === 0 ? accent : colours[index % colours.length] }} />{t(`categories.${item.key}`)}</span>
-                    <span className="money shrink-0">{formatSGD(item.amount)}</span>
+                    <span className="money shrink-0">{formatMoney(item.amount)}</span>
                   </li>
                 ))}
               </ul>
@@ -160,7 +160,7 @@ export function Insights() {
                     <span className="mr-2 inline-block h-3 w-3 rounded-sm" style={{ background: index === 0 ? accent : colours[index % colours.length] }} aria-hidden />
                     {t(`categories.${item.key}`)}
                   </th>
-                  <td className="py-2 text-right tabular-nums">{formatSGD(item.amount)}</td>
+                  <td className="py-2 text-right tabular-nums">{formatMoney(item.amount)}</td>
                 </tr>
               ))}
             </tbody>
@@ -174,7 +174,7 @@ export function Insights() {
               {merchants.map((item, index) => (
                 <li key={item.name} className="flex justify-between">
                   <span>{index + 1}. {item.name}</span>
-                  <span className="tabular-nums">{formatSGD(item.amount)}</span>
+                  <span className="tabular-nums">{formatMoney(item.amount)}</span>
                 </li>
               ))}
             </ol>
@@ -198,7 +198,7 @@ export function Insights() {
               {trend.map((item) => (
                 <tr key={item.month} className="border-t border-[var(--line)]">
                   <th scope="row" className="py-1 font-medium">{t(`months.${item.month}`)}</th>
-                  <td className="py-1 text-right tabular-nums">{formatSGD(item.amount)}</td>
+                  <td className="py-1 text-right tabular-nums">{formatMoney(item.amount)}</td>
                 </tr>
               ))}
             </tbody>
@@ -226,7 +226,7 @@ export function Insights() {
               {daily.map((item) => (
                 <tr key={item.day} className="border-t border-[var(--line)]">
                   <th scope="row" className="py-1 font-medium">{item.day}</th>
-                  <td className="py-1 text-right tabular-nums">{formatSGD(item.amount)}</td>
+                  <td className="py-1 text-right tabular-nums">{formatMoney(item.amount)}</td>
                 </tr>
               ))}
             </tbody>
@@ -254,7 +254,7 @@ export function Insights() {
               <div key={key}>
                 <label className="flex items-center justify-between gap-2 text-sm font-semibold" htmlFor={`budget-${key}`}>
                   <span>{t(`categories.${key}`)}</span>
-                  <span className="font-medium tabular-nums">{formatSGD(amount)} / {formatSGD(budget)}</span>
+                  <span className="font-medium tabular-nums">{formatMoney(amount)} / {formatMoney(budget)}</span>
                 </label>
                 <input
                   id={`budget-${key}`}

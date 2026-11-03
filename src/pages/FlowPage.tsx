@@ -32,7 +32,7 @@ export function FlowPage() {
   const t = (key: string, vars?: Record<string, string | number>) => translate(app.prefs.language, key, vars)
   const [form, setForm] = useState<Record<string, string>>({})
   const [issues, setIssues] = useState<Issue[]>([])
-  const [stage, setStage] = useState<'form' | 'review' | 'otp' | 'done'>('form')
+  const [stage, setStage] = useState<'form' | 'review' | 'otp' | 'processing' | 'done'>('form')
   const [otp, setOtp] = useState('')
   const [otpError, setOtpError] = useState('')
   const [guard, setGuard] = useState<{
@@ -79,11 +79,15 @@ export function FlowPage() {
         next[field.id] = deposits[0].id
       }
     })
+    if ((flow.id === 'card-lock' || flow.id === 'card-lost') && params.get('card')) {
+      next.card = params.get('card') || 'debit'
+      next.lock = 'yes'
+    }
     if (demo === 'mei' && flow.id === 'overseas') {
       next.name = 'Tan Wei Ming'
       next.country = 'Australia'
       next.swift = 'CTBAAU2S'
-      next.account = '123456789'
+      next.account = '12345678'
       next.amount = '5000'
       next.from = '360'
     }
@@ -192,6 +196,8 @@ export function FlowPage() {
   const fx = flow.id === 'overseas' ? FX[form.country] || FX.Australia : null
   const shown = (field: FlowField) => {
     if (field.id === 'lock') return false
+    if (field.id === 'card' && params.get('card')) return false
+    if (flow.id === 'paynow' && wstep === 1 && ['amount', 'from', 'reference', 'savePayee', 'when', 'laterDate'].includes(field.id)) return false
     if (!showAll && stepIds && !stepIds.includes(field.id)) return false
     if (field.id === 'laterDate' && form.when !== 'later') return false
     if (field.id === 'swift' && fx?.account === 'iban') return false
@@ -304,7 +310,12 @@ export function FlowPage() {
     } else if (flow.id === 'card-lock') {
       lockCard(form.card || 'credit', form.lock !== 'no')
     }
-    setStage('done')
+    if (flow.id === 'card-lock' || flow.id === 'card-lost') {
+      setStage('done')
+    } else {
+      setStage('processing')
+      window.setTimeout(() => setStage('done'), 1200)
+    }
     app.setAnnounce(practice ? t('practice.done') : t('success.demo'))
   }
 
@@ -369,7 +380,7 @@ export function FlowPage() {
                   focusIssues(found)
                   return
                 }
-                setStage('otp')
+                setStage('review')
                 return
               }
               submit()
@@ -453,17 +464,27 @@ export function FlowPage() {
               </section>
             )}
             {flow.id === 'paynow' && directory && wstep === 0 && (
-              <section className="card space-y-3 p-3">
-                <div className="grid grid-cols-2 gap-2 text-center">
-                  <button type="button" className="min-h-11 rounded-xl border border-[var(--line)]" onClick={() => { setForm((prev) => ({ ...prev, proxy: 'nric' })); setDirectory(false) }}>{t('look.nric')}</button>
-                  <button type="button" className="min-h-11 rounded-xl border border-[var(--line)]" onClick={() => { setForm((prev) => ({ ...prev, proxy: 'uen' })); setDirectory(false) }}>{t('look.uen')}</button>
+              <section className="space-y-3">
+                <div role="tablist" data-guide="paynow-id-tabs" aria-label={t('flows.proxyType')} className="grid grid-cols-3" onKeyDown={(event) => {
+                  const order = ['mobile', 'nric', 'uen']
+                  const index = order.indexOf(form.proxy || 'mobile')
+                  if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
+                    const next = order[(index + (event.key === 'ArrowRight' ? 1 : order.length - 1)) % order.length]
+                    setForm((prev) => ({ ...prev, proxy: next, to: '' }))
+                  }
+                }}>
+                  {(['mobile', 'nric', 'uen'] as const).map((id) => (
+                    <button key={id} type="button" role="tab" aria-selected={(form.proxy || 'mobile') === id} className={`min-h-11 text-[14px] ${(form.proxy || 'mobile') === id ? 'border-b-2 border-[#E30613] font-bold text-[#E30613]' : 'font-normal text-[#333]'}`} onClick={() => setForm((prev) => ({ ...prev, proxy: id, to: '' }))}>
+                      {t(id === 'mobile' ? 'flows.mobile' : id === 'nric' ? 'look.nric' : 'look.uen')}
+                    </button>
+                  ))}
                 </div>
-                <input className="ocbc-field" placeholder={t('look.searchPayee')} aria-label={t('look.searchPayee')} onChange={(event) => setForm((prev) => ({ ...prev, to: event.target.value }))} />
+                <input data-guide="paynow-to" className="ocbc-field" placeholder={t(form.proxy === 'nric' ? 'look.nricPh' : form.proxy === 'uen' ? 'look.uenPh' : 'look.mobilePh')} aria-label={t('look.searchPayee')} value={form.to || ''} onChange={(event) => setForm((prev) => ({ ...prev, to: event.target.value }))} />
                 <div className="flex gap-4 border-b border-[var(--line)] text-[15px]">
                   <span className="border-b-2 border-[#E30613] pb-2 font-semibold">{t('look.recentTab')}</span>
                   <span className="pb-2 text-[var(--muted)]">{t('look.contactsTab')}</span>
                 </div>
-                {PAYNOW_CONTACTS.map((contact) => (
+                {PAYNOW_CONTACTS.filter((contact) => app.payees.some((payee) => payee.name === 'Tan Wei Ming') || contact.name !== 'Tan Wei Ming').map((contact) => (
                   <button key={contact.mobile} type="button" className="flex min-h-11 w-full items-center gap-3 text-left" onClick={() => { setForm((prev) => ({ ...prev, proxy: 'mobile', to: contact.mobile })); setDirectory(false); setWstep(1) }}>
                     <span className="grid h-10 w-10 place-items-center rounded-full bg-[var(--soft)] text-[12px] font-bold">{contact.name.slice(0, 1)}</span>
                     <span>
@@ -524,19 +545,36 @@ export function FlowPage() {
               </label>
             )}
             {flow.id === 'paynow' && wstep === 1 && (
-              <div className="space-y-2 text-[14px]">
-                <p className="text-[var(--muted)]">{t('look.payTo')}</p>
-                <p className="text-[18px] font-bold">{lookedUp || form.to}</p>
+              <section className="space-y-3">
+                <p className="text-[14px] text-[var(--muted)]">{t('look.payTo')}</p>
+                <p className="text-[22px] font-bold">{lookedUp || form.to}</p>
+                <p className="text-[13px] text-[var(--muted)]">{form.to}</p>
+                <div data-guide="pay-amount">
+                <input data-guide="paynow-amount" className="w-full bg-transparent text-[32px] font-bold outline-none" inputMode="decimal" aria-label={t('amount')} placeholder="0.00 SGD" value={form.amount || ''} onChange={(event) => changeField('amount', event.target.value)} />
+                </div>
                 <Link to="/flow/limit" className="block font-semibold text-[var(--link)] underline">{t('look.limitLeft', { amount: formatMoney(app.limit) })}</Link>
                 {Number(form.amount) > app.limit && <p className="font-semibold text-[var(--danger)]">{t('look.overLimit')}</p>}
                 {Number(form.amount) > balance && <p className="font-semibold text-[var(--danger)]">{t('look.moneyLockHint')}</p>}
-              </div>
+                <div data-guide="pay-message">
+                <input data-guide="paynow-reference" className="ocbc-field" maxLength={35} placeholder={t('look.addMessage')} aria-label={t('look.addMessage')} value={form.reference || ''} onChange={(event) => changeField('reference', event.target.value)} />
+                </div>
+                <button type="button" data-guide="pay-from" className="min-h-11 w-full rounded-xl border border-[var(--line)] px-3 text-left" onClick={() => {
+                  const deposits = app.accounts.filter((account) => account.kind === 'deposit')
+                  const index = deposits.findIndex((account) => account.id === form.from)
+                  const next = deposits[(index + 1) % Math.max(deposits.length, 1)]
+                  if (next) changeField('from', next.id)
+                }}>
+                  <span className="block text-[13px] text-[var(--muted)]">{t('flows.from')}</span>
+                  <span className="block font-bold">{t(app.accounts.find((account) => account.id === form.from)?.nameKey || 'accounts.a360')}</span>
+                </button>
+                <p className="text-[14px]">{t('look.available')} {formatMoney(balance)}</p>
+              </section>
             )}
-            {!(flow.id === 'paynow' && directory && wstep === 0) && reviewAt >= 0 && wstep > 0 && (
+            {!(flow.id === 'paynow' && (directory && wstep === 0 || wstep === 1)) && reviewAt >= 0 && wstep > 0 && (
               <button type="button" className="text-sm font-semibold text-[var(--link)]" onClick={() => { setIssues([]); setWstep((value) => value - 1) }}>{t('back')}</button>
             )}
             {!(flow.id === 'paynow' && directory && wstep === 0) && (
-            <button type="submit" data-guide={reviewGuide(flow.id)} className="ocbc-btn" disabled={flow.id === 'paynow' && (Number(form.amount) > app.limit || Number(form.amount) > balance)}>
+            <button type="submit" data-guide={flow.id === 'paynow' && wstep === 1 ? 'pay-next' : reviewGuide(flow.id)} className={flow.id === 'paynow' && wstep === 1 ? 'min-h-12 w-full rounded-lg bg-[#E30613] font-bold text-white disabled:opacity-40' : 'ocbc-btn'} disabled={flow.id === 'paynow' && (Number(form.amount) <= 0 || Number(form.amount) > app.limit || Number(form.amount) > balance)}>
               {t('flows.submit')}
             </button>
             )}
@@ -623,7 +661,19 @@ export function FlowPage() {
             <button type="button" className="ocbc-btn-secondary" onClick={() => setStage('review')}>{t('back')}</button>
           </section>
         )}
-        {stage === 'done' && (
+        {stage === 'processing' && (
+          <section className="card p-8 text-center" role="status" aria-live="polite">
+            <p className="text-[18px] font-bold">{t('look.processing')}</p>
+          </section>
+        )}
+        {stage === 'done' && flow.id === 'card-lock' && (
+          <section className="card space-y-3 p-4" role="status">
+            <h2 className="text-lg font-bold text-[var(--success)]">{t('cards.debit')} •••• {app.cards.find((card) => card.id === form.card)?.last4 || '2291'} {form.lock === 'no' ? t('look.cardActive') : t('look.cardLocked')}</h2>
+            <Link to="/" className="ocbc-btn">{t('backHome')}</Link>
+            <Link to={`/flow/card-lock?card=${form.card || 'debit'}`} className="block min-h-11 text-center font-semibold text-[var(--link)] underline" onClick={() => { setForm((prev) => ({ ...prev, lock: prev.lock === 'no' ? 'yes' : 'no' })); setStage('form') }}>{form.lock === 'no' ? t('look.lockCard') : t('look.unlockCard')}</Link>
+          </section>
+        )}
+        {stage === 'done' && flow.id !== 'card-lock' && (
           <section className="card space-y-3 p-4" role="status">
             <div className="flex items-center gap-2">
               <h2 className="min-w-0 text-lg font-semibold leading-snug text-[var(--success)]">

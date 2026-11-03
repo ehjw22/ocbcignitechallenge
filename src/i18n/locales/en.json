@@ -605,7 +605,7 @@
   },
   "cards": {
     "title": "Cards",
-    "debit": "360 Debit Card",
+    "debit": "FRANK Debit Card",
     "credit": "365 Credit Card",
     "lock": "Lock or unlock",
     "lost": "Report lost"
@@ -811,9 +811,9 @@
   "notifications": {
     "title": "Notifications",
     "salaryTitle": "Salary received",
-    "salaryBody": "S$4,200.00 was added to your 360 Account.",
+    "salaryBody": "4,200.00 SGD was added to your 360 Account.",
     "billTitle": "Bill reminder",
-    "billBody": "SP Group bill of S$96.40 is ready to pay.",
+    "billBody": "SP Group bill of 96.40 SGD is ready to pay.",
     "securityTitle": "Security tip",
     "securityBody": "OCBC will never ask for your PIN or one-time password in a message."
   },
@@ -1032,6 +1032,16 @@
     "deals": "Deals & tips",
     "dealsEmpty": "No deals right now.",
     "fastPayment": "FAST PAYMENT",
+    "mobilePh": "8-digit mobile number",
+    "nricPh": "e.g. S1234567A",
+    "uenPh": "e.g. 201234567A",
+    "addMessage": "Add a message",
+    "processing": "Processing your payment...",
+    "kindIncoming": "INCOMING TRANSFER",
+    "kindCard": "CARD PAYMENT",
+    "kindQr": "PAYNOW QR",
+    "kindBill": "BILL PAYMENT",
+    "kindFast": "FAST PAYMENT",
     "report": "Report a problem",
     "shape": "Shape your app the way you like it",
     "hiName": "How we will say 'hi' to you",
@@ -1042,14 +1052,14 @@
     "ollieSafety": "Ollie · Safety check"
   },
   "risk": {
-    "titleCheck": "Quick safety check",
+    "titleCheck": "Stay alert",
     "titleHigh": "Stop and check: this may be a scam",
     "check": "Check",
     "high": "High risk",
     "reason": {
-      "newPayee": "This is your first payment to this person.",
+      "newPayee": "First payment to this person",
       "paidBefore": "You've paid this person before, but they are not saved.",
-      "large": "{amount} or more.",
+      "large": "Large amount: {amount} or more",
       "day": "This brings your total to this person today to {amount}.",
       "overseas": "Overseas, to someone new.",
       "words": "The reference mentions '{word}', which scammers often use.",

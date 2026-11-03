@@ -126,23 +126,21 @@ export function BottomNav() {
             data-guide={item.guide}
             aria-label={label}
             className={({ isActive }) =>
-              `flex min-w-0 flex-col items-center justify-center gap-0.5 overflow-hidden px-0.5 py-1 text-center text-[11px] font-semibold leading-tight ${isActive ? 'text-[#E30613]' : 'text-[var(--muted)]'}`
+              `flex min-w-0 flex-col items-center justify-center gap-1 overflow-hidden px-0.5 py-1 text-center text-[12px] font-normal leading-none ${isActive ? 'text-[#E30613]' : 'text-[var(--text)]'}`
             }
           >
             {({ isActive }) => (
               <>
-                {item.center ? (
-                  <span className={`grid h-9 w-9 place-items-center rounded-full ${isActive ? 'bg-[#E30613] text-white' : 'border border-[var(--line)] text-[var(--text)]'}`}>
-                    <ArrowLeftRight aria-hidden size={18} strokeWidth={1.7} />
-                  </span>
+                {item.to === '/pay' ? (
+                  <ArrowLeftRight aria-hidden size={24} strokeWidth={1.75} />
                 ) : item.to === '/' ? (
-                  <House aria-hidden size={22} strokeWidth={1.5} fill={isActive ? 'currentColor' : 'none'} />
+                  <House aria-hidden size={24} strokeWidth={1.75} />
                 ) : item.to === '/plan' ? (
-                  <Sprout aria-hidden size={22} strokeWidth={1.5} />
+                  <Sprout aria-hidden size={24} strokeWidth={1.75} />
                 ) : (
                   <MoreGlyph active={isActive} />
                 )}
-                <span className="line-clamp-2 w-full text-[11px] leading-tight">{label}</span>
+                <span className="w-full truncate text-[12px] font-normal leading-none">{label}</span>
               </>
             )}
           </NavLink>
@@ -219,7 +217,7 @@ function OllieFab() {
     <button
       type="button"
       className="absolute right-3 z-30 flex items-center rounded-full text-white"
-      style={{ bottom: lift, height: 56, background: '#E30613', boxShadow: '0 4px 14px rgba(0,0,0,0.28)' }}
+      style={{ bottom: 88, height: 48, width: 48, background: '#E30613', boxShadow: '0 4px 14px rgba(0,0,0,0.28)' }}
       aria-label={label}
       onClick={() => {
         localStorage.setItem(OLLIE_LABEL_KEY, '1')
@@ -227,8 +225,7 @@ function OllieFab() {
         app.openHelp('ai')
       }}
     >
-      {showLabel && <span className="max-w-[11rem] truncate pl-4 pr-1 text-[15px] font-semibold leading-none">{label}</span>}
-      <span aria-hidden className="grid shrink-0 place-items-center text-lg font-bold" style={{ width: 56, height: 56 }}>O</span>
+      <span aria-hidden className="grid h-12 w-12 place-items-center text-lg font-bold">O</span>
     </button>
   )
 }

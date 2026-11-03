@@ -261,7 +261,8 @@
   },
   "practice": {
     "banner": "Latihan. Tiada wang dipindahkan.",
-    "done": "Latihan selesai."
+    "done": "Latihan selesai.",
+    "step": "Langkah {n} daripada {total}"
   },
   "success": {
     "demo": "Disimpan. Tiada wang dipindahkan."
@@ -552,6 +553,16 @@
     "deals": "Tawaran dan petua",
     "dealsEmpty": "Tiada tawaran sekarang.",
     "fastPayment": "BAYARAN PANTAS",
+    "mobilePh": "Nombor mudah alih 8 digit",
+    "nricPh": "cth. S1234567A",
+    "uenPh": "cth. 201234567A",
+    "addMessage": "Tambah mesej",
+    "processing": "Sedang memproses pembayaran anda...",
+    "kindIncoming": "PINDAHAN MASUK",
+    "kindCard": "BAYARAN KAD",
+    "kindQr": "QR PayNow",
+    "kindBill": "BAYARAN BIL",
+    "kindFast": "BAYARAN PANTAS",
     "report": "Laporkan masalah",
     "shape": "Susun aplikasi mengikut cara anda",
     "hiName": "Cara kami menyapa anda",
