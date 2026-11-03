@@ -30,7 +30,7 @@ export function Onboarding() {
         {t('skipSetup')}
       </button>
     </header>
-    <main id="main" className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[var(--bg)] p-4 pb-28">
+    <main id="main" className="nav-clearance min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[var(--bg)] px-4 pt-4">
       <p className="text-sm font-semibold text-[var(--muted)]">{t('appName')}</p>
       {step > 0 && (
         <p className="mt-4 text-sm font-semibold">

@@ -33,7 +33,8 @@ function label(id: string, t: (key: string) => string) {
 export function PayHub() {
   const app = useApp()
   const t = (key: string) => translate(app.prefs.language, key)
-  useEffect(() => { app.setScreen('pay') }, [])
+  const setScreen = app.setScreen
+  useEffect(() => { setScreen('pay') }, [setScreen])
   const grid = [
     ['scan', '/flow/scan', ScanLine, 'pay-scan'],
     ['paynow', '/flow/paynow', Smartphone, 'pay-paynow'],
@@ -82,10 +83,12 @@ export function HelpPage() {
   const app = useApp()
   const navigate = useNavigate()
   const t = (key: string) => translate(app.prefs.language, key)
+  const setScreen = app.setScreen
+  const openHelp = app.openHelp
   useEffect(() => {
-    app.setScreen('help')
-    if (new URLSearchParams(window.location.search).get('staff') === '1') app.openHelp('staff')
-  }, [])
+    setScreen('help')
+    if (new URLSearchParams(window.location.search).get('staff') === '1') openHelp('staff')
+  }, [setScreen, openHelp])
   return (
     <Page title={t('look.howHelp')} back>
       <div className="space-y-2 p-4">
@@ -127,7 +130,8 @@ export function More() {
   const app = useApp()
   const t = (key: string) => translate(app.prefs.language, key)
   const [about, setAbout] = useState(false)
-  useEffect(() => { app.setScreen('more') }, [])
+  const setScreen = app.setScreen
+  useEffect(() => { setScreen('more') }, [setScreen])
   return (
     <div className="flex h-full min-h-0 flex-col bg-[var(--bg)] text-[var(--text)]">
       <header className="flex h-14 items-center justify-between bg-[#E30613] px-3 text-white">
@@ -138,7 +142,7 @@ export function More() {
           <button type="button" className="min-h-11 pr-1 text-[15px] font-semibold underline" onClick={app.logout}>{t('look.logout')}</button>
         </span>
       </header>
-      <main id="main" className="mb-[76px] min-h-0 flex-1 overflow-y-auto">
+      <main id="main" className="nav-clearance min-h-0 flex-1 overflow-y-auto">
         <section className="px-4 pt-4">
           <h2 className="text-[18px] font-bold">{t('look.newForYou')}</h2>
           <div className="mt-2 flex min-w-0 max-w-full gap-3 overflow-x-auto pb-2">
@@ -185,7 +189,8 @@ export function More() {
 export function Cards() {
   const app = useApp()
   const t = (key: string) => translate(app.prefs.language, key)
-  useEffect(() => { app.setScreen('cards') }, [])
+  const setScreen = app.setScreen
+  useEffect(() => { setScreen('cards') }, [setScreen])
   return (
     <Page title={t('cards.title')} back>
       <div className="space-y-3 p-4">
@@ -211,7 +216,8 @@ export function InfoPage({ topic: topicProp }: { topic?: string } = {}) {
   const topic = topicProp || topicParam
   const app = useApp()
   const t = (key: string) => translate(app.prefs.language, key)
-  useEffect(() => { app.setScreen(topic) }, [topic])
+  const setScreen = app.setScreen
+  useEffect(() => { setScreen(topic) }, [topic, setScreen])
   if (topic === 'money-lock' || topic === 'statements') {
     return (
       <Page title={t(topic === 'money-lock' ? 'look.moneyLock' : 'info.statements')} back>

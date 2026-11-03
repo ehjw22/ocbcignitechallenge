@@ -15,10 +15,11 @@ const TILES = [
 export function Plan() {
   const app = useApp()
   const t = (key: string) => translate(app.prefs.language, key)
-  useEffect(() => { app.setScreen('plan') }, [])
+  const setScreen = app.setScreen
+  useEffect(() => { setScreen('plan') }, [setScreen])
   return (
     <div className="flex h-full min-h-0 flex-col bg-[var(--bg)] text-[var(--text)]">
-      <main id="main" className="mb-[76px] min-h-0 flex-1 overflow-y-auto px-4 pt-6">
+      <main id="main" className="nav-clearance min-h-0 flex-1 overflow-y-auto px-4 pt-6">
         <h1 className="text-[24px] font-bold">{t('look.planTitle')}</h1>
         <div className="mt-4 grid grid-cols-2 gap-3">
           {TILES.map((tile) => {

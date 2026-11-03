@@ -826,6 +826,10 @@
     "body": "That page is not available.",
     "home": "Go home"
   },
+  "crash": {
+    "title": "Something went wrong.",
+    "back": "Go back"
+  },
   "txn": {
     "title": "Transaction",
     "search": "Search transactions",

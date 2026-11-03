@@ -47,7 +47,8 @@ export function Insights() {
   const [month, setMonth] = useState('2026-10')
   const [budgets, setBudgets] = useState(loadBudgets)
   const [note, setNote] = useState('')
-  useEffect(() => { app.setScreen('insights') }, [])
+  const setScreen = app.setScreen
+  useEffect(() => { setScreen('insights') }, [setScreen])
 
   if (!app.prefs.spendingInsights) {
     return (

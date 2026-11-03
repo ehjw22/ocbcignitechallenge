@@ -263,15 +263,15 @@ export function Admin() {
   }, [])
 
   const palette = chartPalette('default')
-  const named = (key: string, fallback: string) => {
-    const label = t(key)
-    return label === key ? fallback : label
-  }
 
   const rows = useMemo(() => {
+    const labelFor = (key: string, fallback: string) => {
+      const label = translate(app.prefs.language, key)
+      return label === key ? fallback : label
+    }
     const live = app.requests
       .filter((request) => request.customerName && Date.now() - new Date(request.createdAt).getTime() < 12 * 60 * 60 * 1000)
-      .map((request) => liveRow(request, named(`staff.topic.${request.task}`, request.task)))
+      .map((request) => liveRow(request, labelFor(`staff.topic.${request.task}`, request.task)))
     const samples = SAMPLES.filter((row) => !live.some((item) => item.name === row.name))
     return [...live, ...samples].map((row) => ({ ...row, status: localStatus[row.id] || row.status }))
   }, [app.requests, app.prefs.language, localStatus])

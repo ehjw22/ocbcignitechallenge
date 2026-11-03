@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
+import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { ACCOUNTS, SEED_CARDS, SEED_TXNS } from '@/data/bank'
 import { clearBooks, demoBook, isDemoAccount, loadBook, saveBook, type BankBook, type SavedPayee } from '@/data/demoAccounts'
@@ -353,17 +353,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
     })
   }
 
-  const setScreen = (next: string, stepName = '') => {
+  const setScreen = useCallback((next: string, stepName = '') => {
     setScreenState(next)
     setStep(stepName)
-  }
+  }, [])
   const setGuideStep = (guideId: string, stepId?: string) => {
     setGuideStepState(stepId ? `${guideId}:${stepId}` : guideId)
   }
-  const openHelp = (view: HelpView) => {
+  const openHelp = useCallback((view: HelpView) => {
     setHelpView(view)
     setHelpOpen(true)
-  }
+  }, [])
   const setCardLocked = (id: string, locked: boolean) => {
     setCardsState((current) => {
       const next = current.map((card) => (card.id === id ? { ...card, locked } : card))

@@ -49,7 +49,7 @@ export function Home() {
 
   return (
     <div className="relative flex h-full min-h-0 flex-col bg-[var(--bg)] text-[var(--text)]">
-      <main id="main" className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[var(--bg)] pb-24">
+      <main id="main" className="nav-clearance min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[var(--bg)]">
         <GuideDone />
         <header className="flex h-14 items-center justify-between bg-[var(--card)] px-4">
           <DemoBadge />
@@ -227,7 +227,7 @@ export function Home() {
         />
       )}
       {offer && (
-        <div className="absolute inset-0 z-40 flex items-end bg-black/40 px-4 pb-24">
+        <div className="absolute inset-0 z-40 flex items-end bg-black/40 px-4" style={{ paddingBottom: 'calc(64px + var(--nav-safe, 0px))' }}>
           <div role="dialog" aria-modal="true" aria-labelledby="tour-offer" className="w-full rounded-xl bg-[var(--card)] p-4 text-[var(--text)] shadow-xl">
             <p className="text-[10px] font-bold tracking-wide">{t('look.new')}</p>
             <h2 id="tour-offer" className="mt-1 text-[26px] font-bold leading-tight">{t('gate.tourTitle')}</h2>

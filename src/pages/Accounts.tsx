@@ -11,7 +11,8 @@ export function Accounts() {
   const t = (key: string) => translate(app.prefs.language, key)
   const [query, setQuery] = useState('')
   const [accountId, setAccountId] = useState('all')
-  useEffect(() => { app.setScreen('accounts') }, [])
+  const setScreen = app.setScreen
+  useEffect(() => { setScreen('accounts') }, [setScreen])
   const txns = useMemo(() => app.txns.filter((txn) => {
     const accountOk = accountId === 'all' || txn.accountId === accountId
     const name = payeeName(txn.title).toLowerCase()

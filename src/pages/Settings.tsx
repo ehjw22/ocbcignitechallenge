@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
 import { Check, ChevronDown, Search } from 'lucide-react'
 import { Choice, choiceClass } from '@/components/Choice'
@@ -42,7 +42,7 @@ function Section({
   const q = query.trim().toLowerCase()
   const hay = `${title} ${summary} ${keywords}`.toLowerCase()
   const shown = (!only || only === id) && (!q || hay.includes(q))
-  useEffect(() => { onResult?.(id, shown) }, [id, shown])
+  useEffect(() => { onResult?.(id, shown) }, [id, shown, onResult])
   if (!shown) return null
   const expanded = only === id || (q ? true : open)
   return (
@@ -81,7 +81,7 @@ export function Settings() {
   const routePanel = useParams().panel || ''
   const panel = routePanel || params.get('panel') || ''
   const [greet, setGreet] = useState(app.profile.shortName)
-  const remember = (id: string, value: boolean) => setShown((prev) => (prev[id] === value ? prev : { ...prev, [id]: value }))
+  const remember = useCallback((id: string, value: boolean) => setShown((prev) => (prev[id] === value ? prev : { ...prev, [id]: value })), [])
   const prefsRef = useRef(app.prefs)
   prefsRef.current = app.prefs
   useEffect(() => {

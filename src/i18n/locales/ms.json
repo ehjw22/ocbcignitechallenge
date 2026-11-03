@@ -331,6 +331,10 @@
     "body": "Halaman itu tidak tersedia.",
     "home": "Laman"
   },
+  "crash": {
+    "title": "Ada yang tidak kena.",
+    "back": "Kembali"
+  },
   "txn": {
     "sample": "Tiada wang dipindahkan."
   },

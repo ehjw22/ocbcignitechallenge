@@ -13,15 +13,16 @@ export function AccountDetail() {
   const app = useApp()
   const t = (key: string) => translate(app.prefs.language, key)
   const account = app.accounts.find((item) => item.id === accountId)
-  useEffect(() => { app.setScreen('account') }, [])
-  if (!account) return <NotFound />
-  const balance = account.kind === 'card' ? account.balance : app.balances[account.id] ?? account.balance
-  const txns = app.txns.filter((txn) => txn.accountId === account.id)
+  const txns = useMemo(() => app.txns.filter((txn) => txn.accountId === accountId), [app.txns, accountId])
   const months = useMemo(() => {
     const found = [...new Set(txns.map((txn) => txn.date.slice(0, 7)))]
     return found.slice(0, 4)
   }, [txns])
   const [month, setMonth] = useState(months[0] || '')
+  const setScreen = app.setScreen
+  useEffect(() => { setScreen('account') }, [setScreen])
+  if (!account) return <NotFound />
+  const balance = account.kind === 'card' ? account.balance : app.balances[account.id] ?? account.balance
   const shown = txns.filter((txn) => !month || txn.date.startsWith(month))
   return (
     <Page title="" back>
@@ -79,7 +80,8 @@ export function TxnDetail() {
   const app = useApp()
   const t = (key: string) => translate(app.prefs.language, key)
   const txn = app.txns.find((item) => item.id === txnId)
-  useEffect(() => { app.setScreen('transaction') }, [])
+  const setScreen = app.setScreen
+  useEffect(() => { setScreen('transaction') }, [setScreen])
   if (!txn) return <NotFound />
   const account = app.accounts.find((item) => item.id === txn.accountId)
   return (
@@ -102,7 +104,8 @@ export function Notifications() {
   const app = useApp()
   const t = (key: string) => translate(app.prefs.language, key)
   const [tab, setTab] = useState<'bank' | 'deals'>('bank')
-  useEffect(() => { app.setScreen('notifications') }, [])
+  const setScreen = app.setScreen
+  useEffect(() => { setScreen('notifications') }, [setScreen])
   return (
     <Page title={t('notifications.title')} back>
       <div className="flex gap-4 px-4 pt-3 text-[15px]">
@@ -126,7 +129,8 @@ export function Notifications() {
 export function Profile() {
   const app = useApp()
   const t = (key: string) => translate(app.prefs.language, key)
-  useEffect(() => { app.setScreen('profile') }, [])
+  const setScreen = app.setScreen
+  useEffect(() => { setScreen('profile') }, [setScreen])
   return (
     <Page title={t('profile.title')} back>
       <div className="space-y-3 p-4">

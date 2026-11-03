@@ -36,6 +36,7 @@ function Gate({ children }: { children: ReactNode }) {
 
 function Customer() {
   return (
+    <ErrorBoundary>
     <PhoneFrame>
       <Gate>
       <Routes>
@@ -67,6 +68,7 @@ function Customer() {
       </Routes>
       </Gate>
     </PhoneFrame>
+    </ErrorBoundary>
   )
 }
 
@@ -75,7 +77,7 @@ export default function App() {
   if (location.pathname === '/staff') return <Navigate to="/admin" replace />
   if (location.pathname.startsWith('/admin')) {
     return (
-      <ErrorBoundary>
+      <ErrorBoundary staff>
         <Admin />
       </ErrorBoundary>
     )

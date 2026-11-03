@@ -115,7 +115,8 @@ export function BottomNav() {
   const location = useLocation()
   if (scamOpen || location.pathname.startsWith('/flow')) return null
   return (
-    <nav aria-label={t('nav.home')} className="grid grid-cols-4 border-t border-[var(--line)] bg-[var(--card)]" style={{ padding: '8px 0 calc(8px + env(safe-area-inset-bottom))' }}>
+    <nav aria-label={t('nav.home')} className="app-nav">
+      <div className="grid h-[64px] grid-cols-4">
       {NAV.map((item) => {
         const label = t(item.key)
         return (
@@ -126,8 +127,9 @@ export function BottomNav() {
             data-guide={item.guide}
             aria-label={label}
             className={({ isActive }) =>
-              `flex min-w-0 flex-col items-center justify-center gap-1 overflow-hidden px-0.5 text-center text-[12px] font-normal leading-4 ${isActive ? 'text-[#E30613]' : 'text-[var(--text)]'}`
+              `flex h-[64px] min-w-0 flex-col items-center justify-center overflow-hidden px-0.5 text-center text-[12px] font-normal ${isActive ? 'text-[#E30613]' : 'text-[var(--text)]'}`
             }
+            style={{ gap: 4 }}
           >
             {({ isActive }) => (
               <>
@@ -140,12 +142,13 @@ export function BottomNav() {
                 ) : (
                   <MoreGlyph active={isActive} />
                 )}
-                <span className="w-full truncate text-[12px] font-normal leading-none">{label}</span>
+                <span className="w-full truncate whitespace-nowrap text-[12px] font-normal leading-[16px]">{label}</span>
               </>
             )}
           </NavLink>
         )
       })}
+      </div>
     </nav>
   )
 }
@@ -169,6 +172,7 @@ function OllieFab() {
   const [showLabel, setShowLabel] = useState(() => localStorage.getItem(OLLIE_LABEL_KEY) !== '1')
   const [lift, setLift] = useState(88)
   const [tucked, setTucked] = useState(false)
+  const [avatarFailed, setAvatarFailed] = useState(false)
   const hiddenPath = ['/welcome', '/login', '/join', '/onboarding'].includes(location.pathname) || location.pathname.startsWith('/pre') || location.pathname.startsWith('/flow')
   useEffect(() => {
     const sync = () => setHideReview(document.getElementById('customer-root')?.getAttribute('data-hide-fab') === '1')
@@ -213,7 +217,6 @@ function OllieFab() {
   }, [location.pathname, app.helpOpen])
   if (hiddenPath || tucked || appTour || flowTour || scamOpen || hideReview || (app.helpOpen && app.helpView === 'ai')) return null
   const label = translate(app.prefs.language, 'help.askOllie')
-  const [avatarFailed, setAvatarFailed] = useState(false)
   return (
     <button
       type="button"
@@ -237,18 +240,20 @@ function HelpLayer() {
   const location = useLocation()
   const t = (key: string, vars?: Record<string, string | number>) => translate(app.prefs.language, key, vars)
   const aiFull = app.helpOpen && app.helpView === 'ai'
+  const setNotice = app.setNotice
+  const language = app.prefs.language
   useEffect(() => {
-    app.setNotice('')
-  }, [location.pathname])
+    setNotice('')
+  }, [location.pathname, setNotice])
 
   useEffect(() => {
     if (!app.helpOpen) stopSpeaking()
   }, [app.helpOpen])
   useEffect(() => {
-    const onCantonese = () => app.setNotice(t('speech.cantoneseDown'))
+    const onCantonese = () => setNotice(translate(language, 'speech.cantoneseDown'))
     window.addEventListener('ocbc-cantonese', onCantonese)
     return () => window.removeEventListener('ocbc-cantonese', onCantonese)
-  }, [app, t])
+  }, [language, setNotice])
   useEffect(() => {
     if (!app.helpOpen) return
     const onKey = (event: KeyboardEvent) => {
@@ -431,7 +436,7 @@ export function Page({
     if (!prefs.readAloud || !title) return
     setSpeakingTitle(true)
     void speak(title, { language: prefs.language, rate: prefs.speechRate, dialect: prefs.dialect }).finally(() => setSpeakingTitle(false))
-  }, [location.pathname])
+  }, [location.pathname, title, prefs.readAloud, prefs.language, prefs.speechRate, prefs.dialect])
   return (
     <div className="flex h-full min-h-0 flex-col bg-[var(--bg)] text-[var(--text)]">
       <header className="relative flex min-h-14 items-center justify-center border-b border-[var(--line)] bg-[var(--card)] px-3 py-2">
@@ -466,7 +471,7 @@ export function Page({
           <ExplainButton />
         </span>
       </header>
-      <main id="main" ref={mainRef} key={location.pathname} className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[var(--bg)] pb-24">
+      <main id="main" ref={mainRef} key={location.pathname} className={`min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[var(--bg)] ${location.pathname.startsWith('/flow') ? '' : 'nav-clearance'}`}>
         <GuideDone />
         {children}
       </main>
