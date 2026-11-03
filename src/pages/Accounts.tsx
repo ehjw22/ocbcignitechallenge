@@ -4,7 +4,7 @@ import { Page } from '@/components/Shell'
 import { useApp } from '@/context/AppContext'
 import { payeeName } from '@/data/bank'
 import { translate } from '@/i18n'
-import { formatSGD } from '@/lib/format'
+import { formatDay, formatMoney, formatSignedMoney } from '@/lib/format'
 
 export function Accounts() {
   const app = useApp()
@@ -26,7 +26,7 @@ export function Accounts() {
             <h2 className="text-[0.9rem] font-medium leading-normal">{t(account.nameKey)}</h2>
             <p className="text-[0.75rem] text-[var(--muted)]">{account.kind === 'card' ? `•••• ${account.number}` : account.number}</p>
             <p className="mt-2 text-[1.6rem] font-bold tabular-nums leading-normal tracking-tight">
-              {account.kind === 'card' ? formatSGD(account.balance) : formatSGD(app.balances[account.id] ?? account.balance)}
+              {account.kind === 'card' ? formatMoney(account.balance) : formatMoney(app.balances[account.id] ?? account.balance)}
             </p>
             <p className="text-[0.75rem] text-[var(--muted)]">{account.kind === 'card' ? t('outstanding') : t('available')}</p>
           </Link>
@@ -49,9 +49,9 @@ export function Accounts() {
               <Link to={`/txn/${txn.id}`} className="flex items-center justify-between gap-3 px-3 py-3">
                 <span className="min-w-0">
                   <span className="block leading-normal">{payeeName(txn.title)}</span>
-                  <span className="text-sm text-[var(--muted)]">{txn.date}</span>
+                  <span className="text-sm text-[var(--muted)]">{formatDay(txn.date, app.prefs.language)}</span>
                 </span>
-                <span className="tabular-nums">{formatSGD(txn.amount)}</span>
+                <span className="tabular-nums">{formatSignedMoney(txn.amount)}</span>
               </Link>
             </li>
           ))}

@@ -127,10 +127,12 @@ const books: Record<string, BankBook> = {
 }
 
 export function isDemoAccount(id: string) {
-  return id in books
+  return id === 'persona-mei' || id === 'persona-arif' || id in books
 }
 
 export function demoBook(id: string) {
+  if (id === 'persona-mei') return books.auntiemei
+  if (id === 'persona-arif') return books.arif
   return books[id]
 }
 

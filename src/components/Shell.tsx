@@ -171,7 +171,7 @@ function OllieFab() {
   const [showLabel, setShowLabel] = useState(() => localStorage.getItem(OLLIE_LABEL_KEY) !== '1')
   const [lift, setLift] = useState(88)
   const [tucked, setTucked] = useState(false)
-  const hiddenPath = ['/welcome', '/login', '/join', '/onboarding'].includes(location.pathname) || location.pathname.startsWith('/pre')
+  const hiddenPath = ['/welcome', '/login', '/join', '/onboarding'].includes(location.pathname) || location.pathname.startsWith('/pre') || location.pathname.startsWith('/flow')
   useEffect(() => {
     const sync = () => setHideReview(document.getElementById('customer-root')?.getAttribute('data-hide-fab') === '1')
     sync()
@@ -191,19 +191,27 @@ function OllieFab() {
     if (!root) return
     const measure = () => {
       const nav = root.querySelector('nav')
-      const navH = nav?.getBoundingClientRect().height ?? 64
-      const sticky = [...root.querySelectorAll('.sticky')].find((el) => {
-        if (el.closest('nav')) return false
-        const style = getComputedStyle(el)
-        return style.position === 'sticky' && style.bottom === '0px' && Boolean(el.querySelector('button'))
-      })
-      setTucked(Boolean(sticky))
-      setLift(navH + 12)
+      const navH = nav?.getBoundingClientRect().height ?? 0
+      const rootBox = root.getBoundingClientRect()
+      const buttons = [...root.querySelectorAll('main button, main a')].filter((el) => el.getBoundingClientRect().height > 20)
+      let above = navH + 16
+      for (const button of buttons) {
+        const box = button.getBoundingClientRect()
+        if (box.top > rootBox.bottom || box.bottom < rootBox.bottom - 150) continue
+        above = Math.max(above, rootBox.bottom - box.top + 16)
+      }
+      setTucked(false)
+      setLift(Math.min(above, rootBox.height - 72))
     }
     measure()
     const observer = new ResizeObserver(measure)
     observer.observe(root)
-    return () => observer.disconnect()
+    const main = root.querySelector('main')
+    main?.addEventListener('scroll', measure, { passive: true })
+    return () => {
+      observer.disconnect()
+      main?.removeEventListener('scroll', measure)
+    }
   }, [location.pathname, app.helpOpen])
   if (hiddenPath || tucked || appTour || flowTour || scamOpen || hideReview || (app.helpOpen && app.helpView === 'ai')) return null
   const label = translate(app.prefs.language, 'help.askOllie')
@@ -460,7 +468,7 @@ export function Page({
           <ExplainButton />
         </span>
       </header>
-      <main id="main" ref={mainRef} key={location.pathname} className={`${location.pathname.startsWith('/flow') ? '' : 'mb-[76px]'} min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[var(--bg)]`}>
+      <main id="main" ref={mainRef} key={location.pathname} className={`${location.pathname.startsWith('/flow') ? 'pb-24' : 'mb-[76px]'} min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[var(--bg)]`}>
         <GuideDone />
         {children}
       </main>

@@ -67,6 +67,8 @@
   },
   "errors": {
     "account_digits": "Nombor akaun perlukan 10 digit. Anda masukkan {got}.",
+    "account_au": "Nombor akaun Australia perlukan 6 hingga 9 digit. Anda masukkan {got}.",
+    "account_uk": "Nombor akaun UK perlukan 8 digit. Anda masukkan {got}.",
     "summary": "Semak perkara di bawah.",
     "required": "Masukkan {field}.",
     "paynow_mobile": "Guna nombor 8 digit yang bermula dengan 8 atau 9.",
@@ -211,7 +213,16 @@
     "meiBody": "Cina, teks besar, jawapan ringkas. Membuka pindahan luar negara.",
     "arifBody": "Inggeris, butiran penuh, gambaran perbelanjaan. Membuka persediaan GIRO.",
     "reset": "Tetap semula aplikasi",
-    "resetBody": "Mengosongkan pilihan yang disimpan pada peranti ini."
+    "resetBody": "Mengosongkan pilihan yang disimpan pada peranti ini.",
+    "sections": {
+      "language": "Bahasa dan suara",
+      "text": "Teks dan paparan",
+      "colour": "Warna dan tema",
+      "help": "Pilihan bantuan",
+      "shortcuts": "Pintasan laman",
+      "privacy": "Privasi dan wawasan",
+      "account": "Akaun"
+    }
   },
   "demoBadge": "Demo",
   "prototype": "Demo",
@@ -323,8 +334,13 @@
     "sample": "Tiada wang dipindahkan."
   },
   "notifications": {
-    "salaryBody": "S$4,200.00 telah ditambah ke Akaun 360 anda.",
-    "billBody": "Bil SP Group sebanyak S$96.40 sedia untuk dibayar."
+    "title": "Pemberitahuan",
+    "salaryTitle": "Gaji diterima",
+    "salaryBody": "4,200.00 SGD telah ditambah ke Akaun 360 anda.",
+    "billTitle": "Peringatan bil",
+    "billBody": "Bil SP Group sebanyak 96.40 SGD sedia untuk dibayar.",
+    "securityTitle": "Petua keselamatan",
+    "securityBody": "OCBC tidak akan meminta PIN atau kata laluan sekali dalam mesej."
   },
   "dialects": {
     "soon": "Tidak tersedia",
@@ -404,6 +420,12 @@
     "insights": "Wawasan perbelanjaan"
   },
   "accounts": {
+    "title": "Akaun",
+    "a360": "Akaun 360",
+    "savings": "Simpanan penyata",
+    "card365": "Kad kredit 365",
+    "deposits": "Akaun deposit",
+    "cards": "Kad",
     "frank": "Akaun FRANK"
   },
   "tour": {
@@ -504,6 +526,37 @@
     "total": "Jumlah baki",
     "viewStatement": "Lihat penyata",
     "pending": "Transaksi tertunda pada kad debit anda mungkin mengambil masa sehingga 7 hari untuk muncul. Semak baki tersedia untuk pastikan jumlah yang betul telah ditolak.",
+    "debitCard": "Kad Debit",
+    "cardActive": "Aktif",
+    "cardLocked": "Dikunci",
+    "lockCard": "Kunci kad",
+    "unlockCard": "Buka kunci",
+    "cardDetails": "Butiran kad",
+    "payTo": "Bayar kepada",
+    "limitLeft": "Baki had harian: {amount}",
+    "overLimit": "Jumlah ini melebihi had harian anda. Masukkan jumlah yang lebih rendah atau cuba esok.",
+    "moneyLockHint": "Kunci wang dihidupkan? Lepaskan dana jika perlu.",
+    "enterMobile": "+ Masukkan nombor mudah alih",
+    "recentTab": "Terkini",
+    "contactsTab": "Kenalan",
+    "searchPayee": "Cari nama atau nombor mudah alih",
+    "nric": "NRIC/FIN",
+    "uen": "UEN/VPA",
+    "tapToPay": "Ketik untuk bayar",
+    "paid": "{amount} dibayar",
+    "seeTxn": "Lihat butiran transaksi",
+    "goTransfers": "Pergi ke pindahan",
+    "apply": "Mohon",
+    "services": "Perkhidmatan",
+    "banking": "Perbankan",
+    "deals": "Tawaran dan petua",
+    "dealsEmpty": "Tiada tawaran sekarang.",
+    "fastPayment": "BAYARAN PANTAS",
+    "report": "Laporkan masalah",
+    "shape": "Susun aplikasi mengikut cara anda",
+    "hiName": "Cara kami menyapa anda",
+    "greetTell": "Beritahu kami bagaimana anda mahu disapa",
+    "greetHelp": "Nama ini digunakan untuk menyapa anda dalam aplikasi",
     "slide": "Leret untuk bayar",
     "slidePractice": "Leret untuk bayar (latihan)",
     "ollieSafety": "Ollie · Semakan keselamatan"
@@ -515,11 +568,27 @@
     "high": "Risiko tinggi",
     "reason": {
       "newPayee": "Ini pembayaran pertama anda kepada orang ini.",
+      "paidBefore": "Anda pernah bayar orang ini, tetapi mereka belum disimpan.",
       "large": "{amount} atau lebih.",
-      "day": "Anda telah menghantar {amount} kepada orang ini dalam 24 jam lepas.",
+      "day": "Ini menjadikan jumlah anda kepada orang ini hari ini {amount}.",
       "overseas": "Ke luar negara, kepada seseorang yang baharu.",
       "words": "Rujukan menyebut '{word}', yang sering digunakan penipu.",
       "unusual": "Jauh lebih banyak daripada yang biasa anda hantar (kira-kira {usual})."
     }
+  },
+  "voice": {
+    "en": "Suara Inggeris",
+    "ms": "Suara Melayu",
+    "ta": "Suara Tamil",
+    "id": "Suara Indonesia",
+    "vi": "Suara Vietnam",
+    "th": "Suara Thai",
+    "tl": "Suara Filipina",
+    "ko": "Suara Korea",
+    "ja": "Suara Jepun",
+    "hi": "Suara Hindi",
+    "bn": "Suara Bengali",
+    "mandarin": "Suara Mandarin",
+    "cantonese": "Suara Kantonis"
   }
 }

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { Check, ChevronDown, Search } from 'lucide-react'
 import { Choice, choiceClass } from '@/components/Choice'
 import { ShortcutPicker } from '@/components/ShortcutPicker'
@@ -22,6 +23,7 @@ function Section({
   open,
   onToggle,
   onResult,
+  only,
   children,
 }: {
   id: string
@@ -34,14 +36,15 @@ function Section({
   open: boolean
   onToggle: (id: string) => void
   onResult?: (id: string, shown: boolean) => void
+  only?: string
   children: ReactNode
 }) {
   const q = query.trim().toLowerCase()
   const hay = `${title} ${summary} ${keywords}`.toLowerCase()
-  const shown = !q || hay.includes(q)
+  const shown = (!only || only === id) && (!q || hay.includes(q))
   useEffect(() => { onResult?.(id, shown) }, [id, shown])
   if (!shown) return null
-  const expanded = q ? true : open
+  const expanded = only === id || (q ? true : open)
   return (
     <section id={anchor} className="border-b border-[var(--line)]">
       <h2>
@@ -74,6 +77,9 @@ export function Settings() {
   const [query, setQuery] = useState('')
   const [open, setOpen] = useState<Record<string, boolean>>({})
   const [shown, setShown] = useState<Record<string, boolean>>({})
+  const [params, setParams] = useSearchParams()
+  const panel = params.get('panel') || ''
+  const [greet, setGreet] = useState(app.profile.shortName)
   const remember = (id: string, value: boolean) => setShown((prev) => (prev[id] === value ? prev : { ...prev, [id]: value }))
   const prefsRef = useRef(app.prefs)
   prefsRef.current = app.prefs
@@ -105,6 +111,28 @@ export function Settings() {
   return (
     <Page title={t('settings.title')} back>
       <div className="px-4 pb-4">
+        {!panel && (
+          <div className="pb-4 pt-3">
+            <h2 className="text-[22px] font-bold leading-tight">{t('look.shape')}</h2>
+            <div className="mt-3 grid grid-cols-3 gap-3 rounded-xl bg-[var(--card)] p-3 text-center">
+              {[
+                ['shortcuts', t('settings.sections.shortcuts')],
+                ['text', t('settings.sections.text')],
+                ['colour', t('settings.sections.colour')],
+                ['language', t('settings.sections.language')],
+                ['help', t('settings.sections.help')],
+                ['privacy', t('settings.sections.privacy')],
+              ].map(([id, label]) => (
+                <button key={id} type="button" className="min-h-11 text-[14px] font-normal" onClick={() => setParams({ panel: id })}>{label}</button>
+              ))}
+            </div>
+            <h3 className="mt-4 text-[18px] font-bold">{t('look.hiName')}</h3>
+            <p className="text-[14px] text-[var(--muted)]">{t('look.greetTell')}</p>
+            <input className="mt-2 w-full border-b border-[var(--line)] bg-transparent py-2 text-[16px]" aria-label={t('look.hiName')} value={greet} onChange={(event) => setGreet(event.target.value)} onBlur={() => app.setProfile({ ...app.profile, shortName: greet.trim() || app.profile.shortName })} />
+            <p className="mt-1 text-[13px] text-[var(--muted)]">{t('look.greetHelp')}</p>
+          </div>
+        )}
+        {panel && <button type="button" className="mb-2 min-h-11 font-semibold text-[var(--link)] underline" onClick={() => setParams({})}>{t('back')}</button>}
         <label className="relative mb-2 block pt-3 font-semibold" htmlFor="settings-search">
           {t('gate.search')}
           <Search aria-hidden size={18} className="pointer-events-none absolute bottom-3.5 left-3 text-[var(--muted)]" />
@@ -121,11 +149,11 @@ export function Settings() {
           <p className="py-6 text-center font-semibold">{t('gate.noMatch', { q: query.trim() })}</p>
         )}
 
-        <Section onResult={remember}
+        <Section only={panel} onResult={remember}
           id="language"
           guide="settings-language"
           title={t('settings.sections.language')}
-          summary={`${language?.native || ''} · ${t(`dialects.${app.prefs.dialect}`)}`}
+          summary={voiceSummary(app.prefs.language, app.prefs.dialect, language?.native || '', t)}
           keywords={`${t('settings.language')} ${t('dialects.title')} ${t('onboarding.readAloud')} ${t('speed')} ${LANGUAGES.map((item) => `${item.native} ${item.english}`).join(' ')} ${DIALECTS.map((item) => t(`dialects.${item.id}`)).join(' ')}`}
           query={query}
           open={!!open.language}
@@ -139,7 +167,9 @@ export function Settings() {
               </Choice>
             ))}
           </div>
+          {(app.prefs.language === 'zh' || app.prefs.language === 'zh-TW') && (
           <p className="mt-3 text-sm font-normal leading-snug text-[var(--muted)]">{t('dialects.note')}</p>
+          )}
           {(app.prefs.language === 'zh' || app.prefs.language === 'zh-TW') && (
             <div className="mt-2" role="radiogroup" aria-label={t('dialects.title')}>
               <Choice selected={app.prefs.dialect !== 'cantonese'} onClick={() => app.updatePrefs({ dialect: 'standard' })}>{t('dialects.standard')}</Choice>
@@ -166,7 +196,7 @@ export function Settings() {
           <SpeechSpeed />
         </Section>
 
-        <Section onResult={remember}
+        <Section only={panel} onResult={remember}
           id="text"
           guide="settings-text"
           title={t('settings.sections.text')}
@@ -185,7 +215,7 @@ export function Settings() {
           <label className="flex min-h-12 items-center gap-3"><input type="checkbox" checked={app.prefs.highContrast} onChange={(event) => app.updatePrefs({ highContrast: event.target.checked })} />{t('onboarding.contrast')}</label>
         </Section>
 
-        <Section onResult={remember}
+        <Section only={panel} onResult={remember}
           id="colour"
           title={t('settings.sections.colour')}
           summary={`${theme ? t(theme.labelKey) : t('themes.custom')} · ${t(`themes.${app.prefs.scheme}`)} · ${t(`cvd.${app.prefs.colourVision}`)}`}
@@ -249,7 +279,7 @@ export function Settings() {
           </div>
         </Section>
 
-        <Section onResult={remember}
+        <Section only={panel} onResult={remember}
           id="help"
           guide="settings-help"
           title={t('settings.sections.help')}
@@ -280,7 +310,7 @@ export function Settings() {
           </div>
         </Section>
 
-        <Section onResult={remember}
+        <Section only={panel} onResult={remember}
           id="shortcuts"
           guide="settings-shortcuts"
           anchor="shortcuts"
@@ -300,7 +330,7 @@ export function Settings() {
           </div>
         </Section>
 
-        <Section onResult={remember}
+        <Section only={panel} onResult={remember}
           id="privacy"
           title={t('settings.sections.privacy')}
           summary={app.prefs.spendingInsights ? t('settings.insightsOn') : t('settings.insightsOff')}
@@ -315,7 +345,7 @@ export function Settings() {
           </label>
         </Section>
 
-        <Section onResult={remember}
+        <Section only={panel} onResult={remember}
           id="account"
           title={t('settings.sections.account')}
           summary={app.profile.shortName}
@@ -353,4 +383,27 @@ export function Settings() {
       </div>
     </Page>
   )
+}
+
+const VOICE_LABEL: Record<string, string> = {
+  en: 'English voice',
+  ms: 'Suara Melayu',
+  ta: 'தமிழ் குரல்',
+  id: 'Suara Indonesia',
+  vi: 'Giọng Việt',
+  th: 'เสียงไทย',
+  tl: 'Boses Filipino',
+  ko: '한국어 음성',
+  ja: '日本語の音声',
+  hi: 'हिन्दी आवाज़',
+  bn: 'বাংলা কণ্ঠ',
+}
+
+function voiceSummary(language: string, dialect: string, native: string, t: (key: string) => string) {
+  if (language === 'zh' || language === 'zh-TW') {
+    const cantonese = dialect === 'cantonese'
+    const voice = language === 'zh-TW' ? (cantonese ? '粵語' : '普通話') : (cantonese ? '粤语' : '普通话')
+    return `${native} · ${voice}`
+  }
+  return `${native} · ${VOICE_LABEL[language] || t('voice.en')}`
 }

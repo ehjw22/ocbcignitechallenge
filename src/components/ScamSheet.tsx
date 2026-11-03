@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom'
 import { useApp } from '@/context/AppContext'
 import { Speakable } from '@/components/Speakable'
 import { translate } from '@/i18n'
-import { formatSGD } from '@/lib/format'
+import { formatMoney } from '@/lib/format'
 import { setScamSheetOpen } from '@/lib/scamCheck'
 import { loadRiskConfig, type RiskLevel, type RiskReason } from '@/lib/transferRisk'
 
@@ -52,15 +52,16 @@ export function ScamSheet({
   const flagged = answers.some((item) => item === 'yes')
   const hold = level === 'high' || flagged
   const answerText = answers.map((item) => item || 'blank').join(',')
-  const money = formatSGD(amount)
+  const money = formatMoney(amount)
   const title = t(level === 'high' ? 'risk.titleHigh' : 'risk.titleCheck')
   const reasonLines = reasons.map((reason) => {
     if (reason === 'new-payee-amount') return t('risk.reason.newPayee')
-    if (reason === 'large-amount') return t('risk.reason.large', { amount: formatSGD(loadRiskConfig().largeAmount) })
-    if (reason === 'new-payee-24h-total') return t('risk.reason.day', { amount: formatSGD(dayTotal) })
+    if (reason === 'paid-before') return t('risk.reason.paidBefore')
+    if (reason === 'large-amount') return t('risk.reason.large', { amount: formatMoney(loadRiskConfig().largeAmount) })
+    if (reason === 'new-payee-24h-total') return t('risk.reason.day', { amount: formatMoney(dayTotal) })
     if (reason === 'overseas-new-payee') return t('risk.reason.overseas')
     if (reason === 'scam-words') return t('risk.reason.words', { word: words[0] || '' })
-    return t('risk.reason.unusual', { usual: formatSGD(usual) })
+    return t('risk.reason.unusual', { usual: formatMoney(usual) })
   })
   const spoken = [title, ...reasonLines, t('scamCheck.q1'), t('scamCheck.q2'), t('scamCheck.q3'), hold ? t('scamCheck.warning') : ''].filter(Boolean).join(' ')
 

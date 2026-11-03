@@ -3,6 +3,22 @@ export function formatMoney(value: number) {
   return `${num} SGD`
 }
 
+export function formatSignedMoney(value: number) {
+  const text = formatMoney(Math.abs(value))
+  return value < 0 ? `-${text}` : text
+}
+
+export function formatDay(iso: string, language = 'en') {
+  const day = new Date(`${iso.slice(0, 10)}T00:00:00`)
+  if (Number.isNaN(day.getTime())) return iso
+  const sameYear = day.getFullYear() === new Date().getFullYear()
+  return new Intl.DateTimeFormat(language.startsWith('zh') ? 'zh-CN' : language, {
+    day: '2-digit',
+    month: 'short',
+    year: sameYear ? undefined : 'numeric',
+  }).format(day)
+}
+
 export function formatTxnAmount(value: number) {
   const num = new Intl.NumberFormat('en-SG', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(value))
   return value < 0 ? `-${num}` : num

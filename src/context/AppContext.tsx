@@ -326,6 +326,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const addRequest = (input: RequestInput) => {
     const request: StaffRequest = {
       ...input,
+      userId: input.userId || sessionRef.current || undefined,
       ref: ticketRef(),
       createdAt: new Date().toISOString(),
       status: 'received',

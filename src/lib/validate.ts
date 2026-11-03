@@ -21,7 +21,7 @@ function amountIssue(field: string, raw: string | undefined): Issue | null {
   return null
 }
 
-export function validateForm(flowId: string, form: Record<string, string>, balance: number): Issue[] {
+export function validateForm(flowId: string, form: Record<string, string>, balance: number, payees: { name?: string; country?: string; account?: string }[] = []): Issue[] {
   const issues: Issue[] = []
   const need = (field: string, ok: boolean, code = 'required') => {
     if (!ok) issues.push(issue(field, code, { field }))
@@ -51,12 +51,21 @@ export function validateForm(flowId: string, form: Record<string, string>, balan
     const spec = FX[form.country] || FX.Australia
     const raw = (form.account || '').replace(/\s/g, '')
     const digits = raw.replace(/\D/g, '')
-    if (spec.account === 'iban') {
-      if (!/^[A-Za-z]{2}\d{2}[A-Za-z0-9]{10,30}$/.test(raw)) issues.push(issue('account', 'account_iban'))
-    } else if (spec.account === 'my') {
+    const savedAccount = payees.some((payee) => {
+      const account = (payee.account || '').replace(/\s/g, '')
+      if (!account || account !== raw) return false
+      if (form.name && payee.name && payee.name.trim().toLowerCase() !== form.name.trim().toLowerCase()) return false
+      if (form.country && payee.country && payee.country !== form.country) return false
+      return true
+    })
+    if (!savedAccount && spec.account === 'iban') {
+      if (!/^DE[A-Za-z0-9]{20}$/.test(raw)) issues.push(issue('account', 'account_iban'))
+    } else if (!savedAccount && spec.account === 'my') {
       if (digits.length < 10 || digits.length > 16 || /\D/.test(raw)) issues.push(issue('account', 'account_my', { got: digits.length }))
-    } else if (!raw || digits.length !== 10 || /\D/.test(raw)) {
-      issues.push(issue('account', 'account_digits', { got: digits.length }))
+    } else if (!savedAccount && spec.account === 'uk') {
+      if (digits.length !== 8 || /\D/.test(raw)) issues.push(issue('account', 'account_uk', { got: digits.length }))
+    } else if (!savedAccount && (digits.length < 6 || digits.length > 9 || /\D/.test(raw))) {
+      issues.push(issue('account', 'account_au', { got: digits.length }))
     }
     const amount = amountIssue('amount', form.amount)
     if (amount) issues.push(amount)

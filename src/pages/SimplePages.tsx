@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { ChevronRight, Globe, Receipt, ScanLine, Smartphone, ArrowLeftRight, Headset } from 'lucide-react'
+import { Check, ChevronRight, Globe, Lock, Receipt, ScanLine, Smartphone, ArrowLeftRight, Headset } from 'lucide-react'
 import { BottomNav, Page } from '@/components/Shell'
 import { useApp } from '@/context/AppContext'
 import { JOURNEY_IDS } from '@/data/flows'
@@ -51,13 +51,13 @@ export function PayHub() {
           {grid.map(([id, to, Icon, guide]) => (
             <Link key={id} to={to} data-guide={guide} className="flex min-h-11 flex-col items-center gap-1 text-center">
               <Icon aria-hidden size={22} strokeWidth={1.5} />
-              <span className="text-[13px] font-semibold">{label(id, t)}</span>
+              <span className="text-[15px] font-normal">{label(id, t)}</span>
             </Link>
           ))}
         </div>
         <Link to="/flow/transfer?practice=1&tour=1" className="mt-3 flex items-center justify-between rounded-xl bg-[var(--soft)] px-4 py-3 text-[var(--text)]">
           <span>
-            <span className="mr-2 rounded-full bg-white px-2 py-0.5 text-[11px] font-bold">{t('look.new')}</span>
+            <span className="mr-2 rounded-full bg-[var(--accent)] px-2 py-0.5 text-[11px] font-bold text-white">{t('look.new')}</span>
             <span className="text-[15px] font-bold">{t('look.practiseStrip')}</span>
           </span>
           <ChevronRight size={18} />
@@ -101,7 +101,7 @@ export function HelpPage() {
         <h2 className="pt-2 text-lg font-semibold">{t('staff.yourRequests')}</h2>
         {app.requests.length === 0 && <p>{t('staff.empty')}</p>}
         <ul className="space-y-2">
-          {app.requests.map((request) => (
+          {app.requests.filter((request) => request.userId === app.profile.id || (!request.userId && request.customerName === app.profile.name)).map((request) => (
             <li key={request.ref} className="card p-3">
               <p className="font-semibold">{request.ref}</p>
               <p className="text-sm">{requestText(app.prefs.language, request)}</p>
@@ -137,7 +137,7 @@ export function More() {
           <div className="mt-2 flex min-w-0 max-w-full gap-3 overflow-x-auto pb-2">
             {[t('look.cardOllie'), t('look.cardTours'), t('look.cardAccess'), t('look.cardScam')].map((text) => (
               <article key={text} className="w-[220px] shrink-0 rounded-xl bg-[var(--soft)] p-4 text-[var(--text)]">
-                <span className="rounded-full bg-white px-2 py-0.5 text-[11px] font-bold">{t('look.new')}</span>
+                <span className="rounded-full bg-[var(--accent)] px-2 py-0.5 text-[11px] font-bold text-white">{t('look.new')}</span>
                 <p className="mt-2 text-[15px] font-bold">{text}</p>
               </article>
             ))}
@@ -160,6 +160,15 @@ export function More() {
             </div>
           )}
         </section>
+        <section className="px-4 pt-4">
+          <h2 className="text-[18px] font-bold">{t('look.apply')}</h2>
+          <Link to="/loans" className="mt-2 flex min-h-12 items-center justify-between">{t('look.loans')}<ChevronRight size={18} /></Link>
+        </section>
+        <section className="px-4 pt-2">
+          <h2 className="text-[18px] font-bold">{t('look.services')}</h2>
+          <Link to="/settings" className="mt-2 flex min-h-12 items-center justify-between">{t('more.settings')}<ChevronRight size={18} /></Link>
+          <Link to="/notifications" className="flex min-h-12 items-center justify-between">{t('notifications.title')}<ChevronRight size={18} /></Link>
+        </section>
       </main>
       <BottomNav />
     </div>
@@ -178,7 +187,7 @@ export function Cards() {
             <h2 className="font-semibold">{t(card.nameKey)}</h2>
             <p>•••• {card.last4}</p>
             <p className="mt-1 flex items-center gap-2 font-semibold">
-              <span aria-hidden>{card.locked ? '⊘' : '✓'}</span>
+              {card.locked ? <Lock aria-hidden size={16} /> : <Check aria-hidden size={16} />}
               {card.locked ? t('flows.locked') : t('flows.unlocked')}
             </p>
           </article>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
-import { Bell, ChevronRight, Eye, EyeOff, Settings } from 'lucide-react'
+import { Bell, Check, ChevronRight, CreditCard, Eye, EyeOff, Lock, ScanLine, Settings } from 'lucide-react'
 import { percentChange, rowsFor, sum } from '@/data/insights'
 import { useApp } from '@/context/AppContext'
 import { BottomNav, DemoBadge, GuideDone, HeaderHelp } from '@/components/Shell'
@@ -77,21 +77,18 @@ export function Home() {
 
         <section className="relative z-10 -mt-8 px-4" data-guide="home-shortcuts">
           <div className="flex items-stretch rounded-xl bg-[var(--card)] px-2 py-3 shadow-[0_8px_24px_rgba(47,53,61,0.08)]">
-            {shortcuts.map((id) => {
-              const Icon = SHORTCUT_ICONS[id]
-              return (
-                <Link key={id} to={SHORTCUT_ROUTES[id] ?? '/pay'} className="flex min-h-11 min-w-0 flex-1 flex-col items-center justify-center gap-1 px-1 text-center">
-                  {Icon && <Icon aria-hidden size={22} strokeWidth={1.5} />}
-                  <span className="line-clamp-2 text-[13px] font-semibold leading-tight">{t(`shortcuts.${id}`)}</span>
+            {shortcuts.map((id) => (
+                <Link key={id} to={SHORTCUT_ROUTES[id] ?? '/pay'} className="flex min-h-11 min-w-0 flex-1 flex-col items-center justify-center gap-1 px-1 text-center text-[var(--text)]">
+                  <ShortcutMark id={id} />
+                  <span className="line-clamp-2 text-[16px] font-normal leading-tight">{t(`shortcuts.${id}`)}</span>
                 </Link>
-              )
-            })}
-            <span className="my-1 w-px bg-[var(--line)]" />
+            ))}
+            <span className="my-2 w-px bg-[#D9D9D9]" />
             <Link to="/settings" className="flex min-w-[72px] flex-col items-center justify-center gap-1 px-1">
-              <span className="grid h-9 w-9 place-items-center rounded-full bg-[#E5DEDD] text-[var(--text)]">
-                <Settings aria-hidden size={18} strokeWidth={1.5} />
+              <span className="grid h-12 w-12 place-items-center rounded-full bg-[#E9E4DF] text-[#333]">
+                <Settings aria-hidden size={22} strokeWidth={1.5} />
               </span>
-              <span className="text-[13px] font-semibold">{t('look.customise')}</span>
+              <span className="text-[16px] font-normal text-[var(--text)]">{t('look.customise')}</span>
             </Link>
           </div>
         </section>
@@ -121,19 +118,39 @@ export function Home() {
             const balance = app.balances[account.id] ?? account.balance
             const code = account.id === 'frank' ? 'FRA' : account.id === '360' ? '360' : account.id.slice(0, 3).toUpperCase()
             return (
-              <Link key={account.id} to={`/accounts/${account.id}`} data-guide={index === 0 ? 'home-balance' : undefined} className="mb-3 block rounded-xl bg-[var(--soft)] p-4">
-                <span className="flex items-center gap-3">
-                  <span className="grid h-8 w-8 place-items-center rounded-full bg-[#F6D7C8] text-[11px] font-bold text-[var(--text)]">{code}</span>
+              <article key={account.id} className="mb-3 rounded-xl p-4" style={{ background: app.prefs.scheme === 'dark' ? 'var(--card)' : '#F4EEE9', color: app.prefs.scheme === 'dark' ? 'var(--text)' : '#333' }}>
+                <Link to={`/accounts/${account.id}`} data-guide={index === 0 ? 'home-balance' : undefined} className="flex items-center gap-3">
+                  <span className="grid h-11 w-11 place-items-center rounded-full bg-[#F6D5BF] text-[12px] font-bold">{code}</span>
                   <span className="min-w-0 flex-1">
-                    <span className="block text-[15px] font-bold">{t(account.nameKey)}</span>
-                    <span className="block text-[13px] text-[var(--muted)]">{account.number}</span>
+                    <span className="block text-[16px] font-bold">{t(account.nameKey)}</span>
+                    <span className="block text-[14px] font-normal">{account.number}</span>
+                    <span className="block text-[14px] font-normal">{app.profile.name}</span>
                   </span>
-                  <ChevronRight size={18} className="text-[var(--muted)]" />
+                  <ChevronRight size={18} />
+                </Link>
+                <span className="mt-3 block border-t border-[#E7E0DA] pt-3 text-[14px]">
+                  {t('look.available')} <strong className="float-right text-[16px]">{money(balance)}</strong>
                 </span>
-                <span className="mt-3 block border-t border-[var(--line)] pt-3 text-[13px] text-[var(--muted)]">
-                  {t('look.available')} <strong className="float-right text-[15px] text-[var(--text)]">{money(balance)}</strong>
-                </span>
-              </Link>
+                {index === 0 && app.cards[0] && (
+                  <span className="mt-3 block border-t border-[#E7E0DA] pt-3">
+                    <span className="flex items-center gap-3">
+                      <span className="h-[26px] w-10 shrink-0 rounded bg-gradient-to-br from-[#E30613] to-[#9b1020]" aria-hidden />
+                      <span className="min-w-0 flex-1">
+                        <span className="block text-[15px] font-bold">{t('look.debitCard')}</span>
+                        <span className="block text-[14px]">{hidden ? '•••• ••••' : `•••• ${app.cards[0].last4}`}</span>
+                      </span>
+                      <span className="inline-flex items-center gap-1 text-[13px]">
+                        {app.cards[0].locked ? <Lock size={14} /> : <Check size={14} className="text-[#1E8E3E]" />}
+                        {app.cards[0].locked ? t('look.cardLocked') : t('look.cardActive')}
+                      </span>
+                    </span>
+                    <span className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
+                      <Link className="inline-flex min-h-11 items-center text-[15px] text-[#1C65FF] underline" to={`/flow/card-lock?card=${app.cards[0].id}`}>{app.cards[0].locked ? t('look.unlockCard') : t('look.lockCard')}</Link>
+                      <Link className="inline-flex min-h-11 items-center text-[15px] text-[#1C65FF] underline" to={`/cards#${app.cards[0].id}`}>{t('look.cardDetails')}</Link>
+                    </span>
+                  </span>
+                )}
+              </article>
             )
           })}
           {pill !== 'accounts' && (
@@ -156,7 +173,7 @@ export function Home() {
             <p className="mt-1 text-[15px] font-bold">{t('look.insightLine')}</p>
           </Link>
           <Link to="/flow/overseas?practice=1&tour=1" data-guide="home-foryou" className="w-[240px] shrink-0 rounded-xl bg-[var(--soft)] p-4 text-[var(--text)]">
-            <span className="rounded-full bg-[var(--soft)] px-2 py-0.5 text-[11px] font-bold">{t('look.new')}</span>
+            <span className="rounded-full bg-[var(--accent)] px-2 py-0.5 text-[11px] font-bold text-white">{t('look.new')}</span>
             <p className="mt-2 text-[15px] font-bold">{t('forYouBody')}</p>
           </Link>
         </section>
@@ -188,7 +205,7 @@ export function Home() {
         {app.prefs.spendingInsights && (
           <section className="px-4 pb-6">
             <Link to="/insights" className="block rounded-xl bg-[var(--soft)] p-4 text-[var(--text)]">
-              <span className="rounded-full bg-[var(--soft)] px-2 py-0.5 text-[11px] font-bold">{t('look.new')}</span>
+              <span className="rounded-full bg-[var(--accent)] px-2 py-0.5 text-[11px] font-bold text-white">{t('look.new')}</span>
               <p className="mt-2 font-bold">{t('insights')}</p>
               <p className="text-[13px]">
                 {t('insight.vsLast', {
@@ -219,4 +236,25 @@ export function Home() {
       )}
     </div>
   )
+}
+
+function ShortcutMark({ id }: { id: string }) {
+  if (id === 'paynow') {
+    return (
+      <span className="grid h-8 w-8 place-items-center text-[9px] font-bold leading-none tracking-tight" aria-hidden>
+        PAY<br />N<span className="relative">O<span className="absolute -right-1 -top-1 text-[7px]">✓</span></span>W
+      </span>
+    )
+  }
+  if (id === 'scan') return <ScanLine aria-hidden size={28} strokeWidth={1.5} />
+  if (id === 'cards' || id === 'card-lock') {
+    return (
+      <span className="relative" aria-hidden>
+        <CreditCard size={28} strokeWidth={1.5} />
+        <Lock size={12} strokeWidth={1.5} className="absolute -bottom-1 -right-1" />
+      </span>
+    )
+  }
+  const Icon = SHORTCUT_ICONS[id]
+  return Icon ? <Icon aria-hidden size={28} strokeWidth={1.5} /> : <ScanLine aria-hidden size={28} strokeWidth={1.5} />
 }

@@ -24,6 +24,7 @@ function azureVoice(lang: string) {
     'zh-TW': 'zh-TW-HsiaoChenNeural',
     'zh-HK': 'zh-HK-HiuMaanNeural',
     'ms-MY': 'ms-MY-YasminNeural',
+    'ta-SG': 'ta-SG-VenbaNeural',
     'ta-IN': 'ta-IN-PallaviNeural',
     'id-ID': 'id-ID-GadisNeural',
     'vi-VN': 'vi-VN-HoaiMyNeural',
@@ -93,13 +94,30 @@ export async function handleTts(req: IncomingMessage, res: ServerResponse) {
   const rate = prosodyRate(Math.min(1.5, Math.max(0.6, Number(raw.rate) || 1)))
   const cantonese = raw.dialect === 'cantonese'
   const lang = cantonese ? 'zh-HK' : (raw.lang || 'en-SG')
-  const voice = cantonese ? 'zh-HK-HiuMaanNeural' : azureVoice(lang)
+  const voices = cantonese
+    ? [
+        { lang: 'zh-HK', voice: 'zh-HK-HiuMaanNeural' },
+        { lang: 'zh-CN', voice: 'zh-CN-XiaoxiaoNeural' },
+      ]
+    : lang.startsWith('en')
+      ? [
+          { lang: 'en-SG', voice: 'en-SG-LunaNeural' },
+          { lang: 'en-GB', voice: 'en-GB-SoniaNeural' },
+          { lang: 'en-US', voice: 'en-US-JennyNeural' },
+        ]
+      : lang.startsWith('ms')
+        ? [{ lang: 'ms-MY', voice: 'ms-MY-YasminNeural' }]
+        : lang.startsWith('ta')
+          ? [{ lang: 'ta-SG', voice: 'ta-SG-VenbaNeural' }, { lang: 'ta-IN', voice: 'ta-IN-PallaviNeural' }]
+          : [{ lang, voice: azureVoice(lang) }]
   const { googleKey, azureKey, region } = speechSettings()
   if (azureKey) {
-    const audio = await azureSpeak(region, azureKey, lang, voice, rate, text)
-    if (audio) {
-      send(res, 200, { audio, provider: 'azure', voice, lang })
-      return
+    for (const candidate of voices) {
+      const audio = await azureSpeak(region, azureKey, candidate.lang, candidate.voice, rate, text)
+      if (audio) {
+        send(res, 200, { audio, provider: 'azure', voice: candidate.voice, lang: candidate.lang })
+        return
+      }
     }
     if (cantonese) {
       send(res, 502, { error: 'cantonese_unavailable' })

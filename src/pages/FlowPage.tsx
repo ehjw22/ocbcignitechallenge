@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { CircleAlert, TriangleAlert } from 'lucide-react'
+import { ChevronsRight, CircleAlert, TriangleAlert } from 'lucide-react'
 import { FieldError } from '@/components/FieldError'
 import { Page } from '@/components/Shell'
 import { Speakable } from '@/components/Speakable'
@@ -8,7 +8,7 @@ import { useApp } from '@/context/AppContext'
 import { FX, lookupPaynow, payeeName } from '@/data/bank'
 import { flowById, type FlowField } from '@/data/flows'
 import { translate } from '@/i18n'
-import { formatSGD } from '@/lib/format'
+import { formatMoney } from '@/lib/format'
 import { getFlowTour, startGuide, subscribeFlowTour } from '@/lib/guide'
 import { formatRate, nextRate } from '@/lib/rates'
 import { beginShowHow, peekShowHow, takeShowHow } from '@/lib/showHow'
@@ -48,6 +48,7 @@ export function FlowPage() {
   const proceedRef = useRef<(() => void) | null>(null)
   const [ref, setRef] = useState('')
   const [wstep, setWstep] = useState(0)
+  const [directory, setDirectory] = useState(true)
   const [highlights, setHighlights] = useState<string[]>([])
   const guideOn = useSyncExternalStore(subscribeFlowTour, () => getFlowTour()?.guideId === (flow?.guideId || ''), () => false)
   const alertRef = useRef<HTMLDivElement>(null)
@@ -104,8 +105,9 @@ export function FlowPage() {
     setForm(next)
     setStage('form')
     setWstep(filled.length && wizardReview(flow.id) >= 0 ? wizardReview(flow.id) : 0)
+    setDirectory(flow.id === 'paynow' && filled.length === 0)
     if (demo === 'mei' && flow.id === 'overseas') {
-      const found = validateForm(flow.id, next, app.balances['360'] ?? 0)
+      const found = validateForm(flow.id, next, app.balances['360'] ?? 0, app.payees)
       setIssues(found)
       if (found[0]) {
         app.setAnnounce(translate(app.prefs.language, `errors.${found[0].code}`, found[0].params))
@@ -202,7 +204,7 @@ export function FlowPage() {
     const field = flow.fields.find((item) => item.id === issue.field)
     const params: Record<string, string | number> = { ...(issue.params || {}) }
     if (field && params.field) params.field = t(field.label)
-    if (issue.code === 'insufficient') params.available = formatSGD(Number(issue.params?.available ?? balance))
+    if (issue.code === 'insufficient') params.available = formatMoney(Number(issue.params?.available ?? balance))
     return t(`errors.${issue.code}`, params)
   }
 
@@ -221,7 +223,7 @@ export function FlowPage() {
       const next = { ...prev, [id]: value }
       setIssues((current) => {
         if (!current.some((issue) => issue.field === id)) return current
-        const still = validateForm(flow.id, next, balance).filter((issue) => issue.field === id)
+        const still = validateForm(flow.id, next, balance, app.payees).filter((issue) => issue.field === id)
         const nextIssues = [...current.filter((issue) => issue.field !== id), ...still]
         if (!nextIssues.length) app.setAnnounce('')
         return nextIssues
@@ -232,7 +234,7 @@ export function FlowPage() {
   }
 
   const submit = () => {
-    const found = validateForm(flow.id, form, balance)
+    const found = validateForm(flow.id, form, balance, app.payees)
     setIssues(found)
     found.forEach((issue) => app.log('error_shown', { code: issue.code, flowId: flow.id }))
     if (found.length) {
@@ -323,7 +325,7 @@ export function FlowPage() {
           </div>
         )}
         {flow.id === 'limit' && (
-          <p data-guide="limit-current" className="card p-3 font-semibold">{t('flows.currentLimit', { amount: formatSGD(app.limit) })}</p>
+          <p data-guide="limit-current" className="card p-3 font-semibold">{t('flows.currentLimit', { amount: formatMoney(app.limit) })}</p>
         )}
         {flow.id === 'scan' && stage === 'form' && (
           <div data-guide="scan-frame" className="card flex flex-col items-center gap-3 p-4">
@@ -345,7 +347,7 @@ export function FlowPage() {
               e.preventDefault()
               if (reviewAt >= 0 && wstep < reviewAt) {
                 const ids = new Set(stepIds || [])
-                const found = validateForm(flow.id, form, balance).filter((issue) => ids.has(issue.field))
+                const found = validateForm(flow.id, form, balance, app.payees).filter((issue) => ids.has(issue.field))
                 setIssues(found)
                 found.forEach((issue) => app.log('error_shown', { code: issue.code, flowId: flow.id }))
                 if (found.length) {
@@ -359,7 +361,7 @@ export function FlowPage() {
                 return
               }
               if (reviewAt >= 0) {
-                const found = validateForm(flow.id, form, balance)
+                const found = validateForm(flow.id, form, balance, app.payees)
                 setIssues(found)
                 found.forEach((issue) => app.log('error_shown', { code: issue.code, flowId: flow.id }))
                 if (found.length) {
@@ -378,7 +380,7 @@ export function FlowPage() {
                 <p className="font-semibold">{t('fx.sample')}</p>
                 <p>{t('fx.currency')}: {t(fx.currencyKey)}</p>
                 <p>{t('fx.rate', { currency: t(fx.currencyKey), rate: fx.perSgd.toFixed(2) })}</p>
-                <p>{t('fx.fee', { fee: formatSGD(fx.fee) })}</p>
+                <p>{t('fx.fee', { fee: formatMoney(fx.fee) })}</p>
                 <p>{t('fx.received', { amount: `${t(fx.currencyKey)} ${received.toFixed(2)}` })}</p>
                 <p className="text-[var(--muted)]">{t('fx.accountHint', { hint: t(`fx.hint.${fx.account}`) })}</p>
               </section>
@@ -443,14 +445,37 @@ export function FlowPage() {
                 {fx && (
                   <>
                     <p className="flex justify-between gap-3 text-sm"><span className="text-[var(--muted)]">{t('success.rate')}</span><span className="money text-right font-semibold">{t('fx.rate', { currency: t(fx.currencyKey), rate: fx.perSgd.toFixed(2) })}</span></p>
-                    <p className="flex justify-between gap-3 text-sm"><span className="text-[var(--muted)]">{t('success.fee')}</span><span className="money text-right font-semibold">{formatSGD(fx.fee)}</span></p>
+                    <p className="flex justify-between gap-3 text-sm"><span className="text-[var(--muted)]">{t('success.fee')}</span><span className="money text-right font-semibold">{formatMoney(fx.fee)}</span></p>
                     <p className="flex justify-between gap-3 text-sm"><span className="text-[var(--muted)]">{t('success.received')}</span><span className="money text-right font-semibold">{t(fx.currencyKey)} {received.toFixed(2)}</span></p>
                     <p className="text-sm text-[var(--muted)]">{t('ai.sampleRate')}</p>
                   </>
                 )}
               </section>
             )}
-            {groups.map((group) => {
+            {flow.id === 'paynow' && directory && wstep === 0 && (
+              <section className="card space-y-3 p-3">
+                <div className="grid grid-cols-2 gap-2 text-center">
+                  <button type="button" className="min-h-11 rounded-xl border border-[var(--line)]" onClick={() => { setForm((prev) => ({ ...prev, proxy: 'nric' })); setDirectory(false) }}>{t('look.nric')}</button>
+                  <button type="button" className="min-h-11 rounded-xl border border-[var(--line)]" onClick={() => { setForm((prev) => ({ ...prev, proxy: 'uen' })); setDirectory(false) }}>{t('look.uen')}</button>
+                </div>
+                <input className="ocbc-field" placeholder={t('look.searchPayee')} aria-label={t('look.searchPayee')} onChange={(event) => setForm((prev) => ({ ...prev, to: event.target.value }))} />
+                <div className="flex gap-4 border-b border-[var(--line)] text-[15px]">
+                  <span className="border-b-2 border-[#E30613] pb-2 font-semibold">{t('look.recentTab')}</span>
+                  <span className="pb-2 text-[var(--muted)]">{t('look.contactsTab')}</span>
+                </div>
+                {PAYNOW_CONTACTS.map((contact) => (
+                  <button key={contact.mobile} type="button" className="flex min-h-11 w-full items-center gap-3 text-left" onClick={() => { setForm((prev) => ({ ...prev, proxy: 'mobile', to: contact.mobile })); setDirectory(false); setWstep(1) }}>
+                    <span className="grid h-10 w-10 place-items-center rounded-full bg-[var(--soft)] text-[12px] font-bold">{contact.name.slice(0, 1)}</span>
+                    <span>
+                      <span className="block font-bold">{contact.name}</span>
+                      <span className="block text-[13px] text-[var(--muted)]">+65{contact.mobile.slice(0, 4)}••••</span>
+                    </span>
+                  </button>
+                ))}
+                <button type="button" className="min-h-11 font-semibold text-[var(--link)] underline" onClick={() => setDirectory(false)}>{t('look.enterMobile')}</button>
+              </section>
+            )}
+            {!(flow.id === 'paynow' && directory && wstep === 0) && groups.map((group) => {
               const fields = group.fields.filter(shown)
               if (!fields.length) return null
               return (
@@ -468,7 +493,7 @@ export function FlowPage() {
                     options={field.type === 'account' ? app.accounts.filter((account) => account.kind === 'deposit').map((account) => ({ value: account.id, label: account.nameKey })) : undefined}
                     highlight={highlights.includes(field.id)}
                     error={issues.find((issue) => issue.field === field.id) ? describe(issues.find((issue) => issue.field === field.id) as Issue) : ''}
-                    balanceHint={field.id === 'from' ? t('flows.available', { amount: formatSGD(balance) }) : ''}
+                    balanceHint={field.id === 'from' ? t('flows.available', { amount: formatMoney(balance) }) : ''}
                     onChange={(value) => changeField(field.id, value)}
                     t={t}
                   />
@@ -498,12 +523,23 @@ export function FlowPage() {
                 />
               </label>
             )}
-            {reviewAt >= 0 && wstep > 0 && (
+            {flow.id === 'paynow' && wstep === 1 && (
+              <div className="space-y-2 text-[14px]">
+                <p className="text-[var(--muted)]">{t('look.payTo')}</p>
+                <p className="text-[18px] font-bold">{lookedUp || form.to}</p>
+                <Link to="/flow/limit" className="block font-semibold text-[var(--link)] underline">{t('look.limitLeft', { amount: formatMoney(app.limit) })}</Link>
+                {Number(form.amount) > app.limit && <p className="font-semibold text-[var(--danger)]">{t('look.overLimit')}</p>}
+                {Number(form.amount) > balance && <p className="font-semibold text-[var(--danger)]">{t('look.moneyLockHint')}</p>}
+              </div>
+            )}
+            {!(flow.id === 'paynow' && directory && wstep === 0) && reviewAt >= 0 && wstep > 0 && (
               <button type="button" className="text-sm font-semibold text-[var(--link)]" onClick={() => { setIssues([]); setWstep((value) => value - 1) }}>{t('back')}</button>
             )}
-            <button type="submit" data-guide={reviewGuide(flow.id)} className="ocbc-btn">
+            {!(flow.id === 'paynow' && directory && wstep === 0) && (
+            <button type="submit" data-guide={reviewGuide(flow.id)} className="ocbc-btn" disabled={flow.id === 'paynow' && (Number(form.amount) > app.limit || Number(form.amount) > balance)}>
               {t('flows.submit')}
             </button>
+            )}
             {!practice && (
               <button type="button" className="tap w-full rounded-xl border border-[var(--line)] bg-[var(--card)]" onClick={() => navigate(`/flow/${flow.id}?practice=1&tour=1`)}>
                 {t('practise')}
@@ -533,7 +569,7 @@ export function FlowPage() {
             {fx && (
               <>
                 <p className={app.prefs.textSize >= 20 ? 'flex flex-col gap-1' : 'flex justify-between gap-3'}><span className="text-[var(--muted)]">{t('success.rate')}</span><span className="money font-semibold">{t('fx.rate', { currency: t(fx.currencyKey), rate: fx.perSgd.toFixed(2) })}</span></p>
-                <p className={app.prefs.textSize >= 20 ? 'flex flex-col gap-1' : 'flex justify-between gap-3'}><span className="text-[var(--muted)]">{t('success.fee')}</span><span className="money font-semibold">{formatSGD(fx.fee)}</span></p>
+                <p className={app.prefs.textSize >= 20 ? 'flex flex-col gap-1' : 'flex justify-between gap-3'}><span className="text-[var(--muted)]">{t('success.fee')}</span><span className="money font-semibold">{formatMoney(fx.fee)}</span></p>
                 <p className={app.prefs.textSize >= 20 ? 'flex flex-col gap-1' : 'flex justify-between gap-3'}><span className="text-[var(--muted)]">{t('success.received')}</span><span className="money font-semibold">{t(fx.currencyKey)} {received.toFixed(2)}</span></p>
               </>
             )}
@@ -547,9 +583,12 @@ export function FlowPage() {
                 aria-label={practice ? t('look.slidePractice') : t('look.slide')}
                 onClick={() => { setOtp(''); setOtpError(''); setStage('otp') }}
               >
-                <span className="grid h-10 w-10 place-items-center rounded-full bg-white text-[18px] font-bold text-[#2A3B43]" aria-hidden>»</span>
+                <span className="grid h-10 w-10 place-items-center rounded-full bg-white text-[#2A3B43]" aria-hidden><ChevronsRight size={18} /></span>
                 <span className="flex-1 text-center font-semibold underline">{practice ? t('look.slidePractice') : t('look.slide')}</span>
               </button>
+            ) : null}
+            {flow.kind === 'payment' ? (
+              <button type="button" className="min-h-11 w-full text-[15px] font-semibold text-[var(--link)] underline" onClick={() => { setOtp(''); setOtpError(''); setStage('otp') }}>{t('look.tapToPay')}</button>
             ) : (
               <button type="button" className="ocbc-btn" onClick={() => confirm()}>{t('confirm')}</button>
             )}
@@ -588,18 +627,18 @@ export function FlowPage() {
           <section className="card space-y-3 p-4" role="status">
             <div className="flex items-center gap-2">
               <h2 className="min-w-0 text-lg font-semibold leading-snug text-[var(--success)]">
-                <span aria-hidden>✓</span> {practice ? t('practice.doneTitle') : flow.id === 'goal' ? t('success.goalAdded', { amount: formatSGD(Number(form.monthly) || Number(form.target) || 0), name: form.name || 'Holiday' }) : t('success.title')}
+                <span aria-hidden>✓</span> {practice ? t('practice.doneTitle') : flow.id === 'goal' ? t('success.goalAdded', { amount: formatMoney(Number(form.monthly) || Number(form.target) || 0), name: form.name || 'Holiday' }) : t('look.paid', { amount: formatMoney(sendAmount) })}
               </h2>
-              <Speakable text={practice ? t('practice.done') : t('success.summarySpoken', { amount: formatSGD(sendAmount), name: displayPayee || title, ref })} auto={app.prefs.readAloud} hideText />
+              <Speakable text={practice ? t('practice.done') : t('success.summarySpoken', { amount: formatMoney(sendAmount), name: displayPayee || title, ref })} auto={app.prefs.readAloud} hideText />
             </div>
             <dl className="space-y-2">
-              {flow.id !== 'goal' && <div className={app.prefs.textSize >= 20 ? 'flex flex-col' : 'flex justify-between gap-3'}><dt className="text-[var(--muted)]">{t('amount')}</dt><dd className="money font-semibold">{formatSGD(sendAmount)}</dd></div>}
+              {flow.id !== 'goal' && <div className={app.prefs.textSize >= 20 ? 'flex flex-col' : 'flex justify-between gap-3'}><dt className="text-[var(--muted)]">{t('amount')}</dt><dd className="money font-semibold">{formatMoney(sendAmount)}</dd></div>}
               <div className={app.prefs.textSize >= 20 ? 'flex flex-col' : 'flex justify-between gap-3'}><dt className="text-[var(--muted)]">{t('success.payee')}</dt><dd className="min-w-0 font-semibold">{displayPayee || form.name || title}</dd></div>
               <div className={app.prefs.textSize >= 20 ? 'flex flex-col' : 'flex justify-between gap-3'}><dt className="text-[var(--muted)]">{t('success.reference')}</dt><dd className="money font-semibold">{ref}</dd></div>
-              <div className={app.prefs.textSize >= 20 ? 'flex flex-col' : 'flex justify-between gap-3'}><dt className="text-[var(--muted)]">{t('success.when')}</dt><dd className="money font-semibold">{form.when === 'later' && form.laterDate ? form.laterDate : new Date().toISOString().slice(0, 10)}</dd></div>
+              <div className={app.prefs.textSize >= 20 ? 'flex flex-col' : 'flex justify-between gap-3'}><dt className="text-[var(--muted)]">{t('success.when')}</dt><dd className="money font-semibold">{form.when === 'later' && form.laterDate ? form.laterDate : new Intl.DateTimeFormat(app.prefs.language.startsWith('zh') ? 'zh-CN' : 'en-SG', { day: '2-digit', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit' }).format(new Date())}</dd></div>
               {fx && (
                 <>
-                  <div className={app.prefs.textSize >= 20 ? 'flex flex-col' : 'flex justify-between gap-3'}><dt className="text-[var(--muted)]">{t('success.fee')}</dt><dd className="money font-semibold">{formatSGD(fx.fee)}</dd></div>
+                  <div className={app.prefs.textSize >= 20 ? 'flex flex-col' : 'flex justify-between gap-3'}><dt className="text-[var(--muted)]">{t('success.fee')}</dt><dd className="money font-semibold">{formatMoney(fx.fee)}</dd></div>
                   <div className={app.prefs.textSize >= 20 ? 'flex flex-col' : 'flex justify-between gap-3'}><dt className="text-[var(--muted)]">{t('success.rate')}</dt><dd className="money font-semibold">{t('fx.rate', { currency: t(fx.currencyKey), rate: fx.perSgd.toFixed(2) })}</dd></div>
                   <div className={app.prefs.textSize >= 20 ? 'flex flex-col' : 'flex justify-between gap-3'}><dt className="text-[var(--muted)]">{t('success.received')}</dt><dd className="money font-semibold">{t(fx.currencyKey)} {received.toFixed(2)}</dd></div>
                 </>
@@ -616,6 +655,8 @@ export function FlowPage() {
                 {t('doForReal')}
               </button>
             )}
+            <Link to={`/txn/${ref || 'latest'}`} className="block min-h-11 font-semibold text-[var(--link)] underline">{t('look.seeTxn')}</Link>
+            <Link to="/pay" className="ocbc-btn">{t('look.goTransfers')}</Link>
             <Link to="/" className="tap flex items-center justify-center rounded-xl border border-[var(--line)]">{t('backHome')}</Link>
           </section>
         )}
@@ -647,6 +688,13 @@ export function FlowPage() {
   )
 }
 
+const PAYNOW_CONTACTS = [
+  { name: 'Tan Wei Ming', mobile: '91234567' },
+  { name: 'Siti Aminah', mobile: '81234567' },
+  { name: 'Lim Jia Hui', mobile: '92345678' },
+  { name: 'Nur Aisyah', mobile: '83456789' },
+]
+
 function reviewGuide(flowId: string) {
   const map: Record<string, string> = {
     paynow: 'paynow-review',
@@ -675,7 +723,7 @@ function display(field: FlowField, value: string, t: (key: string) => string) {
   }
   if (field.id === 'savePayee') return value === 'yes' ? t('yes') : t('no')
   if (field.type === 'toggle') return value === 'no' ? t('flows.unlocked') : t('flows.locked')
-  if (field.type === 'amount') return formatSGD(Number(value || 0))
+  if (field.type === 'amount') return formatMoney(Number(value || 0))
   return value
 }
 

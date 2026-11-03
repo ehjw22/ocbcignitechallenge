@@ -102,7 +102,7 @@ function sample(partial: Omit<QueueRow, 'createdAt' | 'waitSec'> & { waitSec: nu
 
 const SAMPLES: QueueRow[] = [
   sample({
-    id: 'sample-mei', ticket: 'OC-18421', name: 'Auntie Mei', age: 67, segment: 'Premier', nric: 'S****452G',
+    id: 'sample-mei', ticket: 'OCBC-18421', name: 'Auntie Mei', age: 67, segment: 'Premier', nric: 'S****452G',
     language: 'Cantonese', chinese: true, needs: ['Large text', 'Read aloud'], topic: 'Overseas transfer',
     stepLabel: 'Account number', stepIndex: 4, stepTotal: 7, journeyId: 'overseas', source: 'Ollie handoff',
     waitSec: 372, priority: 'High', status: 'received', sample: true,
@@ -112,7 +112,7 @@ const SAMPLES: QueueRow[] = [
     transcript: 'Customer: I want to send money to my son in Australia.\nOllie: This is the overseas transfer. Enter the account number from his bank letter. Nothing is sent until you confirm.\nCustomer: Can someone check the number with me?',
   }),
   sample({
-    id: 'sample-arif', ticket: 'OC-18408', name: 'Arif', age: 22, segment: 'FRANK', nric: 'T****118J',
+    id: 'sample-arif', ticket: 'OCBC-18408', name: 'Arif', age: 22, segment: 'FRANK', nric: 'T****118J',
     language: 'English', chinese: false, needs: ['Spending insights'], topic: 'Spending insights',
     stepLabel: 'Monthly chart', stepIndex: 2, stepTotal: 4, journeyId: 'goal', source: 'Guided journey',
     waitSec: 125, priority: 'Low', status: 'received', sample: true,
@@ -122,7 +122,7 @@ const SAMPLES: QueueRow[] = [
     transcript: 'Customer: What is this chart showing?\nOllie: This is your spending screen. The amounts are sample transactions from this demo.',
   }),
   sample({
-    id: 'sample-tan', ticket: 'OC-18390', name: 'Tan Wei Ming', age: 54, segment: 'Personal', nric: 'S****903D',
+    id: 'sample-tan', ticket: 'OCBC-18390', name: 'Tan Wei Ming', age: 54, segment: 'Personal', nric: 'S****903D',
     language: 'English', chinese: false, needs: [], topic: 'PayNow',
     stepLabel: 'Amount', stepIndex: 2, stepTotal: 4, journeyId: 'paynow', source: 'Ollie handoff',
     waitSec: 200, priority: 'Med', status: 'in_progress', sample: true,
@@ -132,7 +132,7 @@ const SAMPLES: QueueRow[] = [
     transcript: 'Customer: Is this the right Tan Wei Ming?\nOllie: The demo name check shows TAN W** M***. Please review it before you continue.',
   }),
   sample({
-    id: 'sample-siti', ticket: 'OC-18377', name: 'Siti Rahman', age: 41, segment: 'Personal', nric: 'S****226H',
+    id: 'sample-siti', ticket: 'OCBC-18377', name: 'Siti Rahman', age: 41, segment: 'Personal', nric: 'S****226H',
     language: 'Malay', chinese: false, needs: ['Read aloud'], topic: 'Bill payment',
     stepLabel: 'Bill reference', stepIndex: 2, stepTotal: 4, journeyId: 'bill', source: 'Guided journey',
     waitSec: 520, priority: 'Med', status: 'received', sample: true,
@@ -142,7 +142,7 @@ const SAMPLES: QueueRow[] = [
     transcript: 'Customer: Boleh baca nombor bil ini?\nOllie: The sample reference is 1002003004. I can read it one group at a time.',
   }),
   sample({
-    id: 'sample-lim', ticket: 'OC-18361', name: 'Lim Hui Ying', age: 73, segment: 'Premier', nric: 'S****014C',
+    id: 'sample-lim', ticket: 'OCBC-18361', name: 'Lim Hui Ying', age: 73, segment: 'Premier', nric: 'S****014C',
     language: 'Mandarin', chinese: true, needs: ['Large text', 'Read aloud'], topic: 'Card lock',
     stepLabel: 'Lock card', stepIndex: 2, stepTotal: 3, journeyId: 'card-lock', source: 'Ollie handoff',
     waitSec: 665, priority: 'High', status: 'received', sample: true,
@@ -152,7 +152,7 @@ const SAMPLES: QueueRow[] = [
     transcript: 'Customer: 这张卡不是我用的。\nOllie: I can show you how to lock the card in this demo. No real card is changed. A person can stay with you.',
   }),
   sample({
-    id: 'sample-david', ticket: 'OC-18340', name: 'David Koh', age: 29, segment: 'FRANK', nric: 'S****775B',
+    id: 'sample-david', ticket: 'OCBC-18340', name: 'David Koh', age: 29, segment: 'FRANK', nric: 'S****775B',
     language: 'English', chinese: false, needs: [], topic: 'GIRO setup',
     stepLabel: 'Review', stepIndex: 4, stepTotal: 4, journeyId: 'giro', source: 'Guided journey',
     waitSec: 75, priority: 'Low', status: 'replied', sample: true,
@@ -162,7 +162,7 @@ const SAMPLES: QueueRow[] = [
     transcript: 'Customer: Just confirm the debit is on the 15th.\nOllie: In this practice, the debit day is the 15th. Nothing is sent to a billing organisation.',
   }),
   sample({
-    id: 'sample-nurul', ticket: 'OC-18322', name: 'Nurul Aisyah', age: 36, segment: 'Personal', nric: 'S****558K',
+    id: 'sample-nurul', ticket: 'OCBC-18322', name: 'Nurul Aisyah', age: 36, segment: 'Personal', nric: 'S****558K',
     language: 'English', chinese: false, needs: ['Colour vision'], topic: 'Local transfer',
     stepLabel: 'Account number', stepIndex: 3, stepTotal: 4, journeyId: 'transfer', source: 'Ollie handoff',
     waitSec: 290, priority: 'Med', status: 'in_progress', sample: true,
@@ -288,11 +288,15 @@ export function Admin() {
     return true
   })
   const priorityRank = { High: 0, Med: 1, Low: 2 }
+  const statusRank = { received: 0, in_progress: 1, replied: 2 }
   const sorted = [...filtered].sort((a, b) => {
+    if (a.sample !== b.sample) return a.sample ? 1 : -1
     const dir = sort.dir === 'asc' ? 1 : -1
     if (sort.key === 'name') return a.name.localeCompare(b.name) * dir
     if (sort.key === 'priority') return (priorityRank[a.priority] - priorityRank[b.priority]) * dir
-    return (a.waitSec - b.waitSec) * dir
+    const status = statusRank[a.status] - statusRank[b.status]
+    if (status) return status
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   })
   const pageSize = 5
   const pages = Math.max(1, Math.ceil(sorted.length / pageSize))
@@ -474,7 +478,7 @@ export function Admin() {
                               ['Status', null],
                               ['Actions', null],
                             ] as const).map(([label, key]) => (
-                              <th key={label} className={`px-3 py-2 ${label === 'Needs' ? 'hidden min-[1400px]:table-cell' : ''}`}>
+                              <th key={label} className={`px-3 py-2 ${label === 'Needs' ? 'hidden min-[1400px]:table-cell' : ''} ${label === 'Source' ? 'hidden min-[1366px]:table-cell' : ''}`}>
                                 {key ? <button type="button" className="uppercase tracking-wide" onClick={() => toggleSort(key)}>{label}</button> : label}
                               </th>
                             ))}
@@ -495,8 +499,8 @@ export function Admin() {
                               </td>
                               <td className="px-3 py-3"><Badge tone="lang">{row.language}</Badge></td>
                               <td className="hidden px-3 py-3 min-[1400px]:table-cell"><NeedChips needs={row.needs} /></td>
-                              <td className="px-3 py-3">{row.topic}<span className="block text-xs text-zinc-500">step {row.stepIndex} of {row.stepTotal}</span></td>
-                              <td className="px-3 py-3">{row.source}</td>
+                              <td className="max-w-[220px] px-3 py-3"><span className="line-clamp-2">{row.sample ? row.topic : (row.summary || row.topic).slice(0, 60)}</span><span className="block text-xs text-zinc-500">step {row.stepIndex} of {row.stepTotal}</span></td>
+                              <td className="hidden px-3 py-3 min-[1366px]:table-cell">{row.source}</td>
                               <td className="px-3 py-3 tabular-nums">{formatWait(row.waitSec)}</td>
                               <td className="px-3 py-3"><Badge tone={row.priority === 'High' ? 'high' : row.priority === 'Med' ? 'med' : 'low'}>{row.priority}</Badge></td>
                               <td className="px-3 py-3"><Badge tone={row.status === 'replied' ? 'done' : row.status === 'in_progress' ? 'progress' : 'wait'}>{statusText(row.status)}</Badge></td>
@@ -889,6 +893,10 @@ function AnalyticsPanel({ palette, events }: { palette: string[]; events: { id?:
         <h2 className="mb-2 font-semibold">Refused or escalated</h2>
         <ul className="space-y-2 text-sm">
           {SEED_REFUSED.map((item) => <li key={item.q} className="rounded-lg bg-zinc-50 p-3">{item.q} <span className="text-zinc-500">({item.reason})</span></li>)}
+          {(['none', 'check', 'high'] as const).map((level) => {
+            const rows = events.filter((event) => event.type === 'scam_check' && String(event.data.level || 'check') === level)
+            return <li key={level} className="rounded-lg bg-zinc-50 p-3">Safety checks · {level}: {rows.length}</li>
+          })}
           {events.filter((event) => event.type === 'scam_check').map((event, index) => (
             <li key={event.id || index} className="rounded-lg bg-red-50 p-3">Scam check · {String(event.data.level || 'check')} · {String(event.data.reasons || event.data.trigger)} · {String(event.data.answers || 'no answers')} · {String(event.data.result)}</li>
           ))}

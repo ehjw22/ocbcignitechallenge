@@ -68,10 +68,10 @@ export const NOTIFICATIONS = [
   { id: 'n3', title: 'notifications.securityTitle', body: 'notifications.securityBody', date: '2026-10-12' },
 ]
 
-export const FX: Record<string, { currencyKey: string; perSgd: number; fee: number; account: 'digits10' | 'iban' | 'my' }> = {
-  Australia: { currencyKey: 'fx.aud', perSgd: 1.1, fee: 5, account: 'digits10' },
+export const FX: Record<string, { currencyKey: string; perSgd: number; fee: number; account: 'au' | 'iban' | 'my' | 'uk' }> = {
+  Australia: { currencyKey: 'fx.aud', perSgd: 1.1, fee: 5, account: 'au' },
   Malaysia: { currencyKey: 'fx.myr', perSgd: 3.45, fee: 5, account: 'my' },
-  'United Kingdom': { currencyKey: 'fx.gbp', perSgd: 0.58, fee: 8, account: 'iban' },
+  'United Kingdom': { currencyKey: 'fx.gbp', perSgd: 0.58, fee: 8, account: 'uk' },
   Germany: { currencyKey: 'fx.eur', perSgd: 0.68, fee: 8, account: 'iban' },
 }
 

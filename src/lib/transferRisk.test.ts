@@ -49,9 +49,24 @@ test('the fifth S$200 to the same new number adds the 24 hour total', () => {
     history,
     usualTransfer: 80,
   })
-  assert.ok(fifth.reasons.includes('new-payee-amount'))
+  assert.equal(fifth.reasons.includes('new-payee-amount'), false)
+  assert.ok(fifth.reasons.includes('paid-before'))
   assert.ok(fifth.reasons.includes('new-payee-24h-total'))
+  assert.equal(fifth.dayTotal, 1000)
   assert.equal(fifth.level, 'check')
+})
+
+test('a first payment of S$1,100 does not mention earlier transfers', () => {
+  const result = assessTransferRisk({
+    flowId: 'paynow',
+    amount: 1100,
+    payeeKey: 'paynow:91234567',
+    history: [],
+    usualTransfer: 80,
+  })
+  assert.ok(result.reasons.includes('large-amount'))
+  assert.ok(result.reasons.includes('new-payee-amount'))
+  assert.equal(result.reasons.includes('new-payee-24h-total'), false)
 })
 
 test('a hawker QR for S$12 is not a new person', () => {

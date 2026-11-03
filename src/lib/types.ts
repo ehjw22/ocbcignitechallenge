@@ -82,6 +82,7 @@ export interface StaffRequest {
   status: RequestStatus
   urgent: boolean
   customerName?: string
+  userId?: string
   transcript?: string
   needs?: string
 }

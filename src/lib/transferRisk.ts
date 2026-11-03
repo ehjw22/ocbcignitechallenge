@@ -2,6 +2,7 @@ export type RiskLevel = 'none' | 'check' | 'high'
 export type RiskReason =
   | 'large-amount'
   | 'new-payee-amount'
+  | 'paid-before'
   | 'overseas-new-payee'
   | 'new-payee-24h-total'
   | 'unusual-for-you'
@@ -105,17 +106,18 @@ export function assessTransferRisk(input: {
   const savedKeys = new Set((input.payees || []).flatMap(payeeKeys))
   const saved = !knownMerchant && candidates.some((key) => key && savedKeys.has(key))
   const reasons: RiskReason[] = []
+  const now = input.now ?? Date.now()
+  const earlier = (input.history || []).filter((row) => candidates.includes(row.payeeKey.toLowerCase()) && now - row.at < 24 * 60 * 60 * 1000)
+  const prior = earlier.reduce((sum, row) => sum + row.amount, 0)
+  const hasHistory = earlier.length > 0
   if (words.length) reasons.push('scam-words')
   if (amount >= config.tinyAmount) {
     if (amount >= config.largeAmount) reasons.push('large-amount')
     if (!saved && !knownMerchant) {
-      if (amount >= config.newPayeeAmount) reasons.push('new-payee-amount')
-      if (input.flowId === 'overseas') reasons.push('overseas-new-payee')
-      const now = input.now ?? Date.now()
-      const prior = (input.history || [])
-        .filter((row) => candidates.includes(row.payeeKey.toLowerCase()) && now - row.at < 24 * 60 * 60 * 1000)
-        .reduce((sum, row) => sum + row.amount, 0)
-      if (prior + amount >= config.newPayee24hTotal) reasons.push('new-payee-24h-total')
+      if (amount >= config.newPayeeAmount && !hasHistory) reasons.push('new-payee-amount')
+      if (amount >= config.newPayeeAmount && hasHistory) reasons.push('paid-before')
+      if (input.flowId === 'overseas' && !hasHistory) reasons.push('overseas-new-payee')
+      if (hasHistory && prior + amount >= config.newPayee24hTotal) reasons.push('new-payee-24h-total')
     }
     const usual = input.usualTransfer || 0
     if (!saved && !knownMerchant && amount >= config.newPayeeAmount && usual > 0 && amount >= usual * config.unusualMultiplier) {
@@ -126,8 +128,5 @@ export function assessTransferRisk(input: {
     || (reasons.includes('overseas-new-payee') && amount >= config.largeAmount)
     || amount >= 5000
   const level: RiskLevel = reasons.length === 0 ? 'none' : high ? 'high' : 'check'
-  const dayTotal = (input.history || [])
-    .filter((row) => candidates.includes(row.payeeKey.toLowerCase()))
-    .reduce((sum, row) => sum + row.amount, 0) + amount
-  return { level, reasons, words, saved, dayTotal }
+  return { level, reasons, words, saved, dayTotal: prior + amount, prior }
 }
