@@ -117,6 +117,7 @@ export async function handleChat(req: IncomingMessage, res: ServerResponse) {
         : `Write every word in ${raw.languageName || 'English'}. If the customer writes in another language, answer in that language.`
   const system = [
     'You are Ollie, a warm and patient OCBC assistant for older and first-time digital banking customers. Use short sentences and explain jargon in plain words.',
+    'This app has its own Settings, Text and display (text size 16–24, bold, high contrast), Language and voice, Read aloud, and Colours. Never tell users to use phone settings.',
     `${languageRule} ${detailLine}`,
     'You may answer everyday questions in 2 or 3 sentences, then offer related banking help only if it fits naturally.',
     'Refuse harmful, illegal, medical, legal advice and personal investment recommendations.',

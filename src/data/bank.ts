@@ -77,7 +77,8 @@ export const FX: Record<string, { currencyKey: string; perSgd: number; fee: numb
 export const BILLERS = ['SP Group', 'Singtel', 'PUB', 'Town Council']
 
 export function chartPalette(cvd: string) {
-  if (cvd === 'monochrome') return ['#111111', '#4b5563', '#9ca3af', '#1f2937', '#6b7280']
-  if (cvd === 'tritanopia') return ['#9f1239', '#3f6212', '#111827', '#be123c', '#4b5563']
-  return ['#0072B2', '#E69F00', '#CC79A7', '#332288', '#56B4E9']
+  if (cvd === 'monochrome') return ['#3f3f46', '#71717a', '#a1a1aa', '#52525b', '#d4d4d8', '#27272a']
+  if (cvd === 'tritanopia') return ['#0f766e', '#be185d', '#c2410c', '#1d4ed8', '#a16207', '#4b5563']
+  if (cvd === 'protanopia' || cvd === 'deuteranopia') return ['#0072B2', '#E69F00', '#332288', '#56B4E9', '#CC79A7', '#000000']
+  return ['#0072B2', '#E69F00', '#009E73', '#CC79A7', '#332288', '#56B4E9']
 }

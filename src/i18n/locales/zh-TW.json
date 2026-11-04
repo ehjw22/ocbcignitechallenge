@@ -180,6 +180,7 @@
     "deuteranopia": "綠色弱（Deuteranopia）",
     "tritanopia": "藍黃色弱（Tritanopia）",
     "monochrome": "黑白",
+    "monoSummary": "黑白（無強調色）",
     "paid": "已付款",
     "check": "請核對",
     "failed": "未成功"
@@ -709,6 +710,16 @@
       "reviewTitle": "確認新限額",
       "reviewBody": "確認前請核對新的限額。"
     },
+    "insights": {
+      "filtersTitle": "選擇賬戶和月份",
+      "filtersBody": "下面的圖表跟著這兩個選擇。",
+      "summaryTitle": "本月",
+      "summaryBody": "這裡把開支和上個月比較。",
+      "donutTitle": "按類別開支",
+      "donutBody": "每一塊是一個類別。",
+      "legendTitle": "類別",
+      "legendBody": "列表寫出每一塊的名稱和金額。"
+    },
     "progress": "{current} / {total}",
     "settings": {
       "title": "更改設置",
@@ -832,7 +843,12 @@
   "tours": {
     "guided": "導覽",
     "home": "首頁導覽",
-    "homeBody": "帶您快速看一遍首頁。",
+    "homeBody": "用 14 步看首頁、賬戶、付款、銀行卡、幫助和設置。",
+    "giroBody": "設置一個示例 GIRO。",
+    "goalBody": "為一個目標存錢。",
+    "lostBody": "報告丟失的卡。",
+    "limitBody": "更改轉賬限額。",
+    "settingsBody": "看語言、文字大小和快捷方式。",
     "paynowBody": "用手機號付款。",
     "transferBody": "轉賬到本地賬戶。",
     "overseasBody": "匯款到其他國家。",
@@ -845,7 +861,7 @@
   },
   "rewards": {
     "title": "獎勵",
-    "earned": "來自您的信用卡消費",
+    "earned": "示例積分餘額",
     "dining": "5 SGD 餐飲券",
     "diningCost": "500 OCBC$",
     "grab": "Grab 乘車額度",

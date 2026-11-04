@@ -85,10 +85,10 @@ export function Home() {
                 return false
               }
               return true
-            }).slice(0, 3), 'customise'].map((id) => (
-              <Link key={id} to={id === 'customise' ? '/settings/shortcuts' : (SHORTCUT_ROUTES[id] ?? '/pay')} data-guide={id === 'paynow' ? 'home-paynow' : id === 'customise' ? 'home-customise' : undefined} className="flex min-h-11 min-w-0 flex-col items-center justify-center gap-1 text-[var(--text)]">
+            }).slice(0, 6), 'customise'].map((id) => (
+              <Link key={id} to={id === 'customise' ? '/settings/shortcuts' : (SHORTCUT_ROUTES[id] ?? '/pay')} data-guide={id === 'paynow' ? 'home-paynow' : id === 'customise' ? 'home-customise' : undefined} className="flex min-h-11 min-w-0 flex-col items-center justify-center gap-1 px-0.5 text-[var(--text)]">
                 <ShortcutMark id={id} />
-                <span className="w-full truncate text-center text-[12px] font-normal leading-none">{id === 'customise' ? t('look.customise') : t(`shortcuts.${id}`)}</span>
+                <span className="line-clamp-2 w-full text-center text-[0.75rem] font-normal leading-tight">{id === 'customise' ? t('look.customise') : t(`shortcuts.${id}`)}</span>
               </Link>
             ))}
           </div>
@@ -164,7 +164,7 @@ export function Home() {
           )}
         </section>
 
-        <section className="flex min-w-0 max-w-full gap-3 overflow-x-auto px-4 py-4">
+        <section data-guide="home-foryou" className="flex min-w-0 max-w-full gap-3 overflow-x-auto px-4 py-4">
           <Link to="/flow/goal" className="w-[240px] shrink-0 rounded-xl bg-[var(--soft)] p-4 text-[var(--text)]">
             <p className="text-[10px] font-bold tracking-wide">{t('look.goalKicker')}</p>
             <p className="mt-1 text-[15px] font-bold">{t('look.goalLine')}</p>
@@ -173,7 +173,7 @@ export function Home() {
             <p className="text-[10px] font-bold tracking-wide">{t('look.insightKicker')}</p>
             <p className="mt-1 text-[15px] font-bold">{t('look.insightLine')}</p>
           </Link>
-          <Link to="/flow/overseas?practice=1&tour=1" data-guide="home-foryou" className="w-[240px] shrink-0 rounded-xl bg-[var(--soft)] p-4 text-[var(--text)]">
+          <Link to="/flow/overseas?practice=1&tour=1" className="w-[240px] shrink-0 rounded-xl bg-[var(--soft)] p-4 text-[var(--text)]">
             <span className="rounded-full bg-[var(--accent)] px-2 py-0.5 text-[11px] font-bold text-white">{t('look.new')}</span>
             <p className="mt-2 text-[15px] font-bold">{t('forYouBody')}</p>
           </Link>

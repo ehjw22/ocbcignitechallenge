@@ -5,6 +5,7 @@ import { TourFrame } from '@/components/TourFrame'
 import { translate } from '@/i18n'
 import { APP_TOUR, tourState, writeTour } from '@/lib/appTour'
 import { speak, stopSpeaking } from '@/lib/speech'
+import { collapseOpened } from '@/lib/tourPlace'
 
 export function AppTour() {
   const app = useApp()
@@ -25,12 +26,6 @@ export function AppTour() {
     if (location.pathname !== step.route) navigate(step.route)
   }, [state.active, state.index, step, location.pathname, navigate])
 
-  useEffect(() => {
-    if (!state.active || !step || location.pathname !== step.route) return
-    const found = document.querySelector(`[data-guide="${CSS.escape(step.element)}"]`)
-    if (!found) app.log('guide_step_missing', { guideId: 'app-tour', element: step.element, stepId: step.id })
-  }, [state.active, state.index, step, location.pathname, app])
-
   if (!state.active || !step) return null
   const last = state.index >= APP_TOUR.length - 1
   const go = (index: number) => {
@@ -40,9 +35,11 @@ export function AppTour() {
   }
   const exit = () => {
     stopSpeaking()
+    collapseOpened()
     writeTour({ active: false, index: state.index })
     setState({ active: false, index: state.index })
     app.log('guide_dropped', { guideId: 'app-tour', stepId: step.id })
+    if (location.search.includes('tour=1')) navigate(location.pathname, { replace: true })
   }
 
   return (
@@ -66,6 +63,10 @@ export function AppTour() {
         go(state.index + 1)
       }}
       onClose={exit}
+      onSkip={() => {
+        if (last) exit()
+        else go(state.index + 1)
+      }}
       autoSpeak={app.prefs.readAloud}
       speak={(text) => speak(text, { language: app.prefs.language, rate: app.prefs.speechRate, dialect: app.prefs.dialect })}
     />

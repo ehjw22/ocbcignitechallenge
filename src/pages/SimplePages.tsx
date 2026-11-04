@@ -7,6 +7,7 @@ import { JOURNEY_IDS } from '@/data/flows'
 import { translate } from '@/i18n'
 import { requestText } from '@/lib/staffSummary'
 import { startAppTour } from '@/lib/appTour'
+import { queueShowHow } from '@/lib/showHow'
 import { tourSeen } from '@/lib/storage'
 
 const PAY_LINKS = [
@@ -92,9 +93,9 @@ export function HelpPage() {
   }, [setScreen, openHelp])
   return (
     <Page title={t('look.howHelp')} back>
-      <div className="space-y-2 p-4">
+      <div className="space-y-2 p-4 pb-28">
         <button type="button" data-guide="help-assistant" className="flex min-h-14 w-full items-center justify-between rounded-xl bg-[var(--card)] px-3 text-left text-[15px] font-semibold shadow-sm" onClick={() => app.openHelp('ai')}>{t('help.ai')}<ChevronRight size={18} /></button>
-        <button type="button" className="flex min-h-14 w-full items-center justify-between rounded-xl bg-[var(--card)] px-3 text-left text-[15px] font-semibold shadow-sm" onClick={() => app.openHelp('guides')}>{t('help.guide')}<ChevronRight size={18} /></button>
+        <button type="button" className="flex min-h-14 w-full items-center justify-between rounded-xl bg-[var(--card)] px-3 text-left text-[15px] font-semibold shadow-sm" onClick={() => { app.updatePrefs({ helpPreference: 'guide' }); navigate('/tours') }}>{t('help.guide')}<ChevronRight size={18} /></button>
         <button type="button" data-guide="help-staff" className="flex min-h-14 w-full items-center justify-between rounded-xl bg-[var(--card)] px-3 text-left text-[15px] font-semibold shadow-sm" onClick={() => app.openHelp('staff')}><Headset size={18} /> {t('help.staff')}<ChevronRight size={18} /></button>
         <h2 className="pt-2 text-lg font-semibold">{t('help.journeys')}</h2>
         {JOURNEY_IDS.map((id) => (
@@ -177,7 +178,12 @@ const TOUR_LIST = [
   { id: 'bill', title: 'flows.bill', body: 'tours.billBody', icon: Receipt, start: '/flow/bill?tour=1', practice: '/flow/bill?practice=1&tour=1' },
   { id: 'scan', title: 'flows.scan', body: 'tours.scanBody', icon: ScanLine, start: '/flow/scan?tour=1', practice: '/flow/scan?practice=1&tour=1' },
   { id: 'card-lock', title: 'flows.cardLock', body: 'tours.cardBody', icon: Lock, start: '/flow/card-lock?tour=1', practice: '/flow/card-lock?practice=1&tour=1' },
-  { id: 'insights', title: 'insights', body: 'tours.insightsBody', icon: PieChart, start: '/insights', practice: '' },
+  { id: 'insights', title: 'insights', body: 'tours.insightsBody', icon: PieChart, start: '/insights?tour=1', practice: '' },
+  { id: 'giro', title: 'flows.giro', body: 'tours.giroBody', icon: ArrowLeftRight, start: '/flow/giro?tour=1', practice: '/flow/giro?practice=1&tour=1' },
+  { id: 'goal', title: 'flows.goal', body: 'tours.goalBody', icon: House, start: '/flow/goal?tour=1', practice: '/flow/goal?practice=1&tour=1' },
+  { id: 'card-lost', title: 'flows.cardLost', body: 'tours.lostBody', icon: Lock, start: '/flow/card-lost?tour=1', practice: '/flow/card-lost?practice=1&tour=1' },
+  { id: 'limit', title: 'flows.limit', body: 'tours.limitBody', icon: Receipt, start: '/flow/limit?tour=1', practice: '/flow/limit?practice=1&tour=1' },
+  { id: 'settings', title: 'settings.title', body: 'tours.settingsBody', icon: CircleHelp, start: '/settings?tour=1', practice: '' },
 ] as const
 
 function tourDone(id: string) {
@@ -212,7 +218,7 @@ export function GuidedTours() {
                 </p>
                 <p className="text-[var(--muted)]">{t(tour.body)}</p>
                 <div className="mt-2 flex flex-wrap gap-2">
-                  <button type="button" className="min-h-11 rounded-lg bg-[var(--slate)] px-3 font-semibold text-white underline" onClick={() => { if (tour.id === 'home') { navigate('/'); window.setTimeout(() => startAppTour(false), 300); return }; navigate(tour.start) }}>{t('tours.start')}</button>
+                  <button type="button" className="min-h-11 rounded-lg bg-[var(--slate)] px-3 font-semibold text-white underline" onClick={() => { if (tour.id === 'home') { navigate('/'); window.setTimeout(() => startAppTour(false), 300); return }; if (tour.id === 'settings') { queueShowHow('settings', false); navigate('/settings'); return }; navigate(tour.start) }}>{t('tours.start')}</button>
                   {tour.practice && <button type="button" className="min-h-11 rounded-lg border border-[var(--line)] px-3 font-semibold" onClick={() => navigate(tour.practice)}>{t('practise')}</button>}
                 </div>
               </div>

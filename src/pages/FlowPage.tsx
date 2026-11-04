@@ -24,6 +24,8 @@ export function FlowPage() {
   const app = useApp()
   const prefsRef = useRef(app.prefs)
   prefsRef.current = app.prefs
+  const whoRef = useRef({ id: app.profile.id, mei: app.payees.some((payee) => payee.name === 'Tan Wei Ming') })
+  whoRef.current = { id: app.profile.id, mei: app.payees.some((payee) => payee.name === 'Tan Wei Ming') }
   const navigate = useNavigate()
   const [params] = useSearchParams()
   const practice = params.get('practice') === '1'
@@ -160,6 +162,36 @@ export function FlowPage() {
     return () => window.clearTimeout(timer)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [flowId])
+
+  useEffect(() => {
+    const sync = () => {
+      const tour = getFlowTour()
+      if (!tour || tour.guideId !== 'paynow') return
+      const id = tour.steps[tour.index]?.id
+      const mei = whoRef.current.id === 'auntiemei' || whoRef.current.id === 'persona-mei' || whoRef.current.mei
+      const contact = PAYNOW_CONTACTS.find((item) => item.name === (mei ? 'Tan Wei Ming' : 'Siti Aminah')) || PAYNOW_CONTACTS[0]
+      if (id === 'who') {
+        setStage('form')
+        setWstep(0)
+      } else if (id === 'name') {
+        setPayeeLabel(contact.name)
+        setForm((prev) => ({ ...prev, proxy: 'mobile', to: contact.mobile }))
+        setStage('form')
+        setWstep(0)
+      } else if (id === 'amount') {
+        setPayeeLabel(contact.name)
+        setForm((prev) => ({ ...prev, proxy: 'mobile', to: prev.to || contact.mobile, amount: '10.00' }))
+        setStage('form')
+        setWstep(1)
+      } else if (id === 'review' || id === 'slider') {
+        setPayeeLabel(contact.name)
+        setForm((prev) => ({ ...prev, proxy: 'mobile', to: prev.to || contact.mobile, amount: prev.amount && Number(prev.amount) > 0 ? prev.amount : '10.00' }))
+        setStage('review')
+      }
+    }
+    window.addEventListener('ocbc-guide-step', sync)
+    return () => window.removeEventListener('ocbc-guide-step', sync)
+  }, [])
 
   useEffect(() => {
     if (!flow) return
@@ -492,6 +524,8 @@ export function FlowPage() {
                   ))}
                 </div>
                 <input id="paynow-mobile" data-guide="paynow-to" inputMode={form.proxy === 'mobile' || !form.proxy ? 'tel' : 'text'} className="ocbc-field" placeholder={t(form.proxy === 'nric' ? 'look.nricPh' : form.proxy === 'uen' ? 'look.uenPh' : 'look.mobilePh')} aria-label={t('look.searchPayee')} value={form.to || ''} onChange={(event) => setForm((prev) => ({ ...prev, to: event.target.value }))} />
+                {(form.proxy || 'mobile') === 'mobile' && (
+                <>
                 <div className="flex gap-4 border-b border-[var(--line)] text-[15px]">
                   <span className="border-b-2 border-[#E30613] pb-2 font-semibold">{t('look.recentTab')}</span>
                   <span className="pb-2 text-[var(--muted)]">{t('look.contactsTab')}</span>
@@ -506,13 +540,15 @@ export function FlowPage() {
                   </button>
                 ))}
                 <button type="button" className="min-h-11 font-semibold text-[var(--link)] underline" onClick={() => document.getElementById('paynow-mobile')?.focus()}>{t('look.enterMobile')}</button>
+                </>
+                )}
                 {lookupPaynow(form.to || '', form.proxy || 'mobile').status === 'ok' && (
                   <button type="button" data-guide="paynow-name" className="flex min-h-11 w-full items-center text-left font-bold" onClick={() => { setPayeeLabel(payeeName(form.to) || ''); setWstep(1) }}>
                     {lookupPaynow(form.to || '', form.proxy || 'mobile').name}
                   </button>
                 )}
                 {lookupPaynow(form.to || '', form.proxy || 'mobile').status === 'unknown' && (
-                  <p className="font-semibold text-[var(--danger)]">{t('flows.nameUnknown')}</p>
+                  <p role="alert" className="rounded-xl border border-[var(--danger)] p-3 font-semibold text-[var(--danger)]">{t('flows.nameUnknown')}</p>
                 )}
               </section>
             )}
@@ -571,7 +607,7 @@ export function FlowPage() {
                 <p className="text-[13px] text-[var(--muted)]">+65 {String(form.to || '').replace(/\D/g, '').slice(0, 4)} ••••</p>
                 <div data-guide="pay-amount" className="flex items-baseline gap-2">
                   <input data-guide="paynow-amount" className="w-full bg-transparent text-[32px] font-bold outline-none placeholder:text-[#A0A6AD]" inputMode="decimal" aria-label={t('amount')} placeholder="0.00" value={form.amount ? liveAmount(form.amount) : ''} onChange={(event) => changeField('amount', event.target.value.replace(/,/g, '').replace(/[^\d.]/g, ''))} onBlur={() => { const n = Number(form.amount); if (form.amount && !Number.isNaN(n)) changeField('amount', n.toFixed(2)) }} />
-                  <span className="text-[20px] font-bold text-[var(--muted)]">SGD</span>
+                  <span className="shrink-0 whitespace-nowrap text-[20px] font-bold text-[var(--muted)]">SGD</span>
                 </div>
                 <Link to="/flow/limit" className="block font-semibold text-[var(--link)] underline">{t('look.limitLeft', { amount: formatMoney(app.limit) })}</Link>
                 <div data-guide="pay-message">
@@ -628,7 +664,7 @@ export function FlowPage() {
             }).map((field) => (
               <p key={field.id} className={app.prefs.textSize >= 20 ? 'flex min-w-0 flex-col gap-1' : 'flex min-w-0 justify-between gap-3'}>
                 <span className="text-[var(--muted)]">{field.id === 'account' && fx?.account === 'iban' ? t('flows.iban') : t(field.label)}</span>
-                <span className="money min-w-0 whitespace-nowrap font-semibold">{field.id === 'to' && payeeLabel ? maskPayee(payeeLabel) : display(field, form[field.id] || '', t)}</span>
+                <span className="money min-w-0 whitespace-nowrap font-semibold">{field.id === 'to' ? maskProxy(form[field.id] || '', form.proxy) : display(field, form[field.id] || '', t)}</span>
               </p>
             ))}
             {fx && (
@@ -639,8 +675,9 @@ export function FlowPage() {
               </>
             )}
             {flow.id === 'card-lost' && <p>{t('flows.lostNote')}</p>}
+            {flow.kind === 'payment' && touring && !practice && <p className="font-semibold">{t('look.slidePractice')}</p>}
             {flow.kind === 'payment' ? (
-              <PaySlider label={practice ? t('look.slidePractice') : t('look.slide')} ariaLabel={`${t('look.slide')} ${formatMoney(Number(form.amount) || 0)}`} guide={reviewGuide(flow.id)} onPay={() => { setOtp(''); setOtpError(''); setStage('otp') }} />
+              <PaySlider disabled={touring && !practice} label={practice || touring ? t('look.slidePractice') : t('look.slide')} ariaLabel={`${t('look.slide')} ${formatMoney(Number(form.amount) || 0)}`} guide={reviewGuide(flow.id)} onPay={() => { if (touring && !practice) return; setOtp(''); setOtpError(''); setStage('otp') }} />
             ) : null}
             {flow.kind === 'payment' ? (
               <button type="button" className="min-h-11 w-full text-[15px] font-semibold text-[var(--link)] underline" onClick={() => setConfirmPay(true)}>{t('look.tapToPay')}</button>
@@ -822,7 +859,17 @@ function liveAmount(value: string) {
   return frac === undefined ? grouped : `${grouped}.${frac}`
 }
 
-function PaySlider({ label, ariaLabel, guide, onPay }: { label: string; ariaLabel: string; guide?: string; onPay: () => void }) {
+function maskProxy(value: string, proxy = 'mobile') {
+  const raw = value.replace(/\s/g, '')
+  if (!raw) return ''
+  if (proxy === 'mobile' || !proxy) {
+    const digits = raw.replace(/\D/g, '').replace(/^65/, '')
+    return digits.length >= 4 ? `+65 ${digits.slice(0, 4)} ••••` : raw
+  }
+  return raw.length > 4 ? `${raw.slice(0, 4)} ••••` : raw
+}
+
+function PaySlider({ label, ariaLabel, guide, onPay, disabled }: { label: string; ariaLabel: string; guide?: string; onPay: () => void; disabled?: boolean }) {
   const [ratio, setRatio] = useState(0)
   const ratioRef = useRef(0)
   const drag = useRef<{ x: number; start: number } | null>(null)
@@ -841,14 +888,17 @@ function PaySlider({ label, ariaLabel, guide, onPay }: { label: string; ariaLabe
       aria-valuemax={100}
       aria-valuenow={Math.round(ratio * 100)}
       aria-label={ariaLabel}
-      className="relative h-14 touch-none overflow-hidden rounded-full bg-[#2A3B43] text-white"
+      aria-disabled={disabled || undefined}
+      className={`relative h-14 touch-none overflow-hidden rounded-full bg-[#2A3B43] text-white ${disabled ? 'opacity-60' : ''}`}
       onKeyDown={(event) => {
+        if (disabled) return
         if (event.key === 'Enter' || event.key === ' ' || event.key === 'ArrowRight') {
           event.preventDefault()
           onPay()
         }
       }}
       onPointerDown={(event) => {
+        if (disabled) return
         drag.current = { x: event.clientX, start: ratioRef.current }
         event.currentTarget.setPointerCapture(event.pointerId)
       }}

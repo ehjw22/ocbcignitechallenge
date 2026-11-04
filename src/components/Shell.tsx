@@ -14,6 +14,7 @@ import { tourState } from '@/lib/appTour'
 import { AiPanel } from './AiPanel'
 import { StaffPanel } from './StaffPanel'
 import { speak, stopSpeaking } from '@/lib/speech'
+import { readableText } from '@/lib/tourPlace'
 import { SpeakButton } from './SpeakButton'
 
 const NAV = [
@@ -145,7 +146,7 @@ export function BottomNav() {
                 ) : (
                   <MoreGlyph active={isActive} />
                 )}
-                <span className="line-clamp-2 w-full whitespace-normal text-center text-[11px] font-normal leading-[13px]">{label}</span>
+                <span className="line-clamp-2 flex h-[26px] w-full items-center justify-center whitespace-normal text-center text-[11px] font-normal leading-[13px]">{label}</span>
               </>
             )}
           </NavLink>
@@ -438,7 +439,7 @@ export function Page({
     stopSpeaking()
     if (!prefs.readAloud || !title) return
     setSpeakingTitle(true)
-    void speak(title, { language: prefs.language, rate: prefs.speechRate, dialect: prefs.dialect }).finally(() => setSpeakingTitle(false))
+    void speak(readableText(mainRef.current, title), { language: prefs.language, rate: prefs.speechRate, dialect: prefs.dialect }).finally(() => setSpeakingTitle(false))
   }, [location.pathname, title, prefs.readAloud, prefs.language, prefs.speechRate, prefs.dialect])
   return (
     <div className="flex h-full min-h-0 flex-col bg-[var(--bg)] text-[var(--text)]">
@@ -461,13 +462,13 @@ export function Page({
                   return
                 }
                 setSpeakingTitle(true)
-                void speak(title, { language: prefs.language, rate: prefs.speechRate, dialect: prefs.dialect }).finally(() => setSpeakingTitle(false))
+                void speak(readableText(mainRef.current, title), { language: prefs.language, rate: prefs.speechRate, dialect: prefs.dialect }).finally(() => setSpeakingTitle(false))
               }}
             />
           )}
         </span>
         <div className="flex max-w-[52%] flex-col items-center">
-          {title && <h1 className="w-full truncate text-center text-[1.05rem] font-semibold leading-normal">{title}</h1>}
+          {title && <h1 className="line-clamp-2 w-full whitespace-normal text-center text-[1.05rem] font-semibold leading-snug">{title}</h1>}
           <DemoBadge />
         </div>
         <span className="absolute right-1 flex items-center">

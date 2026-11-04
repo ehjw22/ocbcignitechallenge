@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { Cell, Pie, PieChart, Bar, BarChart, Line, LineChart, ResponsiveContainer, XAxis, YAxis } from 'recharts'
 import { Page } from '@/components/Shell'
 import { useApp } from '@/context/AppContext'
@@ -18,6 +19,8 @@ import {
 import { translate } from '@/i18n'
 import { themeVars } from '@/lib/accent'
 import { formatMoney } from '@/lib/format'
+import { startGuide } from '@/lib/guide'
+import { speak } from '@/lib/speech'
 
 const BUDGET_KEY = 'ocbc-budgets'
 const DEFAULT_BUDGETS: Record<string, number> = {
@@ -47,10 +50,30 @@ export function Insights() {
   const [month, setMonth] = useState('2026-10')
   const [budgets, setBudgets] = useState(loadBudgets)
   const [note, setNote] = useState('')
+  const [params] = useSearchParams()
   const setScreen = app.setScreen
   useEffect(() => { setScreen('insights') }, [setScreen])
+  useEffect(() => {
+    if (params.get('tour') !== '1') return
+    const timer = window.setTimeout(() => {
+      startGuide({
+        guideId: 'insights',
+        text: (key) => translate(app.prefs.language, key),
+        readAloud: app.prefs.readAloud,
+        speak: (text) => speak(text, { language: app.prefs.language, rate: app.prefs.speechRate, dialect: app.prefs.dialect }),
+        onMissing: () => undefined,
+        onStart: (guideId) => app.log('guide_started', { guideId }),
+        onStep: (stepId) => app.setGuideStep(`insights:${stepId}`),
+        onDrop: (guideId, stepId) => app.log('guide_dropped', { guideId, stepId }),
+        onDone: (guideId) => app.log('guide_completed', { guideId }),
+      })
+    }, 400)
+    return () => window.clearTimeout(timer)
+    // Start once when the tour query is present.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params])
 
-  if (!app.prefs.spendingInsights) {
+  if (!app.prefs.spendingInsights && params.get('tour') !== '1') {
     return (
       <Page title={t('insights')} back>
         <div className="space-y-3 p-4">
@@ -100,7 +123,7 @@ export function Insights() {
     <Page title={t('insights')} back>
       <div className="space-y-4 p-4">
         <p className="text-sm text-[var(--muted)]">{t('insight.sample')}</p>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-2 gap-2" data-guide="insights-filters">
           <label className="block min-w-0 text-sm font-semibold">
             {t('insight.account')}
             <select className="ocbc-field mt-1" value={accountId} onChange={(event) => setAccountId(event.target.value)}>
@@ -120,7 +143,7 @@ export function Insights() {
           </label>
         </div>
 
-        <section className="card space-y-2 p-3">
+        <section className="card space-y-2 p-3" data-guide="insights-summary">
           <h2 className="text-base font-semibold">{t('insight.summary')}</h2>
           <p>
             {prevId
@@ -129,7 +152,7 @@ export function Insights() {
           </p>
         </section>
 
-        <section className="card space-y-2 p-3">
+        <section className="card space-y-2 p-3" data-guide="insights-donut">
           <h2 className="text-base font-semibold">{t('insight.donut')}</h2>
           {slices.length === 0 ? <p>{t('insight.empty')}</p> : (
             <div>
@@ -142,7 +165,7 @@ export function Insights() {
                   </PieChart>
                 </ResponsiveContainer>
               </div>
-              <ul className="mt-2 space-y-1 text-sm">
+              <ul className="mt-2 space-y-1 text-sm" data-guide="insights-legend">
                 {slices.map((item, index) => (
                   <li key={item.key} className="flex items-center justify-between gap-2">
                     <span className="flex min-w-0 items-center gap-1"><span className="h-2.5 w-2.5 shrink-0 rounded-sm" style={{ background: index === 0 ? accent : colours[index % colours.length] }} />{t(`categories.${item.key}`)}</span>

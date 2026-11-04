@@ -81,6 +81,7 @@ export function moveFlowTour(index: number) {
   snapshot = { ...current, index }
   emit()
   hooks?.onStep(current.steps[index].id)
+  window.dispatchEvent(new Event('ocbc-guide-step'))
 }
 
 export function startGuide(options: {
@@ -103,14 +104,7 @@ export function startGuide(options: {
   const guide = guideById(options.guideId)
   if (!guide) return { started: false, missing: [] as string[] }
   const missing: string[] = []
-  const steps = guide.steps.filter((step) => {
-    const found = document.querySelector(`[data-guide="${CSS.escape(step.element)}"]`)
-    if (!found) {
-      missing.push(step.element)
-      options.onMissing(step.element, step.id)
-    }
-    return true
-  })
+  const steps = guide.steps.filter((step) => Boolean(step.element))
   if (!steps.length) return { started: false, missing }
   finished = false
   hooks = { onDrop: options.onDrop, onDone: options.onDone, onStep: options.onStep }
@@ -123,5 +117,6 @@ export function startGuide(options: {
   options.onStart(guide.id)
   options.onStep(steps[0].id)
   emit()
+  window.dispatchEvent(new Event('ocbc-guide-step'))
   return { started: true, missing }
 }

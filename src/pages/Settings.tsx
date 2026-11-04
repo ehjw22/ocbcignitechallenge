@@ -218,7 +218,7 @@ export function Settings() {
         <Section only={panel} onResult={remember}
           id="colour"
           title={t('settings.sections.colour')}
-          summary={`${theme ? t(theme.labelKey) : t('themes.custom')} · ${t(`themes.${app.prefs.scheme}`)} · ${t(`cvd.${app.prefs.colourVision}`)}`}
+          summary={app.prefs.colourVision === 'monochrome' ? t('cvd.monoSummary') : `${theme ? t(theme.labelKey) : t('themes.custom')} · ${t(`themes.${app.prefs.scheme}`)} · ${t(`cvd.${app.prefs.colourVision}`)}`}
           keywords={`${t('settings.colour')} ${t('themes.title')} ${t('themes.background')} ${t('themes.light')} ${t('themes.dark')} ${THEMES.map((item) => t(item.labelKey)).join(' ')} default protanopia deuteranopia tritanopia monochrome`}
           query={query}
           open={!!open.colour}

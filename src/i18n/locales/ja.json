@@ -4,6 +4,7 @@
     "plan": "プラン",
     "accounts": "口座",
     "pay": "支払い・振込",
+    "rewards": "特典",
     "help": "ヘルプ",
     "more": "その他"
   },
@@ -34,7 +35,7 @@
     "languageBody": "言語を選択",
     "text": "文字サイズを選択",
     "textBody": "文字サイズを選択",
-    "preview": "Meiさんへ S$1,250.00 を送金",
+    "preview": "サンプル受取人へ S$1,250.00 を送金",
     "colour": "色の設定",
     "colourBody": "色の設定",
     "detail": "詳細はどの程度にしますか",
@@ -81,7 +82,7 @@
     "needGeneral": "サポートが必要です。"
   },
   "flows": {
-    "overseas": "支払い・振込",
+    "overseas": "海外送金",
     "account10": "口座",
     "otpTitle": "ワンタイムPINを入力",
     "otpBody": "Demo: 任意の6桁",

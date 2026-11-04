@@ -109,6 +109,16 @@
     ]
   },
   {
+    "id": "insights",
+    "title": "insights",
+    "steps": [
+      { "id": "filters", "element": "insights-filters", "title": "guides.insights.filtersTitle", "body": "guides.insights.filtersBody" },
+      { "id": "summary", "element": "insights-summary", "title": "guides.insights.summaryTitle", "body": "guides.insights.summaryBody" },
+      { "id": "donut", "element": "insights-donut", "title": "guides.insights.donutTitle", "body": "guides.insights.donutBody" },
+      { "id": "legend", "element": "insights-legend", "title": "guides.insights.legendTitle", "body": "guides.insights.legendBody" }
+    ]
+  },
+  {
     "id": "settings",
     "title": "guides.settings.title",
     "steps": [

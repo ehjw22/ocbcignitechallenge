@@ -13,7 +13,18 @@ import { RichText, plainSpeech } from './RichText'
 import { Speakable } from './Speakable'
 
 const CHIP_KEYS = ['ai.chipBalance', 'ai.chipPaynow', 'ai.chipGiro', 'ai.chipHow', 'ai.chipScam']
-const FOLLOW = ['ai.chipHow', 'ai.chipSimpler', 'ai.chipTours', 'ai.chipStaff'] as const
+const FOLLOW = ['ai.chipSimpler', 'ai.chipTours', 'ai.chipStaff'] as const
+
+function journeyFor(screen: string) {
+  if (screen.includes('overseas')) return 'overseas'
+  if (screen.includes('transfer')) return 'transfer'
+  if (screen.includes('bill')) return 'bill'
+  if (screen.includes('giro')) return 'giro'
+  if (screen.includes('goal')) return 'goal'
+  if (screen.includes('card')) return 'card-lock'
+  if (screen.includes('limit') || screen.includes('settings') || screen.includes('text') || screen.includes('language')) return 'settings'
+  return 'paynow'
+}
 
 function chipsFor(screen: string) {
   if (screen.includes('overseas')) return ['ai.chipOverseas', 'ai.chipHow', 'ai.chipScam']
@@ -348,7 +359,7 @@ export function AiPanel() {
                 )}
                 {message.role === 'assistant' && (
                   <div className="mt-3 flex flex-wrap gap-2">
-                    {FOLLOW.map((key) => ({ label: t(key), ask: key === 'ai.chipStaff' || key === 'ai.chipTours' ? '' : t(key), staff: key === 'ai.chipStaff', how: key === 'ai.chipHow', tours: key === 'ai.chipTours' })).map((chip) => (
+                    {FOLLOW.map((key) => ({ label: t(key), ask: key === 'ai.chipStaff' || key === 'ai.chipTours' ? '' : t(key), staff: key === 'ai.chipStaff', tours: key === 'ai.chipTours' })).map((chip) => (
                       <button
                         key={chip.label}
                         type="button"
@@ -362,12 +373,6 @@ export function AiPanel() {
                           if ('staff' in chip && chip.staff) {
                             app.setStaffSeed(summary)
                             app.setHelpView('staff')
-                            return
-                          }
-                          if ('how' in chip && chip.how && (message.journeyId || message.action)) {
-                            app.setHelpOpen(false)
-                            queueShowHow(message.journeyId || message.action?.intent || '', false)
-                            navigate(journeyRoute(message.journeyId || message.action?.intent || ''))
                             return
                           }
                           if (chip.ask) void ask(chip.ask)
@@ -404,7 +409,13 @@ export function AiPanel() {
       {app.messages.length === 0 && (
         <div className="flex flex-wrap gap-2">
           {chipsFor(app.screen).map((key) => (
-            <button key={key} type="button" className="min-h-11 rounded-full border border-[var(--line)] px-3 text-left text-sm" disabled={busy} onClick={() => void ask(t(key))}>
+            <button key={key} type="button" className="min-h-11 rounded-full border border-[var(--line)] px-3 text-left text-sm" disabled={busy} onClick={() => {
+              if (key !== 'ai.chipHow') { void ask(t(key)); return }
+              const id = journeyFor(app.screen)
+              app.setHelpOpen(false)
+              queueShowHow(id, true)
+              navigate(journeyRoute(id))
+            }}>
               {t(key)}
             </button>
           ))}

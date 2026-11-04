@@ -490,7 +490,15 @@ html[data-bold="1"] #customer-app button {
   --danger: currentColor;
   --ok: currentColor;
   --warn: currentColor;
+  --accent: #161616;
 }
+#customer-root[data-scheme='dark'][data-cvd="monochrome"] {
+  --accent: #F4F4F5;
+}
+#customer-root[data-cvd="monochrome"] svg [fill="#E30613"] { fill: var(--accent); }
+#customer-root[data-cvd="monochrome"] .bg-\[\#E30613\] { background-color: var(--accent); }
+#customer-root[data-cvd="monochrome"] .text-\[\#E30613\] { color: var(--accent); }
+#customer-root[data-cvd="monochrome"] .border-\[\#E30613\] { border-color: var(--accent); }
 
 .tap {
   min-height: 44px;

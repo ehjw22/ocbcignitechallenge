@@ -4,6 +4,7 @@ import { SpeakButton } from '@/components/SpeakButton'
 import { translate } from '@/i18n'
 import { getFlowTour, moveFlowTour, subscribeFlowTour } from '@/lib/guide'
 import { prefetchSpeech, stopSpeaking } from '@/lib/speech'
+import { collapseOpened, prepareTarget } from '@/lib/tourPlace'
 
 type Box = { top: number; left: number; width: number; height: number; radius: number }
 
@@ -18,6 +19,7 @@ export function TourFrame({
   onBack,
   onNext,
   onClose,
+  onSkip,
   autoSpeak,
   speak,
 }: {
@@ -31,6 +33,7 @@ export function TourFrame({
   onBack: () => void
   onNext: () => void
   onClose: () => void
+  onSkip?: () => void
   autoSpeak: boolean
   speak: (text: string) => void | Promise<unknown>
 }) {
@@ -44,6 +47,9 @@ export function TourFrame({
   const [playing, setPlaying] = useState(false)
   const [hole, setHole] = useState<Box | null>(null)
   const [top, setTop] = useState(12)
+  const [ready, setReady] = useState(false)
+  const skipRef = useRef(onSkip)
+  skipRef.current = onSkip
 
   useEffect(() => {
     if (!active) return
@@ -68,28 +74,31 @@ export function TourFrame({
     }
   }, [active, autoSpeak, element, title, body])
 
+  useEffect(() => {
+    if (!active || !element) return
+    let live = true
+    setReady(false)
+    setHole(null)
+    void prepareTarget(element).then((found) => {
+      if (!live) return
+      if (!found) {
+        skipRef.current?.()
+        return
+      }
+      setReady(true)
+    })
+    return () => {
+      live = false
+    }
+  }, [active, element, step])
+
   useLayoutEffect(() => {
-    if (!active) return
+    if (!active || !ready) return
     const root = document.getElementById('customer-root')
     if (!root) return
     const mains = [...root.querySelectorAll('main')] as HTMLElement[]
     const previous = mains.map((node) => node.style.overflow)
     const target = element ? document.querySelector(`[data-guide="${CSS.escape(element)}"]`) : null
-    if (target) {
-      const scroller = target.closest('main') as HTMLElement | null
-      if (scroller) {
-        const frame = scroller.getBoundingClientRect()
-        const box = target.getBoundingClientRect()
-        const view = root.getBoundingClientRect()
-        const navH = root.querySelector('nav')?.getBoundingClientRect().height ?? 0
-        const tallTarget = box.height > view.height * 0.6
-        const hidden = box.top < frame.top + 12 || box.bottom > view.bottom - navH - 12
-        if (tallTarget || hidden) {
-          const align = tallTarget ? 12 : Math.max(12, (frame.height - box.height) / 3)
-          scroller.scrollTop += box.top - frame.top - align
-        }
-      }
-    }
     mains.forEach((node) => {
       node.style.overflow = 'hidden'
     })
@@ -128,10 +137,14 @@ export function TourFrame({
         }
         const pad = 6
         const radius = Number.parseFloat(getComputedStyle(found).borderRadius) || 12
+        const rawLeft = (rect.left - rootBox.left) / scale - pad
+        const rawWidth = rect.width / scale + pad * 2
+        const left = Math.max(0, rawLeft)
+        const width = Math.min(root.offsetWidth - left, rawWidth - (left - rawLeft))
         holeBox = {
           top: (rect.top - rootBox.top) / scale - pad,
-          left: (rect.left - rootBox.left) / scale - pad,
-          width: rect.width / scale + pad * 2,
+          left,
+          width: Math.max(8, width),
           height: rect.height / scale + pad * 2,
           radius: radius + pad,
         }
@@ -184,11 +197,12 @@ export function TourFrame({
       window.removeEventListener('keydown', keys)
       window.removeEventListener('resize', place)
       observer.disconnect()
+      collapseOpened()
       stopSpeaking()
     }
-  }, [active, element, title, body, step])
+  }, [active, ready, element, title, body, step])
 
-  if (!active) return null
+  if (!active || !ready) return null
   return (
     <>
       {hole && (
@@ -283,6 +297,7 @@ export function FlowTour() {
       onBack={() => moveFlowTour(tour.index - 1)}
       onNext={() => moveFlowTour(last ? tour.steps.length : tour.index + 1)}
       onClose={() => moveFlowTour(-1)}
+      onSkip={() => moveFlowTour(tour.index + 1 >= tour.steps.length ? -1 : tour.index + 1)}
       autoSpeak={app.prefs.readAloud}
       speak={(text) => tour.speak(text)}
     />

@@ -182,6 +182,7 @@
     "deuteranopia": "Deuteranopia",
     "tritanopia": "Tritanopia",
     "monochrome": "Monochrome",
+    "monoSummary": "Monochrome (accent off)",
     "paid": "Paid",
     "check": "Check",
     "failed": "Failed"
@@ -768,6 +769,16 @@
       "reviewTitle": "Confirm the new limit",
       "reviewBody": "Review the new limit before you confirm."
     },
+    "insights": {
+      "filtersTitle": "Choose the account and month",
+      "filtersBody": "The charts below follow these two choices.",
+      "summaryTitle": "This month",
+      "summaryBody": "This compares spending with the month before.",
+      "donutTitle": "Spending by category",
+      "donutBody": "Each slice is one category.",
+      "legendTitle": "The categories",
+      "legendBody": "The list names every slice and the amount."
+    },
     "progress": "{current} of {total}",
     "settings": {
       "title": "Change settings",
@@ -819,7 +830,7 @@
   "notifications": {
     "title": "Notifications",
     "salaryTitle": "Salary received",
-    "salaryBody": "4,200.00 SGD was added to your 360 Account.",
+    "salaryBody": "Allowance 400.00 SGD added to your FRANK Account.",
     "billTitle": "Bill reminder",
     "billBody": "SP Group bill of 96.40 SGD is ready to pay.",
     "securityTitle": "Security tip",
@@ -832,7 +843,12 @@
   "tours": {
     "guided": "Guided tours",
     "home": "Home tour",
-    "homeBody": "A short walk through Home.",
+    "homeBody": "A 14-step tour of Home, Accounts, Pay, Cards, Help and Settings.",
+    "giroBody": "Set up a sample GIRO.",
+    "goalBody": "Save toward a goal.",
+    "lostBody": "Report a lost card.",
+    "limitBody": "Change the transfer limit.",
+    "settingsBody": "A tour of language, text size and shortcuts.",
     "paynowBody": "Pay someone with a mobile number.",
     "transferBody": "Send money to a local account.",
     "overseasBody": "Send money to another country.",
@@ -845,7 +861,7 @@
   },
   "rewards": {
     "title": "Rewards",
-    "earned": "Earned from your card spending",
+    "earned": "Sample points balance",
     "dining": "5 SGD dining voucher",
     "diningCost": "500 OCBC$",
     "grab": "Grab ride credit",
