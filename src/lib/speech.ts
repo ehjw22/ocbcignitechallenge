@@ -147,8 +147,7 @@ async function speakOnDevice(text: string, options: SpeakOptions) {
 }
 
 function voiceOptions(options: SpeakOptions): SpeakOptions {
-  const chinese = options.language === 'zh' || options.language === 'zh-TW'
-  return { ...options, dialect: chinese && options.dialect === 'cantonese' ? 'cantonese' : 'standard' }
+  return { ...options, dialect: options.dialect === 'cantonese' ? 'cantonese' : 'standard' }
 }
 
 export async function speak(text: string, options: SpeakOptions): Promise<'device' | 'cloud' | 'none' | 'cancelled'> {

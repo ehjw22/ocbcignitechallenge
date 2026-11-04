@@ -4,6 +4,9 @@ import { Bell, Check, ChevronRight, Eye, EyeOff, Lock, ScanLine, Settings } from
 import { percentChange, rowsFor, sum } from '@/data/insights'
 import { useApp } from '@/context/AppContext'
 import { BottomNav, DemoBadge, GuideDone, HeaderHelp } from '@/components/Shell'
+import { SpeakButton } from '@/components/SpeakButton'
+import { speak, stopSpeaking } from '@/lib/speech'
+import { readableText } from '@/lib/tourPlace'
 import { translate } from '@/i18n'
 import { SHORTCUT_ICONS, SHORTCUT_ROUTES } from '@/lib/shortcutItems'
 import { startAppTour } from '@/lib/appTour'
@@ -32,6 +35,16 @@ export function Home() {
   const deposits = app.accounts.filter((account) => account.kind === 'deposit')
   const tips = [t('look.heroTip'), t('look.heroPractice'), t('look.heroScam')]
   const [tip, setTip] = useState(0)
+  const [speaking, setSpeaking] = useState(false)
+  const readHome = () => {
+    if (speaking) {
+      stopSpeaking()
+      setSpeaking(false)
+      return
+    }
+    setSpeaking(true)
+    void speak(readableText(document.getElementById('main'), t('nav.home')), { language: app.prefs.language, rate: app.prefs.speechRate, dialect: app.prefs.dialect }).finally(() => setSpeaking(false))
+  }
   useEffect(() => {
     const timer = window.setInterval(() => setTip((value) => (value + 1) % tips.length), 6000)
     return () => window.clearInterval(timer)
@@ -52,7 +65,10 @@ export function Home() {
       <main id="main" className="nav-clearance min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[var(--bg)]">
         <GuideDone />
         <header className="flex h-14 items-center justify-between bg-[var(--card)] px-4">
-          <DemoBadge />
+          <span className="flex items-center">
+            <SpeakButton playing={speaking} listenLabel={t('speech.readAloud')} stopLabel={t('stop')} onClick={readHome} />
+            <DemoBadge />
+          </span>
           <span className="flex items-center">
             <Link to="/notifications" className="relative flex min-h-11 min-w-11 items-center justify-center" aria-label={t('notifications.title')}>
               <Bell aria-hidden size={22} strokeWidth={1.5} />
@@ -65,14 +81,14 @@ export function Home() {
           </span>
         </header>
 
-        <section data-guide="home-greeting" className="relative h-[168px] overflow-hidden bg-[var(--bg)]">
+        <section data-guide="home-greeting" className="relative min-h-[168px] overflow-hidden bg-[var(--bg)]">
           <svg className="absolute inset-y-0 left-0 h-full w-[62%]" viewBox="0 0 240 168" preserveAspectRatio="none" aria-hidden>
             <path d="M0 0H150C210 20 230 70 190 110C150 150 190 168 240 168H0Z" fill="#E30613" />
           </svg>
-          <div className="relative flex h-full items-center px-4 text-white">
+          <div className="relative flex min-h-[168px] items-center px-4 py-4 text-white">
             <div className="max-w-[46%]">
-              <p className="text-[16px] font-bold">{t('look.hi', { name: app.profile.shortName })}</p>
-              <p className="mt-1 text-[13px] leading-snug">{tips[tip]}</p>
+              <p className="text-[1rem] font-bold">{t('look.hi', { name: app.profile.shortName })}</p>
+              <p className="mt-1 text-[0.85rem] leading-snug">{tips[tip]}</p>
             </div>
           </div>
         </section>
@@ -88,7 +104,7 @@ export function Home() {
             }).slice(0, 6), 'customise'].map((id) => (
               <Link key={id} to={id === 'customise' ? '/settings/shortcuts' : (SHORTCUT_ROUTES[id] ?? '/pay')} data-guide={id === 'paynow' ? 'home-paynow' : id === 'customise' ? 'home-customise' : undefined} className="flex min-h-11 min-w-0 flex-col items-center justify-center gap-1 px-0.5 text-[var(--text)]">
                 <ShortcutMark id={id} />
-                <span className="line-clamp-2 w-full text-center text-[0.75rem] font-normal leading-tight">{id === 'customise' ? t('look.customise') : t(`shortcuts.${id}`)}</span>
+                <span className="line-clamp-2 w-full break-normal text-center text-[11px] font-normal leading-[13px]">{id === 'customise' ? t('look.customise') : t(`shortcuts.${id}`)}</span>
               </Link>
             ))}
           </div>
@@ -121,7 +137,7 @@ export function Home() {
             return (
               <article key={account.id} className="mb-3 rounded-xl p-4" style={{ background: app.prefs.scheme === 'dark' ? 'var(--card)' : '#F4EEE9', color: app.prefs.scheme === 'dark' ? 'var(--text)' : '#333' }}>
                 <Link to={`/accounts/${account.id}`} data-guide={index === 0 ? 'home-balance' : undefined} className="flex items-center gap-3">
-                  <span className="grid h-11 w-11 place-items-center rounded-full bg-[#F6D5BF] text-[12px] font-bold">{code}</span>
+                  <span data-skip-speech className="grid h-11 w-11 place-items-center rounded-full bg-[#F6D5BF] text-[12px] font-bold">{code}</span>
                   <span className="min-w-0 flex-1">
                     <span className="block text-[16px] font-bold">{t(account.nameKey)}</span>
                     <span className="block text-[14px] font-normal">{account.number}</span>
@@ -129,13 +145,14 @@ export function Home() {
                   </span>
                   <ChevronRight size={18} />
                 </Link>
-                <span className="mt-3 block border-t border-[#E7E0DA] pt-3 text-[14px]">
-                  {t('look.available')} <strong className="float-right text-[16px]">{money(balance)}</strong>
+                <span className="mt-3 flex flex-wrap items-baseline justify-between gap-x-3 border-t border-[#E7E0DA] pt-3 text-[0.9rem]">
+                  <span>{t('look.available')}</span>
+                  <strong className="whitespace-nowrap text-[1rem]">{money(balance)}</strong>
                 </span>
                 {index === 0 && app.cards[0] && (
                   <span className="mt-3 block border-t border-[#E7E0DA] pt-3">
                     <span className="flex items-center gap-3">
-                      <span className="h-[26px] w-10 shrink-0 rounded bg-gradient-to-br from-[#E30613] to-[#9b1020]" aria-hidden />
+                      <span className="card-art h-[26px] w-10 shrink-0 rounded bg-gradient-to-br from-[#E30613] to-[#9b1020]" aria-hidden />
                       <span className="min-w-0 flex-1">
                         <span className="block text-[15px] font-bold">{t('look.debitCard')}</span>
                         <span className="block text-[14px]">{hidden ? '•••• ••••' : `•••• ${app.cards[0].last4}`}</span>
@@ -164,7 +181,7 @@ export function Home() {
           )}
         </section>
 
-        <section data-guide="home-foryou" className="flex min-w-0 max-w-full gap-3 overflow-x-auto px-4 py-4">
+        <section data-guide="home-foryou" className="flex w-full min-w-0 max-w-full gap-3 overflow-x-auto px-4 py-4">
           <Link to="/flow/goal" className="w-[240px] shrink-0 rounded-xl bg-[var(--soft)] p-4 text-[var(--text)]">
             <p className="text-[10px] font-bold tracking-wide">{t('look.goalKicker')}</p>
             <p className="mt-1 text-[15px] font-bold">{t('look.goalLine')}</p>
@@ -191,14 +208,14 @@ export function Home() {
               {app.txns.slice(0, 5).map((txn) => (
                 <li key={txn.id} className="border-b border-[var(--line)] last:border-0">
                   <button type="button" className="flex w-full items-center gap-3 px-3 py-3 text-left" onClick={() => setSheetId(txn.id)}>
-                    <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#2F353D] text-[10px] font-bold text-white">
+                    <span data-skip-speech className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#2F353D] text-[10px] font-bold text-white">
                       {(txn.accountId === 'frank' ? 'FRA' : 'SAV')}
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="block text-[12px] font-bold uppercase">{t(txnKind(txn.title))}</span>
                       <span className="block text-[12px] text-[var(--muted)]">{payeeName(txn.title)}</span>
                     </span>
-                    <span className={`text-[15px] font-bold tabular-nums ${txn.amount > 0 ? 'text-[#1E8E3E]' : ''}`}>{formatTxnAmount(txn.amount)}</span>
+                    <span className={`shrink-0 whitespace-nowrap text-[0.95rem] font-bold tabular-nums ${txn.amount > 0 ? 'text-[#1E8E3E]' : ''}`}>{formatTxnAmount(txn.amount)}</span>
                   </button>
                 </li>
               ))}

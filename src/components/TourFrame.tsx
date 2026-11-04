@@ -149,36 +149,34 @@ export function TourFrame({
           radius: radius + pad,
         }
       }
-      const gap = 12
-      const navH = root.querySelector('nav')?.offsetHeight ?? 0
-      const floor = root.clientHeight - navH - 8
-      card.style.maxHeight = ''
-      const natural = card.offsetHeight
-      const fit = (room: number) => {
-        const limit = Math.max(160, Math.min(room, floor - gap))
-        if (natural > limit) card.style.maxHeight = `${limit}px`
-        else card.style.maxHeight = ''
-        return card.offsetHeight
-      }
-      const tall = Boolean(holeBox && holeBox.height > root.clientHeight * 0.6)
-      let nextTop = gap
-      if (!holeBox || tall) {
-        const used = fit(floor - gap)
-        nextTop = Math.max(gap, floor - used)
-        if (holeBox && holeBox.top + holeBox.height > nextTop - gap) {
-          holeBox.height = Math.max(48, nextTop - gap - holeBox.top)
+      const minTop = 8
+      const navTop = root.querySelector('nav')?.getBoundingClientRect()
+      const floor = Math.min((navTop ? (navTop.top - rootBox.top) / scale : root.clientHeight) - 8, root.clientHeight - 8)
+      if (found instanceof HTMLElement && found.getBoundingClientRect().height > (floor - minTop) * 0.55) {
+        const main = found.closest('main')
+        if (main) {
+          const box = found.getBoundingClientRect()
+          const headerBottom = root.querySelector('header')?.getBoundingClientRect().bottom ?? rootBox.top
+          main.scrollTop += box.top - headerBottom - 12
+          const next = found.getBoundingClientRect()
+          if (holeBox) {
+            holeBox.top = (next.top - rootBox.top) / scale - 6
+            holeBox.height = next.height / scale + 12
+          }
         }
-      } else {
-        const spaceBelow = floor - (holeBox.top + holeBox.height) - gap
-        const spaceAbove = holeBox.top - gap
-        const below = spaceBelow >= natural || (spaceBelow >= spaceAbove && spaceBelow >= 160)
-        const used = fit(below ? spaceBelow : spaceAbove)
-        nextTop = below ? holeBox.top + holeBox.height + gap : holeBox.top - used - gap
-        if (nextTop < gap) nextTop = gap
-        if (nextTop + used > floor) nextTop = Math.max(gap, floor - used)
       }
-      const used = card.offsetHeight
-      if (nextTop + used > floor) nextTop = Math.max(gap, floor - used)
+      const room = Math.max(120, floor - minTop)
+      card.style.maxHeight = `${room}px`
+      const used = Math.min(card.offsetHeight, room)
+      let nextTop = minTop
+      if (holeBox && holeBox.height < room * 0.7) {
+        const spaceBelow = floor - (holeBox.top + holeBox.height) - 12
+        const spaceAbove = holeBox.top - minTop
+        if (spaceBelow >= 120 || spaceBelow >= spaceAbove) nextTop = holeBox.top + holeBox.height + 12
+        else nextTop = holeBox.top - used - 12
+      } else nextTop = floor - used
+      if (nextTop < minTop) nextTop = minTop
+      if (nextTop + used > floor) nextTop = Math.max(minTop, floor - used)
       setHole(holeBox)
       setTop(nextTop)
     }

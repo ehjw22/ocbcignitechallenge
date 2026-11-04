@@ -27,11 +27,20 @@ export function collapseOpened() {
 
 function frames(count: number) {
   return new Promise<void>((resolve) => {
-    const step = (left: number) => {
-      if (left <= 0) resolve()
-      else requestAnimationFrame(() => step(left - 1))
+    let done = false
+    const finish = () => {
+      if (done) return
+      done = true
+      resolve()
     }
-    requestAnimationFrame(() => step(count))
+    let left = count
+    const step = () => {
+      left -= 1
+      if (left <= 0) finish()
+      else requestAnimationFrame(step)
+    }
+    requestAnimationFrame(step)
+    setTimeout(finish, 50 * count)
   })
 }
 
@@ -67,7 +76,11 @@ export function targetVisible(el: Element | null) {
   if (!root) return false
   const headerBottom = document.querySelector('#customer-root header')?.getBoundingClientRect().bottom ?? root.top
   const navTop = document.querySelector('#customer-root nav')?.getBoundingClientRect().top ?? root.bottom
-  const insideX = rect.left >= root.left - 2 && rect.right <= root.right + 2
+  const wide = rect.width > root.width - 4
+  const visibleWidth = Math.min(rect.right, root.right) - Math.max(rect.left, root.left)
+  const insideX = wide ? visibleWidth > 40 : rect.left >= root.left - 2 && rect.right <= root.right + 2
+  const band = navTop - headerBottom
+  if (rect.height > band * 0.65) return insideX && rect.top <= headerBottom + 24 && rect.top >= headerBottom - 48
   const insideY = rect.top >= headerBottom - 4 && rect.bottom <= navTop - 4
   return insideX && insideY
 }
@@ -84,7 +97,7 @@ export async function prepareTarget(element: string) {
       await frames(2)
       if (targetVisible(el)) return el
     }
-    await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
+    await new Promise<void>((resolve) => setTimeout(resolve, 40))
   }
   return null
 }
@@ -100,6 +113,9 @@ export function readableText(main: HTMLElement | null, title = '') {
     if (node.offsetParent === null && getComputedStyle(node).position !== 'fixed') return
     const text = node.innerText.replace(/\s+/g, ' ').trim()
     if (!text || text.length > 220) return
+    if (node.closest('[data-skip-speech]')) return
+    if (/^[A-Z]{2,4}$/.test(text) || text === '360') return
+    if (text.includes('••••') || /^[•.\s]+$/.test(text)) return
     if (parts[parts.length - 1] === text) return
     parts.push(text)
   })

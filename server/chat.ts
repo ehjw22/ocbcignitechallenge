@@ -183,7 +183,7 @@ export async function handleChat(req: IncomingMessage, res: ServerResponse) {
   let produced = ''
   for (const [index, name] of models.entries()) {
     try {
-      produced = await streamModel(key, baseURL, name, chatMessages, (full) => emit({ text: full }), index > 0, index === 0 ? 12000 : 15000)
+      produced = await streamModel(key, baseURL, name, chatMessages, (full) => emit({ text: full }), index > 0, index === 0 ? 8000 : 8000)
       if (produced.trim()) break
     } catch (err) {
       console.error(index === 0 ? 'chat failed' : 'chat fallback failed', name, errorDetail(err))
@@ -284,7 +284,8 @@ async function streamModel(
     try {
       const completion = await client.chat.completions.create({
         model,
-        temperature: 0.3,
+        temperature: 0.2,
+        max_tokens: 180,
         messages,
         stream: true,
       })

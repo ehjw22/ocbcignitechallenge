@@ -52,18 +52,25 @@ export function Join() {
               <p className="mt-1 text-sm text-[var(--muted)]">{t('onboarding.minutes')}</p>
               <div role="radiogroup" aria-label={t('onboarding.language')} className="mt-3">
                 {LANGUAGES.map((language) => (
-                  <Choice key={language.id} selected={app.prefs.language === language.id} onClick={() => app.updatePrefs({ language: language.id })}>
+                  <Choice key={language.id} selected={app.prefs.language === language.id} onClick={() => app.updatePrefs({ language: language.id, dialect: language.id === 'zh-TW' ? 'cantonese' : 'standard' })}>
                     {language.native}
                   </Choice>
                 ))}
               </div>
+              {(app.prefs.language === 'zh' || app.prefs.language === 'zh-TW') && (
+                <div className="mt-3" role="radiogroup" aria-label={t('dialects.title')}>
+                  <p className="mb-1 text-sm text-[var(--muted)]">{t('dialects.title')}</p>
+                  <Choice selected={app.prefs.dialect !== 'cantonese'} onClick={() => app.updatePrefs({ dialect: 'standard' })}>{t('dialects.standard')}</Choice>
+                  <Choice selected={app.prefs.dialect === 'cantonese'} onClick={() => app.updatePrefs({ dialect: 'cantonese' })}>{t('dialects.cantonese')}</Choice>
+                </div>
+              )}
             </section>
           )}
           {step === 1 && (
             <section>
-              <h2 id="quiz-title" className="text-xl font-semibold">{t('speakingSpeed')}</h2>
+              <h2 id="quiz-title" className="text-xl font-semibold">{t('onboarding.readAndSpeed')}</h2>
               <label className="mt-3 flex min-h-11 items-start gap-3">
-                <input className="mt-1" type="checkbox" checked={app.prefs.readAloud} onChange={(event) => app.updatePrefs({ readAloud: event.target.checked })} />
+                <input className="mt-1 h-6 w-6" type="checkbox" checked={app.prefs.readAloud} onChange={(event) => app.updatePrefs({ readAloud: event.target.checked })} />
                 <span>
                   <span className="block font-semibold">{t('onboarding.readAloud')}</span>
                   <span className="block text-sm text-[var(--muted)]">{t('onboarding.readAloudBody')}</span>
@@ -82,7 +89,7 @@ export function Join() {
               <div className="rounded-2xl border border-[var(--line)] bg-[var(--card)] p-4">
                 <p className="text-sm text-[var(--muted)]">{t('totalBalance')}</p>
                 <p className="mt-1 font-semibold tabular-nums" style={{ fontSize: app.prefs.textSize + 8 }}>S$1,230.55</p>
-                <p className="mt-2" style={{ fontSize: app.prefs.textSize }}>{t('onboarding.preview')}</p>
+                <p className="mt-2" style={{ fontSize: app.prefs.textSize }}>{t('onboarding.preview', { name: app.profile.shortName })}</p>
               </div>
             </section>
           )}
@@ -117,12 +124,18 @@ export function Join() {
           )}
           {step === 5 && (
             <section>
-              <h2 id="quiz-title" className="text-xl font-semibold">{t('onboarding.colour')}</h2>
+              <h2 id="quiz-title" className="text-xl font-semibold">{t('themes.title')}</h2>
+              <div role="radiogroup" aria-label={t('themes.title')} className="mt-2 grid grid-cols-2 gap-2">
+                {(['light', 'dark'] as const).map((scheme) => (
+                  <Choice key={scheme} selected={app.prefs.scheme === scheme} onClick={() => app.updatePrefs({ scheme })}>{t(`themes.${scheme}`)}</Choice>
+                ))}
+              </div>
+              <h3 className="mt-4 text-lg font-semibold">{t('onboarding.colour')}</h3>
               <p className="mt-1 text-sm text-[var(--muted)]">{t('onboarding.colourHint')}</p>
               <div className="keep-words mt-3 overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--card)]">
                 {[
-                  ['Hawker centre', '26 Oct', 'paid', '−S$6.50', 'var(--success)'],
-                  ['Grab', '25 Oct', 'check', '−S$12.40', 'var(--warning)'],
+                  [t('quiz.merchant'), t('quiz.date'), 'paid', '−6.50 SGD', 'var(--success)'],
+                  [t('quiz.merchant2'), t('quiz.date2'), 'check', '−12.40 SGD', 'var(--warning)'],
                 ].map(([name, date, status, amount, colour], index) => (
                   <div key={name} className={`flex items-start justify-between gap-3 px-3 py-3 ${index === 0 ? 'border-b border-[var(--line)]' : ''}`}>
                     <span className="min-w-0">

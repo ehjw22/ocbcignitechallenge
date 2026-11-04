@@ -240,7 +240,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const updatePrefs = (patch: Partial<Preferences>) => {
     setPrefs((current) => {
       const next = { ...current, ...patch }
-      if (next.language !== 'zh' && next.language !== 'zh-TW') next.dialect = 'standard'
+      if (patch.language === 'zh-TW' && patch.dialect === undefined) next.dialect = 'cantonese'
+      if (patch.language === 'zh' && patch.dialect === undefined) next.dialect = 'standard'
       const id = sessionRef.current
       if (id) persistUser(id, next, profile)
       else saveGuest(next)

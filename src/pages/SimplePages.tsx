@@ -1,7 +1,10 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { Check, ChevronRight, Compass, Globe, House, Lock, PieChart, Receipt, ScanLine, Smartphone, ArrowLeftRight, Headset, MessageSquare, CircleHelp } from 'lucide-react'
 import { BottomNav, Page } from '@/components/Shell'
+import { SpeakButton } from '@/components/SpeakButton'
+import { speak, stopSpeaking } from '@/lib/speech'
+import { readableText } from '@/lib/tourPlace'
 import { useApp } from '@/context/AppContext'
 import { JOURNEY_IDS } from '@/data/flows'
 import { translate } from '@/i18n'
@@ -36,7 +39,17 @@ export function PayHub() {
   const app = useApp()
   const t = (key: string) => translate(app.prefs.language, key)
   const setScreen = app.setScreen
+  const [speaking, setSpeaking] = useState(false)
   useEffect(() => { setScreen('pay') }, [setScreen])
+  const readPay = () => {
+    if (speaking) {
+      stopSpeaking()
+      setSpeaking(false)
+      return
+    }
+    setSpeaking(true)
+    void speak(readableText(document.getElementById('main'), t('look.paymentsTitle')), { language: app.prefs.language, rate: app.prefs.speechRate, dialect: app.prefs.dialect }).finally(() => setSpeaking(false))
+  }
   const grid = [
     ['scan', '/flow/scan', ScanLine, 'pay-scan'],
     ['paynow', '/flow/paynow', Smartphone, 'pay-paynow'],
@@ -46,15 +59,16 @@ export function PayHub() {
   ] as const
   return (
     <Page title="">
-      <div className="px-4 pb-2 pt-2">
-        <h1 className="max-w-[70%] text-[24px] font-bold leading-tight text-[var(--text)]">{t('look.paymentsTitle')}</h1>
+      <div className="flex items-center gap-1 px-2 pb-2 pt-2">
+        <SpeakButton playing={speaking} listenLabel={t('speech.readAloud')} stopLabel={t('stop')} onClick={readPay} />
+        <h1 className="min-w-0 flex-1 text-[1.35rem] font-bold leading-tight text-[var(--text)]">{t('look.paymentsTitle')}</h1>
       </div>
       <div className="px-4">
         <div className="grid grid-cols-3 gap-y-4 rounded-xl bg-[var(--card)] p-4 shadow-[0_8px_24px_rgba(47,53,61,0.06)]">
           {grid.map(([id, to, Icon, guide]) => (
             <Link key={id} to={to} data-guide={guide} className="flex min-h-11 flex-col items-center gap-1 text-center">
               <Icon aria-hidden size={22} strokeWidth={1.5} />
-              <span className="text-[15px] font-normal">{label(id, t)}</span>
+              <span className="text-[0.9rem] font-normal leading-tight">{label(id, t)}</span>
             </Link>
           ))}
         </div>
@@ -69,7 +83,7 @@ export function PayHub() {
         <ul className="divide-y divide-[var(--line)]">
           {PAY_LINKS.filter(([id]) => !['paynow', 'transfer', 'overseas', 'bill', 'scan'].includes(id)).map(([id, to]) => (
             <li key={id}>
-              <Link to={to} data-guide={`pay-${id}`} className="flex min-h-12 items-center justify-between py-3 text-[15px] font-semibold">
+              <Link to={to} data-guide={`pay-${id}`} className="flex min-h-12 items-center justify-between py-3 text-[0.95rem] font-semibold">
                 {label(id, t)}
                 <ChevronRight size={18} className="text-[var(--muted)]" />
               </Link>
@@ -94,9 +108,9 @@ export function HelpPage() {
   return (
     <Page title={t('look.howHelp')} back>
       <div className="space-y-2 p-4 pb-28">
-        <button type="button" data-guide="help-assistant" className="flex min-h-14 w-full items-center justify-between rounded-xl bg-[var(--card)] px-3 text-left text-[15px] font-semibold shadow-sm" onClick={() => app.openHelp('ai')}>{t('help.ai')}<ChevronRight size={18} /></button>
-        <button type="button" className="flex min-h-14 w-full items-center justify-between rounded-xl bg-[var(--card)] px-3 text-left text-[15px] font-semibold shadow-sm" onClick={() => { app.updatePrefs({ helpPreference: 'guide' }); navigate('/tours') }}>{t('help.guide')}<ChevronRight size={18} /></button>
-        <button type="button" data-guide="help-staff" className="flex min-h-14 w-full items-center justify-between rounded-xl bg-[var(--card)] px-3 text-left text-[15px] font-semibold shadow-sm" onClick={() => app.openHelp('staff')}><Headset size={18} /> {t('help.staff')}<ChevronRight size={18} /></button>
+        <button type="button" data-guide="help-assistant" className="flex min-h-14 w-full items-center justify-between rounded-xl bg-[var(--card)] px-3 text-left text-[0.95rem] font-semibold shadow-sm" onClick={() => app.openHelp('ai')}>{t('help.ai')}<ChevronRight size={18} /></button>
+        <button type="button" className="flex min-h-14 w-full items-center justify-between rounded-xl bg-[var(--card)] px-3 text-left text-[0.95rem] font-semibold shadow-sm" onClick={() => { app.updatePrefs({ helpPreference: 'guide' }); navigate('/tours') }}>{t('help.guide')}<ChevronRight size={18} /></button>
+        <button type="button" data-guide="help-staff" className="flex min-h-14 w-full items-center justify-between rounded-xl bg-[var(--card)] px-3 text-left text-[0.95rem] font-semibold shadow-sm" onClick={() => app.openHelp('staff')}><Headset size={18} /> {t('help.staff')}<ChevronRight size={18} /></button>
         <h2 className="pt-2 text-lg font-semibold">{t('help.journeys')}</h2>
         {JOURNEY_IDS.map((id) => (
           <button key={id} type="button" className="tap w-full rounded-2xl border border-[var(--line)] bg-[var(--card)] px-3 text-left" onClick={() => navigate(`/flow/${id}?practice=1&tour=1`)}>
@@ -151,13 +165,13 @@ export function Rewards() {
       </header>
       <main id="main" className="min-h-0 flex-1 overflow-y-auto px-4 pt-4" style={{ paddingBottom: 'calc(148px + var(--nav-safe, 0px))' }}>
         <section className="rounded-xl bg-[var(--card)] p-4 shadow-[0_8px_24px_rgba(47,53,61,0.06)]">
-          <p className="text-[28px] font-bold leading-none">1,280 OCBC$</p>
-          <p className="mt-2 text-[14px] text-[var(--muted)]">{t('rewards.earned')}</p>
+          <p className="text-[1.6rem] font-bold leading-none">1,280 OCBC$</p>
+          <p className="mt-2 text-[0.9rem] text-[var(--muted)]">{t('rewards.earned')}</p>
         </section>
         <ul className="mt-4 space-y-3">
           {REWARDS.map((item) => (
             <li key={item.title} className="rounded-xl bg-[var(--card)] p-4 shadow-[0_8px_24px_rgba(47,53,61,0.06)]">
-              <p className="text-[15px] font-bold">{t(item.title)}</p>
+              <p className="text-[0.95rem] font-bold">{t(item.title)}</p>
               <p className="mt-1 text-[13px] text-[var(--muted)]">{t(item.cost)}</p>
               <button type="button" disabled className="mt-3 min-h-11 rounded-lg bg-[var(--soft)] px-4 text-[14px] font-semibold text-[var(--muted)]">{t('rewards.redeem')}</button>
             </li>
@@ -260,7 +274,7 @@ export function More() {
             {[t('look.cardOllie'), t('look.cardTours'), t('look.cardAccess'), t('look.cardScam')].map((text) => (
               <article key={text} className="w-[220px] shrink-0 rounded-xl bg-[var(--soft)] p-4 text-[var(--text)]">
                 <span className="rounded-full bg-[var(--accent)] px-2 py-0.5 text-[11px] font-bold text-white">{t('look.new')}</span>
-                <p className="mt-2 text-[15px] font-bold">{text}</p>
+                <p className="mt-2 text-[0.95rem] font-bold">{text}</p>
               </article>
             ))}
           </div>

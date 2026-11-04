@@ -118,7 +118,7 @@ export function BottomNav() {
   if (scamOpen || location.pathname.startsWith('/flow')) return null
   return (
     <nav aria-label={t('nav.home')} className="app-nav">
-      <div className="grid h-[64px] grid-cols-5">
+      <div className="grid min-h-[64px] grid-cols-5">
       {NAV.map((item) => {
         const label = t(item.key)
         return (
@@ -129,7 +129,7 @@ export function BottomNav() {
             data-guide={item.guide}
             aria-label={label}
             className={({ isActive }) =>
-              `flex h-[64px] min-w-0 flex-col items-center justify-start overflow-hidden px-0.5 pt-1.5 text-center text-[11px] font-normal leading-[13px] ${isActive ? 'text-[#E30613]' : 'text-[var(--text)]'}`
+              `flex min-h-[64px] min-w-0 flex-col items-center justify-start overflow-hidden px-0.5 pt-1.5 text-center text-[0.7rem] font-normal leading-tight ${isActive ? 'text-[#E30613]' : 'text-[var(--text)]'}`
             }
             style={{ gap: 4 }}
           >
@@ -146,7 +146,7 @@ export function BottomNav() {
                 ) : (
                   <MoreGlyph active={isActive} />
                 )}
-                <span className="line-clamp-2 flex h-[26px] w-full items-center justify-center whitespace-normal text-center text-[11px] font-normal leading-[13px]">{label}</span>
+                <span className="line-clamp-2 flex min-h-[2.2em] w-full items-center justify-center whitespace-normal text-center text-[0.7rem] font-normal leading-tight">{label}</span>
               </>
             )}
           </NavLink>

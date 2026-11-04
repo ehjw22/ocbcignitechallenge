@@ -27,6 +27,7 @@ export function journeyFor(message: string, intent: string) {
   }
   const id = mapped[intent]
   if (!id || !JOURNEY_IDS.has(id)) return null
+  if (id === 'settings') return id
   const words = message.trim().split(/\s+/).filter(Boolean).length
   if (HOW.test(message) || words <= 8) return id
   return null
@@ -46,7 +47,7 @@ const RULES: { intent: string; re: RegExp }[] = [
   { intent: 'fraud', re: /fraud|scam|phish|unauthori[sz]ed|dispute|stolen|hacked|cheat|诈骗|骗局|盗刷|penipuan|tipu|scammer|骗/i },
   { intent: 'cardlock', re: /lock (my |the )?card|unlock (my |the )?card|锁卡|解锁|kunci kad/i },
   { intent: 'lostcard', re: /lost (my )?card|card (is )?lost|misplaced|丢了卡|卡丢|kad hilang|card missing|report.*card/i },
-  { intent: 'settings', re: /settings|text size|colour|color|shortcut|language|字体|设置|bahasa|tetapan/i },
+  { intent: 'settings', re: /settings|text size|bigger text|larger text|font size|read aloud|dark mode|light mode|theme|colour|color|shortcut|language|字体|字體|文字大小|设置|設定|放大|朗读|朗讀|bahasa|tetapan|saiz teks/i },
   { intent: 'staff', re: /speak to (a )?(person|human|staff|someone)|contact (ocbc )?staff|call me|real person|客服|人工|工作人员/i },
   { intent: 'giro', re: /giro/i },
   { intent: 'paynow', re: /paynow|pay now/i },

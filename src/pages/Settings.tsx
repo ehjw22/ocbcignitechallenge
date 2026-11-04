@@ -167,15 +167,11 @@ export function Settings() {
               </Choice>
             ))}
           </div>
-          {(app.prefs.language === 'zh' || app.prefs.language === 'zh-TW') && (
           <p className="mt-3 text-sm font-normal leading-snug text-[var(--muted)]">{t('dialects.note')}</p>
-          )}
-          {(app.prefs.language === 'zh' || app.prefs.language === 'zh-TW') && (
-            <div className="mt-2" role="radiogroup" aria-label={t('dialects.title')}>
-              <Choice selected={app.prefs.dialect !== 'cantonese'} onClick={() => app.updatePrefs({ dialect: 'standard' })}>{t('dialects.standard')}</Choice>
-              <Choice selected={app.prefs.dialect === 'cantonese'} onClick={() => app.updatePrefs({ dialect: 'cantonese' })}>{t('dialects.cantonese')}</Choice>
-            </div>
-          )}
+          <div className="mt-2" role="radiogroup" aria-label={t('dialects.title')}>
+            <Choice selected={app.prefs.dialect !== 'cantonese'} onClick={() => app.updatePrefs({ dialect: 'standard' })}>{t('dialects.standard')}</Choice>
+            <Choice selected={app.prefs.dialect === 'cantonese'} onClick={() => app.updatePrefs({ dialect: 'cantonese' })}>{t('dialects.cantonese')}</Choice>
+          </div>
           <div className="mt-3 flex min-h-11 items-center justify-between gap-3" data-guide="settings-read">
             <span className="min-w-0">
               <span className="block font-semibold">{t('onboarding.readAloud')}</span>
@@ -315,7 +311,7 @@ export function Settings() {
           guide="settings-shortcuts"
           anchor="shortcuts"
           title={t('settings.sections.shortcuts')}
-          summary={order.slice(0, 2).map((id) => t(`shortcuts.${id}`)).join(' · ')}
+          summary={order.map((id) => t(`shortcuts.${id}`)).join(' · ')}
           keywords={`${t('settings.shortcuts')} ${SHORTCUTS.map((id) => t(`shortcuts.${id}`)).join(' ')} ${t('reorderHint')}`}
           query={query}
           open={!!open.shortcuts}
@@ -405,5 +401,6 @@ function voiceSummary(language: string, dialect: string, native: string, t: (key
     const voice = language === 'zh-TW' ? (cantonese ? '粵語' : '普通話') : (cantonese ? '粤语' : '普通话')
     return `${native} · ${voice}`
   }
-  return `${native} · ${VOICE_LABEL[language] || t('voice.en')}`
+  const voice = dialect === 'cantonese' ? t('dialects.cantonese') : (VOICE_LABEL[language] || t('voice.en'))
+  return `${native} · ${voice}`
 }

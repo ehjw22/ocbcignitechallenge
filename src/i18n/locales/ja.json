@@ -35,7 +35,7 @@
     "languageBody": "言語を選択",
     "text": "文字サイズを選択",
     "textBody": "文字サイズを選択",
-    "preview": "サンプル受取人へ S$1,250.00 を送金",
+    "preview": "{name}へ 1,250.00 SGD",
     "colour": "色の設定",
     "colourBody": "色の設定",
     "detail": "詳細はどの程度にしますか",

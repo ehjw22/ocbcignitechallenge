@@ -47,12 +47,12 @@ export function Accounts() {
         <ul className="card divide-y divide-[var(--line)]">
           {txns.map((txn) => (
             <li key={txn.id}>
-              <Link to={`/txn/${txn.id}`} className="flex items-center justify-between gap-3 px-3 py-3">
+              <Link to={`/txn/${txn.id}`} className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 px-3 py-3">
                 <span className="min-w-0">
                   <span className="block leading-normal">{payeeName(txn.title)}</span>
                   <span className="text-sm text-[var(--muted)]">{formatDay(txn.date, app.prefs.language)}</span>
                 </span>
-                <span className="tabular-nums">{formatSignedMoney(txn.amount)}</span>
+                <span className="shrink-0 whitespace-nowrap tabular-nums">{formatSignedMoney(txn.amount)}</span>
               </Link>
             </li>
           ))}
