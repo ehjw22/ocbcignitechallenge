@@ -4,6 +4,8 @@ import { Check, ChevronDown, Search } from 'lucide-react'
 import { Choice, choiceClass } from '@/components/Choice'
 import { ShortcutPicker } from '@/components/ShortcutPicker'
 import { SpeechSpeed } from '@/components/SpeechSpeed'
+import { VoiceLimitChoices } from '@/components/VoiceLimitChoices'
+import { clampVoiceTransferLimit, formatVoiceTransferAmount } from '@/lib/voiceTransfer'
 import { Page } from '@/components/Shell'
 import { useApp } from '@/context/AppContext'
 import { translate } from '@/i18n'
@@ -86,6 +88,10 @@ export function Settings() {
   prefsRef.current = app.prefs
   useEffect(() => {
     if (window.location.hash === '#shortcuts') setOpen((current) => ({ ...current, shortcuts: true }))
+    if (window.location.hash === '#voice-limit') {
+      setOpen((current) => ({ ...current, language: true }))
+      window.setTimeout(() => document.getElementById('voice-limit')?.scrollIntoView({ block: 'center' }), 0)
+    }
   }, [])
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -102,10 +108,13 @@ export function Settings() {
   const toggle = (id: string) => setOpen((current) => ({ ...current, [id]: !current[id] }))
   const language = LANGUAGES.find((item) => item.id === app.prefs.language)
   const theme = THEMES.find((item) => item.id === app.prefs.theme)
+  const previewName = app.profile.shortName?.trim() || app.profile.name?.trim() || t('you')
   const textSummary = [
     app.prefs.textSize >= 22 ? t('settings.large') : `${app.prefs.textSize}px`,
     app.prefs.boldText ? t('onboarding.bold') : '',
     app.prefs.highContrast ? t('onboarding.contrast') : '',
+    app.prefs.dyslexiaFont ? t('settings.dyslexiaFont') : '',
+    app.prefs.easierTapping ? t('settings.easierTapping') : '',
   ].filter(Boolean).join(' · ')
   const helpKey = app.prefs.helpPreference === 'ai' ? 'help.ai' : app.prefs.helpPreference === 'guide' ? 'help.guide' : 'help.staff'
 
@@ -153,8 +162,8 @@ export function Settings() {
           id="language"
           guide="settings-language"
           title={t('settings.sections.language')}
-          summary={voiceSummary(app.prefs.language, app.prefs.dialect, language?.native || '', t)}
-          keywords={`${t('settings.language')} ${t('dialects.title')} ${t('onboarding.readAloud')} ${t('speed')} ${LANGUAGES.map((item) => `${item.native} ${item.english}`).join(' ')} ${DIALECTS.map((item) => t(`dialects.${item.id}`)).join(' ')}`}
+          summary={`${voiceSummary(app.prefs.language, app.prefs.dialect, language?.native || '', t)} · ${app.prefs.voiceTransferLimit === 0 ? t('settings.voiceLimitOff') : formatVoiceTransferAmount(clampVoiceTransferLimit(app.prefs.voiceTransferLimit))}`}
+          keywords={`${t('settings.language')} ${t('dialects.title')} ${t('onboarding.readAloud')} ${t('speed')} ${t('settings.voiceLimit')} ${LANGUAGES.map((item) => `${item.native} ${item.english}`).join(' ')} ${DIALECTS.map((item) => t(`dialects.${item.id}`)).join(' ')}`}
           query={query}
           open={!!open.language}
           onToggle={toggle}
@@ -190,6 +199,21 @@ export function Settings() {
             </button>
           </div>
           <SpeechSpeed />
+          <div className="mt-3">
+            <p className="font-semibold">{t('settings.voiceLimit')}</p>
+            <p className="mb-2 text-sm font-normal leading-snug text-[var(--muted)]">{t('settings.voiceLimitBody')}</p>
+            <VoiceLimitChoices
+              value={app.prefs.voiceTransferLimit}
+              onChange={(voiceTransferLimit) => app.updatePrefs({ voiceTransferLimit })}
+              offLabel={t('settings.voiceLimitOff')}
+              label={t('settings.voiceLimit')}
+              confirmRaise
+              confirmTitle={t('settings.voiceLimitRaise')}
+              confirmBody={t('settings.voiceLimitRaiseBody')}
+              confirmAction={t('settings.voiceLimitConfirm')}
+              cancelLabel={t('cancel')}
+            />
+          </div>
         </Section>
 
         <Section only={panel} onResult={remember}
@@ -197,18 +221,52 @@ export function Settings() {
           guide="settings-text"
           title={t('settings.sections.text')}
           summary={textSummary}
-          keywords={`${t('settings.text')} ${t('settings.textSize')} ${t('onboarding.bold')} ${t('onboarding.contrast')} ${t('settings.large')}`}
+          keywords={`${t('settings.text')} ${t('settings.textSize')} ${t('onboarding.bold')} ${t('onboarding.contrast')} ${t('settings.large')} ${t('settings.dyslexiaFont')} ${t('settings.easierTapping')}`}
           query={query}
           open={!!open.text}
           onToggle={toggle}
         >
-          <p className="mb-3 rounded-2xl border border-[var(--line)] bg-[var(--card)] p-3">{t('onboarding.preview')}</p>
+          <p className="mb-3 rounded-2xl border border-[var(--line)] bg-[var(--card)] p-3">{t('onboarding.preview', { name: previewName })}</p>
           <label htmlFor="size" className="block font-semibold">
             {t('settings.textSize')}: {app.prefs.textSize}px
             <input id="size" type="range" min={16} max={24} value={app.prefs.textSize} onChange={(event) => app.updatePrefs({ textSize: Number(event.target.value) })} className="mt-2 w-full" />
           </label>
           <label className="mt-2 flex min-h-12 items-center gap-3"><input type="checkbox" checked={app.prefs.boldText} onChange={(event) => app.updatePrefs({ boldText: event.target.checked })} />{t('onboarding.bold')}</label>
           <label className="flex min-h-12 items-center gap-3"><input type="checkbox" checked={app.prefs.highContrast} onChange={(event) => app.updatePrefs({ highContrast: event.target.checked })} />{t('onboarding.contrast')}</label>
+          <div className="mt-3 flex min-h-12 items-center justify-between gap-3">
+            <span className="min-w-0">
+              <span className="block font-semibold">{t('settings.dyslexiaFont')}</span>
+              <span className="block text-sm font-normal text-[var(--muted)]">{t('settings.dyslexiaFontBody')}</span>
+            </span>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={app.prefs.dyslexiaFont}
+              aria-label={t('settings.dyslexiaFont')}
+              className="relative shrink-0 rounded-full"
+              style={{ background: app.prefs.dyslexiaFont ? 'var(--accent)' : '#d4d4d8', height: '1.75rem', width: '3rem' }}
+              onClick={() => app.updatePrefs({ dyslexiaFont: !app.prefs.dyslexiaFont })}
+            >
+              <span className={`absolute top-0.5 h-6 w-6 rounded-full bg-white ${app.prefs.dyslexiaFont ? 'right-0.5' : 'left-0.5'}`} />
+            </button>
+          </div>
+          <div className="mt-3 flex min-h-12 items-center justify-between gap-3">
+            <span className="min-w-0">
+              <span className="block font-semibold">{t('settings.easierTapping')}</span>
+              <span className="block text-sm font-normal text-[var(--muted)]">{t('settings.easierTappingBody')}</span>
+            </span>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={app.prefs.easierTapping}
+              aria-label={t('settings.easierTapping')}
+              className="relative shrink-0 rounded-full"
+              style={{ background: app.prefs.easierTapping ? 'var(--accent)' : '#d4d4d8', height: '1.75rem', width: '3rem' }}
+              onClick={() => app.updatePrefs({ easierTapping: !app.prefs.easierTapping })}
+            >
+              <span className={`absolute top-0.5 h-6 w-6 rounded-full bg-white ${app.prefs.easierTapping ? 'right-0.5' : 'left-0.5'}`} />
+            </button>
+          </div>
         </Section>
 
         <Section only={panel} onResult={remember}

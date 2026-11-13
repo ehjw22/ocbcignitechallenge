@@ -43,7 +43,9 @@
     "ready": "আপনি প্রস্তুত",
     "readyBody": "এই ডিভাইসে সংরক্ষিত।",
     "shortcuts": "৬টি শর্টকাট বেছে নিন",
-    "colourAdjust": "অ্যাকসেন্ট রং সামান্য বদলাতে পারে।"
+    "colourAdjust": "অ্যাকসেন্ট রং সামান্য বদলাতে পারে।",
+    "voiceLimit": "Voice transfer limit",
+    "voiceLimitBody": "Choose a cap for transfers you start by speaking to Ollie. You still review and confirm each one."
   },
   "errors": {
     "summary": "নিচের বিষয়গুলো দেখুন।",
@@ -143,7 +145,16 @@
     "busy": "সহকারী ব্যস্ত। এটি একটি সংক্ষিপ্ত উত্তর।",
     "empty": "প্রশ্ন করুন।",
     "chipBalance": "আমার ব্যালেন্স কত?",
-    "chipGuide": "ধাপগুলো দেখান"
+    "chipGuide": "ধাপগুলো দেখান",
+    "voiceConfirm": "আপনি {name}-কে {amount} পাঠাচ্ছেন। ঠিক তো?",
+    "voiceOverLimit": "Voice transfers are limited to {amount}. You can change this in Settings, or send this on the usual transfer screen and confirm it there.",
+    "voiceUnknownPayee": "ভয়েস ট্রান্সফার কেবল সংরক্ষিত প্রাপককেই যায়। নতুন কাউকে দিতে চাইলে আমি সাধারণ স্ক্রিন খুলতে পারি।",
+    "voiceOpenTransfer": "ট্রান্সফার খুলুন",
+    "voiceChip": "চেষ্টা করুন: '{name}-কে $20 পাঠান'",
+    "voiceOpening": "ট্রান্সফার খুলছি। সেই স্ক্রিনে দেখে নিশ্চিত করুন।",
+    "voiceCancelled": "ঠিক আছে, সেই ট্রান্সফার বাতিল করা হয়েছে।",
+    "voiceOpenSettings": "Open settings",
+    "voiceOff": "Voice transfers are turned off. You can turn them on in Settings, or use the usual transfer screen."
   },
   "settings": {
     "title": "আরও",
@@ -153,7 +164,17 @@
     "meiBody": "চীনা, বড় লেখা, সংক্ষিপ্ত উত্তর। একটি বিদেশি ট্রান্সফার খোলে।",
     "arifBody": "ইংরেজি, সম্পূর্ণ বিবরণ, খরচের তথ্য। GIRO সেটআপ খোলে।",
     "reset": "অ্যাপ রিসেট করুন",
-    "resetBody": "এই ডিভাইসে সংরক্ষিত পছন্দ মুছে দেয়।"
+    "resetBody": "এই ডিভাইসে সংরক্ষিত পছন্দ মুছে দেয়।",
+    "dyslexiaFont": "ডিসলেক্সিয়া-বান্ধব ফন্ট",
+    "dyslexiaFontBody": "OpenDyslexic এবং আরও ফাঁকা ব্যবধান ব্যবহার করা হয়। চীনা, তামিল ও অন্য লিপি তাদের সাধারণ ফন্টেই থাকবে।",
+    "easierTapping": "সহজে ট্যাপ",
+    "easierTappingBody": "বড় বোতাম, এবং স্লাইড করে পরিশোধের বদলে চেপে ধরে রাখার উপায়।",
+    "voiceLimit": "Voice transfer limit",
+    "voiceLimitBody": "Ollie can start a transfer when you speak, up to this cap. You still review and confirm each one. Choose Off to turn voice transfers off.",
+    "voiceLimitOff": "Off",
+    "voiceLimitRaise": "Raise voice transfer limit?",
+    "voiceLimitRaiseBody": "Raise your voice transfer limit to {amount}? You will still review and confirm each transfer.",
+    "voiceLimitConfirm": "Raise limit"
   },
   "demoBadge": "Demo",
   "prototype": "Demo",
@@ -267,7 +288,8 @@
   },
   "speech": {
     "noVoice": "ডিফল্ট ভয়েস ব্যবহার হচ্ছে।",
-    "micDenied": "মাইক্রোফোন বন্ধ। আপনি টাইপ করতে পারেন।"
+    "micDenied": "মাইক্রোফোন বন্ধ। আপনি টাইপ করতে পারেন।",
+    "stopListening": "থামান"
   },
   "turnOnInsights": "চালু করুন",
   "comingSoon": "নেই",
@@ -286,7 +308,7 @@
   "allShortcuts": "সব শর্টকাট",
   "emptySlot": "খালি",
   "moveUp": "উপরে",
-  "moveDown": "নিচে",
+  "moveDown": "নিচে",
   "scamCheck": {
     "title": "আপনি কি নিশ্চিত? এটি নতুন কাউকে বড় অঙ্কের স্থানান্তর।",
     "amountLine": "{amount} → {name}",
@@ -301,9 +323,10 @@
     "continue": "চালিয়ে যান",
     "cooling": "একটু ভেবে নিন",
     "coolingLeft": "{n} সেকেন্ডে চালিয়ে যান",
-        "continueAnyway": "তারপরও চালিয়ে যান",
+    "continueAnyway": "তারপরও চালিয়ে যান",
     "callShort": "ScamShield 1799-এ কল করুন",
-    "helpline": "ScamShield হেল্পলাইন 1799 (বিনামূল্যে, ২৪/৭)"
+    "helpline": "ScamShield হেল্পলাইন 1799 (বিনামূল্যে, ২৪/৭)",
+    "needMoreTime": "আমার আরও সময় লাগবে"
   },
   "look": {
     "hi": "হ্যালো, {name}",
@@ -355,6 +378,8 @@
     "pending": "Pending transactions made on your debit card may take up to 7 days to appear. You may check your available balance to ensure the correct amount has been deducted.",
     "slide": "Slide to pay",
     "slidePractice": "Slide to pay (practice)",
-    "ollieSafety": "Ollie · Safety check"
+    "ollieSafety": "Ollie · Safety check",
+    "holdToPay": "পরিশোধ করতে চেপে ধরে রাখুন",
+    "holdingToPay": "চেপে ধরে রাখুন…"
   }
 }

@@ -1,4 +1,5 @@
 import { DEFAULT_SHORTCUTS } from '@/lib/languages'
+import { VOICE_TRANSFER_LIMIT_SGD } from '@/lib/voiceTransfer'
 import type { Account, DemoUser, Preferences, Profile, Txn } from '@/lib/types'
 
 function basePrefs(): Preferences {
@@ -23,6 +24,9 @@ function basePrefs(): Preferences {
     spendingInsights: false,
     onboarded: false,
     quizCompleted: false,
+    dyslexiaFont: false,
+    easierTapping: false,
+    voiceTransferLimit: VOICE_TRANSFER_LIMIT_SGD,
   }
 }
 
@@ -33,6 +37,7 @@ export interface SavedPayee {
   country: string
   swift?: string
   account?: string
+  key?: string
 }
 
 export interface DemoGoal {
@@ -55,7 +60,7 @@ const meiPrefs: Preferences = {
   ...basePrefs(),
   language: 'zh',
   dialect: 'cantonese',
-  textSize: 24,
+  textSize: 16,
   detail: 'full',
   helpPreference: 'guide',
   readAloud: true,
@@ -122,7 +127,7 @@ const books: Record<string, BankBook> = {
     balances: { frank: 1230.55 },
     txns: arifTxns,
     goals: [{ id: 'laptop', name: 'Laptop', target: 1500, monthly: 100, saved: 400 }],
-    payees: [],
+    payees: [{ id: 'siti', label: 'Siti Aminah', name: 'Siti Aminah', country: 'Singapore', account: '81234567', key: 'paynow:81234567' }],
   },
 }
 

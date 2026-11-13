@@ -167,6 +167,8 @@
     "readyBody": "Saved on this device.",
     "enter": "Done",
     "colourAdjust": "Accent colours may change slightly.",
+    "voiceLimit": "Voice transfer limit",
+    "voiceLimitBody": "Choose a cap for transfers you start by speaking to Ollie. You still review and confirm each one.",
     "shortcuts": "Choose 6 shortcuts",
     "readAloudBody": "A speaker button appears next to text. Turn on to read each screen automatically.",
     "minutes": "3 minutes. Change anytime in Settings."
@@ -231,7 +233,8 @@
     "readAloud": "Read aloud",
     "slower": "Slower",
     "faster": "Faster",
-    "cantoneseDown": "Cantonese voice is unavailable. Nothing was read aloud."
+    "cantoneseDown": "Cantonese voice is unavailable. Nothing was read aloud.",
+    "stopListening": "Stop"
   },
   "settings": {
     "title": "Settings",
@@ -262,7 +265,17 @@
       "shortcuts": "Home shortcuts",
       "privacy": "Privacy and insights",
       "account": "Account"
-    }
+    },
+    "dyslexiaFont": "Dyslexia-friendly font",
+    "dyslexiaFontBody": "Uses OpenDyslexic with wider spacing. Chinese, Tamil and other scripts keep their usual fonts.",
+    "easierTapping": "Easier tapping",
+    "easierTappingBody": "Bigger buttons, and a press-and-hold option instead of slide to pay.",
+    "voiceLimit": "Voice transfer limit",
+    "voiceLimitBody": "Ollie can start a transfer when you speak, up to this cap. You still review and confirm each one. Choose Off to turn voice transfers off.",
+    "voiceLimitOff": "Off",
+    "voiceLimitRaise": "Raise voice transfer limit?",
+    "voiceLimitRaiseBody": "Raise your voice transfer limit to {amount}? You will still review and confirm each transfer.",
+    "voiceLimitConfirm": "Raise limit"
   },
   "errors": {
     "summary": "Check the items below.",
@@ -496,7 +509,16 @@
         "short": "I can only help with banking and this app.",
         "full": "I can help with accounts, transfers, PayNow, GIRO, bills, cards, savings and the screen you are on."
       }
-    }
+    },
+    "voiceConfirm": "You're sending {amount} to {name}. Is that right?",
+    "voiceOverLimit": "Voice transfers are limited to {amount}. You can change this in Settings, or send this on the usual transfer screen and confirm it there.",
+    "voiceUnknownPayee": "Voice transfers can only go to a payee you've already saved. I can open the usual transfer screen if you want to pay someone new.",
+    "voiceOpenTransfer": "Open transfer",
+    "voiceChip": "Try: 'Transfer $20 to {name}'",
+    "voiceOpening": "Opening the transfer now. Please review it and confirm on that screen.",
+    "voiceCancelled": "Okay, I cancelled that transfer.",
+    "voiceOpenSettings": "Open settings",
+    "voiceOff": "Voice transfers are turned off. You can turn them on in Settings, or use the usual transfer screen."
   },
   "flows": {
     "paynow": "PayNow",
@@ -996,7 +1018,7 @@
     "staffBody": "Send a message to staff.",
     "aloudTitle": "Read screens aloud",
     "aloudBody": "Turn this on to hear each screen."
-  },
+  },
   "scamCheck": {
     "title": "Are you sure? This is a large transfer to someone new.",
     "amountLine": "{amount} to {name}",
@@ -1011,9 +1033,10 @@
     "continue": "Continue",
     "cooling": "Take a moment",
     "coolingLeft": "Continue in {n}s",
-        "continueAnyway": "Continue anyway",
+    "continueAnyway": "Continue anyway",
     "callShort": "Call ScamShield 1799",
-    "helpline": "ScamShield Helpline 1799 (free, 24/7)"
+    "helpline": "ScamShield Helpline 1799 (free, 24/7)",
+    "needMoreTime": "I need more time"
   },
   "look": {
     "hi": "Hi, {name}",
@@ -1118,7 +1141,9 @@
     "greetHelp": "We will greet you with this name in the app",
     "slide": "Slide to pay",
     "slidePractice": "Slide to pay (practice)",
-    "ollieSafety": "Ollie · Safety check"
+    "ollieSafety": "Ollie · Safety check",
+    "holdToPay": "Press and hold to pay",
+    "holdingToPay": "Keep holding…"
   },
   "risk": {
     "titleCheck": "Stay alert",

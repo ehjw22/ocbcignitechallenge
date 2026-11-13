@@ -49,6 +49,7 @@ export function ScamSheet({
   const [host, setHost] = useState<HTMLElement | null>(null)
   const [answers, setAnswers] = useState<Answer[]>([null, null, null])
   const [left, setLeft] = useState(loadRiskConfig().coolingHighSeconds)
+  const [extraTime, setExtraTime] = useState(false)
   const flagged = answers.some((item) => item === 'yes')
   const hold = level === 'high' || flagged
   const answerText = answers.map((item) => item || 'blank').join(',')
@@ -78,13 +79,13 @@ export function ScamSheet({
   }, [])
 
   useEffect(() => {
-    if (!hold) return
+    if (!hold || extraTime) return
     setLeft(loadRiskConfig().coolingHighSeconds)
     const timer = window.setInterval(() => {
       setLeft((value) => (value <= 1 ? 0 : value - 1))
     }, 1000)
     return () => window.clearInterval(timer)
-  }, [hold])
+  }, [hold, extraTime])
 
   const choose = (slot: number, value: Answer) => {
     setAnswers((prev) => prev.map((item, index) => (index === slot ? value : item)))
@@ -149,7 +150,19 @@ export function ScamSheet({
         </div>
         <div className="shrink-0 space-y-2 border-t border-[var(--line)] bg-[var(--card)] px-4 py-3">
           {hold && <p className="font-semibold text-[var(--danger)]">{t('scamCheck.warning')}</p>}
-          <button type="button" className="ocbc-btn disabled:opacity-50" disabled={hold && left > 0} onClick={() => onContinue(answerText)}>{continueLabel}</button>
+          {hold && left > 0 && !extraTime && (
+            <button
+              type="button"
+              className="min-h-12 w-full rounded-lg border border-[var(--line)] font-semibold"
+              onClick={() => {
+                setExtraTime(true)
+                setLeft(0)
+              }}
+            >
+              {t('scamCheck.needMoreTime')}
+            </button>
+          )}
+          <button type="button" className="ocbc-btn disabled:opacity-50" disabled={hold && left > 0 && !extraTime} onClick={() => onContinue(answerText)}>{extraTime ? t('scamCheck.continueAnyway') : continueLabel}</button>
           <button type="button" className="min-h-12 w-full rounded-lg border border-[var(--line)] font-semibold" onClick={() => onCancel(answerText)}>{t('scamCheck.cancel')}</button>
           <a className="phone-number block py-1 text-center text-sm font-semibold text-[var(--link)] underline" href="tel:1799">{t('scamCheck.callShort')}</a>
           {hold && <button type="button" className="tap w-full rounded-lg border border-[var(--line)] bg-[var(--card)] font-semibold" onClick={talk}>{t('scamCheck.staff')}</button>}

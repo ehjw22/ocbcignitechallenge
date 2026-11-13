@@ -165,6 +165,8 @@
     "readyBody": "保存在此设备上。",
     "enter": "完成",
     "colourAdjust": "强调色可能会略有变化。",
+    "voiceLimit": "语音转账限额",
+    "voiceLimitBody": "请为通过 Ollie 语音发起的转账设置限额。每笔转账仍需你核对并确认。",
     "shortcuts": "选择 6 个快捷方式",
     "readAloudBody": "文字旁边会出现喇叭按钮。打开后，每个屏幕会自动朗读。",
     "minutes": "大约 3 分钟。之后可在设置中更改。"
@@ -303,7 +305,7 @@
     "slow": "比平时久一些…",
     "retry": "重试",
     "about": "关于",
-    "aboutBody": "Ollie 解答银行和本应用的问题，也可以开始引导或帮你联系职员。",
+    "aboutBody": "回答关于银行业务和本应用的问题。它不能转移资金，也不会索取您的密码、PIN 或一次性验证码。",
     "aboutCan": "Ollie 可以说明余额、转账、PayNow、GIRO、账单、卡和你当前的页面。",
     "aboutCant": "Ollie 不能转移资金，也不会索取密码、PIN 或一次性验证码。",
     "placeholder": "提问",
@@ -393,7 +395,6 @@
         "full": "输入收款人姓名，选择银行，并输入 10 位账号。如果少了一位，应用会告诉你现在有几位、需要几位。金额比平时大很多时会再确认一次。我可以逐步指引你。"
       }
     },
-    "aboutBody": "回答关于银行业务和本应用的问题。它不能转移资金，也不会索取您的密码、PIN 或一次性验证码。",
     "onScreen": "你正在 {screen}。",
     "liveFailed": "助手暂不可用。这是一个简短回答。",
     "busy": "助手正忙。这是一个简短回答。",
@@ -419,7 +420,16 @@
     "micMissing": "这个浏览器不能语音输入。",
     "hearing": "正在听…",
     "aboutAi": "Ollie 使用人工智能。它可以说明页面、回答日常问题，并帮你准备转账让你核对。它不会转账，不会提供医疗、法律或投资建议，也不会索取密码、PIN 或一次性验证码。",
-    "explainFallback": "这是{screen}页面。你可以看到：{labels}。这里的数字是示例。哪个词不清楚，可以问我。"
+    "explainFallback": "这是{screen}页面。你可以看到：{labels}。这里的数字是示例。哪个词不清楚，可以问我。",
+    "voiceConfirm": "您将向 {name} 转账 {amount}。对吗？",
+    "voiceOverLimit": "语音转账限额为 {amount}。你可以在“设置”中更改，或前往普通转账页面发送并确认这笔转账。",
+    "voiceUnknownPayee": "语音转账只能付给您已保存的收款人。如果要付给新的收款人，我可以打开平常的转账页面。",
+    "voiceOpenTransfer": "打开转账",
+    "voiceChip": "试一试：「转 20 块给 {name}」",
+    "voiceOpening": "正在打开转账页面。请在该页面核对并确认。",
+    "voiceCancelled": "好的，已取消这笔转账。",
+    "voiceOpenSettings": "打开设置",
+    "voiceOff": "语音转账已关闭。你可以在“设置”中开启，或使用普通转账页面。"
   },
   "flows": {
     "paynow": "PayNow",
@@ -582,7 +592,17 @@
       "shortcuts": "首页快捷方式",
       "privacy": "隐私和概览",
       "account": "账户"
-    }
+    },
+    "dyslexiaFont": "阅读障碍友好字体",
+    "dyslexiaFontBody": "使用 OpenDyslexic 字体并加大字距。中文、泰米尔文和其他文字仍使用原来的字体。",
+    "easierTapping": "更易点按",
+    "easierTappingBody": "按钮更大，付款时可以长按，不必滑动。",
+    "voiceLimit": "语音转账限额",
+    "voiceLimitBody": "你可以用语音让 Ollie 发起转账，最高不超过此限额。每笔转账仍需你核对并确认。选择“关闭”即可停用语音转账。",
+    "voiceLimitOff": "关闭",
+    "voiceLimitRaise": "提高语音转账限额？",
+    "voiceLimitRaiseBody": "要将语音转账限额提高至 {amount} 吗？每笔转账仍需你核对并确认。",
+    "voiceLimitConfirm": "提高限额"
   },
   "demo": {
     "mei": "正在向澳大利亚的 Tan Wei Ming 转账。",
@@ -789,7 +809,8 @@
     "readAloud": "朗读",
     "slower": "更慢",
     "faster": "更快",
-    "cantoneseDown": "粤语语音暂时无法使用，这次没有朗读。"
+    "cantoneseDown": "粤语语音暂时无法使用，这次没有朗读。",
+    "stopListening": "停止"
   },
   "info": {
     "investments": "投资",
@@ -997,7 +1018,7 @@
     "staffBody": "给职员发消息。",
     "aloudTitle": "朗读屏幕",
     "aloudBody": "打开后可以听到每个屏幕。"
-  },
+  },
   "scamCheck": {
     "title": "确定吗？这是一笔转给新收款人的大额转账。",
     "amountLine": "{amount} 转给 {name}",
@@ -1012,9 +1033,10 @@
     "continue": "继续",
     "cooling": "请先想一想",
     "coolingLeft": "{n} 秒后可继续",
-        "continueAnyway": "仍要继续",
+    "continueAnyway": "仍要继续",
     "callShort": "致电 ScamShield 1799",
-    "helpline": "ScamShield 防诈骗热线 1799（免费，全天）"
+    "helpline": "ScamShield 防诈骗热线 1799（免费，全天）",
+    "needMoreTime": "我需要多一点时间"
   },
   "look": {
     "hi": "你好，{name}",
@@ -1119,7 +1141,9 @@
     "greetHelp": "应用里会用这个名字问候您",
     "slide": "滑动付款",
     "slidePractice": "滑动付款（练习）",
-    "ollieSafety": "Ollie · 安全检查"
+    "ollieSafety": "Ollie · 安全检查",
+    "holdToPay": "长按付款",
+    "holdingToPay": "请继续按住…"
   },
   "risk": {
     "titleCheck": "保持警惕",

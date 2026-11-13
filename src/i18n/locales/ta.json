@@ -94,6 +94,8 @@
     "ready": "நீங்கள் தயாராக உள்ளீர்கள்",
     "readyBody": "இந்தச் சாதனத்தில் சேமிக்கப்பட்டது.",
     "colourAdjust": "வலியுறுத்தல் நிறங்கள் சிறிது மாறலாம்.",
+    "voiceLimit": "Voice transfer limit",
+    "voiceLimitBody": "Choose a cap for transfers you start by speaking to Ollie. You still review and confirm each one.",
     "shortcuts": "6 குறுக்குவழிகளைத் தேர்ந்தெடுக்கவும்",
     "readAloudBody": "உரைக்கு அருகில் ஒலிப்பானை பொத்தான் தோன்றும். ஒவ்வொரு திரையையும் தானாகப் படிக்க இதை இயக்கவும்.",
     "minutes": "3 நிமிடங்கள். அமைப்புகளில் எப்போது வேண்டுமானாலும் மாற்றலாம்."
@@ -297,7 +299,17 @@
       "shortcuts": "முகப்பு குறுக்குவழிகள்",
       "privacy": "தனியுரிமையும் பார்வையும்",
       "account": "கணக்கு"
-    }
+    },
+    "dyslexiaFont": "டிஸ்லெக்சியாவுக்கு ஏற்ற எழுத்துரு",
+    "dyslexiaFontBody": "OpenDyslexic எழுத்துருவும் அதிக இடைவெளியும் பயன்படும். சீனம், தமிழ் மற்றும் பிற எழுத்துகள் வழக்கமான எழுத்துருக்களையே பயன்படுத்தும்.",
+    "easierTapping": "எளிதாகத் தட்டுதல்",
+    "easierTappingBody": "பெரிய பொத்தான்கள், சறுக்கி செலுத்துவதற்குப் பதிலாக அழுத்திப் பிடிக்கும் வழி.",
+    "voiceLimit": "Voice transfer limit",
+    "voiceLimitBody": "Ollie can start a transfer when you speak, up to this cap. You still review and confirm each one. Choose Off to turn voice transfers off.",
+    "voiceLimitOff": "Off",
+    "voiceLimitRaise": "Raise voice transfer limit?",
+    "voiceLimitRaiseBody": "Raise your voice transfer limit to {amount}? You will still review and confirm each transfer.",
+    "voiceLimitConfirm": "Raise limit"
   },
   "ai": {
     "scamPause": "இந்தப் பரிமாற்றத்தை நிறுத்துங்கள். இது பொதுவான மோசடி போல் தெரிகிறது. ScamShield 1799-ஐ அழைக்கவும், அல்லது OCBC ஊழியருக்குச் செய்தி அனுப்பவும். நான் படிவத்தை நிரப்ப மாட்டேன்.",
@@ -386,7 +398,16 @@
     "aboutBody": "வங்கி மற்றும் இந்தப் பயன்பாடு பற்றிய கேள்விகளுக்கு பதிலளிக்கும். இது பணத்தை நகர்த்தாது. கடவுச்சொல், PIN அல்லது ஒருமுறை குறியீட்டைக் கேட்காது.",
     "stuck": "இன்னும் உதவி தேவைப்பட்டால் எங்களுக்குச் செய்தி அனுப்புங்கள்.",
     "hotline": "24 மணி நேர உதவி எண் +65 6363 3333. அட்டையைப் பூட்டலாம்.",
-    "onScreen": "நீங்கள் {screen} இல் இருக்கிறீர்கள்."
+    "onScreen": "நீங்கள் {screen} இல் இருக்கிறீர்கள்.",
+    "voiceConfirm": "நீங்கள் {name}க்கு {amount} அனுப்புகிறீர்கள். சரியா?",
+    "voiceOverLimit": "Voice transfers are limited to {amount}. You can change this in Settings, or send this on the usual transfer screen and confirm it there.",
+    "voiceUnknownPayee": "குரல் பரிமாற்றம் ஏற்கனவே சேமித்த பெறுநருக்கு மட்டுமே. புதியவருக்குச் செலுத்த வழக்கமான திரையைத் திறக்கலாம்.",
+    "voiceOpenTransfer": "பரிமாற்றத்தைத் திற",
+    "voiceChip": "'{name}க்கு $20 அனுப்பு' என்று முயல்க",
+    "voiceOpening": "பரிமாற்றத்தைத் திறக்கிறேன். அந்தத் திரையில் சரிபார்த்து உறுதிப்படுத்துங்கள்.",
+    "voiceCancelled": "சரி, அந்தப் பரிமாற்றம் ரத்துசெய்யப்பட்டது.",
+    "voiceOpenSettings": "Open settings",
+    "voiceOff": "Voice transfers are turned off. You can turn them on in Settings, or use the usual transfer screen."
   },
   "you": "நீங்கள்",
   "show": "இருப்பைக் காட்டு",
@@ -506,7 +527,8 @@
     "readAloud": "உரக்கப் படி",
     "slower": "மெதுவாக",
     "faster": "வேகமாக",
-    "cantoneseDown": "காண்டோனீஸ் குரல் இப்போது இல்லை"
+    "cantoneseDown": "காண்டோனீஸ் குரல் இப்போது இல்லை",
+    "stopListening": "நிறுத்து"
   },
   "practice": {
     "banner": "பயிற்சி. பணம் நகர்த்தப்படாது.",
@@ -912,7 +934,7 @@
     "staffBody": "ஊழியருக்கு செய்தி அனுப்பவும்.",
     "aloudTitle": "திரைகளைப் படி",
     "aloudBody": "ஒவ்வொரு திரையையும் கேட்க இதை இயக்கவும்."
-  },
+  },
   "scamCheck": {
     "title": "உறுதியா? இது புதிய ஒருவருக்குப் பெரிய பரிமாற்றம்.",
     "amountLine": "{amount} → {name}",
@@ -927,9 +949,10 @@
     "continue": "தொடரவும்",
     "cooling": "ஒரு நிமிடம் யோசியுங்கள்",
     "coolingLeft": "{n} வினாடிகளில் தொடரலாம்",
-        "continueAnyway": "இருந்தும் தொடரவும்",
+    "continueAnyway": "இருந்தும் தொடரவும்",
     "callShort": "ScamShield 1799-ஐ அழைக்கவும்",
-    "helpline": "ScamShield உதவி எண் 1799 (இலவசம், 24/7)"
+    "helpline": "ScamShield உதவி எண் 1799 (இலவசம், 24/7)",
+    "needMoreTime": "எனக்கு இன்னும் நேரம் வேண்டும்"
   },
   "look": {
     "hi": "வணக்கம், {name}",
@@ -981,6 +1004,8 @@
     "pending": "Pending transactions made on your debit card may take up to 7 days to appear. You may check your available balance to ensure the correct amount has been deducted.",
     "slide": "Slide to pay",
     "slidePractice": "Slide to pay (practice)",
-    "ollieSafety": "Ollie · Safety check"
+    "ollieSafety": "Ollie · Safety check",
+    "holdToPay": "செலுத்த அழுத்திப் பிடிக்கவும்",
+    "holdingToPay": "தொடர்ந்து பிடிக்கவும்…"
   }
 }

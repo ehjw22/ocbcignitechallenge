@@ -44,7 +44,9 @@
     "ready": "準備ができました",
     "readyBody": "この端末に保存されます。",
     "shortcuts": "ショートカットを6つ選択",
-    "colourAdjust": "アクセントカラーが少し変わることがあります。"
+    "colourAdjust": "アクセントカラーが少し変わることがあります。",
+    "voiceLimit": "Voice transfer limit",
+    "voiceLimitBody": "Choose a cap for transfers you start by speaking to Ollie. You still review and confirm each one."
   },
   "errors": {
     "summary": "以下の項目を確認してください。",
@@ -144,7 +146,16 @@
     "busy": "アシスタントが混み合っています。短い回答です。",
     "empty": "質問してください。",
     "chipBalance": "残高はいくらですか。",
-    "chipGuide": "手順を表示"
+    "chipGuide": "手順を表示",
+    "voiceConfirm": "{name}さんに{amount}を送ります。よろしいですか？",
+    "voiceOverLimit": "Voice transfers are limited to {amount}. You can change this in Settings, or send this on the usual transfer screen and confirm it there.",
+    "voiceUnknownPayee": "音声送金は保存済みの受取人に限られます。新しい相手に支払う場合は、通常の送金画面を開けます。",
+    "voiceOpenTransfer": "送金を開く",
+    "voiceChip": "試す：「{name}に$20を送る」",
+    "voiceOpening": "送金画面を開きます。その画面で内容を確認して承認してください。",
+    "voiceCancelled": "了解しました。その送金を取り消しました。",
+    "voiceOpenSettings": "Open settings",
+    "voiceOff": "Voice transfers are turned off. You can turn them on in Settings, or use the usual transfer screen."
   },
   "settings": {
     "title": "その他",
@@ -154,7 +165,17 @@
     "meiBody": "中国語、大きい文字、短い回答。海外送金を開きます。",
     "arifBody": "英語、詳細、支出インサイト。GIRO設定を開きます。",
     "reset": "アプリをリセット",
-    "resetBody": "この端末に保存した選択を消去します。"
+    "resetBody": "この端末に保存した選択を消去します。",
+    "dyslexiaFont": "ディスレクシアに配慮したフォント",
+    "dyslexiaFontBody": "OpenDyslexicと広い字間を使います。中国語、タミル語など他の文字は従来のフォントのままです。",
+    "easierTapping": "押しやすくする",
+    "easierTappingBody": "ボタンを大きくし、スライド払いの代わりに長押しが使えます。",
+    "voiceLimit": "Voice transfer limit",
+    "voiceLimitBody": "Ollie can start a transfer when you speak, up to this cap. You still review and confirm each one. Choose Off to turn voice transfers off.",
+    "voiceLimitOff": "Off",
+    "voiceLimitRaise": "Raise voice transfer limit?",
+    "voiceLimitRaiseBody": "Raise your voice transfer limit to {amount}? You will still review and confirm each transfer.",
+    "voiceLimitConfirm": "Raise limit"
   },
   "demoBadge": "Demo",
   "prototype": "Demo",
@@ -268,7 +289,8 @@
   },
   "speech": {
     "noVoice": "標準の音声を使っています。",
-    "micDenied": "マイクはオフです。入力できます。"
+    "micDenied": "マイクはオフです。入力できます。",
+    "stopListening": "停止"
   },
   "turnOnInsights": "オンにする",
   "comingSoon": "利用不可",
@@ -287,7 +309,7 @@
   "allShortcuts": "すべてのショートカット",
   "emptySlot": "空",
   "moveUp": "上へ",
-  "moveDown": "下へ",
+  "moveDown": "下へ",
   "scamCheck": {
     "title": "本当によろしいですか？初めての相手への高額な送金です。",
     "amountLine": "{name} へ {amount}",
@@ -302,9 +324,10 @@
     "continue": "続ける",
     "cooling": "少し考えてください",
     "coolingLeft": "{n} 秒後に続けられます",
-        "continueAnyway": "それでも続ける",
+    "continueAnyway": "それでも続ける",
     "callShort": "ScamShield 1799 に電話",
-    "helpline": "ScamShield 相談 1799（無料、24時間）"
+    "helpline": "ScamShield 相談 1799（無料、24時間）",
+    "needMoreTime": "もう少し時間が必要です"
   },
   "look": {
     "hi": "こんにちは、{name}",
@@ -356,6 +379,8 @@
     "pending": "Pending transactions made on your debit card may take up to 7 days to appear. You may check your available balance to ensure the correct amount has been deducted.",
     "slide": "Slide to pay",
     "slidePractice": "Slide to pay (practice)",
-    "ollieSafety": "Ollie · Safety check"
+    "ollieSafety": "Ollie · Safety check",
+    "holdToPay": "長押しで支払う",
+    "holdingToPay": "そのまま押してください…"
   }
 }

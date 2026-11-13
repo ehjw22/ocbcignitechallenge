@@ -43,7 +43,9 @@
     "ready": "आप तैयार हैं",
     "readyBody": "इस डिवाइस पर सहेजा गया।",
     "shortcuts": "6 शॉर्टकट चुनें",
-    "colourAdjust": "एक्सेंट रंग थोड़ा बदल सकते हैं।"
+    "colourAdjust": "एक्सेंट रंग थोड़ा बदल सकते हैं।",
+    "voiceLimit": "Voice transfer limit",
+    "voiceLimitBody": "Choose a cap for transfers you start by speaking to Ollie. You still review and confirm each one."
   },
   "errors": {
     "summary": "नीचे दिए आइटम जाँचें।",
@@ -143,7 +145,16 @@
     "busy": "सहायक व्यस्त है। यह एक संक्षिप्त उत्तर है।",
     "empty": "प्रश्न पूछें।",
     "chipBalance": "मेरा शेष कितना है?",
-    "chipGuide": "चरण दिखाएँ"
+    "chipGuide": "चरण दिखाएँ",
+    "voiceConfirm": "आप {name} को {amount} भेज रहे हैं। सही है?",
+    "voiceOverLimit": "Voice transfers are limited to {amount}. You can change this in Settings, or send this on the usual transfer screen and confirm it there.",
+    "voiceUnknownPayee": "वॉइस ट्रांसफ़र केवल सहेजे हुए प्राप्तकर्ता को ही हो सकता है। किसी नए व्यक्ति को भुगतान करने के लिए मैं सामान्य स्क्रीन खोल सकता हूँ।",
+    "voiceOpenTransfer": "ट्रांसफ़र खोलें",
+    "voiceChip": "आज़माएँ: '{name} को $20 भेजें'",
+    "voiceOpening": "ट्रांसफ़र खोल रहा हूँ। उस स्क्रीन पर जाँच कर पुष्टि करें।",
+    "voiceCancelled": "ठीक है, वह ट्रांसफ़र रद्द कर दिया गया।",
+    "voiceOpenSettings": "Open settings",
+    "voiceOff": "Voice transfers are turned off. You can turn them on in Settings, or use the usual transfer screen."
   },
   "settings": {
     "title": "और",
@@ -153,7 +164,17 @@
     "meiBody": "चीनी, बड़ा टेक्स्ट, छोटे उत्तर। एक विदेशी ट्रांसफ़र खोलता है।",
     "arifBody": "अंग्रेज़ी, पूरा विवरण, खर्च की जानकारी। GIRO सेटअप खोलता है।",
     "reset": "ऐप रीसेट करें",
-    "resetBody": "इस डिवाइस पर सहेजे विकल्प मिटाता है।"
+    "resetBody": "इस डिवाइस पर सहेजे विकल्प मिटाता है।",
+    "dyslexiaFont": "डिस्लेक्सिया-अनुकूल फ़ॉन्ट",
+    "dyslexiaFontBody": "OpenDyslexic और ज़्यादा अंतराल का उपयोग होता है। चीनी, तमिल और अन्य लिपियाँ अपने सामान्य फ़ॉन्ट पर रहेंगी।",
+    "easierTapping": "आसान टैप",
+    "easierTappingBody": "बड़े बटन, और स्लाइड करके भुगतान की जगह दबाकर रखें।",
+    "voiceLimit": "Voice transfer limit",
+    "voiceLimitBody": "Ollie can start a transfer when you speak, up to this cap. You still review and confirm each one. Choose Off to turn voice transfers off.",
+    "voiceLimitOff": "Off",
+    "voiceLimitRaise": "Raise voice transfer limit?",
+    "voiceLimitRaiseBody": "Raise your voice transfer limit to {amount}? You will still review and confirm each transfer.",
+    "voiceLimitConfirm": "Raise limit"
   },
   "demoBadge": "Demo",
   "prototype": "Demo",
@@ -267,7 +288,8 @@
   },
   "speech": {
     "noVoice": "डिफ़ॉल्ट आवाज़ उपयोग हो रही है।",
-    "micDenied": "माइक्रोफ़ोन बंद है। आप टाइप कर सकते हैं।"
+    "micDenied": "माइक्रोफ़ोन बंद है। आप टाइप कर सकते हैं।",
+    "stopListening": "रोकें"
   },
   "turnOnInsights": "चालू करें",
   "comingSoon": "उपलब्ध नहीं",
@@ -286,7 +308,7 @@
   "allShortcuts": "सभी शॉर्टकट",
   "emptySlot": "खाली",
   "moveUp": "ऊपर",
-  "moveDown": "नीचे",
+  "moveDown": "नीचे",
   "scamCheck": {
     "title": "क्या आप सुनिश्चित हैं? यह किसी नए व्यक्ति को बड़ा ट्रांसफर है।",
     "amountLine": "{amount} → {name}",
@@ -301,9 +323,10 @@
     "continue": "जारी रखें",
     "cooling": "एक पल सोचिए",
     "coolingLeft": "{n} सेकंड में जारी रखें",
-        "continueAnyway": "फिर भी जारी रखें",
+    "continueAnyway": "फिर भी जारी रखें",
     "callShort": "ScamShield 1799 पर कॉल करें",
-    "helpline": "ScamShield हेल्पलाइन 1799 (मुफ़्त, 24/7)"
+    "helpline": "ScamShield हेल्पलाइन 1799 (मुफ़्त, 24/7)",
+    "needMoreTime": "मुझे और समय चाहिए"
   },
   "look": {
     "hi": "नमस्ते, {name}",
@@ -355,6 +378,8 @@
     "pending": "Pending transactions made on your debit card may take up to 7 days to appear. You may check your available balance to ensure the correct amount has been deducted.",
     "slide": "Slide to pay",
     "slidePractice": "Slide to pay (practice)",
-    "ollieSafety": "Ollie · Safety check"
+    "ollieSafety": "Ollie · Safety check",
+    "holdToPay": "भुगतान के लिए दबाकर रखें",
+    "holdingToPay": "दबाते रहें…"
   }
 }

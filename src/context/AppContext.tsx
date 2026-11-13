@@ -225,7 +225,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const htmlLang = prefs.language === 'zh' ? 'zh-Hans' : prefs.language === 'zh-TW' ? 'zh-Hant' : prefs.language
     root.lang = htmlLang
     root.dataset.mode = admin ? 'light' : prefs.scheme
-  }, [prefs.textSize, prefs.language, prefs.scheme, location.pathname])
+    root.classList.toggle('dyslexia-font', !admin && Boolean(prefs.dyslexiaFont))
+    if (!admin && prefs.easierTapping) root.setAttribute('data-easy-tap', '1')
+    else root.removeAttribute('data-easy-tap')
+  }, [prefs.textSize, prefs.language, prefs.scheme, prefs.dyslexiaFont, prefs.easierTapping, location.pathname])
 
   const persistUser = (id: string, nextPrefs: Preferences, nextProfile: Profile) => {
     const users = loadUsers()

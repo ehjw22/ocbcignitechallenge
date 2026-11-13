@@ -165,6 +165,8 @@
     "readyBody": "保存在此設備上。",
     "enter": "完成",
     "colourAdjust": "強調色可能會略有變化。",
+    "voiceLimit": "語音轉帳限額",
+    "voiceLimitBody": "請為透過 Ollie 語音發起的轉帳設定限額。每筆轉帳仍需你核對並確認。",
     "shortcuts": "選擇 6 個快捷方式",
     "readAloudBody": "文字旁邊會出現喇叭按鈕。打開後，每個屏幕會自動朗讀。",
     "minutes": "大約 3 分鐘。之後可在設置中更改。"
@@ -418,7 +420,16 @@
     "micMissing": "這個瀏覽器不能語音輸入。",
     "hearing": "正在聽…",
     "aboutAi": "Ollie 使用人工智能。它可以說明頁面、回答日常問題，並幫你準備轉賬讓你核對。它不會轉賬，不會提供醫療、法律或投資建議，也不會索取密碼、PIN 或一次性驗證碼。",
-    "explainFallback": "這是{screen}頁面。你可以看到：{labels}。這裡的數字是示例。哪個詞不清楚，可以問我。"
+    "explainFallback": "這是{screen}頁面。你可以看到：{labels}。這裡的數字是示例。哪個詞不清楚，可以問我。",
+    "voiceConfirm": "您將向 {name} 轉帳 {amount}。對嗎？",
+    "voiceOverLimit": "語音轉帳限額為 {amount}。你可以在「設定」中變更，或前往一般轉帳頁面傳送並確認這筆轉帳。",
+    "voiceUnknownPayee": "語音轉帳只能付給您已儲存的收款人。如果要付給新的收款人，我可以打開平常的轉帳頁面。",
+    "voiceOpenTransfer": "打開轉帳",
+    "voiceChip": "試一試：「轉 20 塊給 {name}」",
+    "voiceOpening": "正在打開轉帳頁面。請在該頁面核對並確認。",
+    "voiceCancelled": "好的，已取消這筆轉帳。",
+    "voiceOpenSettings": "開啟設定",
+    "voiceOff": "語音轉帳已關閉。你可以在「設定」中開啟，或使用一般轉帳頁面。"
   },
   "flows": {
     "paynow": "PayNow",
@@ -581,7 +592,17 @@
       "shortcuts": "首頁快捷方式",
       "privacy": "隱私和概覽",
       "account": "賬戶"
-    }
+    },
+    "dyslexiaFont": "閱讀障礙友善字體",
+    "dyslexiaFontBody": "使用 OpenDyslexic 字體並加大字距。中文、泰米爾文和其他文字仍使用原來的字體。",
+    "easierTapping": "更易點選",
+    "easierTappingBody": "按鈕更大，付款時可以長按，不必滑動。",
+    "voiceLimit": "語音轉帳限額",
+    "voiceLimitBody": "你可以用語音讓 Ollie 發起轉帳，最高不超過此限額。每筆轉帳仍需你核對並確認。選擇「關閉」即可停用語音轉帳。",
+    "voiceLimitOff": "關閉",
+    "voiceLimitRaise": "提高語音轉帳限額？",
+    "voiceLimitRaiseBody": "要將語音轉帳限額提高至 {amount} 嗎？每筆轉帳仍需你核對並確認。",
+    "voiceLimitConfirm": "提高限額"
   },
   "demo": {
     "mei": "正在向澳大利亞的 Tan Wei Ming 轉賬。",
@@ -788,7 +809,8 @@
     "readAloud": "朗讀",
     "slower": "更慢",
     "faster": "更快",
-    "cantoneseDown": "粵語語音暫時無法使用，這次沒有朗讀。"
+    "cantoneseDown": "粵語語音暫時無法使用，這次沒有朗讀。",
+    "stopListening": "停止"
   },
   "info": {
     "investments": "投資",
@@ -996,7 +1018,7 @@
     "staffBody": "給職員發消息。",
     "aloudTitle": "朗讀屏幕",
     "aloudBody": "打開後可以聽到每個屏幕。"
-  },
+  },
   "scamCheck": {
     "title": "確定嗎？這是一筆轉給新收款人的大額轉賬。",
     "amountLine": "{amount} 轉給 {name}",
@@ -1011,9 +1033,10 @@
     "continue": "繼續",
     "cooling": "請先想一想",
     "coolingLeft": "{n} 秒後可繼續",
-        "continueAnyway": "仍要繼續",
+    "continueAnyway": "仍要繼續",
     "callShort": "致電 ScamShield 1799",
-    "helpline": "ScamShield 防詐騙熱線 1799（免費，全日）"
+    "helpline": "ScamShield 防詐騙熱線 1799（免費，全日）",
+    "needMoreTime": "我需要多一點時間"
   },
   "look": {
     "hi": "你好，{name}",
@@ -1118,7 +1141,9 @@
     "greetHelp": "應用裡會用這個名字問候您",
     "slide": "滑動付款",
     "slidePractice": "滑動付款（練習）",
-    "ollieSafety": "Ollie · 安全檢查"
+    "ollieSafety": "Ollie · 安全檢查",
+    "holdToPay": "長按付款",
+    "holdingToPay": "請繼續按住…"
   },
   "risk": {
     "titleCheck": "保持警惕",

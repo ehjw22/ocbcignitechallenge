@@ -2,6 +2,7 @@ import { DEMO_LOGINS } from '@/data/demoAccounts'
 import type { AnalyticsEvent, CardItem, DemoUser, Preferences, Profile, StaffRequest, Txn } from './types'
 import { DEFAULT_SHORTCUTS } from './languages'
 import { snapRate } from './rates'
+import { clampVoiceTransferLimit, VOICE_TRANSFER_LIMIT_SGD } from './voiceTransfer'
 
 export const defaultPrefs = (): Preferences => ({
   language: 'en',
@@ -24,6 +25,9 @@ export const defaultPrefs = (): Preferences => ({
   spendingInsights: false,
   onboarded: false,
   quizCompleted: false,
+  dyslexiaFont: false,
+  easierTapping: false,
+  voiceTransferLimit: VOICE_TRANSFER_LIMIT_SGD,
 })
 
 export const defaultProfile = (): Profile => ({
@@ -64,6 +68,7 @@ export function loadPrefs(): Preferences {
   const saved = read<Preferences>(keys.prefs, base)
   if (!Array.isArray(saved.shortcuts) || saved.shortcuts.length !== 6) saved.shortcuts = [...DEFAULT_SHORTCUTS]
   saved.textSize = Math.min(24, Math.max(16, Number(saved.textSize) || 16))
+  saved.voiceTransferLimit = clampVoiceTransferLimit(saved.voiceTransferLimit)
   saved.quizCompleted = typeof saved.quizCompleted === 'boolean' ? saved.quizCompleted : Boolean(saved.onboarded)
   saved.onboarded = saved.quizCompleted
   return saved
@@ -182,7 +187,7 @@ export function clearTourSeen() {
   localStorage.removeItem(keys.tour)
 }
 
-export type GuestDisplay = Pick<Preferences, 'language' | 'dialect' | 'textSize' | 'boldText' | 'scheme' | 'highContrast' | 'colourVision'>
+export type GuestDisplay = Pick<Preferences, 'language' | 'dialect' | 'textSize' | 'boldText' | 'scheme' | 'highContrast' | 'colourVision' | 'dyslexiaFont' | 'easierTapping'>
 
 function mergePrefs(prefs: Preferences): Preferences {
   const next = { ...defaultPrefs(), ...prefs }
@@ -191,6 +196,9 @@ function mergePrefs(prefs: Preferences): Preferences {
   next.speechRate = snapRate(Number(next.speechRate) || 1)
   next.quizCompleted = typeof next.quizCompleted === 'boolean' ? next.quizCompleted : Boolean(next.onboarded)
   next.onboarded = next.quizCompleted
+  next.dyslexiaFont = Boolean(next.dyslexiaFont)
+  next.easierTapping = Boolean(next.easierTapping)
+  next.voiceTransferLimit = clampVoiceTransferLimit(next.voiceTransferLimit)
   return next
 }
 
@@ -203,6 +211,8 @@ export function loadGuest(): GuestDisplay {
     scheme: 'light',
     highContrast: false,
     colourVision: 'default',
+    dyslexiaFont: false,
+    easierTapping: false,
   }
   return read(keys.guest, base)
 }
@@ -216,6 +226,8 @@ export function saveGuest(prefs: Preferences) {
     scheme: prefs.scheme,
     highContrast: prefs.highContrast,
     colourVision: prefs.colourVision,
+    dyslexiaFont: prefs.dyslexiaFont,
+    easierTapping: prefs.easierTapping,
   }
   localStorage.setItem(keys.guest, JSON.stringify(guest))
 }

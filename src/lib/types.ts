@@ -28,6 +28,9 @@ export interface Preferences {
   spendingInsights: boolean
   onboarded: boolean
   quizCompleted: boolean
+  dyslexiaFont: boolean
+  easierTapping: boolean
+  voiceTransferLimit: number
 }
 
 export interface DemoUser {
@@ -109,4 +112,13 @@ export interface ChatMessage {
   scamRisk?: 'none' | 'check' | 'high'
   suggestions?: string[]
   handover?: boolean
+  voiceTransfer?: VoiceTransferCard
+}
+
+export interface VoiceTransferCard {
+  kind: 'confirm' | 'overLimit' | 'unknownPayee' | 'disabled'
+  amount: number
+  payeeName: string
+  flow?: 'paynow' | 'transfer' | 'overseas'
+  fields?: Record<string, string>
 }

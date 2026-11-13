@@ -43,7 +43,9 @@
     "ready": "Anda sudah siap",
     "readyBody": "Disimpan di perangkat ini.",
     "shortcuts": "Pilih 6 pintasan",
-    "colourAdjust": "Warna aksen dapat berubah sedikit."
+    "colourAdjust": "Warna aksen dapat berubah sedikit.",
+    "voiceLimit": "Voice transfer limit",
+    "voiceLimitBody": "Choose a cap for transfers you start by speaking to Ollie. You still review and confirm each one."
   },
   "errors": {
     "summary": "Periksa item di bawah.",
@@ -143,7 +145,16 @@
     "busy": "Asisten sedang sibuk. Ini jawaban singkat.",
     "empty": "Ajukan pertanyaan.",
     "chipBalance": "Berapa saldo saya?",
-    "chipGuide": "Tampilkan langkah"
+    "chipGuide": "Tampilkan langkah",
+    "voiceConfirm": "Anda akan mengirim {amount} kepada {name}. Benar?",
+    "voiceOverLimit": "Voice transfers are limited to {amount}. You can change this in Settings, or send this on the usual transfer screen and confirm it there.",
+    "voiceUnknownPayee": "Transfer suara hanya ke penerima yang sudah disimpan. Saya bisa membuka layar transfer biasa jika Anda ingin membayar orang baru.",
+    "voiceOpenTransfer": "Buka transfer",
+    "voiceChip": "Coba: 'Transfer $20 ke {name}'",
+    "voiceOpening": "Membuka transfer sekarang. Harap periksa dan konfirmasi di layar itu.",
+    "voiceCancelled": "Baik, transfer itu dibatalkan.",
+    "voiceOpenSettings": "Open settings",
+    "voiceOff": "Voice transfers are turned off. You can turn them on in Settings, or use the usual transfer screen."
   },
   "settings": {
     "title": "Lainnya",
@@ -153,7 +164,17 @@
     "meiBody": "Tionghoa, teks besar, jawaban singkat. Membuka transfer luar negeri.",
     "arifBody": "Inggris, detail lengkap, ringkasan pengeluaran. Membuka pengaturan GIRO.",
     "reset": "Atur ulang aplikasi",
-    "resetBody": "Menghapus pilihan yang disimpan di perangkat ini."
+    "resetBody": "Menghapus pilihan yang disimpan di perangkat ini.",
+    "dyslexiaFont": "Font ramah disleksia",
+    "dyslexiaFontBody": "Menggunakan OpenDyslexic dengan spasi lebih lebar. Aksara Tionghoa, Tamil, dan lainnya tetap memakai font biasa.",
+    "easierTapping": "Ketukan lebih mudah",
+    "easierTappingBody": "Tombol lebih besar, plus opsi tekan-dan-tahan sebagai pengganti geser untuk membayar.",
+    "voiceLimit": "Voice transfer limit",
+    "voiceLimitBody": "Ollie can start a transfer when you speak, up to this cap. You still review and confirm each one. Choose Off to turn voice transfers off.",
+    "voiceLimitOff": "Off",
+    "voiceLimitRaise": "Raise voice transfer limit?",
+    "voiceLimitRaiseBody": "Raise your voice transfer limit to {amount}? You will still review and confirm each transfer.",
+    "voiceLimitConfirm": "Raise limit"
   },
   "demoBadge": "Demo",
   "prototype": "Demo",
@@ -267,7 +288,8 @@
   },
   "speech": {
     "noVoice": "Menggunakan suara bawaan.",
-    "micDenied": "Mikrofon mati. Anda dapat mengetik."
+    "micDenied": "Mikrofon mati. Anda dapat mengetik.",
+    "stopListening": "Berhenti"
   },
   "turnOnInsights": "Nyalakan",
   "comingSoon": "Tidak tersedia",
@@ -286,7 +308,7 @@
   "allShortcuts": "Semua pintasan",
   "emptySlot": "Kosong",
   "moveUp": "Naik",
-  "moveDown": "Turun",
+  "moveDown": "Turun",
   "scamCheck": {
     "title": "Yakin? Ini transfer besar ke seseorang yang baru.",
     "amountLine": "{amount} ke {name}",
@@ -301,9 +323,10 @@
     "continue": "Lanjut",
     "cooling": "Luangkan waktu sejenak",
     "coolingLeft": "Lanjut dalam {n} dtk",
-        "continueAnyway": "Tetap lanjutkan",
+    "continueAnyway": "Tetap lanjutkan",
     "callShort": "Hubungi ScamShield 1799",
-    "helpline": "Saluran ScamShield 1799 (gratis, 24/7)"
+    "helpline": "Saluran ScamShield 1799 (gratis, 24/7)",
+    "needMoreTime": "Saya butuh waktu lebih"
   },
   "look": {
     "hi": "Hai, {name}",
@@ -355,6 +378,8 @@
     "pending": "Pending transactions made on your debit card may take up to 7 days to appear. You may check your available balance to ensure the correct amount has been deducted.",
     "slide": "Slide to pay",
     "slidePractice": "Slide to pay (practice)",
-    "ollieSafety": "Ollie · Safety check"
+    "ollieSafety": "Ollie · Safety check",
+    "holdToPay": "Tekan dan tahan untuk membayar",
+    "holdingToPay": "Tetap tahan…"
   }
 }

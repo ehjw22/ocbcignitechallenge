@@ -43,7 +43,9 @@
     "ready": "준비가 되었습니다",
     "readyBody": "이 기기에 저장됩니다.",
     "shortcuts": "바로가기 6개 선택",
-    "colourAdjust": "강조 색이 조금 바뀔 수 있습니다."
+    "colourAdjust": "강조 색이 조금 바뀔 수 있습니다.",
+    "voiceLimit": "Voice transfer limit",
+    "voiceLimitBody": "Choose a cap for transfers you start by speaking to Ollie. You still review and confirm each one."
   },
   "errors": {
     "summary": "아래 항목을 확인하세요.",
@@ -143,7 +145,16 @@
     "busy": "도우미가 바쁩니다. 짧은 답변입니다.",
     "empty": "질문해 주세요.",
     "chipBalance": "내 잔액은 얼마인가요?",
-    "chipGuide": "단계 보기"
+    "chipGuide": "단계 보기",
+    "voiceConfirm": "{name}님에게 {amount}를 보냅니다. 맞나요?",
+    "voiceOverLimit": "Voice transfers are limited to {amount}. You can change this in Settings, or send this on the usual transfer screen and confirm it there.",
+    "voiceUnknownPayee": "음성 이체는 이미 저장한 수취인에게만 가능합니다. 새로운 사람에게 보내려면 일반 이체 화면을 열 수 있습니다.",
+    "voiceOpenTransfer": "이체 열기",
+    "voiceChip": "'{name}에게 $20 보내기'를 해보세요",
+    "voiceOpening": "이체 화면을 엽니다. 그 화면에서 확인하고 승인하세요.",
+    "voiceCancelled": "알겠습니다. 해당 이체를 취소했습니다.",
+    "voiceOpenSettings": "Open settings",
+    "voiceOff": "Voice transfers are turned off. You can turn them on in Settings, or use the usual transfer screen."
   },
   "settings": {
     "title": "더보기",
@@ -153,7 +164,17 @@
     "meiBody": "중국어, 큰 글자, 짧은 답변. 해외 송금을 엽니다.",
     "arifBody": "영어, 자세한 내용, 지출 인사이트. GIRO 설정을 엽니다.",
     "reset": "앱 초기화",
-    "resetBody": "이 기기에 저장된 선택을 지웁니다."
+    "resetBody": "이 기기에 저장된 선택을 지웁니다.",
+    "dyslexiaFont": "난독증 친화 글꼴",
+    "dyslexiaFontBody": "OpenDyslexic 글꼴과 더 넓은 간격을 사용합니다. 중국어, 타밀어 등 다른 문자는 기존 글꼴을 유지합니다.",
+    "easierTapping": "쉽게 누르기",
+    "easierTappingBody": "버튼을 키우고, 밀어 결제 대신 길게 누르는 방법을 제공합니다.",
+    "voiceLimit": "Voice transfer limit",
+    "voiceLimitBody": "Ollie can start a transfer when you speak, up to this cap. You still review and confirm each one. Choose Off to turn voice transfers off.",
+    "voiceLimitOff": "Off",
+    "voiceLimitRaise": "Raise voice transfer limit?",
+    "voiceLimitRaiseBody": "Raise your voice transfer limit to {amount}? You will still review and confirm each transfer.",
+    "voiceLimitConfirm": "Raise limit"
   },
   "demoBadge": "Demo",
   "prototype": "Demo",
@@ -267,7 +288,8 @@
   },
   "speech": {
     "noVoice": "기본 음성을 사용합니다.",
-    "micDenied": "마이크가 꺼져 있습니다. 입력할 수 있습니다."
+    "micDenied": "마이크가 꺼져 있습니다. 입력할 수 있습니다.",
+    "stopListening": "중지"
   },
   "turnOnInsights": "켜기",
   "comingSoon": "사용할 수 없음",
@@ -286,7 +308,7 @@
   "allShortcuts": "모든 바로가기",
   "emptySlot": "비어 있음",
   "moveUp": "위로",
-  "moveDown": "아래로",
+  "moveDown": "아래로",
   "scamCheck": {
     "title": "맞으신가요? 처음 보내는 사람에게 큰 금액을 이체합니다.",
     "amountLine": "{name}에게 {amount}",
@@ -301,9 +323,10 @@
     "continue": "계속",
     "cooling": "잠시 생각해 보세요",
     "coolingLeft": "{n}초 후 계속",
-        "continueAnyway": "그래도 계속",
+    "continueAnyway": "그래도 계속",
     "callShort": "ScamShield 1799에 전화",
-    "helpline": "ScamShield 상담 1799 (무료, 24시간)"
+    "helpline": "ScamShield 상담 1799 (무료, 24시간)",
+    "needMoreTime": "시간이 더 필요해요"
   },
   "look": {
     "hi": "안녕하세요, {name}",
@@ -355,6 +378,8 @@
     "pending": "Pending transactions made on your debit card may take up to 7 days to appear. You may check your available balance to ensure the correct amount has been deducted.",
     "slide": "Slide to pay",
     "slidePractice": "Slide to pay (practice)",
-    "ollieSafety": "Ollie · Safety check"
+    "ollieSafety": "Ollie · Safety check",
+    "holdToPay": "길게 눌러 결제",
+    "holdingToPay": "계속 누르세요…"
   }
 }

@@ -17,7 +17,7 @@ function flat(obj, prefix = '', out = {}) {
 }
 
 const en = flat(files.en)
-const keep = ['PayNow', 'GIRO', 'IBAN', 'SWIFT', 'NRIC', 'UEN', 'OCBC', 'PIN', 'OTP', 'Ollie', 'Arif', 'SP Group', 'Singtel', 'Auntie Mei']
+const keep = ['PayNow', 'GIRO', 'IBAN', 'SWIFT', 'NRIC', 'UEN', 'OCBC', 'PIN', 'OTP', 'Ollie', 'Arif', 'SP Group', 'Singtel', 'Auntie Mei', 'OpenDyslexic']
 const problems = []
 for (const lang of ['zh', 'zh-TW']) {
   const local = flat(files[lang] || {})

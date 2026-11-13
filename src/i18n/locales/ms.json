@@ -62,6 +62,8 @@
     "readyBody": "Disimpan pada peranti ini.",
     "shortcuts": "Pilih 6 pintasan",
     "colourAdjust": "Warna aksen mungkin berubah sedikit.",
+    "voiceLimit": "Had pindahan suara",
+    "voiceLimitBody": "Pilih had untuk pindahan yang dimulakan dengan bercakap kepada Ollie. Anda masih perlu menyemak dan mengesahkan setiap pindahan.",
     "readAloud": "Baca skrin dengan kuat",
     "readAloudBody": "Butang pembesar suara muncul di sebelah teks. Hidupkan untuk membaca setiap skrin secara automatik.",
     "minutes": "3 minit. Boleh ditukar bila-bila masa dalam Tetapan."
@@ -170,7 +172,16 @@
     "busy": "Pembantu sibuk. Ini jawapan ringkas.",
     "empty": "Tanya soalan.",
     "chipBalance": "Berapakah baki saya?",
-    "chipGuide": "Tunjukkan langkah"
+    "chipGuide": "Tunjukkan langkah",
+    "voiceConfirm": "Anda akan hantar {amount} kepada {name}. Betul ke?",
+    "voiceOverLimit": "Had pindahan suara ialah {amount}. Anda boleh menukarnya dalam Tetapan, atau hantar pindahan ini pada skrin pindahan biasa dan sahkan di sana.",
+    "voiceUnknownPayee": "Pindahan suara hanya kepada penerima yang sudah disimpan. Saya boleh buka skrin pindahan biasa jika anda mahu bayar orang baharu.",
+    "voiceOpenTransfer": "Buka pindahan",
+    "voiceChip": "Cuba: 'Pindahkan $20 kepada {name}'",
+    "voiceOpening": "Membuka pindahan sekarang. Sila semak dan sahkan di skrin itu.",
+    "voiceCancelled": "Baik, pindahan itu dibatalkan.",
+    "voiceOpenSettings": "Buka tetapan",
+    "voiceOff": "Pindahan suara dimatikan. Anda boleh menghidupkannya dalam Tetapan, atau gunakan skrin pindahan biasa."
   },
   "flows": {
     "overseas": "Pindahan luar negara",
@@ -224,7 +235,17 @@
       "shortcuts": "Pintasan laman",
       "privacy": "Privasi dan wawasan",
       "account": "Akaun"
-    }
+    },
+    "dyslexiaFont": "Fon mesra disleksia",
+    "dyslexiaFontBody": "Menggunakan OpenDyslexic dengan jarak huruf lebih luas. Tulisan Cina, Tamil dan skrip lain kekal dengan fon sedia ada.",
+    "easierTapping": "Ketikan lebih mudah",
+    "easierTappingBody": "Butang lebih besar, dan pilihan tekan lama menggantikan luncur untuk bayar.",
+    "voiceLimit": "Had pindahan suara",
+    "voiceLimitBody": "Ollie boleh memulakan pindahan apabila anda bercakap, sehingga had ini. Anda masih perlu menyemak dan mengesahkan setiap pindahan. Pilih Matikan untuk mematikan pindahan suara.",
+    "voiceLimitOff": "Matikan",
+    "voiceLimitRaise": "Naikkan had pindahan suara?",
+    "voiceLimitRaiseBody": "Naikkan had pindahan suara anda kepada {amount}? Anda masih perlu menyemak dan mengesahkan setiap pindahan.",
+    "voiceLimitConfirm": "Naikkan had"
   },
   "demoBadge": "Demo",
   "prototype": "Demo",
@@ -391,7 +412,8 @@
     "readAloud": "Baca dengan kuat",
     "slower": "Lebih perlahan",
     "faster": "Lebih laju",
-    "cantoneseDown": "Suara Kantonis tidak tersedia sekarang"
+    "cantoneseDown": "Suara Kantonis tidak tersedia sekarang",
+    "stopListening": "Berhenti"
   },
   "turnOnInsights": "Hidupkan",
   "insight": {
@@ -495,7 +517,7 @@
     "staffBody": "Hantar mesej kepada kakitangan.",
     "aloudTitle": "Baca skrin",
     "aloudBody": "Hidupkan untuk mendengar setiap skrin."
-  },
+  },
   "scamCheck": {
     "title": "Adakah anda pasti? Ini pemindahan besar kepada seseorang yang baharu.",
     "amountLine": "{amount} kepada {name}",
@@ -510,9 +532,10 @@
     "continue": "Teruskan",
     "cooling": "Luangkan masa sekejap",
     "coolingLeft": "Teruskan dalam {n}s",
-        "continueAnyway": "Teruskan juga",
+    "continueAnyway": "Teruskan juga",
     "callShort": "Hubungi ScamShield 1799",
-    "helpline": "Talian ScamShield 1799 (percuma, 24/7)"
+    "helpline": "Talian ScamShield 1799 (percuma, 24/7)",
+    "needMoreTime": "Saya perlukan lebih masa"
   },
   "look": {
     "hi": "Hai, {name}",
@@ -617,7 +640,9 @@
     "greetHelp": "Nama ini digunakan untuk menyapa anda dalam aplikasi",
     "slide": "Leret untuk bayar",
     "slidePractice": "Leret untuk bayar (latihan)",
-    "ollieSafety": "Ollie · Semakan keselamatan"
+    "ollieSafety": "Ollie · Semakan keselamatan",
+    "holdToPay": "Tekan dan tahan untuk bayar",
+    "holdingToPay": "Teruskan menahan…"
   },
   "risk": {
     "titleCheck": "Semakan keselamatan ringkas",

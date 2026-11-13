@@ -530,3 +530,67 @@ html[data-bold="1"] #customer-app button {
   color: #111111;
   border-radius: 2px;
 }
+
+html.dyslexia-font,
+html.dyslexia-font body,
+html.dyslexia-font #customer-root,
+html.dyslexia-font #customer-root input,
+html.dyslexia-font #customer-root select,
+html.dyslexia-font #customer-root textarea,
+html.dyslexia-font #customer-root button,
+html.dyslexia-font [data-tour-card],
+html.dyslexia-font [role="dialog"] {
+  font-family: "OpenDyslexic", "Segoe UI", "Nirmala UI", "Leelawadee UI", "Malgun Gothic", "Yu Gothic UI",
+    "Microsoft YaHei", "Microsoft JhengHei", sans-serif;
+  letter-spacing: 0.05em;
+  word-spacing: 0.1em;
+  line-height: 1.6;
+}
+
+html.dyslexia-font #customer-root p,
+html.dyslexia-font #customer-root li,
+html.dyslexia-font #customer-root label,
+html.dyslexia-font #customer-root h1,
+html.dyslexia-font #customer-root h2,
+html.dyslexia-font #customer-root h3,
+html.dyslexia-font [data-tour-card] p,
+html.dyslexia-font [data-tour-card] h2,
+html.dyslexia-font [role="dialog"] p,
+html.dyslexia-font [role="dialog"] h2,
+html.dyslexia-font [role="dialog"] li {
+  text-align: left;
+}
+
+html[data-easy-tap="1"] #customer-root button,
+html[data-easy-tap="1"] #customer-root a,
+html[data-easy-tap="1"] #customer-root .tap,
+html[data-easy-tap="1"] #customer-root .ocbc-row,
+html[data-easy-tap="1"] #customer-root [role="radio"],
+html[data-easy-tap="1"] #customer-root [role="switch"],
+html[data-easy-tap="1"] #customer-root .app-nav a {
+  min-height: 48px;
+  min-width: 48px;
+}
+
+html[data-easy-tap="1"] #customer-root input[type="checkbox"],
+html[data-easy-tap="1"] #customer-root input[type="radio"] {
+  min-height: 24px;
+  min-width: 24px;
+  width: 24px;
+  height: 24px;
+}
+
+html[data-easy-tap="1"] #customer-root .speak-btn {
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  min-height: 48px;
+  flex-basis: 48px;
+}
+
+html.dyslexia-font .money,
+html.dyslexia-font .phone-number,
+html.dyslexia-font .tabular-nums {
+  letter-spacing: 0.02em;
+  word-spacing: normal;
+}

@@ -4,13 +4,14 @@ import { Check, CheckCircle2, AlertTriangle } from 'lucide-react'
 import { Choice, choiceClass } from '@/components/Choice'
 import { ShortcutPicker } from '@/components/ShortcutPicker'
 import { SpeechSpeed } from '@/components/SpeechSpeed'
+import { VoiceLimitChoices } from '@/components/VoiceLimitChoices'
 import { useApp } from '@/context/AppContext'
 import { peekAfterLogin } from '@/lib/storage'
 import { translate } from '@/i18n'
 import { DEFAULT_SHORTCUTS, LANGUAGES } from '@/lib/languages'
 import type { ColourVision, DetailLevel, HelpPreference } from '@/lib/types'
 
-const STEPS = 7
+const STEPS = 8
 
 export function Join() {
   const app = useApp()
@@ -81,6 +82,18 @@ export function Join() {
           )}
           {step === 2 && (
             <section className="space-y-3">
+              <h2 id="quiz-title" className="text-xl font-semibold">{t('onboarding.voiceLimit')}</h2>
+              <p className="text-sm text-[var(--muted)]">{t('onboarding.voiceLimitBody')}</p>
+              <VoiceLimitChoices
+                value={app.prefs.voiceTransferLimit}
+                onChange={(voiceTransferLimit) => app.updatePrefs({ voiceTransferLimit })}
+                offLabel={t('settings.voiceLimitOff')}
+                label={t('onboarding.voiceLimit')}
+              />
+            </section>
+          )}
+          {step === 3 && (
+            <section className="space-y-3">
               <h2 id="quiz-title" className="text-xl font-semibold">{t('onboarding.text')}</h2>
               <label className="block font-semibold" htmlFor="quiz-size">
                 {app.prefs.textSize}px
@@ -89,11 +102,25 @@ export function Join() {
               <div className="rounded-2xl border border-[var(--line)] bg-[var(--card)] p-4">
                 <p className="text-sm text-[var(--muted)]">{t('totalBalance')}</p>
                 <p className="mt-1 font-semibold tabular-nums" style={{ fontSize: app.prefs.textSize + 8 }}>S$1,230.55</p>
-                <p className="mt-2" style={{ fontSize: app.prefs.textSize }}>{t('onboarding.preview', { name: app.profile.shortName })}</p>
+                <p className="mt-2" style={{ fontSize: app.prefs.textSize }}>{t('onboarding.preview', { name: app.profile.shortName?.trim() || app.profile.name?.trim() || t('you') })}</p>
               </div>
+              <label className="flex min-h-12 items-start gap-3">
+                <input className="mt-1 h-6 w-6" type="checkbox" checked={app.prefs.dyslexiaFont} onChange={(event) => app.updatePrefs({ dyslexiaFont: event.target.checked })} />
+                <span>
+                  <span className="block font-semibold">{t('settings.dyslexiaFont')}</span>
+                  <span className="block text-sm text-[var(--muted)]">{t('settings.dyslexiaFontBody')}</span>
+                </span>
+              </label>
+              <label className="flex min-h-12 items-start gap-3">
+                <input className="mt-1 h-6 w-6" type="checkbox" checked={app.prefs.easierTapping} onChange={(event) => app.updatePrefs({ easierTapping: event.target.checked })} />
+                <span>
+                  <span className="block font-semibold">{t('settings.easierTapping')}</span>
+                  <span className="block text-sm text-[var(--muted)]">{t('settings.easierTappingBody')}</span>
+                </span>
+              </label>
             </section>
           )}
-          {step === 3 && (
+          {step === 4 && (
             <section className="space-y-3">
               <h2 id="quiz-title" className="text-xl font-semibold">{t('onboarding.detail')}</h2>
               <div role="radiogroup" aria-label={t('onboarding.detail')} className="grid w-full grid-cols-1 gap-2 [&>button]:mb-0 [&>button]:h-full">
@@ -106,7 +133,7 @@ export function Join() {
               </div>
             </section>
           )}
-          {step === 4 && (
+          {step === 5 && (
             <section className="space-y-2">
               <h2 id="quiz-title" className="text-xl font-semibold">{t('onboarding.help')}</h2>
               <div role="radiogroup" aria-label={t('onboarding.help')} className="grid w-full grid-cols-1 gap-2 [&>button]:mb-0">
@@ -122,7 +149,7 @@ export function Join() {
               </div>
             </section>
           )}
-          {step === 5 && (
+          {step === 6 && (
             <section>
               <h2 id="quiz-title" className="text-xl font-semibold">{t('themes.title')}</h2>
               <div role="radiogroup" aria-label={t('themes.title')} className="mt-2 grid grid-cols-2 gap-2">
@@ -162,7 +189,7 @@ export function Join() {
               </div>
             </section>
           )}
-          {step === 6 && (
+          {step === 7 && (
             <section>
               <h2 id="quiz-title" className="text-xl font-semibold">{t('onboarding.shortcuts')}</h2>
               <div className="mt-3">

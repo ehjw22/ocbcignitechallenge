@@ -43,7 +43,9 @@
     "ready": "คุณพร้อมแล้ว",
     "readyBody": "บันทึกไว้ในอุปกรณ์นี้",
     "shortcuts": "เลือกทางลัด 6 รายการ",
-    "colourAdjust": "สีไฮไลต์อาจเปลี่ยนเล็กน้อย"
+    "colourAdjust": "สีไฮไลต์อาจเปลี่ยนเล็กน้อย",
+    "voiceLimit": "Voice transfer limit",
+    "voiceLimitBody": "Choose a cap for transfers you start by speaking to Ollie. You still review and confirm each one."
   },
   "errors": {
     "summary": "ตรวจสอบรายการด้านล่าง",
@@ -143,7 +145,16 @@
     "busy": "ผู้ช่วยกำลังไม่ว่าง นี่คือคำตอบสั้น ๆ",
     "empty": "ถามคำถาม",
     "chipBalance": "ยอดคงเหลือของฉันคือเท่าไร",
-    "chipGuide": "แสดงขั้นตอน"
+    "chipGuide": "แสดงขั้นตอน",
+    "voiceConfirm": "คุณกำลังส่ง {amount} ให้ {name} ใช่ไหม",
+    "voiceOverLimit": "Voice transfers are limited to {amount}. You can change this in Settings, or send this on the usual transfer screen and confirm it there.",
+    "voiceUnknownPayee": "การโอนด้วยเสียงทำได้เฉพาะผู้รับที่บันทึกไว้แล้ว ฉันเปิดหน้าโอนปกติได้ถ้าต้องการจ่ายให้คนใหม่",
+    "voiceOpenTransfer": "เปิดการโอน",
+    "voiceChip": "ลอง: 'โอน $20 ให้ {name}'",
+    "voiceOpening": "กำลังเปิดการโอน กรุณาตรวจสอบและยืนยันในหน้านั้น",
+    "voiceCancelled": "ได้เลย ฉันยกเลิกการโอนนั้นแล้ว",
+    "voiceOpenSettings": "Open settings",
+    "voiceOff": "Voice transfers are turned off. You can turn them on in Settings, or use the usual transfer screen."
   },
   "settings": {
     "title": "เพิ่มเติม",
@@ -153,7 +164,17 @@
     "meiBody": "ภาษาจีน ตัวอักษรใหญ่ คำตอบสั้น เปิดการโอนต่างประเทศ",
     "arifBody": "ภาษาอังกฤษ รายละเอียดครบ ข้อมูลการใช้จ่าย เปิดการตั้งค่า GIRO",
     "reset": "รีเซ็ตแอป",
-    "resetBody": "ล้างตัวเลือกที่บันทึกไว้ในอุปกรณ์นี้"
+    "resetBody": "ล้างตัวเลือกที่บันทึกไว้ในอุปกรณ์นี้",
+    "dyslexiaFont": "แบบอักษรสำหรับผู้มีภาวะดิสเล็กเซีย",
+    "dyslexiaFontBody": "ใช้ OpenDyslexic และเว้นวรรคกว้างขึ้น ภาษาจีน ทมิฬ และอักษรอื่นยังใช้แบบอักษรเดิม",
+    "easierTapping": "แตะได้ง่ายขึ้น",
+    "easierTappingBody": "ปุ่มใหญ่ขึ้น และกดค้างแทนการเลื่อนเพื่อชำระเงิน",
+    "voiceLimit": "Voice transfer limit",
+    "voiceLimitBody": "Ollie can start a transfer when you speak, up to this cap. You still review and confirm each one. Choose Off to turn voice transfers off.",
+    "voiceLimitOff": "Off",
+    "voiceLimitRaise": "Raise voice transfer limit?",
+    "voiceLimitRaiseBody": "Raise your voice transfer limit to {amount}? You will still review and confirm each transfer.",
+    "voiceLimitConfirm": "Raise limit"
   },
   "demoBadge": "Demo",
   "prototype": "Demo",
@@ -267,7 +288,8 @@
   },
   "speech": {
     "noVoice": "กำลังใช้เสียงเริ่มต้น",
-    "micDenied": "ไมโครโฟนปิดอยู่ คุณสามารถพิมพ์แทนได้"
+    "micDenied": "ไมโครโฟนปิดอยู่ คุณสามารถพิมพ์แทนได้",
+    "stopListening": "หยุด"
   },
   "turnOnInsights": "เปิด",
   "comingSoon": "ไม่พร้อมใช้งาน",
@@ -286,7 +308,7 @@
   "allShortcuts": "ทางลัดทั้งหมด",
   "emptySlot": "ว่าง",
   "moveUp": "ขึ้น",
-  "moveDown": "ลง",
+  "moveDown": "ลง",
   "scamCheck": {
     "title": "แน่ใจหรือไม่? นี่คือการโอนจำนวนมากไปยังคนใหม่",
     "amountLine": "{amount} ถึง {name}",
@@ -301,9 +323,10 @@
     "continue": "ทำต่อ",
     "cooling": "ใช้เวลาคิดสักครู่",
     "coolingLeft": "ทำต่อใน {n} วินาที",
-        "continueAnyway": "ทำต่อไปอยู่ดี",
+    "continueAnyway": "ทำต่อไปอยู่ดี",
     "callShort": "โทร ScamShield 1799",
-    "helpline": "สายด่วน ScamShield 1799 (ฟรี ตลอด 24 ชม.)"
+    "helpline": "สายด่วน ScamShield 1799 (ฟรี ตลอด 24 ชม.)",
+    "needMoreTime": "ฉันต้องการเวลาเพิ่ม"
   },
   "look": {
     "hi": "สวัสดี {name}",
@@ -355,6 +378,8 @@
     "pending": "Pending transactions made on your debit card may take up to 7 days to appear. You may check your available balance to ensure the correct amount has been deducted.",
     "slide": "Slide to pay",
     "slidePractice": "Slide to pay (practice)",
-    "ollieSafety": "Ollie · Safety check"
+    "ollieSafety": "Ollie · Safety check",
+    "holdToPay": "กดค้างเพื่อชำระเงิน",
+    "holdingToPay": "กดค้างต่อไป…"
   }
 }

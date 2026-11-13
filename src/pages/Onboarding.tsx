@@ -4,13 +4,14 @@ import { CheckCircle2, AlertTriangle } from 'lucide-react'
 import { BottomNav, DemoBadge } from '@/components/Shell'
 import { useApp } from '@/context/AppContext'
 import { translate } from '@/i18n'
+import { VoiceLimitChoices } from '@/components/VoiceLimitChoices'
 import { LANGUAGES } from '@/lib/languages'
 import type { ColourVision, DetailLevel, HelpPreference } from '@/lib/types'
 
 const STEPS = 6
 
 export function Onboarding() {
-  const { prefs, updatePrefs } = useApp()
+  const { prefs, updatePrefs, profile } = useApp()
   const navigate = useNavigate()
   const [step, setStep] = useState(0)
   const t = (key: string, vars?: Record<string, string | number>) => translate(prefs.language, key, vars)
@@ -83,7 +84,7 @@ export function Onboarding() {
               className="mt-2 w-full"
             />
           </label>
-          <p className="card p-4">{t('onboarding.preview')}</p>
+          <p className="card p-4">{t('onboarding.preview', { name: profile.shortName?.trim() || profile.name?.trim() || t('you') })}</p>
           <label className="flex min-h-11 items-center gap-3">
             <input type="checkbox" checked={prefs.boldText} onChange={(event) => updatePrefs({ boldText: event.target.checked })} />
             {t('onboarding.bold')}
@@ -91,6 +92,14 @@ export function Onboarding() {
           <label className="flex min-h-11 items-center gap-3">
             <input type="checkbox" checked={prefs.highContrast} onChange={(event) => updatePrefs({ highContrast: event.target.checked })} />
             {t('onboarding.contrast')}
+          </label>
+          <label className="flex min-h-11 items-center gap-3">
+            <input type="checkbox" checked={prefs.dyslexiaFont} onChange={(event) => updatePrefs({ dyslexiaFont: event.target.checked })} />
+            {t('settings.dyslexiaFont')}
+          </label>
+          <label className="flex min-h-11 items-center gap-3">
+            <input type="checkbox" checked={prefs.easierTapping} onChange={(event) => updatePrefs({ easierTapping: event.target.checked })} />
+            {t('settings.easierTapping')}
           </label>
         </section>
       )}
@@ -138,6 +147,14 @@ export function Onboarding() {
             {t('onboarding.readAloud')}
           </label>
           <p className="text-[var(--muted)]">{t('onboarding.readBody')}</p>
+          <h2 className="pt-2 text-xl font-semibold">{t('onboarding.voiceLimit')}</h2>
+          <p className="text-[var(--muted)]">{t('onboarding.voiceLimitBody')}</p>
+          <VoiceLimitChoices
+            value={prefs.voiceTransferLimit}
+            onChange={(voiceTransferLimit) => updatePrefs({ voiceTransferLimit })}
+            offLabel={t('settings.voiceLimitOff')}
+            label={t('onboarding.voiceLimit')}
+          />
         </section>
       )}
       {step === 5 && (

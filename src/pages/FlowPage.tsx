@@ -105,7 +105,8 @@ export function FlowPage() {
         if (data.flow === flow.id && data.fields) {
           Object.assign(next, data.fields)
           filled = Object.keys(data.fields)
-          sessionStorage.removeItem('ocbc-fill')
+        } else if (data.flow && data.flow !== flow.id) {
+          /* leave the draft for the intended journey */
         }
       } catch {
         sessionStorage.removeItem('ocbc-fill')
@@ -120,7 +121,8 @@ export function FlowPage() {
     const known = PAYNOW_CONTACTS.find((contact) => contact.mobile === next.to)
     if (known) setPayeeLabel(known.name)
     setStage('form')
-    setWstep(filled.length && wizardReview(flow.id) >= 0 ? wizardReview(flow.id) : 0)
+    setWstep(filled.length && wizardReview(flow.id) >= 0 ? Math.max(0, wizardReview(flow.id) - 1) : 0)
+    if (filled.length) window.setTimeout(() => sessionStorage.removeItem('ocbc-fill'), 0)
     if (demo === 'mei' && flow.id === 'overseas') {
       const found = validateForm(flow.id, next, app.balances['360'] ?? 0, app.payees)
       setIssues(found)
@@ -677,7 +679,7 @@ export function FlowPage() {
             {flow.id === 'card-lost' && <p>{t('flows.lostNote')}</p>}
             {flow.kind === 'payment' && touring && !practice && <p className="font-semibold">{t('look.slidePractice')}</p>}
             {flow.kind === 'payment' ? (
-              <PaySlider disabled={touring && !practice} label={practice || touring ? t('look.slidePractice') : t('look.slide')} ariaLabel={`${t('look.slide')} ${formatMoney(Number(form.amount) || 0)}`} guide={reviewGuide(flow.id)} onPay={() => { if (touring && !practice) return; setOtp(''); setOtpError(''); setStage('otp') }} />
+              <PayControl easier={app.prefs.easierTapping} disabled={touring && !practice} label={practice || touring ? t('look.slidePractice') : t('look.slide')} holdLabel={t('look.holdToPay')} holdingLabel={t('look.holdingToPay')} ariaLabel={`${app.prefs.easierTapping ? t('look.holdToPay') : t('look.slide')} ${formatMoney(Number(form.amount) || 0)}`} guide={reviewGuide(flow.id)} onPay={() => { if (touring && !practice) return; setOtp(''); setOtpError(''); setStage('otp') }} />
             ) : null}
             {flow.kind === 'payment' ? (
               <button type="button" className="min-h-11 w-full text-[15px] font-semibold text-[var(--link)] underline" onClick={() => setConfirmPay(true)}>{t('look.tapToPay')}</button>
@@ -867,6 +869,125 @@ function maskProxy(value: string, proxy = 'mobile') {
     return digits.length >= 4 ? `+65 ${digits.slice(0, 4)} ••••` : raw
   }
   return raw.length > 4 ? `${raw.slice(0, 4)} ••••` : raw
+}
+
+function PayControl({
+  easier,
+  label,
+  holdLabel,
+  holdingLabel,
+  ariaLabel,
+  guide,
+  onPay,
+  disabled,
+}: {
+  easier: boolean
+  label: string
+  holdLabel: string
+  holdingLabel: string
+  ariaLabel: string
+  guide?: string
+  onPay: () => void
+  disabled?: boolean
+}) {
+  if (easier) return <PayHold label={holdLabel} holdingLabel={holdingLabel} ariaLabel={ariaLabel} guide={guide} onPay={onPay} disabled={disabled} />
+  return <PaySlider label={label} ariaLabel={ariaLabel} guide={guide} onPay={onPay} disabled={disabled} />
+}
+
+function PayHold({
+  label,
+  holdingLabel,
+  ariaLabel,
+  guide,
+  onPay,
+  disabled,
+}: {
+  label: string
+  holdingLabel: string
+  ariaLabel: string
+  guide?: string
+  onPay: () => void
+  disabled?: boolean
+}) {
+  const [progress, setProgress] = useState(0)
+  const startRef = useRef<number | null>(null)
+  const frameRef = useRef(0)
+  const doneRef = useRef(false)
+  const keyHold = useRef(false)
+
+  const clear = () => {
+    window.cancelAnimationFrame(frameRef.current)
+    startRef.current = null
+  }
+
+  const tick = (now: number) => {
+    if (startRef.current == null || doneRef.current) return
+    const next = Math.min(1, (now - startRef.current) / 1500)
+    setProgress(next)
+    if (next >= 1) {
+      doneRef.current = true
+      clear()
+      onPay()
+      return
+    }
+    frameRef.current = window.requestAnimationFrame(tick)
+  }
+
+  const start = () => {
+    if (disabled || doneRef.current || startRef.current != null) return
+    startRef.current = performance.now()
+    setProgress(0.02)
+    frameRef.current = window.requestAnimationFrame(tick)
+  }
+
+  const cancel = () => {
+    if (doneRef.current) return
+    clear()
+    setProgress(0)
+  }
+
+  return (
+    <button
+      type="button"
+      data-guide={guide}
+      data-pay-review=""
+      data-hold-pay=""
+      disabled={disabled}
+      aria-label={ariaLabel}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-valuenow={Math.round(progress * 100)}
+      className={`relative flex h-14 w-full items-center justify-center overflow-hidden rounded-full bg-[#2A3B43] px-4 font-semibold text-white ${disabled ? 'opacity-60' : ''}`}
+      onPointerDown={(event) => {
+        if (disabled) return
+        event.currentTarget.setPointerCapture(event.pointerId)
+        start()
+      }}
+      onPointerUp={cancel}
+      onPointerCancel={cancel}
+      onLostPointerCapture={cancel}
+      onKeyDown={(event) => {
+        if (disabled) return
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault()
+          if (event.key === ' ' && event.repeat) return
+          keyHold.current = event.key === ' '
+          start()
+        }
+        if (event.key === 'Escape') cancel()
+      }}
+      onKeyUp={(event) => {
+        if (event.key === ' ' && keyHold.current && !doneRef.current) {
+          keyHold.current = false
+          cancel()
+        }
+      }}
+      onBlur={cancel}
+    >
+      <span className="pointer-events-none absolute inset-y-0 left-0" style={{ width: `${Math.round(progress * 100)}%`, background: "var(--accent)" }} />
+      <span className="relative z-[1] underline">{progress > 0 && progress < 1 ? holdingLabel : label}</span>
+    </button>
+  )
 }
 
 function PaySlider({ label, ariaLabel, guide, onPay, disabled }: { label: string; ariaLabel: string; guide?: string; onPay: () => void; disabled?: boolean }) {

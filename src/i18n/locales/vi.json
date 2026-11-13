@@ -43,7 +43,9 @@
     "ready": "Bạn đã sẵn sàng",
     "readyBody": "Đã lưu trên thiết bị này.",
     "shortcuts": "Chọn 6 lối tắt",
-    "colourAdjust": "Màu nhấn có thể thay đổi một chút."
+    "colourAdjust": "Màu nhấn có thể thay đổi một chút.",
+    "voiceLimit": "Voice transfer limit",
+    "voiceLimitBody": "Choose a cap for transfers you start by speaking to Ollie. You still review and confirm each one."
   },
   "errors": {
     "summary": "Kiểm tra các mục bên dưới.",
@@ -143,7 +145,16 @@
     "busy": "Trợ lý đang bận. Đây là câu trả lời ngắn.",
     "empty": "Hãy đặt câu hỏi.",
     "chipBalance": "Số dư của tôi là bao nhiêu?",
-    "chipGuide": "Cho tôi xem các bước"
+    "chipGuide": "Cho tôi xem các bước",
+    "voiceConfirm": "Bạn đang gửi {amount} cho {name}. Đúng không?",
+    "voiceOverLimit": "Voice transfers are limited to {amount}. You can change this in Settings, or send this on the usual transfer screen and confirm it there.",
+    "voiceUnknownPayee": "Chuyển khoản bằng giọng nói chỉ đến người nhận đã lưu. Tôi có thể mở màn hình chuyển khoản thường nếu bạn muốn trả người mới.",
+    "voiceOpenTransfer": "Mở chuyển khoản",
+    "voiceChip": "Thử: 'Chuyển $20 cho {name}'",
+    "voiceOpening": "Đang mở chuyển khoản. Hãy kiểm tra và xác nhận trên màn hình đó.",
+    "voiceCancelled": "Được, tôi đã hủy khoản chuyển đó.",
+    "voiceOpenSettings": "Open settings",
+    "voiceOff": "Voice transfers are turned off. You can turn them on in Settings, or use the usual transfer screen."
   },
   "settings": {
     "title": "Thêm",
@@ -153,7 +164,17 @@
     "meiBody": "Tiếng Trung, chữ lớn, câu trả lời ngắn. Mở một chuyển khoản nước ngoài.",
     "arifBody": "Tiếng Anh, đầy đủ chi tiết, thông tin chi tiêu. Mở thiết lập GIRO.",
     "reset": "Đặt lại ứng dụng",
-    "resetBody": "Xóa các lựa chọn đã lưu trên thiết bị này."
+    "resetBody": "Xóa các lựa chọn đã lưu trên thiết bị này.",
+    "dyslexiaFont": "Phông chữ thân thiện với chứng khó đọc",
+    "dyslexiaFontBody": "Dùng OpenDyslexic và giãn cách chữ. Chữ Hán, Tamil và các chữ khác vẫn dùng phông sẵn có.",
+    "easierTapping": "Chạm dễ hơn",
+    "easierTappingBody": "Nút lớn hơn, và tùy chọn nhấn giữ thay cho vuốt để thanh toán.",
+    "voiceLimit": "Voice transfer limit",
+    "voiceLimitBody": "Ollie can start a transfer when you speak, up to this cap. You still review and confirm each one. Choose Off to turn voice transfers off.",
+    "voiceLimitOff": "Off",
+    "voiceLimitRaise": "Raise voice transfer limit?",
+    "voiceLimitRaiseBody": "Raise your voice transfer limit to {amount}? You will still review and confirm each transfer.",
+    "voiceLimitConfirm": "Raise limit"
   },
   "demoBadge": "Demo",
   "prototype": "Demo",
@@ -267,7 +288,8 @@
   },
   "speech": {
     "noVoice": "Đang dùng giọng mặc định.",
-    "micDenied": "Micro đang tắt. Bạn có thể nhập bằng bàn phím."
+    "micDenied": "Micro đang tắt. Bạn có thể nhập bằng bàn phím.",
+    "stopListening": "Dừng"
   },
   "turnOnInsights": "Bật",
   "comingSoon": "Không có",
@@ -286,7 +308,7 @@
   "allShortcuts": "Mọi lối tắt",
   "emptySlot": "Trống",
   "moveUp": "Lên",
-  "moveDown": "Xuống",
+  "moveDown": "Xuống",
   "scamCheck": {
     "title": "Bạn chắc chứ? Đây là khoản chuyển lớn cho người mới.",
     "amountLine": "{amount} tới {name}",
@@ -301,9 +323,10 @@
     "continue": "Tiếp tục",
     "cooling": "Hãy suy nghĩ một chút",
     "coolingLeft": "Tiếp tục sau {n} giây",
-        "continueAnyway": "Vẫn tiếp tục",
+    "continueAnyway": "Vẫn tiếp tục",
     "callShort": "Gọi ScamShield 1799",
-    "helpline": "Đường dây ScamShield 1799 (miễn phí, 24/7)"
+    "helpline": "Đường dây ScamShield 1799 (miễn phí, 24/7)",
+    "needMoreTime": "Tôi cần thêm thời gian"
   },
   "look": {
     "hi": "Chào {name}",
@@ -355,6 +378,8 @@
     "pending": "Pending transactions made on your debit card may take up to 7 days to appear. You may check your available balance to ensure the correct amount has been deducted.",
     "slide": "Slide to pay",
     "slidePractice": "Slide to pay (practice)",
-    "ollieSafety": "Ollie · Safety check"
+    "ollieSafety": "Ollie · Safety check",
+    "holdToPay": "Nhấn và giữ để thanh toán",
+    "holdingToPay": "Tiếp tục giữ…"
   }
 }
