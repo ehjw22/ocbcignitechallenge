@@ -7,11 +7,12 @@ import {
   formatVoiceTransferAmount,
   matchSavedPayee,
   parseVoiceAffirmation,
+  invalidVoiceAmount,
   parseVoiceTransfer,
   voiceTransferFields,
 } from './voiceTransfer.ts'
 
-const mei = [{ id: 'wei', label: 'Son - Wei Ming (Australia)', name: 'Tan Wei Ming', country: 'Australia', swift: 'CTBAAU2S', account: '12345678' }]
+const mei = [{ id: 'wei', label: 'Son - Wei Ming (Australia)', name: 'Tan Wei Ming', country: 'Australia', swift: 'CTBAAU2S', account: '0012345678', aliases: ['son', '儿子'] }]
 const arif = [{ id: 'siti', label: 'Siti Aminah', name: 'Siti Aminah', country: 'Singapore', account: '81234567', key: 'paynow:81234567' }]
 
 test('parses English, Chinese and Malay transfer phrases', () => {
@@ -23,6 +24,10 @@ test('parses English, Chinese and Malay transfer phrases', () => {
   assert.deepEqual(parseVoiceTransfer('给Wei Ming转50元'), { amount: 50, payeeQuery: 'Wei Ming' })
   assert.deepEqual(parseVoiceTransfer('pindahkan 50 kepada Mei'), { amount: 50, payeeQuery: 'Mei' })
   assert.equal(parseVoiceTransfer('what is my balance'), null)
+  assert.deepEqual(parseVoiceTransfer('transfer twenty dollars to Siti'), { amount: 20, payeeQuery: 'Siti' })
+  assert.deepEqual(parseVoiceTransfer('transfer some money to Siti'), { amount: null, payeeQuery: 'Siti' })
+  assert.equal(parseVoiceTransfer('$20.555 to Siti'), null)
+  assert.equal(invalidVoiceAmount('transfer -50 to Siti'), true)
 })
 
 test('keeps a spoken note for the scam check', () => {
@@ -36,6 +41,7 @@ test('keeps a spoken note for the scam check', () => {
 test('matches saved payees and rejects unknown names', () => {
   assert.equal(matchSavedPayee('Wei Ming', mei)?.name, 'Tan Wei Ming')
   assert.equal(matchSavedPayee('son', mei)?.id, 'wei')
+  assert.equal(matchSavedPayee('儿子', [{ ...mei[0], aliases: ['son', '儿子', '兒子', 'anak lelaki'] }])?.id, 'wei')
   assert.equal(matchSavedPayee('Siti', arif)?.name, 'Siti Aminah')
   assert.equal(matchSavedPayee('John', mei), null)
 })

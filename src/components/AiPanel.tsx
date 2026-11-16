@@ -5,7 +5,7 @@ import { useApp } from '@/context/AppContext'
 import { FX } from '@/data/bank'
 import { translate } from '@/i18n'
 import { formatSGD } from '@/lib/format'
-import { clampVoiceTransferLimit, formatVoiceTransferAmount, matchSavedPayee, parseVoiceAffirmation, parseVoiceTransfer, voiceTransferFields } from '@/lib/voiceTransfer'
+import { clampVoiceTransferLimit, formatVoiceTransferAmount, invalidVoiceAmount, matchSavedPayee, parseVoiceAffirmation, parseVoiceTransfer, voiceTransferFields } from '@/lib/voiceTransfer'
 import { languageById } from '@/lib/languages'
 import { journeyRoute, queueShowHow } from '@/lib/showHow'
 import { prefetchSpeech, speak, stopSpeaking } from '@/lib/speech'
@@ -178,8 +178,13 @@ export function AiPanel() {
       }
       if (answer === 'no') return { role: 'assistant', content: t('ai.voiceCancelled'), source: 'demo' }
     }
+    if (invalidVoiceAmount(text)) return { role: 'assistant', content: t('ai.voiceBadAmount'), source: 'demo' }
     const parsed = parseVoiceTransfer(text)
     if (!parsed) return null
+    if (parsed.amount == null) {
+      const payee = matchSavedPayee(parsed.payeeQuery, app.payees)
+      return { role: 'assistant', content: t('ai.voiceAskAmount', { name: payee?.name || parsed.payeeQuery }), source: 'demo' }
+    }
     const limit = clampVoiceTransferLimit(app.prefs.voiceTransferLimit)
     const payee = matchSavedPayee(parsed.payeeQuery, app.payees)
     const from = app.accounts.find((account) => account.kind === 'deposit')?.id

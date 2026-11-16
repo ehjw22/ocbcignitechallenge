@@ -91,9 +91,9 @@ export const FLOWS: FlowDef[] = [
         { value: 'Germany', label: 'flows.germany' },
       ] },
       { id: 'swift', guide: 'overseas-swift', label: 'flows.swift', type: 'text', sample: 'CTBAAU2S' },
-      { id: 'account', guide: 'overseas-account', label: 'flows.accountNumber', type: 'text', sample: '12345678' },
+      { id: 'account', guide: 'overseas-account', label: 'flows.accountNumber', type: 'text', sample: '1234567890' },
       { id: 'from', guide: 'overseas-from', label: 'flows.from', type: 'account', sample: '360', options: depositAccounts },
-      { id: 'amount', guide: 'overseas-amount', label: 'amount', type: 'amount', inputMode: 'decimal', sample: '200.00' },
+      { id: 'amount', guide: 'overseas-amount', label: 'amount', type: 'amount', inputMode: 'decimal', sample: '20.00' },
       { id: 'purpose', guide: 'overseas-purpose', label: 'flows.purpose', type: 'select', sample: 'family', options: [
         { value: 'family', label: 'flows.purposeFamily' },
         { value: 'education', label: 'flows.purposeEducation' },

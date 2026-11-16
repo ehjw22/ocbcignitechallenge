@@ -25,7 +25,7 @@ export function formatVoiceTransferAmount(amount: number) {
 }
 
 export type VoiceParse = {
-  amount: number
+  amount: number | null
   payeeQuery: string
   note?: string
 }
@@ -58,16 +58,38 @@ function splitNote(payee: string): { payeeQuery: string; note?: string } {
   return { payeeQuery: trimPayee(match[1]), note: note || undefined }
 }
 
-function pack(amountRaw: string, payeeRaw: string): VoiceParse | null {
-  const amount = cleanAmount(amountRaw)
+const NUMBER_WORDS: Record<string, string> = {
+  one: '1', two: '2', three: '3', four: '4', five: '5', six: '6', seven: '7', eight: '8', nine: '9', ten: '10',
+  eleven: '11', twelve: '12', fifteen: '15', twenty: '20', thirty: '30', forty: '40', fifty: '50',
+  sixty: '60', seventy: '70', eighty: '80', ninety: '90', hundred: '100',
+  satu: '1', dua: '2', tiga: '3', empat: '4', lima: '5', enam: '6', tujuh: '7', lapan: '8', sembilan: '9', sepuluh: '10', 'dua puluh': '20',
+  二十: '20', 三十: '30', 五十: '50', 一百: '100',
+}
+
+function spellNumbers(text: string) {
+  return text.replace(/\b(?:dua puluh|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|fifteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred|satu|dua|tiga|empat|lima|enam|tujuh|lapan|sembilan|sepuluh)\b|二十|三十|五十|一百/gi, (word) => NUMBER_WORDS[word.toLowerCase()] || NUMBER_WORDS[word] || word)
+}
+
+function pack(amountRaw: string | null, payeeRaw: string): VoiceParse | null {
+  const amount = amountRaw == null ? null : cleanAmount(amountRaw)
   const { payeeQuery, note } = splitNote(payeeRaw)
-  if (amount == null || !payeeQuery) return null
+  if ((amountRaw != null && amount == null) || !payeeQuery) return null
   return note ? { amount, payeeQuery, note } : { amount, payeeQuery }
 }
 
+export function invalidVoiceAmount(text: string) {
+  const raw = text.normalize('NFKC')
+  if (!/(?:transfer|send|pay|转|轉|汇|匯|pindah)/i.test(raw)) return false
+  return /-\s*\d/.test(raw) || /\d+\.\d{3,}/.test(raw)
+}
+
 export function parseVoiceTransfer(text: string): VoiceParse | null {
-  const raw = text.normalize('NFKC').replace(/\s+/g, ' ').trim()
-  if (!raw) return null
+  const raw = spellNumbers(text.normalize('NFKC').replace(/\s+/g, ' ').trim())
+  if (!raw || invalidVoiceAmount(text)) return null
+  const vague = raw.match(/^(?:please\s+)?(?:transfer|send|pay)\s+(?:some|a bit of)\s+money\s+(?:to|for)\s+(.+)$/i)
+    || raw.match(/^(?:tolong\s+)?(?:pindahkan|pindah|hantar|transfer)\s+(?:sedikit|some)\s+(?:wang|duit|money)\s+(?:kepada|ke)\s+(.+)$/i)
+    || raw.match(/^(?:给|給)\s*(.+?)\s*(?:转|轉|汇|匯)\s*(?:一些|一点|一點)(?:钱|錢|元)?$/u)
+  if (vague) return pack(null, vague[1])
 
   const zh = raw.match(/^(?:请|請)?(?:帮我|幫我)?(?:转账|轉帳|转帐|转|轉|汇|匯)\s*(\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?|\d+(?:\.\d{1,2})?)\s*(?:块|塊|元|新币|新幣|新元|刀)?\s*(?:给|給)\s*(.+)$/u)
   if (zh) return pack(zh[1], zh[2])
@@ -108,8 +130,19 @@ export function matchSavedPayee(query: string, payees: SavedPayee[]): SavedPayee
   let best: { payee: SavedPayee; score: number } | null = null
   let tie = false
   for (const payee of payees) {
-    const fields = [payee.name, payee.label, payee.id, payee.account, payee.swift].filter(Boolean).map((item) => norm(String(item)))
+    const fields = [payee.name, payee.label, payee.id, payee.account, payee.swift, ...(payee.aliases || [])].filter(Boolean).map((item) => norm(String(item)))
     let score = 0
+    const relations: Record<string, string[]> = {
+      son: ['son', '儿子', '兒子', 'anak lelaki'],
+      daughter: ['daughter', '女儿', '女兒', 'anak perempuan'],
+      mum: ['mum', 'mom', 'mother', '妈妈', '媽媽', 'ibu'],
+      dad: ['dad', 'father', '爸爸', 'bapa', 'ayah'],
+    }
+    for (const words of Object.values(relations)) {
+      const queryHit = words.some((word) => norm(word) === wanted)
+      const payeeHit = words.some((word) => fields.some((field) => field.includes(norm(word))))
+      if (queryHit && payeeHit) score = Math.max(score, 90)
+    }
     for (const field of fields) {
       if (!field) continue
       if (field === wanted) score = Math.max(score, 100)

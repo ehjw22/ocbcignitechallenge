@@ -146,7 +146,7 @@ export function BottomNav() {
                 ) : (
                   <MoreGlyph active={isActive} />
                 )}
-                <span className="line-clamp-2 flex min-h-[2.2em] w-full items-center justify-center whitespace-normal text-center text-[0.7rem] font-normal leading-tight">{label}</span>
+                <span className="line-clamp-2 flex min-h-[2.2em] w-full items-center justify-center whitespace-normal text-center text-[12px] font-normal leading-tight [word-break:keep-all]">{label}</span>
               </>
             )}
           </NavLink>
@@ -443,8 +443,8 @@ export function Page({
   }, [location.pathname, title, prefs.readAloud, prefs.language, prefs.speechRate, prefs.dialect])
   return (
     <div className="flex h-full min-h-0 flex-col bg-[var(--bg)] text-[var(--text)]">
-      <header className="relative flex min-h-14 items-center justify-center border-b border-[var(--line)] bg-[var(--card)] px-3 py-2">
-        <span className="absolute left-1 flex items-center">
+      <header className="grid min-h-14 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-1 border-b border-[var(--line)] bg-[var(--card)] px-2 py-2">
+        <span className="flex items-center">
           {back && (
             <button type="button" className="flex h-11 w-11 items-center justify-center" onClick={() => navigate(-1)} aria-label={t('back')}>
               <ChevronLeft aria-hidden size={26} />
@@ -467,11 +467,11 @@ export function Page({
             />
           )}
         </span>
-        <div className="flex max-w-[52%] flex-col items-center">
+        <div className="flex min-w-0 flex-col items-center">
           {title && <h1 className="line-clamp-2 w-full whitespace-normal text-center text-[1.05rem] font-semibold leading-snug">{title}</h1>}
           <DemoBadge />
         </div>
-        <span className="absolute right-1 flex items-center">
+        <span className="flex items-center justify-end">
           <ExplainButton />
         </span>
       </header>

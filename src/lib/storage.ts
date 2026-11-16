@@ -1,6 +1,6 @@
 import { DEMO_LOGINS } from '@/data/demoAccounts'
 import type { AnalyticsEvent, CardItem, DemoUser, Preferences, Profile, StaffRequest, Txn } from './types'
-import { DEFAULT_SHORTCUTS } from './languages'
+import { DEFAULT_SHORTCUTS, sanitizeShortcuts } from './languages'
 import { snapRate } from './rates'
 import { clampVoiceTransferLimit, VOICE_TRANSFER_LIMIT_SGD } from './voiceTransfer'
 
@@ -66,7 +66,7 @@ function read<T>(key: string, fallback: T): T {
 export function loadPrefs(): Preferences {
   const base = defaultPrefs()
   const saved = read<Preferences>(keys.prefs, base)
-  if (!Array.isArray(saved.shortcuts) || saved.shortcuts.length !== 6) saved.shortcuts = [...DEFAULT_SHORTCUTS]
+  saved.shortcuts = sanitizeShortcuts(saved.shortcuts)
   saved.textSize = Math.min(24, Math.max(16, Number(saved.textSize) || 16))
   saved.voiceTransferLimit = clampVoiceTransferLimit(saved.voiceTransferLimit)
   saved.quizCompleted = typeof saved.quizCompleted === 'boolean' ? saved.quizCompleted : Boolean(saved.onboarded)
@@ -191,7 +191,7 @@ export type GuestDisplay = Pick<Preferences, 'language' | 'dialect' | 'textSize'
 
 function mergePrefs(prefs: Preferences): Preferences {
   const next = { ...defaultPrefs(), ...prefs }
-  if (!Array.isArray(next.shortcuts) || next.shortcuts.length !== 6) next.shortcuts = [...DEFAULT_SHORTCUTS]
+  next.shortcuts = sanitizeShortcuts(next.shortcuts)
   next.textSize = Math.min(24, Math.max(16, Number(next.textSize) || 16))
   next.speechRate = snapRate(Number(next.speechRate) || 1)
   next.quizCompleted = typeof next.quizCompleted === 'boolean' ? next.quizCompleted : Boolean(next.onboarded)

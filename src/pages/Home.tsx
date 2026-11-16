@@ -137,7 +137,7 @@ export function Home() {
             return (
               <article key={account.id} className="mb-3 rounded-xl p-4" style={{ background: app.prefs.scheme === 'dark' ? 'var(--card)' : '#F4EEE9', color: app.prefs.scheme === 'dark' ? 'var(--text)' : '#333' }}>
                 <Link to={`/accounts/${account.id}`} data-guide={index === 0 ? 'home-balance' : undefined} className="flex items-center gap-3">
-                  <span data-skip-speech className="grid h-11 w-11 place-items-center rounded-full bg-[#F6D5BF] text-[12px] font-bold">{code}</span>
+                  <span data-skip-speech className="grid h-11 w-11 place-items-center rounded-full bg-[#F6D5BF] text-[12px] font-bold text-[#3a2418]">{code}</span>
                   <span className="min-w-0 flex-1">
                     <span className="block text-[16px] font-bold">{t(account.nameKey)}</span>
                     <span className="block text-[14px] font-normal">{account.number}</span>

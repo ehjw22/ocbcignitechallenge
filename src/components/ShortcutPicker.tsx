@@ -17,7 +17,7 @@ import {
 import { SortableContext, arrayMove, rectSortingStrategy, sortableKeyboardCoordinates, useSortable } from '@dnd-kit/sortable'
 import { useDraggable } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
-import { Check, ChevronDown, ChevronUp, Plus } from 'lucide-react'
+import { Check, ChevronDown, ChevronUp, LayoutGrid, Plus } from 'lucide-react'
 import { choiceClass } from '@/components/Choice'
 import { useApp } from '@/context/AppContext'
 import { translate } from '@/i18n'
@@ -62,7 +62,7 @@ function ShortcutFace({ id, label, compact }: { id: string; label: string; compa
   return (
     <>
       <span className="flex shrink-0 items-center justify-center rounded-full bg-[var(--soft)] text-[var(--link)]" style={circleSize()}>
-        {Icon ? <Icon aria-hidden size={26} strokeWidth={1.75} /> : null}
+        {Icon ? <Icon aria-hidden size={26} strokeWidth={1.75} /> : <LayoutGrid aria-hidden size={26} strokeWidth={1.75} />}
       </span>
       <span className={`block max-h-[2.8em] w-full max-w-full overflow-hidden text-center leading-tight [overflow-wrap:anywhere] ${compact ? 'text-[13px]' : 'text-[0.75rem]'}`}>{label}</span>
     </>

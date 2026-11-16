@@ -10,6 +10,7 @@ import { flowById, type FlowField } from '@/data/flows'
 import { translate } from '@/i18n'
 import { formatMoney } from '@/lib/format'
 import { getFlowTour, startGuide, subscribeFlowTour } from '@/lib/guide'
+import { guideStepFill } from '@/lib/guideSync'
 import { formatRate, nextRate } from '@/lib/rates'
 import { beginShowHow, peekShowHow, takeShowHow } from '@/lib/showHow'
 import { speak } from '@/lib/speech'
@@ -59,6 +60,7 @@ export function FlowPage() {
   const guideOn = useSyncExternalStore(subscribeFlowTour, () => getFlowTour()?.guideId === (flow?.guideId || ''), () => false)
   const alertRef = useRef<HTMLDivElement>(null)
   const guided = useRef(false)
+  const tourLive = useRef(false)
 
   useEffect(() => {
     const root = document.getElementById('customer-root')
@@ -93,7 +95,7 @@ export function FlowPage() {
       next.name = 'Tan Wei Ming'
       next.country = 'Australia'
       next.swift = 'CTBAAU2S'
-      next.account = '12345678'
+      next.account = '0012345678'
       next.amount = '5000'
       next.from = '360'
     }
@@ -121,7 +123,7 @@ export function FlowPage() {
     const known = PAYNOW_CONTACTS.find((contact) => contact.mobile === next.to)
     if (known) setPayeeLabel(known.name)
     setStage('form')
-    setWstep(filled.length && wizardReview(flow.id) >= 0 ? Math.max(0, wizardReview(flow.id) - 1) : 0)
+    setWstep(flow.id === 'paynow' && practice ? 1 : filled.length && wizardReview(flow.id) >= 0 ? Math.max(0, wizardReview(flow.id) - 1) : 0)
     if (filled.length) window.setTimeout(() => sessionStorage.removeItem('ocbc-fill'), 0)
     if (demo === 'mei' && flow.id === 'overseas') {
       const found = validateForm(flow.id, next, app.balances['360'] ?? 0, app.payees)
@@ -166,34 +168,42 @@ export function FlowPage() {
   }, [flowId])
 
   useEffect(() => {
+    if (!flow) return
     const sync = () => {
       const tour = getFlowTour()
-      if (!tour || tour.guideId !== 'paynow') return
-      const id = tour.steps[tour.index]?.id
+      if (!tour || tour.guideId !== flow.guideId) {
+        if (tourLive.current && !practice) {
+          tourLive.current = false
+          setForm((prev) => {
+            const next = { ...prev }
+            flow.fields.forEach((field) => {
+              if ((field.type === 'text' || field.type === 'amount') && next[field.id] === field.sample) next[field.id] = ''
+            })
+            return next
+          })
+          setStage('form')
+          setWstep(0)
+        }
+        return
+      }
+      tourLive.current = true
+      const id = tour.steps[tour.index]?.id || ''
+      const fill = guideStepFill(flow, id)
       const mei = whoRef.current.id === 'auntiemei' || whoRef.current.id === 'persona-mei' || whoRef.current.mei
       const contact = PAYNOW_CONTACTS.find((item) => item.name === (mei ? 'Tan Wei Ming' : 'Siti Aminah')) || PAYNOW_CONTACTS[0]
-      if (id === 'who') {
-        setStage('form')
-        setWstep(0)
-      } else if (id === 'name') {
+      if (flow.id === 'paynow' && fill.values.to) {
+        fill.values.to = contact.mobile
+        fill.values.proxy = 'mobile'
         setPayeeLabel(contact.name)
-        setForm((prev) => ({ ...prev, proxy: 'mobile', to: contact.mobile }))
-        setStage('form')
-        setWstep(0)
-      } else if (id === 'amount') {
-        setPayeeLabel(contact.name)
-        setForm((prev) => ({ ...prev, proxy: 'mobile', to: prev.to || contact.mobile, amount: '10.00' }))
-        setStage('form')
-        setWstep(1)
-      } else if (id === 'review' || id === 'slider') {
-        setPayeeLabel(contact.name)
-        setForm((prev) => ({ ...prev, proxy: 'mobile', to: prev.to || contact.mobile, amount: prev.amount && Number(prev.amount) > 0 ? prev.amount : '10.00' }))
-        setStage('review')
       }
+      setForm((prev) => ({ ...prev, ...fill.values }))
+      setWstep(fill.wstep)
+      setStage(fill.stage)
+      setIssues([])
     }
     window.addEventListener('ocbc-guide-step', sync)
     return () => window.removeEventListener('ocbc-guide-step', sync)
-  }, [])
+  }, [flow, practice])
 
   useEffect(() => {
     if (!flow) return
@@ -241,6 +251,7 @@ export function FlowPage() {
     if (field.id === 'lock') return false
     if (field.id === 'card' && params.get('card')) return false
     if (flow.id === 'paynow' && wstep === 1 && ['amount', 'from', 'reference', 'savePayee', 'when', 'laterDate'].includes(field.id)) return false
+    if (showAll && reviewAt >= 0 && wstep === reviewAt) return false
     if (!showAll && stepIds && !stepIds.includes(field.id)) return false
     if (field.id === 'laterDate' && form.when !== 'later') return false
     if (field.id === 'swift' && fx?.account === 'iban') return false
@@ -491,7 +502,7 @@ export function FlowPage() {
                 <h2 className="text-lg font-semibold">{t('review')}</h2>
                 {flow.fields.filter((field) => field.id !== 'laterDate' && field.id !== 'lock').map((field) => (
                   <p key={field.id} className="flex justify-between gap-3 text-sm">
-                    <span className="text-[var(--muted)]">{t(field.label)}</span>
+                    <span className="text-[var(--muted)]">{shortLabel(field, t)}</span>
                     <span className="text-right font-semibold">{display(field, form[field.id] || '', t)}</span>
                   </p>
                 ))}
@@ -638,7 +649,7 @@ export function FlowPage() {
               <button type="button" className="text-sm font-semibold text-[var(--link)]" onClick={() => { setIssues([]); setWstep((value) => value - 1) }}>{t('back')}</button>
             )}
             {!(flow.id === 'paynow' && directory && wstep === 0) && (
-            <button type="submit" data-guide={flow.id === 'paynow' && wstep === 1 ? 'pay-next' : reviewGuide(flow.id)} aria-describedby={flow.id === 'paynow' && wstep === 1 ? 'pay-alert' : undefined} className={flow.id === 'paynow' && wstep === 1 ? 'min-h-12 w-full rounded-lg bg-[#E30613] font-bold text-white disabled:opacity-40' : 'ocbc-btn'} disabled={flow.id === 'paynow' && (Number(form.amount) <= 0 || Number(form.amount) > app.limit || Number(form.amount) > balance)}>
+            <button type="submit" data-guide={flow.id === 'paynow' && wstep === 1 ? 'pay-next' : reviewGuide(flow.id)} aria-describedby={flow.id === 'paynow' && wstep === 1 ? 'pay-alert' : undefined} className={`${flow.id === 'paynow' && wstep === 1 ? 'min-h-12 w-full rounded-lg bg-[#E30613] font-bold text-white' : 'ocbc-btn'} disabled:cursor-not-allowed disabled:bg-zinc-300 disabled:text-zinc-600 disabled:opacity-70`} disabled={stepBlocked(flow.id, form, balance, app.limit, app.payees, wstep, reviewAt, stepIds) || (touring && !practice && reviewAt >= 0 && wstep >= reviewAt)}>
               {t('flows.submit')}
             </button>
             )}
@@ -665,7 +676,7 @@ export function FlowPage() {
               return true
             }).map((field) => (
               <p key={field.id} className={app.prefs.textSize >= 20 ? 'flex min-w-0 flex-col gap-1' : 'flex min-w-0 justify-between gap-3'}>
-                <span className="text-[var(--muted)]">{field.id === 'account' && fx?.account === 'iban' ? t('flows.iban') : t(field.label)}</span>
+                <span className="text-[var(--muted)]">{field.id === 'account' && fx?.account === 'iban' ? t('flows.iban') : shortLabel(field, t)}</span>
                 <span className="money min-w-0 whitespace-nowrap font-semibold">{field.id === 'to' ? maskProxy(form[field.id] || '', form.proxy) : display(field, form[field.id] || '', t)}</span>
               </p>
             ))}
@@ -840,6 +851,32 @@ function display(field: FlowField, value: string, t: (key: string) => string) {
   if (field.type === 'toggle') return value === 'no' ? t('flows.unlocked') : t('flows.locked')
   if (field.type === 'amount') return formatMoney(Number(value || 0))
   return value
+}
+
+function shortLabel(field: FlowField, t: (key: string) => string) {
+  if (field.id === 'account') return t('flows.accountShort')
+  if (field.id === 'name') return t('flows.nameShort')
+  if (field.id === 'from') return t('flows.fromShort')
+  return t(field.label)
+}
+
+function stepBlocked(
+  flowId: string,
+  form: Record<string, string>,
+  balance: number,
+  limit: number,
+  payees: Parameters<typeof validateForm>[3],
+  wstep: number,
+  reviewAt: number,
+  stepIds: string[] | null,
+) {
+  if (flowId === 'paynow' && wstep === 1) {
+    const amount = Number(form.amount)
+    if (!(amount > 0) || amount > limit || amount > balance) return true
+  }
+  const found = validateForm(flowId, form, balance, payees)
+  const scoped = reviewAt < 0 || !stepIds || wstep >= reviewAt ? found : found.filter((issue) => stepIds.includes(issue.field))
+  return scoped.length > 0
 }
 
 function wizardReview(flowId: string) {

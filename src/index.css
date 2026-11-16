@@ -272,7 +272,7 @@ html[data-bold="1"] #customer-app button {
 }
 
 .nav-clearance {
-  padding-bottom: calc(80px + var(--nav-safe, 0px));
+  padding-bottom: calc(140px + var(--nav-safe, 0px));
 }
 
 .phone-notch {
@@ -545,6 +545,9 @@ html.dyslexia-font [role="dialog"] {
   letter-spacing: 0.05em;
   word-spacing: 0.1em;
   line-height: 1.6;
+  word-break: keep-all;
+  overflow-wrap: normal;
+  hyphens: manual;
 }
 
 html.dyslexia-font #customer-root p,
@@ -567,7 +570,14 @@ html[data-easy-tap="1"] #customer-root .tap,
 html[data-easy-tap="1"] #customer-root .ocbc-row,
 html[data-easy-tap="1"] #customer-root [role="radio"],
 html[data-easy-tap="1"] #customer-root [role="switch"],
-html[data-easy-tap="1"] #customer-root .app-nav a {
+html[data-easy-tap="1"] #customer-root .app-nav a,
+.app-nav button {
+  overflow-wrap: normal;
+  word-break: keep-all;
+  hyphens: manual;
+}
+
+.app-nav a {
   min-height: 48px;
   min-width: 48px;
 }

@@ -57,6 +57,22 @@ export const SHORTCUTS = [
 
 export const DEFAULT_SHORTCUTS = ['transfer', 'paynow', 'bill', 'scan', 'goals', 'insights']
 
+const KNOWN_SHORTCUTS = new Set<string>(SHORTCUTS)
+
+export function sanitizeShortcuts(ids: unknown) {
+  const raw = Array.isArray(ids) ? ids.filter((id): id is string => typeof id === 'string') : []
+  const next: string[] = []
+  for (const id of raw) {
+    if (!KNOWN_SHORTCUTS.has(id) || next.includes(id)) continue
+    next.push(id)
+  }
+  for (const id of DEFAULT_SHORTCUTS) {
+    if (next.length >= 6) break
+    if (!next.includes(id)) next.push(id)
+  }
+  return next.slice(0, 6)
+}
+
 export const DIALECTS: { id: string; ready: boolean }[] = [
   { id: 'standard', ready: true },
   { id: 'cantonese', ready: true },
