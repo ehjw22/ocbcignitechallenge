@@ -17,13 +17,17 @@ import {
 import { languageById } from '@/lib/languages'
 import { journeyRoute, queueShowHow } from '@/lib/showHow'
 import { prefetchSpeech, speak, stopSpeaking } from '@/lib/speech'
+import { assessChatRisk, buildChatReview, transferExpired } from '@/lib/chatTransfer'
 import type { ChatAction, ChatMessage, VoiceTransferCard } from '@/lib/types'
 import { visibleReply } from '@/lib/chatReply'
+import { getFlowTour } from '@/lib/guide'
+import { ChatTransferMessage } from './ChatTransferMessage'
 import { RichText, plainSpeech } from './RichText'
 import { Speakable } from './Speakable'
 
 const CHIP_KEYS = ['ai.chipVoiceJohn', 'ai.chipBalance', 'ai.chipPaynow', 'ai.chipGiro', 'ai.chipHow', 'ai.chipScam']
 const FOLLOW = ['ai.chipSimpler', 'ai.chipTours', 'ai.chipStaff'] as const
+const PENDING_VOICE_TRANSFER = new Set(['sendReady', 'scamQuiz'])
 
 function journeyFor(screen: string) {
   if (screen.includes('overseas')) return 'overseas'
@@ -121,6 +125,7 @@ export function AiPanel() {
   const [answers, setAnswers] = useState<Record<number, Array<'yes' | 'no' | null>>>({})
   const [cancelled, setCancelled] = useState<Record<number, boolean>>({})
   const [summaries, setSummaries] = useState<Record<number, string>>({})
+  const [chatScam, setChatScam] = useState<Record<number, Array<'yes' | 'no' | null>>>({})
   const scroller = useRef<HTMLDivElement>(null)
   const box = useRef<HTMLTextAreaElement>(null)
   const abortRef = useRef<AbortController | null>(null)
@@ -128,11 +133,44 @@ export function AiPanel() {
   const voiceFailCount = useRef(0)
   const heardFinal = useRef(false)
   const recRef = useRef<SpeechRecognitionLike | null>(null)
+  const helpWasOpen = useRef(app.helpOpen)
   const micOk = typeof window !== 'undefined' && Boolean(window.SpeechRecognition || window.webkitSpeechRecognition)
-
   useEffect(() => {
     scroller.current?.scrollTo({ top: scroller.current.scrollHeight })
   }, [app.messages, busy, slow])
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      app.setMessages((prev) => {
+        let changed = false
+        const next = prev.map((message) => {
+          const card = message.voiceTransfer
+          if (!card?.createdAt || card.kind === 'receipt' || card.kind === 'expired' || card.kind === 'transferError') return message
+          if (transferExpired(card.createdAt)) {
+            changed = true
+            return { ...message, voiceTransfer: { ...card, kind: 'expired' as const } }
+          }
+          return message
+        })
+        return changed ? next : prev
+      })
+    }, 15000)
+    return () => window.clearInterval(timer)
+  }, [app])
+
+  useEffect(() => {
+    if (helpWasOpen.current && !app.helpOpen) {
+      setCancelled((prev) => {
+        const next = { ...prev }
+        app.messages.forEach((message, index) => {
+          const kind = message.voiceTransfer?.kind
+          if (kind && PENDING_VOICE_TRANSFER.has(kind)) next[index] = true
+        })
+        return next
+      })
+    }
+    helpWasOpen.current = app.helpOpen
+  }, [app.helpOpen, app.messages])
 
   useEffect(() => {
     if (!busy) {
@@ -143,7 +181,7 @@ export function AiPanel() {
     return () => window.clearTimeout(timer)
   }, [busy])
 
-  const practiceOn = () => new URLSearchParams(location.search).get('practice') === '1'
+  const practiceOn = () => new URLSearchParams(location.search).get('practice') === '1' || Boolean(getFlowTour())
 
   const openVoiceFlow = (flow: string, fields?: Record<string, string>) => {
     if (fields) sessionStorage.setItem('ocbc-fill', JSON.stringify({ flow, fields }))
@@ -168,7 +206,28 @@ export function AiPanel() {
   const voiceCard = (outcome: VoiceTransferOutcome, stuck: boolean): VoiceTransferCard | undefined => {
     const extra = { stuck: stuck || undefined }
     if (outcome.type === 'confirm') {
-      return { kind: 'confirm', amount: outcome.amount, payeeName: outcome.payee.name, flow: outcome.match.flow, fields: outcome.match.fields, ...extra }
+      const practice = practiceOn()
+      const review = buildChatReview(outcome.match)
+      const risk = assessChatRisk(outcome.match, app.payees, app.profile.id, app.profile.usualTransfer, outcome.match.fields.reference)
+      const kind = !practice && risk.level !== 'none' ? 'scamQuiz' : 'sendReady'
+      return {
+        kind,
+        amount: outcome.amount,
+        payeeName: outcome.payee.name,
+        payeeId: outcome.payee.id,
+        flow: outcome.match.flow,
+        fields: outcome.match.fields,
+        review: {
+          payeeName: review.payeeName,
+          payeeMasked: review.payeeMasked,
+          fromAccountId: review.fromAccountId || app.accounts.find((account) => account.kind === 'deposit')?.id || 'frank',
+          amount: review.amount,
+        },
+        createdAt: Date.now(),
+        practice,
+        riskLevel: risk.level === 'none' ? undefined : risk.level,
+        ...extra,
+      }
     }
     if (outcome.type === 'overLimit') {
       return { kind: 'overLimit', amount: outcome.amount, payeeName: outcome.payee.name, flow: outcome.match.flow, fields: outcome.match.fields, ...extra }
@@ -195,7 +254,7 @@ export function AiPanel() {
   }
 
   const voiceContent = (outcome: VoiceTransferOutcome) => {
-    if (outcome.type === 'confirm') return t('ai.voiceConfirm', { amount: formatSGD(outcome.amount), name: outcome.payee.name })
+    if (outcome.type === 'confirm') return t('ai.chatReviewIntro', { amount: formatSGD(outcome.amount), name: outcome.payee.name })
     if (outcome.type === 'overLimit') return t('ai.voiceOverLimit', { amount: formatVoiceTransferAmount(clampVoiceTransferLimit(app.prefs.voiceTransferLimit)) })
     if (outcome.type === 'disabled') return t('ai.voiceOff')
     if (outcome.type === 'askAmount') return t('ai.voiceAskAmount', { name: outcome.payee.name })
@@ -214,6 +273,10 @@ export function AiPanel() {
     return { role: 'assistant', content: voiceContent(outcome), source: 'demo', voiceTransfer: voiceCard(outcome, stuck) }
   }
 
+  const updateVoiceCard = (index: number, card: VoiceTransferCard) => {
+    app.setMessages((prev) => prev.map((message, i) => (i === index ? { ...message, voiceTransfer: card } : message)))
+  }
+
   const pickVoicePayee = (payeeId: string, amount: number) => {
     const payee = app.payees.find((item) => item.id === payeeId)
     if (!payee) return
@@ -223,20 +286,18 @@ export function AiPanel() {
     const outcome = resolveVoiceTransfer(text, app.payees, limit, from)
     if (outcome.type === 'notTransfer') return
     const local = replyFromOutcome(outcome, outcome.type === 'noMatch' || outcome.type === 'suggest')
-    app.setMessages((prev) => [...prev, local])
+    app.setMessages((prev) => {
+      const next = [...prev, local]
+      if (local.voiceTransfer && ['sendReady', 'scamQuiz'].includes(local.voiceTransfer.kind)) {
+        setChatScam((current) => ({ ...current, [next.length - 1]: [null, null, null] }))
+      }
+      return next
+    })
     speakReply(local.content)
   }
 
   const voiceReply = (text: string): ChatMessage | null => {
     const pending = [...app.messages].reverse().find((message) => message.role === 'assistant' && message.voiceTransfer)
-    if (pending?.voiceTransfer?.kind === 'confirm') {
-      const answer = parseVoiceAffirmation(text)
-      if (answer === 'yes' && pending.voiceTransfer.flow) {
-        window.setTimeout(() => openVoiceFlow(pending.voiceTransfer!.flow!, pending.voiceTransfer!.fields), 0)
-        return { role: 'assistant', content: t('ai.voiceOpening'), source: 'demo' }
-      }
-      if (answer === 'no') return { role: 'assistant', content: t('ai.voiceCancelled'), source: 'demo' }
-    }
     if (pending?.voiceTransfer?.kind === 'suggestPayee') {
       const answer = parseVoiceAffirmation(text)
       const payee = app.payees.find((item) => item.id === pending.voiceTransfer?.payeeId)
@@ -289,7 +350,13 @@ export function AiPanel() {
     if (!retry && !explain) {
       const local = voiceReply(text)
       if (local) {
-        app.setMessages((prev) => [...prev, { role: 'user', content: text }, local])
+        app.setMessages((prev) => {
+          const next = [...prev, { role: 'user' as const, content: text }, local]
+          if (local.voiceTransfer && ['sendReady', 'scamQuiz'].includes(local.voiceTransfer.kind)) {
+            setChatScam((current) => ({ ...current, [next.length - 1]: [null, null, null] }))
+          }
+          return next
+        })
         app.setLastQuestion(text)
         app.log('ai_question', { question: text, screen: app.screen, voiceTransfer: Boolean(local.voiceTransfer) })
         setDraft('')
@@ -510,12 +577,27 @@ export function AiPanel() {
                   </div>
                 )}
                 {message.voiceTransfer && !cancelled[index] && (
-                  <div className="mt-3 space-y-2 rounded-xl border border-[var(--line)] p-3" data-voice-transfer={message.voiceTransfer.kind}>
-                    {message.voiceTransfer.kind === 'confirm' && (
-                      <>
-                        <button type="button" className="min-h-11 w-full rounded-xl bg-[var(--accent)] px-3 font-semibold text-[var(--on-accent)]" onClick={() => { if (message.voiceTransfer?.flow) openVoiceFlow(message.voiceTransfer.flow, message.voiceTransfer.fields) }}>{t('yes')}</button>
-                        <button type="button" className="min-h-11 w-full rounded-xl border border-[var(--line)] px-3 font-semibold" onClick={() => setCancelled((prev) => ({ ...prev, [index]: true }))}>{t('no')}</button>
-                      </>
+                  <div className={['scamQuiz', 'sendReady', 'receipt', 'transferError', 'expired'].includes(message.voiceTransfer.kind) ? '' : 'mt-3 space-y-2 rounded-xl border border-[var(--line)] p-3'} data-voice-transfer={message.voiceTransfer.kind}>
+                    {['scamQuiz', 'sendReady', 'receipt', 'transferError', 'expired'].includes(message.voiceTransfer.kind) && (
+                      <ChatTransferMessage
+                        message={message}
+                        scamAnswers={chatScam[index] || [null, null, null]}
+                        cancelled={!!cancelled[index]}
+                        practice={Boolean(message.voiceTransfer.practice) || practiceOn()}
+                        onScamAnswer={(slot, value) => setChatScam((prev) => {
+                          const current = [...(prev[index] || [null, null, null])]
+                          current[slot] = value
+                          return { ...prev, [index]: current as Array<'yes' | 'no' | null> }
+                        })}
+                        onCancel={() => setCancelled((prev) => ({ ...prev, [index]: true }))}
+                        onUpdateCard={(card) => updateVoiceCard(index, card)}
+                        onDone={(content, card) => {
+                          updateVoiceCard(index, card)
+                          app.setMessages((prev) => prev.map((item, i) => (i === index ? { ...item, content } : item)))
+                          speakReply(content)
+                        }}
+                        onOpenSettings={openVoiceLimitSettings}
+                      />
                     )}
                     {(message.voiceTransfer.kind === 'overLimit' || message.voiceTransfer.kind === 'disabled') && (
                       <>

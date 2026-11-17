@@ -247,6 +247,12 @@ export function FlowPage() {
     return list
   }, [flow])
 
+  useEffect(() => {
+    setTouched(new Set())
+    setContinueTried(false)
+    setIssues([])
+  }, [wstep, flowId])
+
   if (!flow) {
     return (
       <Page title={t('notFound.title')} back>
@@ -312,12 +318,6 @@ export function FlowPage() {
       el?.focus()
     }, 0)
   }
-
-  useEffect(() => {
-    setTouched(new Set())
-    setContinueTried(false)
-    setIssues([])
-  }, [wstep, flowId])
 
   const changeField = (id: string, value: string) => {
     setTouched((prev) => new Set(prev).add(id))

@@ -115,8 +115,30 @@ export interface ChatMessage {
   voiceTransfer?: VoiceTransferCard
 }
 
+export interface ChatTransferReviewLine {
+  payeeName: string
+  payeeMasked: string
+  fromAccountId: string
+  amount: number
+}
+
 export interface VoiceTransferCard {
-  kind: 'confirm' | 'overLimit' | 'unknownPayee' | 'disabled' | 'uncaught' | 'suggestPayee' | 'choosePayee' | 'noMatchPayees' | 'askAmount'
+  kind:
+    | 'confirm'
+    | 'review'
+    | 'scamQuiz'
+    | 'sendReady'
+    | 'receipt'
+    | 'transferError'
+    | 'expired'
+    | 'overLimit'
+    | 'unknownPayee'
+    | 'disabled'
+    | 'uncaught'
+    | 'suggestPayee'
+    | 'choosePayee'
+    | 'noMatchPayees'
+    | 'askAmount'
   amount: number
   payeeName: string
   payeeId?: string
@@ -125,4 +147,13 @@ export interface VoiceTransferCard {
   flow?: 'paynow' | 'transfer' | 'overseas'
   fields?: Record<string, string>
   stuck?: boolean
+  createdAt?: number
+  practice?: boolean
+  review?: ChatTransferReviewLine
+  reference?: string
+  receiptImage?: string
+  receiptWhen?: string
+  riskLevel?: 'check' | 'high'
+  errorReason?: 'insufficient' | 'over_hard_cap'
+  available?: number
 }
