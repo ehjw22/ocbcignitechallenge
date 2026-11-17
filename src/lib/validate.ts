@@ -1,5 +1,5 @@
-import { FX, lookupPaynow } from '@/data/bank'
-import { parseAmount } from './format'
+import { FX, lookupPaynow } from '../data/bank.ts'
+import { parseAmount } from './format.ts'
 
 export interface Issue {
   field: string
@@ -47,6 +47,7 @@ export function validateForm(flowId: string, form: Record<string, string>, balan
   }
 
   if (flowId === 'overseas') {
+    need('country', Boolean(form.country && FX[form.country]))
     need('name', Boolean(form.name?.trim()))
     const spec = FX[form.country] || FX.Australia
     const raw = (form.account || '').replace(/\s/g, '')

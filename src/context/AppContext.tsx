@@ -149,9 +149,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [profile, setProfileState] = useState<Profile>(boot.profile)
   useEffect(() => {
     if (profile.id !== 'auntiemei' && profile.id !== 'persona-mei') return
-    setCardsState((current) => current.some((card) => card.id === 'debit' && card.last4 !== '7810')
-      ? current.map((card) => (card.id === 'debit' ? { ...card, last4: '7810' } : card))
-      : current)
+    setCardsState((current) => {
+      const mei = profile.id === 'auntiemei' || profile.id === 'persona-mei'
+      return current.map((card) => card.id === 'debit'
+        ? { ...card, last4: mei ? '7810' : '2291', nameKey: mei ? 'cards.meiDebit' : 'cards.debit' }
+        : card)
+    })
   }, [profile.id])
   const [events, setEvents] = useState<AnalyticsEvent[]>(loadEvents)
   const [requests, setRequests] = useState<StaffRequest[]>(() => {
@@ -278,25 +281,26 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }
 
   const addTxn = (txn: Txn) => {
-    setExtraTxns((current) => {
-      const next = [txn, ...current].slice(0, 30)
-      const userId = sessionRef.current
-      if (userId && isDemoAccount(userId)) {
-        const book = loadBook(userId)
-        if (book) saveBook(userId, { ...book, txns: [txn, ...book.txns].slice(0, 30) })
-      } else saveExtraTxns(next)
-      return next
-    })
+    const userId = sessionRef.current
+    if (userId && isDemoAccount(userId)) {
+      const book = loadBook(userId)
+      if (book && !book.txns.some((item) => item.id === txn.id)) saveBook(userId, { ...book, txns: [txn, ...book.txns].slice(0, 30) })
+    } else {
+      const saved = loadExtraTxns().filter((item) => item.id !== txn.id)
+      saveExtraTxns([txn, ...saved].slice(0, 30))
+    }
+    setExtraTxns((current) => [txn, ...current.filter((item) => item.id !== txn.id)].slice(0, 30))
   }
 
   const setBalance = (id: string, amount: number) => {
+    const userId = sessionRef.current
+    if (userId && isDemoAccount(userId)) {
+      const book = loadBook(userId)
+      if (book) saveBook(userId, { ...book, balances: { ...book.balances, [id]: amount } })
+    }
     setBalances((current) => {
       const next = { ...current, [id]: amount }
-      const userId = sessionRef.current
-      if (userId && isDemoAccount(userId)) {
-        const book = loadBook(userId)
-        if (book) saveBook(userId, { ...book, balances: next })
-      } else saveBalances(next)
+      if (!userId || !isDemoAccount(userId)) saveBalances(next)
       return next
     })
   }

@@ -70,17 +70,19 @@ export function Join() {
           {step === 1 && (
             <section>
               <h2 id="quiz-title" className="text-xl font-semibold">{t('onboarding.readAndSpeed')}</h2>
-              <label className="mt-3 flex min-h-11 items-start gap-3">
-                <input className="mt-1 h-6 w-6" type="checkbox" checked={app.prefs.readAloud} onChange={(event) => app.updatePrefs({ readAloud: event.target.checked })} />
+              <div className="mt-3 flex min-h-11 items-center justify-between gap-3">
                 <span>
                   <span className="block font-semibold">{t('onboarding.readAloud')}</span>
                   <span className="block text-sm text-[var(--muted)]">{t('onboarding.readAloudBody')}</span>
                 </span>
-              </label>
+                <button type="button" role="switch" aria-checked={app.prefs.readAloud} aria-label={t('onboarding.readAloud')} className="relative h-[44px] w-[72px] shrink-0 rounded-full" style={{ background: app.prefs.readAloud ? 'var(--accent)' : '#d4d4d8' }} onClick={() => app.updatePrefs({ readAloud: !app.prefs.readAloud })}>
+                  <span className={`absolute top-1 h-9 w-9 rounded-full bg-white ${app.prefs.readAloud ? 'right-1' : 'left-1'}`} />
+                </button>
+              </div>
               <SpeechSpeed />
             </section>
           )}
-          {step === 2 && (
+          {step === 5 && (
             <section className="space-y-3">
               <h2 id="quiz-title" className="text-xl font-semibold">{t('onboarding.voiceLimit')}</h2>
               <p className="text-sm text-[var(--muted)]">{t('onboarding.voiceLimitBody')}</p>
@@ -92,7 +94,7 @@ export function Join() {
               />
             </section>
           )}
-          {step === 3 && (
+          {step === 2 && (
             <section className="space-y-3">
               <h2 id="quiz-title" className="text-xl font-semibold">{t('onboarding.text')}</h2>
               <label className="block font-semibold" htmlFor="quiz-size">
@@ -102,25 +104,29 @@ export function Join() {
               <div className="rounded-2xl border border-[var(--line)] bg-[var(--card)] p-4">
                 <p className="text-sm text-[var(--muted)]">{t('totalBalance')}</p>
                 <p className="mt-1 font-semibold tabular-nums" style={{ fontSize: app.prefs.textSize + 8 }}>S$1,230.55</p>
-                <p className="mt-2" style={{ fontSize: app.prefs.textSize }}>{t('onboarding.preview', { name: app.profile.shortName?.trim() || app.profile.name?.trim() || t('you') })}</p>
+                <p className="mt-2" style={{ fontSize: app.prefs.textSize }}>{t('onboarding.preview', { name: (app.profile.shortName || '').toLowerCase().includes('arif') ? 'Siti Aminah' : 'Tan Wei Ming' })}</p>
               </div>
-              <label className="flex min-h-12 items-start gap-3">
-                <input className="mt-1 h-6 w-6" type="checkbox" checked={app.prefs.dyslexiaFont} onChange={(event) => app.updatePrefs({ dyslexiaFont: event.target.checked })} />
+              <div className="flex min-h-11 items-center justify-between gap-3">
                 <span>
                   <span className="block font-semibold">{t('settings.dyslexiaFont')}</span>
                   <span className="block text-sm text-[var(--muted)]">{t('settings.dyslexiaFontBody')}</span>
                 </span>
-              </label>
-              <label className="flex min-h-12 items-start gap-3">
-                <input className="mt-1 h-6 w-6" type="checkbox" checked={app.prefs.easierTapping} onChange={(event) => app.updatePrefs({ easierTapping: event.target.checked })} />
+                <button type="button" role="switch" aria-checked={app.prefs.dyslexiaFont} aria-label={t('settings.dyslexiaFont')} className="relative h-[44px] w-[72px] shrink-0 rounded-full" style={{ background: app.prefs.dyslexiaFont ? 'var(--accent)' : '#d4d4d8' }} onClick={() => app.updatePrefs({ dyslexiaFont: !app.prefs.dyslexiaFont })}>
+                  <span className={`absolute top-1 h-9 w-9 rounded-full bg-white ${app.prefs.dyslexiaFont ? 'right-1' : 'left-1'}`} />
+                </button>
+              </div>
+              <div className="flex min-h-11 items-center justify-between gap-3">
                 <span>
                   <span className="block font-semibold">{t('settings.easierTapping')}</span>
                   <span className="block text-sm text-[var(--muted)]">{t('settings.easierTappingBody')}</span>
                 </span>
-              </label>
+                <button type="button" role="switch" aria-checked={app.prefs.easierTapping} aria-label={t('settings.easierTapping')} className="relative h-[44px] w-[72px] shrink-0 rounded-full" style={{ background: app.prefs.easierTapping ? 'var(--accent)' : '#d4d4d8' }} onClick={() => app.updatePrefs({ easierTapping: !app.prefs.easierTapping })}>
+                  <span className={`absolute top-1 h-9 w-9 rounded-full bg-white ${app.prefs.easierTapping ? 'right-1' : 'left-1'}`} />
+                </button>
+              </div>
             </section>
           )}
-          {step === 4 && (
+          {step === 3 && (
             <section className="space-y-3">
               <h2 id="quiz-title" className="text-xl font-semibold">{t('onboarding.detail')}</h2>
               <div role="radiogroup" aria-label={t('onboarding.detail')} className="grid w-full grid-cols-1 gap-2 [&>button]:mb-0 [&>button]:h-full">
@@ -133,7 +139,7 @@ export function Join() {
               </div>
             </section>
           )}
-          {step === 5 && (
+          {step === 4 && (
             <section className="space-y-2">
               <h2 id="quiz-title" className="text-xl font-semibold">{t('onboarding.help')}</h2>
               <div role="radiogroup" aria-label={t('onboarding.help')} className="grid w-full grid-cols-1 gap-2 [&>button]:mb-0">

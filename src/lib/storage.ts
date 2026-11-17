@@ -66,7 +66,10 @@ function read<T>(key: string, fallback: T): T {
 export function loadPrefs(): Preferences {
   const base = defaultPrefs()
   const saved = read<Preferences>(keys.prefs, base)
-  saved.shortcuts = sanitizeShortcuts(saved.shortcuts)
+  const cleanedShortcuts = sanitizeShortcuts(saved.shortcuts)
+  const shortcutsChanged = JSON.stringify(cleanedShortcuts) !== JSON.stringify(saved.shortcuts)
+  saved.shortcuts = cleanedShortcuts
+  if (shortcutsChanged) savePrefs(saved)
   saved.textSize = Math.min(24, Math.max(16, Number(saved.textSize) || 16))
   saved.voiceTransferLimit = clampVoiceTransferLimit(saved.voiceTransferLimit)
   saved.quizCompleted = typeof saved.quizCompleted === 'boolean' ? saved.quizCompleted : Boolean(saved.onboarded)
@@ -262,6 +265,13 @@ function ensureDemoUsers(users: DemoUser[]) {
     return clash ? { ...user, username: `persona-${user.username}` } : user
   })
   let changed = next.length !== users.length || next.some((user, index) => user.username !== kept[index]?.username)
+  for (const user of next) {
+    const cleaned = sanitizeShortcuts(user.prefs?.shortcuts)
+    if (JSON.stringify(cleaned) !== JSON.stringify(user.prefs?.shortcuts)) {
+      user.prefs = { ...user.prefs, shortcuts: cleaned }
+      changed = true
+    }
+  }
   for (const seed of DEMO_LOGINS) {
     if (!next.some((user) => user.username.toLowerCase() === seed.username.toLowerCase())) {
       next.push(seed)

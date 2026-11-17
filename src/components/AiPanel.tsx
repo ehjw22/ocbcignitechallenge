@@ -89,17 +89,19 @@ async function readChatStream(res: Response, onText: (text: string) => void): Pr
 function confirmCopy(action: ChatAction, t: (key: string, vars?: Record<string, string | number>) => string) {
   if (action.intent === 'overseas') {
     const fx = FX[action.fields.country] || FX.Australia
-    const amount = Number(action.fields.amount || 0)
+    const amount = Number(action.fields.amount || 0) || 500
     const received = Math.max(0, Math.round((amount - fx.fee) * fx.perSgd))
     return t('ai.confirmOverseas', {
-      amount: formatSGD(amount || 500),
+      amount: formatSGD(amount),
       name: action.fields.name || 'Tan Wei Ming',
       country: action.fields.country || 'Australia',
       fee: formatSGD(fx.fee),
       received: `${t(fx.currencyKey)} ${received}`,
     })
   }
-  return t('ai.confirmGeneric', { task: action.intent })
+  const taskKey = `ai.task.${action.intent}`
+  const task = t(taskKey)
+  return t('ai.confirmGeneric', { task: task === taskKey ? action.intent : task })
 }
 
 function OllieAvatar() {
@@ -132,6 +134,7 @@ export function AiPanel() {
   const scroller = useRef<HTMLDivElement>(null)
   const box = useRef<HTMLTextAreaElement>(null)
   const abortRef = useRef<AbortController | null>(null)
+  const pendingPayee = useRef<string | null>(null)
   const recRef = useRef<SpeechRecognitionLike | null>(null)
   const micOk = typeof window !== 'undefined' && Boolean(window.SpeechRecognition || window.webkitSpeechRecognition)
 
@@ -179,10 +182,15 @@ export function AiPanel() {
       if (answer === 'no') return { role: 'assistant', content: t('ai.voiceCancelled'), source: 'demo' }
     }
     if (invalidVoiceAmount(text)) return { role: 'assistant', content: t('ai.voiceBadAmount'), source: 'demo' }
-    const parsed = parseVoiceTransfer(text)
+    const bareAmount = text.trim().match(/^(?:s\$|\$)?(\d+(?:\.\d{1,2})?)$/i)
+    const waitingPayee = pendingPayee.current
+    const parsedText = bareAmount && waitingPayee && Number(bareAmount[1]) > 0 ? `transfer ${bareAmount[1]} to ${waitingPayee}` : text
+    if (bareAmount && pending) pendingPayee.current = null
+    const parsed = parseVoiceTransfer(parsedText)
     if (!parsed) return null
     if (parsed.amount == null) {
       const payee = matchSavedPayee(parsed.payeeQuery, app.payees)
+      pendingPayee.current = payee?.name || parsed.payeeQuery
       return { role: 'assistant', content: t('ai.voiceAskAmount', { name: payee?.name || parsed.payeeQuery }), source: 'demo' }
     }
     const limit = clampVoiceTransferLimit(app.prefs.voiceTransferLimit)
@@ -285,7 +293,7 @@ export function AiPanel() {
           return next
         })
       }) : (await res.json()) as ChatMessage & { reply?: string }
-      const reply = data.reply || t('ai.faq.general.short')
+      const reply = app.prefs.language === 'zh-TW' ? toTraditional(data.reply || t('ai.faq.general.short')) : (data.reply || t('ai.faq.general.short')).replace(/yourFRANK/g, 'your FRANK')
       const flags = data.flags || {}
       if (flags.refused) app.log('ai_refused', { question: text, screen: app.screen, reason: 'refused' })
       if (flags.escalated || flags.fraud) app.log('ai_escalated', { reason: flags.fraud ? 'fraud' : 'staff', screen: app.screen })
@@ -297,7 +305,7 @@ export function AiPanel() {
         source: data.source,
         journeyId: data.journeyId,
         action: data.action,
-        scamRisk: data.scamRisk,
+        scamRisk: data.scamRisk === 'check' && !['paynow', 'transfer', 'overseas', 'bill', 'scan'].includes(data.action?.intent || '') ? 'none' : data.scamRisk,
         suggestions: data.suggestions,
         handover: data.handover || flags.escalated,
       }
@@ -468,7 +476,7 @@ export function AiPanel() {
                 )}
                 {message.role === 'assistant' && (
                   <div className="mt-3 flex flex-wrap gap-2">
-                    {FOLLOW.map((key) => ({ label: t(key), ask: key === 'ai.chipStaff' || key === 'ai.chipTours' ? '' : t(key), staff: key === 'ai.chipStaff', tours: key === 'ai.chipTours' })).map((chip) => (
+                    {FOLLOW.filter((key) => !(key === 'ai.chipStaff' && (message.handover || message.flags?.escalated || message.scamRisk === 'high' || message.flags?.fraud))).map((key) => ({ label: t(key), ask: key === 'ai.chipStaff' || key === 'ai.chipTours' ? '' : t(key), staff: key === 'ai.chipStaff', tours: key === 'ai.chipTours' })).filter((chip, index, list) => list.findIndex((item) => item.label === chip.label) === index).map((chip) => (
                       <button
                         key={chip.label}
                         type="button"
@@ -593,4 +601,12 @@ export function AiPanel() {
       )}
     </div>
   )
+}
+
+const S2T: Record<string, string> = {
+  转: '轉', 账: '賬', 帐: '帳', 与: '與', 银: '銀', 钱: '錢', 汇: '匯', 锁: '鎖', 这: '這', 个: '個', 为: '為', 说: '說', 请: '請', 后: '後', 发: '發', 对: '對', 开: '開', 关: '關', 还: '還', 会: '會', 国: '國', 东: '東', 车: '車', 电: '電', 话: '話', 号: '號', 码: '碼', 认: '認', 证: '證', 额: '額', 余: '餘', 币: '幣', 总: '總', 结: '結', 户: '戶', 应: '應', 该: '該', 从: '從', 选: '選', 择: '擇', 显: '顯', 帮: '幫', 问: '問', 题: '題', 时: '時', 间: '間', 现: '現', 无: '無', 见: '見', 长: '長', 门: '門', 里: '裡',
+}
+
+function toTraditional(text: string) {
+  return text.replace(/[\u4e00-\u9fff]/g, (char) => S2T[char] || char)
 }

@@ -62,6 +62,7 @@ export function moveFlowTour(index: number) {
     snapshot = null
     emit()
     stopSpeaking()
+    window.dispatchEvent(new Event('ocbc-guide-step'))
     if (!finished) hooks?.onDrop(guideId, stepId)
     hooks = null
     finished = false
@@ -73,6 +74,7 @@ export function moveFlowTour(index: number) {
     snapshot = null
     emit()
     stopSpeaking()
+    window.dispatchEvent(new Event('ocbc-guide-step'))
     hooks?.onDone(guideId)
     hooks = null
     finished = false

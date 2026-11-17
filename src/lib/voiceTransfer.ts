@@ -78,9 +78,10 @@ function pack(amountRaw: string | null, payeeRaw: string): VoiceParse | null {
 }
 
 export function invalidVoiceAmount(text: string) {
-  const raw = text.normalize('NFKC')
+  const raw = text.normalize('NFKC').trim()
+  if (/^(?:s\$|\$)?0(?:\.0+)?$/.test(raw)) return true
   if (!/(?:transfer|send|pay|转|轉|汇|匯|pindah)/i.test(raw)) return false
-  return /-\s*\d/.test(raw) || /\d+\.\d{3,}/.test(raw)
+  return /-\s*\d/.test(raw) || /\d+\.\d{3,}/.test(raw) || /(?:s\$|\$)?\b0(?:\.0+)?\b/.test(raw)
 }
 
 export function parseVoiceTransfer(text: string): VoiceParse | null {
@@ -90,6 +91,8 @@ export function parseVoiceTransfer(text: string): VoiceParse | null {
     || raw.match(/^(?:tolong\s+)?(?:pindahkan|pindah|hantar|transfer)\s+(?:sedikit|some)\s+(?:wang|duit|money)\s+(?:kepada|ke)\s+(.+)$/i)
     || raw.match(/^(?:给|給)\s*(.+?)\s*(?:转|轉|汇|匯)\s*(?:一些|一点|一點)(?:钱|錢|元)?$/u)
   if (vague) return pack(null, vague[1])
+  const named = raw.match(/^(?:please\s+)?(?:paynow|transfer|send|pay)\s+([^\d]+)$/i)
+  if (named && !/\d/.test(named[1])) return pack(null, named[1])
 
   const zh = raw.match(/^(?:请|請)?(?:帮我|幫我)?(?:转账|轉帳|转帐|转|轉|汇|匯)\s*(\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?|\d+(?:\.\d{1,2})?)\s*(?:块|塊|元|新币|新幣|新元|刀)?\s*(?:给|給)\s*(.+)$/u)
   if (zh) return pack(zh[1], zh[2])

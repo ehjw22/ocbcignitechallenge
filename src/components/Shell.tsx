@@ -89,7 +89,7 @@ export function PhoneFrame({ children }: { children: React.ReactNode }) {
 export function DemoBadge() {
   const { prefs } = useApp()
   return (
-    <span className="inline-flex max-w-full rounded-full bg-[var(--soft)] px-2 py-0.5 text-center text-[0.7rem] font-medium leading-snug text-[var(--muted)]">
+    <span className="inline-flex max-w-full rounded-full bg-[var(--soft)] px-2 py-0.5 text-center text-[0.7rem] font-medium leading-snug text-[var(--text)]">
       {translate(prefs.language, 'demoBadge')}
     </span>
   )
@@ -146,7 +146,7 @@ export function BottomNav() {
                 ) : (
                   <MoreGlyph active={isActive} />
                 )}
-                <span className="line-clamp-2 flex min-h-[2.2em] w-full items-center justify-center whitespace-normal text-center text-[12px] font-normal leading-tight [word-break:keep-all]">{label}</span>
+                <span className="line-clamp-2 flex min-h-[2.2em] w-full items-center justify-center whitespace-normal text-center font-normal leading-tight [font-size:clamp(11px,3.2vw,0.8em)] [overflow-wrap:normal] [word-break:keep-all]">{label}</span>
               </>
             )}
           </NavLink>

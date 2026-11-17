@@ -121,7 +121,7 @@ const books: Record<string, BankBook> = {
       { id: 'mei-6', title: 'Grab', amount: -14.2, date: '2026-09-18', accountId: '360' },
     ],
     goals: [],
-    payees: [{ id: 'wei', label: 'Son - Wei Ming (Australia)', name: 'Tan Wei Ming', country: 'Australia', swift: 'CTBAAU2S', account: '0012345678', aliases: ['son', '儿子', '兒子', 'anak lelaki'] }],
+    payees: [{ id: 'wei', label: 'Son - Wei Ming (Australia)', name: 'Tan Wei Ming', country: 'Australia', swift: 'CTBAAU2S', account: '12345678', aliases: ['son', '儿子', '兒子', 'anak lelaki'] }],
   },
   arif: {
     accounts: [{ id: 'frank', nameKey: 'accounts.frank', number: '5011223344', balance: 1230.55, kind: 'deposit' }],

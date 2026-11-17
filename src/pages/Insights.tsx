@@ -123,7 +123,7 @@ export function Insights() {
     <Page title={t('insights')} back>
       <div className="space-y-4 p-4">
         <p className="text-sm text-[var(--muted)]">{t('insight.sample')}</p>
-        <div className="grid grid-cols-2 gap-2" data-guide="insights-filters">
+        <div className={`grid gap-2 ${app.prefs.textSize >= 22 ? 'grid-cols-1' : 'grid-cols-2'}`} data-guide="insights-filters">
           <label className="block min-w-0 text-sm font-semibold">
             {t('insight.account')}
             <select className="ocbc-field mt-1" value={accountId} onChange={(event) => setAccountId(event.target.value)}>
@@ -168,8 +168,8 @@ export function Insights() {
               <ul className="mt-2 space-y-1 text-sm" data-guide="insights-legend">
                 {slices.map((item, index) => (
                   <li key={item.key} className="flex items-center justify-between gap-2">
-                    <span className="flex min-w-0 items-center gap-1"><span className="h-2.5 w-2.5 shrink-0 rounded-sm" style={{ background: index === 0 ? accent : colours[index % colours.length] }} />{t(`categories.${item.key}`)}</span>
-                    <span className="money shrink-0">{formatMoney(item.amount)}</span>
+                    <span className="flex min-w-0 flex-1 items-center gap-1 [word-break:keep-all]"><span className="h-2.5 w-2.5 shrink-0 rounded-sm" style={{ background: index === 0 ? accent : colours[index % colours.length] }} />{t(`categories.${item.key}`)}</span>
+                    <span className="money shrink-0 whitespace-nowrap">{formatMoney(item.amount)}</span>
                   </li>
                 ))}
               </ul>

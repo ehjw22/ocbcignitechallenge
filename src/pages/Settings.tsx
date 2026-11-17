@@ -108,7 +108,7 @@ export function Settings() {
   const toggle = (id: string) => setOpen((current) => ({ ...current, [id]: !current[id] }))
   const language = LANGUAGES.find((item) => item.id === app.prefs.language)
   const theme = THEMES.find((item) => item.id === app.prefs.theme)
-  const previewName = app.profile.shortName?.trim() || app.profile.name?.trim() || t('you')
+  const previewName = (app.profile.shortName || '').toLowerCase().includes('arif') ? 'Siti Aminah' : 'Tan Wei Ming'
   const textSummary = [
     app.prefs.textSize >= 22 ? t('settings.large') : `${app.prefs.textSize}px`,
     app.prefs.boldText ? t('onboarding.bold') : '',
@@ -162,7 +162,7 @@ export function Settings() {
           id="language"
           guide="settings-language"
           title={t('settings.sections.language')}
-          summary={`${voiceSummary(app.prefs.language, app.prefs.dialect, language?.native || '', t)} · ${app.prefs.voiceTransferLimit === 0 ? t('settings.voiceLimitOff') : formatVoiceTransferAmount(clampVoiceTransferLimit(app.prefs.voiceTransferLimit))}`}
+          summary={voiceSummary(app.prefs.language, app.prefs.dialect, language?.native || '', t)}
           keywords={`${t('settings.language')} ${t('dialects.title')} ${t('onboarding.readAloud')} ${t('speed')} ${t('settings.voiceLimit')} ${LANGUAGES.map((item) => `${item.native} ${item.english}`).join(' ')} ${DIALECTS.map((item) => t(`dialects.${item.id}`)).join(' ')}`}
           query={query}
           open={!!open.language}
@@ -199,21 +199,29 @@ export function Settings() {
             </button>
           </div>
           <SpeechSpeed />
-          <div className="mt-3">
-            <p className="font-semibold">{t('settings.voiceLimit')}</p>
-            <p className="mb-2 text-sm font-normal leading-snug text-[var(--muted)]">{t('settings.voiceLimitBody')}</p>
-            <VoiceLimitChoices
-              value={app.prefs.voiceTransferLimit}
-              onChange={(voiceTransferLimit) => app.updatePrefs({ voiceTransferLimit })}
-              offLabel={t('settings.voiceLimitOff')}
-              label={t('settings.voiceLimit')}
-              confirmRaise
-              confirmTitle={t('settings.voiceLimitRaise')}
-              confirmBody={t('settings.voiceLimitRaiseBody')}
-              confirmAction={t('settings.voiceLimitConfirm')}
-              cancelLabel={t('cancel')}
-            />
-          </div>
+        </Section>
+
+        <Section only={panel} onResult={remember}
+          id="safety"
+          title={t('settings.sections.safety')}
+          summary={app.prefs.voiceTransferLimit === 0 ? t('settings.voiceLimitOff') : t('settings.voiceLimitSummary', { amount: formatVoiceTransferAmount(clampVoiceTransferLimit(app.prefs.voiceTransferLimit)) })}
+          keywords={`${t('settings.voiceLimit')} ${t('settings.sections.safety')}`}
+          query={query}
+          open={!!open.safety}
+          onToggle={toggle}
+        >
+          <p className="mb-2 text-sm font-normal leading-snug text-[var(--muted)]">{t('settings.voiceLimitBody')}</p>
+          <VoiceLimitChoices
+            value={app.prefs.voiceTransferLimit}
+            onChange={(voiceTransferLimit) => app.updatePrefs({ voiceTransferLimit })}
+            offLabel={t('settings.voiceLimitOff')}
+            label={t('settings.voiceLimit')}
+            confirmRaise
+            confirmTitle={t('settings.voiceLimitRaise')}
+            confirmBody={t('settings.voiceLimitRaiseBody')}
+            confirmAction={t('settings.voiceLimitConfirm')}
+            cancelLabel={t('cancel')}
+          />
         </Section>
 
         <Section only={panel} onResult={remember}
@@ -231,8 +239,8 @@ export function Settings() {
             {t('settings.textSize')}: {app.prefs.textSize}px
             <input id="size" type="range" min={16} max={24} value={app.prefs.textSize} onChange={(event) => app.updatePrefs({ textSize: Number(event.target.value) })} className="mt-2 w-full" />
           </label>
-          <label className="mt-2 flex min-h-12 items-center gap-3"><input type="checkbox" checked={app.prefs.boldText} onChange={(event) => app.updatePrefs({ boldText: event.target.checked })} />{t('onboarding.bold')}</label>
-          <label className="flex min-h-12 items-center gap-3"><input type="checkbox" checked={app.prefs.highContrast} onChange={(event) => app.updatePrefs({ highContrast: event.target.checked })} />{t('onboarding.contrast')}</label>
+          <PrefSwitch on={app.prefs.boldText} label={t('onboarding.bold')} onClick={() => app.updatePrefs({ boldText: !app.prefs.boldText })} />
+          <PrefSwitch on={app.prefs.highContrast} label={t('onboarding.contrast')} onClick={() => app.updatePrefs({ highContrast: !app.prefs.highContrast })} />
           <div className="mt-3 flex min-h-12 items-center justify-between gap-3">
             <span className="min-w-0">
               <span className="block font-semibold">{t('settings.dyslexiaFont')}</span>
@@ -393,10 +401,7 @@ export function Settings() {
           open={!!open.privacy}
           onToggle={toggle}
         >
-          <label className="flex min-h-12 items-center gap-3 font-semibold">
-            <input type="checkbox" checked={app.prefs.spendingInsights} onChange={(event) => app.updatePrefs({ spendingInsights: event.target.checked })} />
-            {t('settings.insights')}
-          </label>
+          <PrefSwitch on={app.prefs.spendingInsights} label={t('settings.insights')} onClick={() => app.updatePrefs({ spendingInsights: !app.prefs.spendingInsights })} />
         </Section>
 
         <Section only={panel} onResult={remember}
@@ -451,6 +456,17 @@ const VOICE_LABEL: Record<string, string> = {
   ja: '日本語の音声',
   hi: 'हिन्दी आवाज़',
   bn: 'বাংলা কণ্ঠ',
+}
+
+function PrefSwitch({ on, label, onClick }: { on: boolean; label: string; onClick: () => void }) {
+  return (
+    <div className="mt-3 flex min-h-11 items-center justify-between gap-3">
+      <span className="min-w-0 font-semibold">{label}</span>
+      <button type="button" role="switch" aria-checked={on} aria-label={label} className="relative h-[44px] w-[72px] shrink-0 rounded-full" style={{ background: on ? 'var(--accent)' : '#d4d4d8' }} onClick={onClick}>
+        <span className={`absolute top-1 h-9 w-9 rounded-full bg-white ${on ? 'right-1' : 'left-1'}`} />
+      </button>
+    </div>
+  )
 }
 
 function voiceSummary(language: string, dialect: string, native: string, t: (key: string) => string) {

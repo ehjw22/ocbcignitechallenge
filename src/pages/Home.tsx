@@ -93,8 +93,8 @@ export function Home() {
           </div>
         </section>
 
-        <section className="relative z-10 -mt-8 px-4" data-guide="home-shortcuts">
-          <div className="grid grid-cols-4 rounded-xl bg-[var(--card)] px-1 py-3 shadow-[0_8px_24px_rgba(47,53,61,0.08)]">
+        <section className={`relative z-10 px-4 ${app.prefs.textSize >= 22 ? 'mt-3' : '-mt-8'}`} data-guide="home-shortcuts">
+          <div className={`grid rounded-xl bg-[var(--card)] px-1 py-3 shadow-[0_8px_24px_rgba(47,53,61,0.08)] ${app.prefs.textSize >= 22 ? 'grid-cols-3' : 'grid-cols-4'}`}>
             {[...app.prefs.shortcuts.filter((id) => {
               if (id === 'rewards' || !SHORTCUT_ICONS[id]) {
                 if (id !== 'rewards' && !SHORTCUT_ICONS[id] && import.meta.env.DEV) console.warn('shortcut skipped', id)
@@ -104,7 +104,7 @@ export function Home() {
             }).slice(0, 6), 'customise'].map((id) => (
               <Link key={id} to={id === 'customise' ? '/settings/shortcuts' : (SHORTCUT_ROUTES[id] ?? '/pay')} data-guide={id === 'paynow' ? 'home-paynow' : id === 'customise' ? 'home-customise' : undefined} className="flex min-h-11 min-w-0 flex-col items-center justify-center gap-1 px-0.5 text-[var(--text)]">
                 <ShortcutMark id={id} />
-                <span className="line-clamp-2 w-full break-normal text-center text-[11px] font-normal leading-[13px]">{id === 'customise' ? t('look.customise') : t(`shortcuts.${id}`)}</span>
+                <span className="line-clamp-2 w-full text-center font-normal leading-tight [font-size:clamp(11px,3.2vw,0.8em)] [overflow-wrap:normal] [word-break:keep-all]">{id === 'customise' ? t('look.customise') : t(`shortcuts.${id}`)}</span>
               </Link>
             ))}
           </div>
@@ -163,8 +163,8 @@ export function Home() {
                       </span>
                     </span>
                     <span className="mt-2 flex flex-wrap gap-x-4 gap-y-1" aria-label={`${t('look.debitCard')} ${app.cards[0].last4}, ${app.cards[0].locked ? t('look.cardLocked') : t('look.cardActive')}`}>
-                      <Link className="inline-flex min-h-11 items-center text-[15px] text-[#1C65FF] underline" to={`/flow/card-lock?card=${app.cards[0].id}`}>{app.cards[0].locked ? t('look.unlockCard') : t('look.lockCard')}</Link>
-                      <Link className="inline-flex min-h-11 items-center text-[15px] text-[#1C65FF] underline" to={`/cards#${app.cards[0].id}`}>{t('look.cardDetails')}</Link>
+                      <Link className="inline-flex min-h-11 items-center text-[15px] text-[var(--link)] underline" to={`/flow/card-lock?card=${app.cards[0].id}`}>{app.cards[0].locked ? t('look.unlockCard') : t('look.lockCard')}</Link>
+                      <Link className="inline-flex min-h-11 items-center text-[15px] text-[var(--link)] underline" to={`/cards#${app.cards[0].id}`}>{t('look.cardDetails')}</Link>
                     </span>
                   </span>
                 )}

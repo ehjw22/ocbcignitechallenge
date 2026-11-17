@@ -28,6 +28,9 @@ test('parses English, Chinese and Malay transfer phrases', () => {
   assert.deepEqual(parseVoiceTransfer('transfer some money to Siti'), { amount: null, payeeQuery: 'Siti' })
   assert.equal(parseVoiceTransfer('$20.555 to Siti'), null)
   assert.equal(invalidVoiceAmount('transfer -50 to Siti'), true)
+  assert.equal(invalidVoiceAmount('0'), true)
+  assert.equal(invalidVoiceAmount('0.00'), true)
+  assert.deepEqual(parseVoiceTransfer('pay Siti'), { amount: null, payeeQuery: 'Siti' })
 })
 
 test('keeps a spoken note for the scam check', () => {

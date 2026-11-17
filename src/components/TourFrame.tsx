@@ -165,15 +165,32 @@ export function TourFrame({
           }
         }
       }
-      const room = Math.max(120, floor - minTop)
-      card.style.maxHeight = `${room}px`
-      const used = Math.min(card.offsetHeight, room)
+      const band = Math.max(160, floor - minTop)
+      const cap = Math.max(140, Math.round(band * 0.45))
+      card.style.maxHeight = `${cap}px`
+      const used = Math.min(card.scrollHeight, cap)
+      const mid = minTop + band / 2
       let nextTop = minTop
-      if (holeBox && holeBox.height < room * 0.7) {
-        const spaceBelow = floor - (holeBox.top + holeBox.height) - 12
-        const spaceAbove = holeBox.top - minTop
-        if (spaceBelow >= 120 || spaceBelow >= spaceAbove) nextTop = holeBox.top + holeBox.height + 12
-        else nextTop = holeBox.top - used - 12
+      if (holeBox) {
+        const holeMid = holeBox.top + holeBox.height / 2
+        const placeBelow = holeMid < mid
+        if (found instanceof HTMLElement) {
+          const main = found.closest('main')
+          if (main) {
+            const box = found.getBoundingClientRect()
+            const headerBottom = root.querySelector('header')?.getBoundingClientRect().bottom ?? rootBox.top
+            const targetTop = placeBelow ? headerBottom + 8 : headerBottom + cap + 16
+            main.scrollTop += box.top - targetTop
+            const next = found.getBoundingClientRect()
+            holeBox.top = (next.top - rootBox.top) / scale - 6
+            holeBox.height = next.height / scale + 12
+          }
+        }
+        nextTop = placeBelow ? Math.min(floor - used, holeBox.top + holeBox.height + 12) : Math.max(minTop, holeBox.top - used - 12)
+        const holeBottom = holeBox.top + holeBox.height
+        if (nextTop < holeBottom && nextTop + used > holeBox.top) {
+          nextTop = placeBelow ? holeBottom + 12 : holeBox.top - used - 12
+        }
       } else nextTop = floor - used
       if (nextTop < minTop) nextTop = minTop
       if (nextTop + used > floor) nextTop = Math.max(minTop, floor - used)
@@ -222,7 +239,7 @@ export function TourFrame({
           ref={cardRef}
           role="dialog"
           aria-labelledby="tour-title"
-          className="flex max-h-[45vh] flex-col overflow-hidden rounded-md bg-[#2A3B43] p-5 text-white shadow-lg"
+          className={`flex max-h-[45%] flex-col overflow-hidden rounded-md bg-[#2A3B43] text-white shadow-lg ${app.prefs.textSize >= 22 ? 'p-3 text-[16px]' : 'p-5'}`}
         >
           <p className="mb-2 text-[13px]" aria-live="polite">{translate(app.prefs.language, 'practice.step', { n: step, total })}</p>
           <div className="mb-3 flex gap-1" aria-hidden>
@@ -231,12 +248,12 @@ export function TourFrame({
             ))}
           </div>
           <div className="flex shrink-0 items-start gap-2">
-            <h2 id="tour-title" className="min-w-0 flex-1 text-[1.15rem] font-semibold leading-snug">{title}</h2>
+            <h2 id="tour-title" className={`min-w-0 flex-1 font-semibold leading-snug ${app.prefs.textSize >= 22 ? 'text-[18px]' : 'text-[1.15rem]'}`}>{title}</h2>
             <button type="button" className="flex h-11 w-11 shrink-0 items-center justify-center text-2xl leading-none text-white" aria-label={t('close')} onClick={onClose}>
               ×
             </button>
           </div>
-          <p className="mt-1 min-h-0 overflow-y-auto text-[1rem] leading-snug">{body}</p>
+          <p className={`mt-1 min-h-0 flex-1 overflow-y-auto leading-snug ${app.prefs.textSize >= 22 ? 'text-[16px]' : 'text-[1rem]'}`}>{body}</p>
           <div className="mt-3 flex shrink-0 flex-wrap items-center justify-between gap-x-3 gap-y-2">
             <div className="flex items-center gap-2">
               <SpeakButton

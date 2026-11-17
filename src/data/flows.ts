@@ -91,7 +91,7 @@ export const FLOWS: FlowDef[] = [
         { value: 'Germany', label: 'flows.germany' },
       ] },
       { id: 'swift', guide: 'overseas-swift', label: 'flows.swift', type: 'text', sample: 'CTBAAU2S' },
-      { id: 'account', guide: 'overseas-account', label: 'flows.accountNumber', type: 'text', sample: '1234567890' },
+      { id: 'account', guide: 'overseas-account', label: 'flows.accountNumber', type: 'text', sample: '12345678' },
       { id: 'from', guide: 'overseas-from', label: 'flows.from', type: 'account', sample: '360', options: depositAccounts },
       { id: 'amount', guide: 'overseas-amount', label: 'amount', type: 'amount', inputMode: 'decimal', sample: '20.00' },
       { id: 'purpose', guide: 'overseas-purpose', label: 'flows.purpose', type: 'select', sample: 'family', options: [
@@ -221,6 +221,17 @@ export const FLOWS: FlowDef[] = [
     ],
   },
 ]
+
+export const OVERSEAS_SAMPLES: Record<string, { account: string; swift: string }> = {
+  Australia: { account: '12345678', swift: 'CTBAAU2S' },
+  Malaysia: { account: '1234567890', swift: 'MBBEMYKL' },
+  'United Kingdom': { account: '12345678', swift: 'NWBKGB2L' },
+  Germany: { account: 'DE89370400440532013000', swift: '' },
+}
+
+export function overseasSample(country: string) {
+  return OVERSEAS_SAMPLES[country] || OVERSEAS_SAMPLES.Australia
+}
 
 export function flowById(id: string) {
   return FLOWS.find((flow) => flow.id === id)
