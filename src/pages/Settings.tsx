@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
 import { Check, ChevronDown, Search } from 'lucide-react'
 import { Choice, choiceClass } from '@/components/Choice'
+import { Switch } from '@/components/Switch'
 import { ShortcutPicker } from '@/components/ShortcutPicker'
 import { SpeechSpeed } from '@/components/SpeechSpeed'
 import { VoiceLimitChoices } from '@/components/VoiceLimitChoices'
@@ -186,17 +187,7 @@ export function Settings() {
               <span className="block font-semibold">{t('onboarding.readAloud')}</span>
               <span className="block text-sm font-normal text-[var(--muted)]">{t('onboarding.readAloudBody')}</span>
             </span>
-            <button
-              type="button"
-              role="switch"
-              aria-checked={app.prefs.readAloud}
-              aria-label={t('onboarding.readAloud')}
-              className="relative shrink-0 rounded-full"
-              style={{ background: app.prefs.readAloud ? 'var(--accent)' : '#d4d4d8', height: '1.75rem', width: '3rem' }}
-              onClick={() => app.updatePrefs({ readAloud: !app.prefs.readAloud })}
-            >
-              <span className={`absolute top-0.5 h-6 w-6 rounded-full bg-white ${app.prefs.readAloud ? 'right-0.5' : 'left-0.5'}`} />
-            </button>
+            <Switch on={app.prefs.readAloud} label={t('onboarding.readAloud')} onChange={(next) => app.updatePrefs({ readAloud: next })} />
           </div>
           <SpeechSpeed />
         </Section>
@@ -239,41 +230,27 @@ export function Settings() {
             {t('settings.textSize')}: {app.prefs.textSize}px
             <input id="size" type="range" min={16} max={24} value={app.prefs.textSize} onChange={(event) => app.updatePrefs({ textSize: Number(event.target.value) })} className="mt-2 w-full" />
           </label>
-          <PrefSwitch on={app.prefs.boldText} label={t('onboarding.bold')} onClick={() => app.updatePrefs({ boldText: !app.prefs.boldText })} />
-          <PrefSwitch on={app.prefs.highContrast} label={t('onboarding.contrast')} onClick={() => app.updatePrefs({ highContrast: !app.prefs.highContrast })} />
+          <div className="mt-3 flex min-h-11 items-center justify-between gap-3">
+            <span className="min-w-0 font-semibold">{t('onboarding.bold')}</span>
+            <Switch on={app.prefs.boldText} label={t('onboarding.bold')} onChange={(next) => app.updatePrefs({ boldText: next })} />
+          </div>
+          <div className="mt-3 flex min-h-11 items-center justify-between gap-3">
+            <span className="min-w-0 font-semibold">{t('onboarding.contrast')}</span>
+            <Switch on={app.prefs.highContrast} label={t('onboarding.contrast')} onChange={(next) => app.updatePrefs({ highContrast: next })} />
+          </div>
           <div className="mt-3 flex min-h-12 items-center justify-between gap-3">
             <span className="min-w-0">
               <span className="block font-semibold">{t('settings.dyslexiaFont')}</span>
               <span className="block text-sm font-normal text-[var(--muted)]">{t('settings.dyslexiaFontBody')}</span>
             </span>
-            <button
-              type="button"
-              role="switch"
-              aria-checked={app.prefs.dyslexiaFont}
-              aria-label={t('settings.dyslexiaFont')}
-              className="relative shrink-0 rounded-full"
-              style={{ background: app.prefs.dyslexiaFont ? 'var(--accent)' : '#d4d4d8', height: '1.75rem', width: '3rem' }}
-              onClick={() => app.updatePrefs({ dyslexiaFont: !app.prefs.dyslexiaFont })}
-            >
-              <span className={`absolute top-0.5 h-6 w-6 rounded-full bg-white ${app.prefs.dyslexiaFont ? 'right-0.5' : 'left-0.5'}`} />
-            </button>
+            <Switch on={app.prefs.dyslexiaFont} label={t('settings.dyslexiaFont')} onChange={(next) => app.updatePrefs({ dyslexiaFont: next })} />
           </div>
           <div className="mt-3 flex min-h-12 items-center justify-between gap-3">
             <span className="min-w-0">
               <span className="block font-semibold">{t('settings.easierTapping')}</span>
               <span className="block text-sm font-normal text-[var(--muted)]">{t('settings.easierTappingBody')}</span>
             </span>
-            <button
-              type="button"
-              role="switch"
-              aria-checked={app.prefs.easierTapping}
-              aria-label={t('settings.easierTapping')}
-              className="relative shrink-0 rounded-full"
-              style={{ background: app.prefs.easierTapping ? 'var(--accent)' : '#d4d4d8', height: '1.75rem', width: '3rem' }}
-              onClick={() => app.updatePrefs({ easierTapping: !app.prefs.easierTapping })}
-            >
-              <span className={`absolute top-0.5 h-6 w-6 rounded-full bg-white ${app.prefs.easierTapping ? 'right-0.5' : 'left-0.5'}`} />
-            </button>
+            <Switch on={app.prefs.easierTapping} label={t('settings.easierTapping')} onChange={(next) => app.updatePrefs({ easierTapping: next })} />
           </div>
         </Section>
 
@@ -401,7 +378,10 @@ export function Settings() {
           open={!!open.privacy}
           onToggle={toggle}
         >
-          <PrefSwitch on={app.prefs.spendingInsights} label={t('settings.insights')} onClick={() => app.updatePrefs({ spendingInsights: !app.prefs.spendingInsights })} />
+          <div className="mt-3 flex min-h-11 items-center justify-between gap-3">
+            <span className="min-w-0 font-semibold">{t('settings.insights')}</span>
+            <Switch on={app.prefs.spendingInsights} label={t('settings.insights')} onChange={(next) => app.updatePrefs({ spendingInsights: next })} />
+          </div>
         </Section>
 
         <Section only={panel} onResult={remember}
@@ -456,17 +436,6 @@ const VOICE_LABEL: Record<string, string> = {
   ja: '日本語の音声',
   hi: 'हिन्दी आवाज़',
   bn: 'বাংলা কণ্ঠ',
-}
-
-function PrefSwitch({ on, label, onClick }: { on: boolean; label: string; onClick: () => void }) {
-  return (
-    <div className="mt-3 flex min-h-11 items-center justify-between gap-3">
-      <span className="min-w-0 font-semibold">{label}</span>
-      <button type="button" role="switch" aria-checked={on} aria-label={label} className="relative h-[44px] w-[72px] shrink-0 rounded-full" style={{ background: on ? 'var(--accent)' : '#d4d4d8' }} onClick={onClick}>
-        <span className={`absolute top-1 h-9 w-9 rounded-full bg-white ${on ? 'right-1' : 'left-1'}`} />
-      </button>
-    </div>
-  )
 }
 
 function voiceSummary(language: string, dialect: string, native: string, t: (key: string) => string) {

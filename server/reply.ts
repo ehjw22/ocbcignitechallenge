@@ -71,6 +71,9 @@ export function detectTask(message: string, payees: PayeeHint[] = []) {
   const amountMatch = text.match(/(?:s\$|sgd|aud|美元|新币|坡币)?\s*(\d{1,6}(?:[.,]\d{1,2})?)\s*(?:dollars|dollar|sgd|块|元|蚊)?/i)
   const amount = amountMatch ? amountMatch[1].replace(',', '') : ''
   const overThousand = Number(amount) > 1000
+  if (/transfer limit|daily limit|限额|限額|had transaksi/i.test(text) && !/send|transfer|pay|转|轉|汇|匯|pindah/i.test(text)) {
+    return { action: null, scamRisk: 'none' as const, handover: false }
+  }
   const police = /police|government|scam|investment|guaranteed return|promised return|job offer|\bjob\b|中奖|中獎|prize|lucky draw|hadiah|警察|政府|诈骗|骗局|投资|回报|工作|騙|投資|回報|safe account|MAS|move your money/i.test(text)
   const son = /son|儿子|兒子|仔/i.test(text)
   const overseas = /australia|australian|澳洲|澳大利亚|澳大利亞|overseas|海外|国外|國外/i.test(text)

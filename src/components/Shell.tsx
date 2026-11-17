@@ -129,7 +129,7 @@ export function BottomNav() {
             data-guide={item.guide}
             aria-label={label}
             className={({ isActive }) =>
-              `flex min-h-[64px] min-w-0 flex-col items-center justify-start overflow-hidden px-0.5 pt-1.5 text-center text-[0.7rem] font-normal leading-tight ${isActive ? 'text-[#E30613]' : 'text-[var(--text)]'}`
+              `flex min-h-[64px] min-w-0 flex-col items-center justify-start overflow-hidden px-0.5 pt-1.5 text-center text-[0.7rem] font-normal leading-tight ${isActive ? 'font-semibold text-[var(--accent-text)]' : 'text-[var(--muted)]'}`
             }
             style={{ gap: 4 }}
           >

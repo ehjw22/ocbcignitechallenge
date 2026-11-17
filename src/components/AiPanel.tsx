@@ -10,6 +10,7 @@ import { languageById } from '@/lib/languages'
 import { journeyRoute, queueShowHow } from '@/lib/showHow'
 import { prefetchSpeech, speak, stopSpeaking } from '@/lib/speech'
 import type { ChatAction, ChatMessage, VoiceTransferCard } from '@/lib/types'
+import { visibleReply } from '@/lib/chatReply'
 import { RichText, plainSpeech } from './RichText'
 import { Speakable } from './Speakable'
 
@@ -38,26 +39,6 @@ function chipsFor(screen: string) {
 function speechLang(language: string, dialect: string) {
   if ((language === 'zh' || language === 'zh-TW') && dialect === 'cantonese') return 'zh-HK'
   return languageById(language).bcp47
-}
-
-function visibleReply(raw: string) {
-  const trimmed = raw.trim()
-  if (!trimmed.startsWith('{') && !trimmed.startsWith('```')) return trimmed
-  const match = trimmed.match(/"reply"\s*:\s*"/)
-  if (!match || match.index == null) return ''
-  let out = ''
-  for (let i = match.index + match[0].length; i < trimmed.length; i += 1) {
-    const ch = trimmed[i]
-    if (ch === '\\') {
-      const next = trimmed[i + 1]
-      out += next === 'n' ? '\n' : next || ''
-      i += 1
-      continue
-    }
-    if (ch === '"') break
-    out += ch
-  }
-  return out
 }
 
 async function readChatStream(res: Response, onText: (text: string) => void): Promise<ChatMessage & { reply?: string }> {
@@ -99,6 +80,7 @@ function confirmCopy(action: ChatAction, t: (key: string, vars?: Record<string, 
       received: `${t(fx.currencyKey)} ${received}`,
     })
   }
+  if (action.intent === 'card-lock') return t('ai.confirmCardLock')
   const taskKey = `ai.task.${action.intent}`
   const task = t(taskKey)
   return t('ai.confirmGeneric', { task: task === taskKey ? action.intent : task })
@@ -305,7 +287,7 @@ export function AiPanel() {
         source: data.source,
         journeyId: data.journeyId,
         action: data.action,
-        scamRisk: data.scamRisk === 'check' && !['paynow', 'transfer', 'overseas', 'bill', 'scan'].includes(data.action?.intent || '') ? 'none' : data.scamRisk,
+        scamRisk: data.scamRisk === 'check' && ['paynow', 'transfer', 'overseas', 'bill', 'scan'].includes(data.action?.intent || '') ? data.scamRisk : data.scamRisk === 'check' ? 'none' : data.scamRisk,
         suggestions: data.suggestions,
         handover: data.handover || flags.escalated,
       }

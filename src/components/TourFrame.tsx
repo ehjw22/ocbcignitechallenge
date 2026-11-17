@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useApp } from '@/context/AppContext'
 import { SpeakButton } from '@/components/SpeakButton'
 import { translate } from '@/i18n'
@@ -22,6 +23,7 @@ export function TourFrame({
   onSkip,
   autoSpeak,
   speak,
+  flowEnd,
 }: {
   active: boolean
   element?: string
@@ -36,6 +38,7 @@ export function TourFrame({
   onSkip?: () => void
   autoSpeak: boolean
   speak: (text: string) => void | Promise<unknown>
+  flowEnd?: { onPractise: () => void; onReal: () => void; onDone: () => void }
 }) {
   const app = useApp()
   const t = (key: string) => translate(app.prefs.language, key)
@@ -253,7 +256,35 @@ export function TourFrame({
               ×
             </button>
           </div>
-          <p className={`mt-1 min-h-0 flex-1 overflow-y-auto leading-snug ${app.prefs.textSize >= 22 ? 'text-[16px]' : 'text-[1rem]'}`}>{body}</p>
+          <p className={`mt-1 min-h-0 flex-1 overflow-y-auto leading-snug ${app.prefs.textSize >= 22 ? 'text-[16px]' : 'text-[1rem]'}`}>
+            {flowEnd ? t('flows.tourEndBody') : body}
+          </p>
+          {flowEnd ? (
+            <div className="mt-3 flex shrink-0 flex-col gap-2">
+              <div className="flex items-center gap-2">
+                <SpeakButton
+                  playing={playing}
+                  listenLabel={t('speech.readAloud')}
+                  stopLabel={t('stop')}
+                  onClick={() => {
+                    if (playing) {
+                      stopSpeaking()
+                      setPlaying(false)
+                      return
+                    }
+                    setPlaying(true)
+                    void Promise.resolve(speak(`${translate(app.prefs.language, 'practice.step', { n: step, total })}. ${title}. ${t('flows.tourEndBody')}`)).finally(() => setPlaying(false))
+                  }}
+                />
+                {step > 1 && (
+                  <button type="button" className="min-h-11 px-3 font-semibold text-white underline" onClick={onBack}>{t('back')}</button>
+                )}
+              </div>
+              <button type="button" className="min-h-11 w-full rounded-lg bg-white px-3 font-bold text-[#2A3B43]" onClick={flowEnd.onPractise}>{t('flows.practiseThis')}</button>
+              <button type="button" className="min-h-11 w-full rounded-lg border border-white/80 bg-transparent px-3 font-semibold text-white" onClick={flowEnd.onReal}>{t('doForReal')}</button>
+              <button type="button" className="min-h-11 w-full rounded-lg border border-white/50 bg-transparent px-3 font-semibold text-white underline" onClick={flowEnd.onDone}>{t('done')}</button>
+            </div>
+          ) : (
           <div className="mt-3 flex shrink-0 flex-wrap items-center justify-between gap-x-3 gap-y-2">
             <div className="flex items-center gap-2">
               <SpeakButton
@@ -286,20 +317,35 @@ export function TourFrame({
               </button>
             </div>
           </div>
+          )}
         </div>
       </div>
     </>
   )
 }
 
+const GUIDE_FLOW: Record<string, string> = {
+  paynow: 'paynow',
+  transfer: 'transfer',
+  overseas: 'overseas',
+  bill: 'bill',
+  giro: 'giro',
+  goal: 'goal',
+  'card-lock': 'card-lock',
+  limit: 'limit',
+  scan: 'scan',
+}
+
 export function FlowTour() {
   const tour = useSyncExternalStore(subscribeFlowTour, getFlowTour, getFlowTour)
   const app = useApp()
+  const navigate = useNavigate()
   if (!tour) return null
   const current = tour.steps[tour.index]
   if (!current) return null
   const t = (key: string) => translate(app.prefs.language, key)
   const last = tour.index >= tour.steps.length - 1
+  const flowId = GUIDE_FLOW[tour.guideId] || tour.guideId
   return (
     <TourFrame
       active
@@ -315,6 +361,11 @@ export function FlowTour() {
       onSkip={() => moveFlowTour(tour.index + 1 >= tour.steps.length ? -1 : tour.index + 1)}
       autoSpeak={app.prefs.readAloud}
       speak={(text) => tour.speak(text)}
+      flowEnd={last ? {
+        onPractise: () => { moveFlowTour(-1); navigate(`/flow/${flowId}?practice=1`) },
+        onReal: () => { moveFlowTour(-1); navigate(`/flow/${flowId}`, { replace: true }) },
+        onDone: () => moveFlowTour(tour.steps.length),
+      } : undefined}
     />
   )
 }

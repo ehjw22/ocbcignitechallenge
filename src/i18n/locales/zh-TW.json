@@ -165,8 +165,8 @@
     "readyBody": "保存在此設備上。",
     "enter": "完成",
     "colourAdjust": "強調色可能會略有變化。",
-    "voiceLimit": "語音轉帳限額",
-    "voiceLimitBody": "請為透過 Ollie 語音發起的轉帳設定限額。每筆轉帳仍需你核對並確認。",
+    "voiceLimit": "語音轉賬限額",
+    "voiceLimitBody": "請為通過 Ollie 語音發起的轉賬設置限額。每筆轉賬仍需你核對並確認。",
     "shortcuts": "選擇 6 個快捷方式",
     "readAloudBody": "文字旁邊會出現喇叭按鈕。打開後，每個屏幕會自動朗讀。",
     "minutes": "大約 3 分鐘。之後可在設置中更改。"
@@ -335,8 +335,8 @@
         "full": "我可以幫助處理賬戶、轉賬、PayNow、GIRO、賬單、卡、儲蓄以及您當前的頁面。"
       },
       "fraud": {
-        "short": "如果這可能是詐騙，請致電[ScamShield 防詐騙熱線 1799（免費，全日）](tel:1799)。您也可以鎖定卡。",
-        "full": "如果這筆付款不是您本人操作，或有人要求您轉賬，請致電[ScamShield 防詐騙熱線 1799（免費，全日）](tel:1799)。您也可以鎖定卡。"
+        "short": "如果這可能是詐騙，請致電[ScamShield 防詐騙熱線 1799（免費，全天）](tel:1799)。您也可以鎖定卡。",
+        "full": "如果這筆付款不是您本人操作，或有人要求您轉賬，請致電[ScamShield 防詐騙熱線 1799（免費，全天）](tel:1799)。您也可以鎖定卡。"
       },
       "lostcard": {
         "short": "請先鎖定卡，然後致電 +65 6363 3333。",
@@ -344,7 +344,7 @@
       },
       "secret": {
         "short": "請不要分享密碼、PIN 或一次性驗證碼。",
-        "full": "請不要分享密碼、PIN、一次性驗證碼或完整卡號。如果有人向您索取這些信息，請致電[ScamShield 防詐騙熱線 1799（免費，全日）](tel:1799)。"
+        "full": "請不要分享密碼、PIN、一次性驗證碼或完整卡號。如果有人向您索取這些信息，請致電[ScamShield 防詐騙熱線 1799（免費，全天）](tel:1799)。"
       },
       "fees": {
         "short": "我沒有這項費用或匯率。請聯繫我們確認。",
@@ -409,12 +409,13 @@
     "sampleRate": "這是示例匯率，不是華僑銀行的實時匯率。",
     "confirmOverseas": "匯 {amount} 給{name}（{country}）？手續費 {fee}。對方大約收到 {received}。",
     "confirmGeneric": "我可以幫你填好這個{task}。你仍然要核對，並用滑動支付和一次性驗證碼確認。",
+    "confirmCardLock": "我可以幫你打開鎖卡頁面。你仍然要核對並點擊確認。",
     "task": {
       "paynow": "PayNow 轉賬",
       "transfer": "本地轉賬",
       "overseas": "海外轉賬",
       "bill": "賬單付款",
-      "giro": "GIRO 設定",
+      "giro": "GIRO 設置",
       "goal": "儲蓄目標",
       "card-lock": "鎖卡"
     },
@@ -430,17 +431,17 @@
     "hearing": "正在聽…",
     "aboutAi": "Ollie 使用人工智能。它可以說明頁面、回答日常問題，並幫你準備轉賬讓你核對。它不會轉賬，不會提供醫療、法律或投資建議，也不會索取密碼、PIN 或一次性驗證碼。",
     "explainFallback": "這是{screen}頁面。你可以看到：{labels}。這裡的數字是示例。哪個詞不清楚，可以問我。",
-    "voiceConfirm": "您將向 {name} 轉帳 {amount}。對嗎？",
-    "voiceOverLimit": "語音轉帳限額為 {amount}。你可以在「設定」中變更，或前往一般轉帳頁面傳送並確認這筆轉帳。",
-    "voiceUnknownPayee": "語音轉帳只能付給您已儲存的收款人。如果要付給新的收款人，我可以打開平常的轉帳頁面。",
+    "voiceConfirm": "您將向 {name} 轉賬 {amount}。對嗎？",
+    "voiceOverLimit": "語音轉賬限額為 {amount}。你可以在“設置”中更改，或前往普通轉賬頁面發送並確認這筆轉賬。",
+    "voiceUnknownPayee": "語音轉賬只能付給您已保存的收款人。如果要付給新的收款人，我可以打開平常的轉賬頁面。",
     "voiceAskAmount": "要轉多少給{name}？",
     "voiceBadAmount": "請輸入大於 S$0.00 的金額，最多兩位小數。",
-    "voiceOpenTransfer": "打開轉帳",
+    "voiceOpenTransfer": "打開轉賬",
     "voiceChip": "試一試：「轉 20 塊給 {name}」",
-    "voiceOpening": "正在打開轉帳頁面。請在該頁面核對並確認。",
-    "voiceCancelled": "好的，已取消這筆轉帳。",
-    "voiceOpenSettings": "開啟設定",
-    "voiceOff": "語音轉帳已關閉。你可以在「設定」中開啟，或使用一般轉帳頁面。"
+    "voiceOpening": "正在打開轉賬頁面。請在該頁面核對並確認。",
+    "voiceCancelled": "好的，已取消這筆轉賬。",
+    "voiceOpenSettings": "打開設置",
+    "voiceOff": "語音轉賬已關閉。你可以在“設置”中開啟，或使用普通轉賬頁面。"
   },
   "flows": {
     "paynow": "PayNow",
@@ -465,6 +466,11 @@
     "from": "從哪個賬戶",
     "submit": "繼續",
     "practiseThis": "先練習",
+    "tourEndBody": "步驟都講完了。要先安全練習一次嗎？",
+    "continueHintDefault": "請填寫以下內容後再繼續。",
+    "continueHintTransfer": "請填寫收款人姓名和賬號（10 位）後再繼續。",
+    "continueHintPaynow": "請輸入手機號或選擇聯繫人後再繼續。",
+    "continueHintAmount": "請輸入金額並選擇付款賬戶後再繼續。",
     "whatGiro": "什麼是 GIRO？",
     "currentLimit": "當前限額 {amount}",
     "nameCheck": "姓名核對：{name}",
@@ -610,16 +616,16 @@
       "account": "賬戶",
       "safety": "安全"
     },
-    "dyslexiaFont": "閱讀障礙友善字體",
+    "dyslexiaFont": "閱讀障礙友好字體",
     "dyslexiaFontBody": "使用 OpenDyslexic 字體並加大字距。中文、泰米爾文和其他文字仍使用原來的字體。",
-    "easierTapping": "更易點選",
+    "easierTapping": "更易點按",
     "easierTappingBody": "按鈕更大，付款時可以長按，不必滑動。",
-    "voiceLimit": "語音轉帳限額",
-    "voiceLimitSummary": "語音轉帳上限 {amount}",
-    "voiceLimitBody": "你可以用語音讓 Ollie 發起轉帳，最高不超過此限額。每筆轉帳仍需你核對並確認。選擇「關閉」即可停用語音轉帳。",
+    "voiceLimit": "語音轉賬限額",
+    "voiceLimitSummary": "語音轉賬上限 {amount}",
+    "voiceLimitBody": "你可以用語音讓 Ollie 發起轉賬，最高不超過此限額。每筆轉賬仍需你核對並確認。選擇“關閉”即可停用語音轉賬。",
     "voiceLimitOff": "關閉",
-    "voiceLimitRaise": "提高語音轉帳限額？",
-    "voiceLimitRaiseBody": "要將語音轉帳限額提高至 {amount} 嗎？每筆轉帳仍需你核對並確認。",
+    "voiceLimitRaise": "提高語音轉賬限額？",
+    "voiceLimitRaiseBody": "要將語音轉賬限額提高至 {amount} 嗎？每筆轉賬仍需你核對並確認。",
     "voiceLimitConfirm": "提高限額"
   },
   "demo": {
@@ -634,7 +640,7 @@
       "balanceTitle": "您的餘額",
       "balanceBody": "這是您今天可以使用的金額。",
       "shortcutsTitle": "你的快捷方式",
-      "shortcutsBody": "這六個快捷方式是您的。點自訂來更改。",
+      "shortcutsBody": "這六個快捷方式是您的。點自定義來更改。",
       "helpTitle": "幫助一直都在",
       "helpBody": "請選擇助手、分步指引，或給我們發消息。",
       "navTitle": "在應用裡移動",
@@ -668,7 +674,7 @@
       "reviewTitle": "發送前檢查",
       "reviewBody": "請閱讀姓名和金額，然後繼續。",
       "nameTitle": "核對姓名",
-      "nameBody": "遮罩姓名應與您選擇的人一致。",
+      "nameBody": "掩碼姓名應與您選擇的人一致。",
       "slideTitle": "滑動付款",
       "slideBody": "滑到盡頭即可確認。"
     },
@@ -907,10 +913,10 @@
     "diningCost": "500 OCBC$",
     "grab": "Grab 乘車額度",
     "grabCost": "800 OCBC$",
-    "cash": "現金回贈",
+    "cash": "現金回扣",
     "cashCost": "1,000 OCBC$",
     "redeem": "兌換",
-    "note": "此示範中的獎勵僅供查看。"
+    "note": "此演示中的獎勵僅供查看。"
   },
   "notFound": {
     "title": "找不到頁面",
@@ -1053,7 +1059,7 @@
     "coolingLeft": "{n} 秒後可繼續",
     "continueAnyway": "仍要繼續",
     "callShort": "致電 ScamShield 1799",
-    "helpline": "ScamShield 防詐騙熱線 1799（免費，全日）",
+    "helpline": "ScamShield 防詐騙熱線 1799（免費，全天）",
     "needMoreTime": "我需要多一點時間"
   },
   "look": {
@@ -1081,7 +1087,7 @@
     "insightLine": "設定預算分類",
     "new": "新",
     "recentHint": "最多 50 筆（僅最近 7 天）",
-    "logout": "登出",
+    "logout": "退出",
     "easy": "其實很簡單！",
     "showMe": "告訴我怎麼做",
     "planTitle": "規劃你的財務",
@@ -1107,7 +1113,7 @@
     "moneyLock": "資金鎖",
     "total": "總餘額",
     "viewStatement": "查看結單",
-    "pending": "借記卡的待入賬交易最多可能在 7 天後顯示。請核對可用餘額，確認已扣除正確金額。",
+    "pending": "借記卡的待入賬交易最多可能在 7 天后顯示。請核對可用餘額，確認已扣除正確金額。",
     "debitCard": "借記卡",
     "cardActive": "有效",
     "cardLocked": "已鎖定",
@@ -1123,13 +1129,13 @@
     "showBalance": "顯示可用餘額",
     "payAsk": "向{name}支付{amount}？",
     "pay": "支付",
-    "noMessages": "還沒有訊息。問問 Ollie 或聯絡我們，回覆會顯示在這裡。",
+    "noMessages": "還沒有消息。問問 Ollie 或聯繫我們，回覆會顯示在這裡。",
     "description": "說明",
     "moneyLockHint": "開了資金鎖定？需要的話先釋放資金。",
     "enterMobile": "+ 輸入手機號",
     "recentTab": "最近",
-    "contactsTab": "聯絡人",
-    "searchPayee": "按姓名或手機號搜尋",
+    "contactsTab": "聯繫人",
+    "searchPayee": "按姓名或手機號搜索",
     "nric": "身份證",
     "uen": "商業註冊號",
     "tapToPay": "改為點按付款",
@@ -1145,7 +1151,7 @@
     "mobilePh": "8 位手機號",
     "nricPh": "例如 S1234567A",
     "uenPh": "例如 201234567A",
-    "addMessage": "新增留言",
+    "addMessage": "添加留言",
     "processing": "正在處理您的付款...",
     "kindIncoming": "入賬",
     "kindCard": "銀行卡付款",
@@ -1153,7 +1159,7 @@
     "kindBill": "賬單付款",
     "kindFast": "快速付款",
     "report": "報告問題",
-    "shape": "按您的方式設定應用",
+    "shape": "按您的方式設置應用",
     "hiName": "我們如何稱呼您",
     "greetTell": "告訴我們您希望被怎樣問候",
     "greetHelp": "應用裡會用這個名字問候您",
@@ -1174,7 +1180,7 @@
       "large": "{amount} 或更多。",
       "day": "加上這筆，您今天付給這個人的總額是 {amount}。",
       "overseas": "匯到海外，收款人是新的。",
-      "words": "附言提到「{word}」，騙子常用這個說法。",
+      "words": "附言提到“{word}”，騙子常用這個說法。",
       "unusual": "比您平時轉的多很多（大約 {usual}）。"
     }
   },

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Check, CheckCircle2, AlertTriangle } from 'lucide-react'
 import { Choice, choiceClass } from '@/components/Choice'
+import { Switch } from '@/components/Switch'
 import { ShortcutPicker } from '@/components/ShortcutPicker'
 import { SpeechSpeed } from '@/components/SpeechSpeed'
 import { VoiceLimitChoices } from '@/components/VoiceLimitChoices'
@@ -75,9 +76,7 @@ export function Join() {
                   <span className="block font-semibold">{t('onboarding.readAloud')}</span>
                   <span className="block text-sm text-[var(--muted)]">{t('onboarding.readAloudBody')}</span>
                 </span>
-                <button type="button" role="switch" aria-checked={app.prefs.readAloud} aria-label={t('onboarding.readAloud')} className="relative h-[44px] w-[72px] shrink-0 rounded-full" style={{ background: app.prefs.readAloud ? 'var(--accent)' : '#d4d4d8' }} onClick={() => app.updatePrefs({ readAloud: !app.prefs.readAloud })}>
-                  <span className={`absolute top-1 h-9 w-9 rounded-full bg-white ${app.prefs.readAloud ? 'right-1' : 'left-1'}`} />
-                </button>
+                <Switch on={app.prefs.readAloud} label={t('onboarding.readAloud')} onChange={(next) => app.updatePrefs({ readAloud: next })} />
               </div>
               <SpeechSpeed />
             </section>
@@ -111,18 +110,14 @@ export function Join() {
                   <span className="block font-semibold">{t('settings.dyslexiaFont')}</span>
                   <span className="block text-sm text-[var(--muted)]">{t('settings.dyslexiaFontBody')}</span>
                 </span>
-                <button type="button" role="switch" aria-checked={app.prefs.dyslexiaFont} aria-label={t('settings.dyslexiaFont')} className="relative h-[44px] w-[72px] shrink-0 rounded-full" style={{ background: app.prefs.dyslexiaFont ? 'var(--accent)' : '#d4d4d8' }} onClick={() => app.updatePrefs({ dyslexiaFont: !app.prefs.dyslexiaFont })}>
-                  <span className={`absolute top-1 h-9 w-9 rounded-full bg-white ${app.prefs.dyslexiaFont ? 'right-1' : 'left-1'}`} />
-                </button>
+                <Switch on={app.prefs.dyslexiaFont} label={t('settings.dyslexiaFont')} onChange={(next) => app.updatePrefs({ dyslexiaFont: next })} />
               </div>
               <div className="flex min-h-11 items-center justify-between gap-3">
                 <span>
                   <span className="block font-semibold">{t('settings.easierTapping')}</span>
                   <span className="block text-sm text-[var(--muted)]">{t('settings.easierTappingBody')}</span>
                 </span>
-                <button type="button" role="switch" aria-checked={app.prefs.easierTapping} aria-label={t('settings.easierTapping')} className="relative h-[44px] w-[72px] shrink-0 rounded-full" style={{ background: app.prefs.easierTapping ? 'var(--accent)' : '#d4d4d8' }} onClick={() => app.updatePrefs({ easierTapping: !app.prefs.easierTapping })}>
-                  <span className={`absolute top-1 h-9 w-9 rounded-full bg-white ${app.prefs.easierTapping ? 'right-1' : 'left-1'}`} />
-                </button>
+                <Switch on={app.prefs.easierTapping} label={t('settings.easierTapping')} onChange={(next) => app.updatePrefs({ easierTapping: next })} />
               </div>
             </section>
           )}

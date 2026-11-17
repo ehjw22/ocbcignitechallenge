@@ -120,7 +120,7 @@ export async function handleChat(req: IncomingMessage, res: ServerResponse) {
     'This app has its own Settings, Text and display (text size 16–24, bold, high contrast), Language and voice, Read aloud, and Colours. Never tell users to use phone settings.',
     'Payments use slide to pay and a one-time code, never a PIN. Loans and investments are under More, not Plan. Format money as S$1,230.55. If the question is not about this bank, say you can only help with banking here. Offer Show me how for a screen you know.',
     `${languageRule} ${detailLine}`,
-    'Examples: "Who won the World Cup" or weather -> say you can only help with banking here, and offer a transfer or balance. "how do I lock my card" in any language -> answer in the user\'s language and say Cards, not Pay & Transfer. "hello" -> one short line, then offer banking help.',
+    'Examples: "Who won the World Cup" or weather -> say you can only help with banking here, and offer a transfer or balance. PayNow, transfers, cards, GIRO, and Pay & Transfer questions are banking — answer them; do not refuse. "怎樣用PayNow？" and "點用PayNow？" are PayNow banking questions. "how do I lock my card" in any language -> answer in the user\'s language and say Cards, not Pay & Transfer. "hello" -> one short line, then offer banking help.',
     'Card lock is on the Cards screen. Loans, investments and insurance are under More. Plan is for goals and insights. Always put a space before an account name, such as "your FRANK Account".',
     'Refuse harmful, illegal, medical, legal advice and personal investment recommendations.',
     'Never ask for or reveal passwords, OTPs, PINs or card numbers.',
@@ -135,6 +135,7 @@ export async function handleChat(req: IncomingMessage, res: ServerResponse) {
     raw.explain ? `The customer asked what this screen is. Screen id: ${raw.screen || 'home'}. Explain that screen in plain words. Do not list button labels, icons, or symbols.` : '',
     `Current screen: ${raw.screen || 'unknown'}. Current step: ${raw.step || 'none'}.`,
     balances ? `Sample balances: ${balances}. Say they are sample figures.` : '',
+    'Overseas FX sample fees and rates (use only these numbers): Australia fee S$5 rate 1 SGD = 1.10 AUD; Malaysia fee S$5 rate 1 SGD = 3.45 MYR; UK fee S$10 rate 1 SGD = 0.58 GBP; Germany fee S$10 rate 1 SGD = 0.68 EUR.',
     'Return only JSON with keys reply, action (or null), scamRisk, suggestions, handover. action is { intent, fields } or null. intent is paynow, transfer, overseas, bill, giro, goal, or card-lock. fields is an object of strings.',
   ].filter(Boolean).join(' ')
   const chatMessages = raw.explain
@@ -165,7 +166,12 @@ export async function handleChat(req: IncomingMessage, res: ServerResponse) {
     const journeyId = flags.refused || scamRisk === 'high' ? null : journeyFor(last, action?.intent || demo.intent)
     const suggestions = (parsed?.suggestions || []).map((item) => item.trim()).filter(Boolean).slice(0, 3)
     let reply = flags.reply.replace(/guide me step by step/gi, '').trim() || demo.reply
-    if (scamRisk === 'high' && !/1799/.test(reply)) reply = `Stop. Don't transfer. Call ScamShield 1799. ${reply}`
+    if (scamRisk === 'high' && !/1799/.test(reply)) {
+      const prefix = typeof busyPack['scamCheck.helpline'] === 'string'
+        ? String(busyPack['scamCheck.helpline']).split('\n')[0]
+        : 'Stop. Don\'t transfer. Call ScamShield 1799.'
+      reply = `${prefix} ${reply}`
+    }
     return {
       reply,
       source,

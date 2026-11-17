@@ -80,8 +80,10 @@ export function themeVars(prefs: { colourVision: string; scheme: string; accent:
     ok = text
     warn = text
   }
+  const accentText = linkColor(accent, bg)
   return {
     '--accent': accent,
+    '--accent-text': accentText,
     '--link': linkColor(link, bg),
     '--slate': slate,
     '--on-accent': ink(accent),

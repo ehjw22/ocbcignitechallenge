@@ -35,6 +35,8 @@ export function FlowPage() {
   const t = (key: string, vars?: Record<string, string | number>) => translate(app.prefs.language, key, vars)
   const [form, setForm] = useState<Record<string, string>>({})
   const [issues, setIssues] = useState<Issue[]>([])
+  const [touched, setTouched] = useState<Set<string>>(() => new Set())
+  const [continueTried, setContinueTried] = useState(false)
   const [stage, setStage] = useState<'form' | 'review' | 'otp' | 'processing' | 'done'>('form')
   const [otp, setOtp] = useState('')
   const [otpError, setOtpError] = useState('')
@@ -274,6 +276,22 @@ export function FlowPage() {
     return true
   }
   const continueIssues = stepIssues(flow.id, form, balance, app.limit, app.payees, wstep, reviewAt, flow.fields.filter(shown).map((field) => field.id))
+  const fieldErrorText = (fieldId: string) => {
+    if (!touched.has(fieldId) && !continueTried) return ''
+    const issue = issues.find((item) => item.field === fieldId) || continueIssues.find((item) => item.field === fieldId)
+    return issue ? describe(issue) : ''
+  }
+  const touchField = (fieldId: string) => {
+    setTouched((prev) => new Set(prev).add(fieldId))
+    const found = validateForm(flow.id, form, balance, app.payees).filter((issue) => issue.field === fieldId)
+    if (found.length) setIssues((current) => [...current.filter((issue) => issue.field !== fieldId), ...found])
+  }
+  const continueHintKey =
+    flow.id === 'transfer' && wstep === 0 ? 'flows.continueHintTransfer'
+    : flow.id === 'paynow' && wstep === 0 ? 'flows.continueHintPaynow'
+    : (flow.id === 'paynow' || flow.id === 'transfer' || flow.id === 'overseas') && wstep >= 1 && wstep < reviewAt ? 'flows.continueHintAmount'
+    : 'flows.continueHintDefault'
+  const engaged = continueTried || [...touched].some((id) => (stepIds || []).includes(id))
   const sendAmount = Number(String(form.amount || '').replace(/,/g, '')) || 0
   const received = fx ? Math.max(0, sendAmount - fx.fee) * fx.perSgd : 0
 
@@ -295,7 +313,14 @@ export function FlowPage() {
     }, 0)
   }
 
+  useEffect(() => {
+    setTouched(new Set())
+    setContinueTried(false)
+    setIssues([])
+  }, [wstep, flowId])
+
   const changeField = (id: string, value: string) => {
+    setTouched((prev) => new Set(prev).add(id))
     setForm((prev) => {
       const next = { ...prev, [id]: value }
       setIssues((current) => {
@@ -427,6 +452,7 @@ export function FlowPage() {
             className="space-y-3"
             onSubmit={(e) => {
               e.preventDefault()
+              setContinueTried(true)
               if (reviewAt >= 0 && wstep < reviewAt) {
                 const ids = new Set(stepIds || [])
                 const found = validateForm(flow.id, form, balance, app.payees).filter((issue) => ids.has(issue.field))
@@ -548,7 +574,7 @@ export function FlowPage() {
                   }
                 }}>
                   {(['mobile', 'nric', 'uen'] as const).map((id) => (
-                    <button key={id} type="button" role="tab" aria-selected={(form.proxy || 'mobile') === id} className={`min-h-11 text-[14px] ${(form.proxy || 'mobile') === id ? 'border-b-2 border-[#9B0C16] font-bold text-[#9B0C16]' : 'font-normal text-[var(--text)]'}`} onClick={() => setForm((prev) => ({ ...prev, proxy: id, to: '' }))}>
+                    <button key={id} type="button" role="tab" aria-selected={(form.proxy || 'mobile') === id} className={`min-h-11 text-[14px] ${(form.proxy || 'mobile') === id ? 'border-b-2 border-[var(--accent-text)] font-bold text-[var(--accent-text)]' : 'font-normal text-[var(--muted)]'}`} onClick={() => setForm((prev) => ({ ...prev, proxy: id, to: '' }))}>
                       {t(id === 'mobile' ? 'flows.mobile' : id === 'nric' ? 'look.nric' : 'look.uen')}
                     </button>
                   ))}
@@ -599,7 +625,8 @@ export function FlowPage() {
                     placeholder={iban ? 'GB29 NWBK 6016 1331 9268 19' : undefined}
                     options={field.id === 'card' ? app.cards.map((card) => ({ value: card.id, label: card.nameKey })) : field.type === 'account' ? app.accounts.filter((account) => account.kind === 'deposit').map((account) => ({ value: account.id, label: account.nameKey })) : undefined}
                     highlight={highlights.includes(field.id)}
-                    error={issues.find((issue) => issue.field === field.id) ? describe(issues.find((issue) => issue.field === field.id) as Issue) : ''}
+                    error={fieldErrorText(field.id)}
+                    onBlur={() => touchField(field.id)}
                     balanceHint={field.id === 'from' ? t('flows.available', { amount: formatMoney(balance) }) : ''}
                     onChange={(value) => {
                       if (field.id === 'country' && flow.id === 'overseas') {
@@ -681,17 +708,13 @@ export function FlowPage() {
             {!(flow.id === 'paynow' && directory && wstep === 0 && !practice) && (
             <>
             {continueIssues.length > 0 && (
-              <p aria-live="polite" className="text-sm font-semibold text-[var(--danger)]">{continueIssues.map((issue) => describe(issue)).join(' ')}</p>
+              <p aria-live="polite" className={`text-sm font-semibold ${engaged ? 'text-[var(--danger)]' : 'text-[var(--muted)]'}`}>
+                {engaged ? continueIssues.map((issue) => describe(issue)).join(' ') : t(continueHintKey)}
+              </p>
             )}
             <button type="submit" data-guide={flow.id === 'paynow' && wstep === 1 ? 'pay-next' : reviewGuide(flow.id)} aria-describedby={flow.id === 'paynow' && wstep === 1 ? 'pay-alert' : undefined} className={`${flow.id === 'paynow' && wstep === 1 ? 'min-h-12 w-full rounded-lg bg-[#E30613] font-bold text-white' : 'ocbc-btn'} disabled:cursor-not-allowed disabled:bg-zinc-300 disabled:text-zinc-600 disabled:opacity-70`} disabled={continueIssues.length > 0 || (touring && !practice && reviewAt >= 0 && wstep >= reviewAt)}>
               {t('flows.submit')}
             </button>
-            {touring && !practice && reviewAt >= 0 && wstep >= reviewAt && (
-              <div className="space-y-2">
-                <button type="button" className="ocbc-btn" onClick={() => { stopGuide(); navigate(`/flow/${flow.id}?practice=1`) }}>{t('flows.practiseThis')}</button>
-                <button type="button" className="tap w-full rounded-xl border border-[var(--line)] bg-[var(--card)]" onClick={() => { stopGuide(); navigate(`/flow/${flow.id}`, { replace: true }) }}>{t('doForReal')}</button>
-              </div>
-            )}
             </>
             )}
             {!practice && (
@@ -1140,10 +1163,12 @@ function Field({
   error,
   balanceHint,
   highlight,
+  onBlur,
 }: {
   field: FlowField
   value: string
   onChange: (value: string) => void
+  onBlur?: () => void
   t: (key: string) => string
   label?: string
   hint?: string
@@ -1172,7 +1197,7 @@ function Field({
       </span>
       {hint && <span className="mb-1 block text-[0.85rem] font-normal text-[var(--muted)]">{hint}</span>}
       {field.type === 'select' || field.type === 'account' ? (
-        <select id={id} value={value} aria-invalid={invalid} aria-describedby={errorId} onChange={(e) => onChange(e.target.value)} className={`ocbc-field ${error ? 'is-invalid' : ''} ${highlight ? 'ocbc-filled' : ''}`}>
+        <select id={id} value={value} aria-invalid={invalid} aria-describedby={errorId} onChange={(e) => onChange(e.target.value)} onBlur={onBlur} className={`ocbc-field ${error ? 'is-invalid' : ''} ${highlight ? 'ocbc-filled' : ''}`}>
           {(options || field.options)?.map((option) => (
             <option key={option.value} value={option.value}>{t(option.label)}</option>
           ))}
@@ -1187,6 +1212,7 @@ function Field({
           aria-invalid={invalid}
           aria-describedby={errorId}
           onChange={(e) => onChange(e.target.value)}
+          onBlur={onBlur}
           className={`ocbc-field ${error ? 'is-invalid' : ''} ${highlight ? 'ocbc-filled' : ''} ${field.type === 'amount' ? 'text-center text-[28px] font-semibold' : ''}`}
         />
       )}

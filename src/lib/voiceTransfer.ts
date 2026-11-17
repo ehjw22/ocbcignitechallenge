@@ -48,7 +48,17 @@ function trimPayee(value: string) {
   return value
     .replace(/[?.!！？。，,]+$/g, '')
     .replace(/^(?:the|a|an|to|for)\s+/i, '')
+    .replace(/^(?:some\s+)?money\s+to\s+/i, '')
+    .replace(/\s+(?:lah|leh|lor|hor)$/i, '')
     .trim()
+}
+
+function fixVoiceKeywords(text: string) {
+  return text
+    .replace(/\btrasnfer\b/gi, 'transfer')
+    .replace(/\btranfer\b/gi, 'transfer')
+    .replace(/\btrnasfer\b/gi, 'transfer')
+    .replace(/\bsned\b/gi, 'send')
 }
 
 function splitNote(payee: string): { payeeQuery: string; note?: string } {
@@ -74,6 +84,7 @@ function pack(amountRaw: string | null, payeeRaw: string): VoiceParse | null {
   const amount = amountRaw == null ? null : cleanAmount(amountRaw)
   const { payeeQuery, note } = splitNote(payeeRaw)
   if ((amountRaw != null && amount == null) || !payeeQuery) return null
+  if (/^money\b/i.test(payeeQuery)) return null
   return note ? { amount, payeeQuery, note } : { amount, payeeQuery }
 }
 
@@ -85,8 +96,17 @@ export function invalidVoiceAmount(text: string) {
 }
 
 export function parseVoiceTransfer(text: string): VoiceParse | null {
-  const raw = spellNumbers(text.normalize('NFKC').replace(/\s+/g, ' ').trim())
+  const raw = fixVoiceKeywords(spellNumbers(text.normalize('NFKC').replace(/\s+/g, ' ').trim()))
   if (!raw || invalidVoiceAmount(text)) return null
+  const moneyTo = raw.match(/^(?:please\s+)?(?:transfer|send)\s+money\s+to\s+(.+)$/i)
+  if (moneyTo) return pack(null, moneyTo[1])
+  const payFor = raw.match(new RegExp(`^pay\\s+(.+?)\\s+${AMOUNT}\\s+for\\s+(.+)$`, 'i'))
+  if (payFor) {
+    const amount = cleanAmount(payFor[2])
+    const payeeQuery = trimPayee(payFor[1])
+    const note = trimPayee(payFor[3])
+    if (amount && payeeQuery) return { amount, payeeQuery, note: note || undefined }
+  }
   const vague = raw.match(/^(?:please\s+)?(?:transfer|send|pay)\s+(?:some|a bit of)\s+money\s+(?:to|for)\s+(.+)$/i)
     || raw.match(/^(?:tolong\s+)?(?:pindahkan|pindah|hantar|transfer)\s+(?:sedikit|some)\s+(?:wang|duit|money)\s+(?:kepada|ke)\s+(.+)$/i)
     || raw.match(/^(?:给|給)\s*(.+?)\s*(?:转|轉|汇|匯)\s*(?:一些|一点|一點)(?:钱|錢|元)?$/u)
@@ -102,6 +122,9 @@ export function parseVoiceTransfer(text: string): VoiceParse | null {
 
   const ms = raw.match(new RegExp(`^(?:tolong\\s+)?(?:pindahkan|pindah|hantar|bayar|transfer)\\s+${AMOUNT}\\s+(?:kepada|ke|pada)\\s+(.+)$`, 'i'))
   if (ms) return pack(ms[1], ms[2])
+
+  const enHelp = raw.match(new RegExp(`^(?:can(?:\\s+you)?\\s+|could you\\s+|please\\s+)?(?:help me\\s+)?(?:pay|transfer|send)\\s+(.+?)\\s+${AMOUNT}(?:\\s+.+)?$`, 'i'))
+  if (enHelp) return pack(enHelp[2], enHelp[1])
 
   const enTo = raw.match(new RegExp(`^(?:please\\s+)?(?:transfer|send|paynow|pay)\\s+${AMOUNT}\\s+(?:to|for)\\s+(.+)$`, 'i'))
   if (enTo) return pack(enTo[1], enTo[2])
