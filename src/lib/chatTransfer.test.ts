@@ -57,3 +57,25 @@ test('transferExpires after two minutes', () => {
   assert.equal(transferExpired(Date.now() - 3 * 60 * 1000), true)
   assert.equal(transferExpired(Date.now() - 30 * 1000), false)
 })
+
+test('bad_amount for invalid chat amounts', () => {
+  const match = voiceTransferFields(john, 20, undefined, 'frank')
+  match.fields.amount = 'abc'
+  const bad = executeDemoTransfer({ match, practice: false, balances: { frank: 1000 }, profileId: 'arif', payees: [john], usualTransfer: 80 })
+  assert.equal(bad.ok, false)
+  if (!bad.ok) assert.equal(bad.reason, 'bad_amount')
+})
+
+test('over_hard_cap above voice maximum', () => {
+  const match = voiceTransferFields(john, 1000.01, undefined, 'frank')
+  const capped = executeDemoTransfer({ match, practice: false, balances: { frank: 200000 }, profileId: 'arif', payees: [john], usualTransfer: 80 })
+  assert.equal(capped.ok, false)
+  if (!capped.ok) assert.equal(capped.reason, 'over_hard_cap')
+})
+
+test('Mei chat transfer defaults from to her 360 account', () => {
+  const match = voiceTransferFields(john, 20, undefined, '')
+  const ok = executeDemoTransfer({ match, practice: false, balances: { '360': 100000 }, profileId: 'auntiemei', payees: [john], usualTransfer: 200 })
+  assert.equal(ok.ok, true)
+  if (ok.ok) assert.equal(ok.fromAccountId, '360')
+})

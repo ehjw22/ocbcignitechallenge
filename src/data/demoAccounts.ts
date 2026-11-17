@@ -1,6 +1,6 @@
-import { DEFAULT_SHORTCUTS } from '@/lib/languages'
-import { VOICE_TRANSFER_LIMIT_SGD } from '@/lib/voiceTransfer'
-import type { Account, DemoUser, Preferences, Profile, Txn } from '@/lib/types'
+import { DEFAULT_SHORTCUTS } from '../lib/languages.ts'
+import { VOICE_TRANSFER_LIMIT_SGD } from '../lib/voiceTransfer.ts'
+import type { Account, DemoUser, Preferences, Profile, Txn } from '../lib/types.ts'
 
 function basePrefs(): Preferences {
   return {
@@ -59,12 +59,15 @@ export interface DemoGoal {
   saved?: number
 }
 
+export const DEMO_SEED_VERSION = 2
+
 export interface BankBook {
   accounts: Account[]
   balances: Record<string, number>
   txns: Txn[]
   goals: DemoGoal[]
   payees: SavedPayee[]
+  seedVersion?: number
 }
 
 const meiPrefs: Preferences = {
@@ -120,11 +123,12 @@ const arifTxns: Txn[] = [
 
 const books: Record<string, BankBook> = {
   auntiemei: {
-    accounts: [{ id: '360', nameKey: 'accounts.a360', number: '9012345671', balance: 8450.2, kind: 'deposit' }],
-    balances: { '360': 8450.2 },
+    accounts: [{ id: '360', nameKey: 'accounts.a360', number: '9012345671', balance: 100000, kind: 'deposit' }],
+    balances: { '360': 100000 },
+    seedVersion: DEMO_SEED_VERSION,
     txns: [
       { id: 'mei-1', title: 'NTUC FairPrice', amount: -42.3, date: '2026-11-02', accountId: '360' },
-      { id: 'mei-2', title: 'Tan Wei Ming', amount: -200, date: '2026-11-01', accountId: '360' },
+      { id: 'mei-2', title: 'Tan Wei Ming', amount: -80, date: '2026-11-01', accountId: '360' },
       { id: 'mei-3', title: 'Allowance', amount: 500, date: '2026-10-28', accountId: '360' },
       { id: 'mei-4', title: 'Kopitiam', amount: -6.5, date: '2026-10-20', accountId: '360' },
       { id: 'mei-5', title: 'SP Group', amount: -86.4, date: '2026-10-12', accountId: '360' },
@@ -137,8 +141,9 @@ const books: Record<string, BankBook> = {
     ],
   },
   arif: {
-    accounts: [{ id: 'frank', nameKey: 'accounts.frank', number: '5011223344', balance: 1230.55, kind: 'deposit' }],
-    balances: { frank: 1230.55 },
+    accounts: [{ id: 'frank', nameKey: 'accounts.frank', number: '5011223344', balance: 100000, kind: 'deposit' }],
+    balances: { frank: 100000 },
+    seedVersion: DEMO_SEED_VERSION,
     txns: arifTxns,
     goals: [{ id: 'laptop', name: 'Laptop', target: 1500, monthly: 100, saved: 400 }],
     payees: [
@@ -190,14 +195,31 @@ export function mergeSeedPayees(saved: SavedPayee[], seed: SavedPayee[]): SavedP
   return ordered
 }
 
+export function migrateBalances(saved: BankBook, seed: BankBook): BankBook {
+  const version = saved.seedVersion ?? 1
+  if (version >= DEMO_SEED_VERSION) return saved
+  const balances = { ...saved.balances }
+  const accounts = saved.accounts.map((account) => {
+    const target = seed.balances[account.id] ?? account.balance
+    const nextBal = Math.max(balances[account.id] ?? account.balance, target)
+    balances[account.id] = nextBal
+    return account.kind === 'deposit' ? { ...account, balance: nextBal } : account
+  })
+  return { ...saved, balances, accounts, seedVersion: DEMO_SEED_VERSION }
+}
+
 export function resolveBook(id: string): BankBook | null {
   const seed = demoBook(id)
   if (!seed) return null
   const saved = loadBook(id)
   if (!saved) return { ...seed, payees: [...seed.payees] }
   const payees = mergeSeedPayees(saved.payees || [], seed.payees)
-  const book: BankBook = { ...seed, ...saved, payees }
-  if (JSON.stringify(saved.payees) !== JSON.stringify(payees)) saveBook(id, book)
+  let book: BankBook = { ...seed, ...saved, payees }
+  const migrated = migrateBalances(book, seed)
+  if (migrated !== book || JSON.stringify(saved.payees) !== JSON.stringify(payees) || (saved.seedVersion ?? 1) < DEMO_SEED_VERSION) {
+    book = { ...migrated, payees }
+    saveBook(id, book)
+  }
   return book
 }
 

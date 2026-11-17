@@ -8,6 +8,10 @@ import { useApp } from '@/context/AppContext'
 import { FX, lookupPaynow, maskPayee, payeeName } from '@/data/bank'
 import { flowById, overseasSample, type FlowField } from '@/data/flows'
 import { translate } from '@/i18n'
+import { formatLiveAmount, normaliseAmount } from '@/lib/amount'
+import { firstFillWizardStep, normaliseFillFields } from '@/lib/fillFields'
+import { hiddenBlockingIssues, stepIssues } from '@/lib/flowStepIssues'
+import { wizardFields, wizardReview } from '@/lib/flowWizard'
 import { formatMoney } from '@/lib/format'
 import { getFlowTour, startGuide, stopGuide, subscribeFlowTour } from '@/lib/guide'
 import { guideStepFill, resolveDemoValue } from '@/lib/guideSync'
@@ -112,9 +116,13 @@ export function FlowPage() {
       try {
         const data = JSON.parse(rawFill) as { flow?: string; fields?: Record<string, string> }
         if (data.flow === flow.id && data.fields) {
-          Object.assign(next, data.fields)
+          const merged = normaliseFillFields(flow.id, data.fields, {
+            payees: app.payees,
+            depositIds: deposits.map((account) => account.id),
+          })
+          Object.assign(next, merged)
           if (next.from && deposits.length && !deposits.some((account) => account.id === next.from)) next.from = deposits[0].id
-          filled = Object.keys(data.fields)
+          filled = Object.keys(merged)
         } else if (data.flow && data.flow !== flow.id) {
           /* leave the draft for the intended journey */
         }
@@ -131,7 +139,8 @@ export function FlowPage() {
     const known = PAYNOW_CONTACTS.find((contact) => contact.mobile === next.to)
     if (known) setPayeeLabel(known.name)
     setStage('form')
-    setWstep(flow.id === 'paynow' && practice ? 1 : filled.length && wizardReview(flow.id) >= 0 ? Math.max(0, wizardReview(flow.id) - 1) : 0)
+    const fromBal = app.balances[next.from || deposits[0]?.id || '360'] ?? 0
+  setWstep(flow.id === 'paynow' && practice ? 1 : filled.length ? firstFillWizardStep(flow.id, next, fromBal, app.limit, app.payees) : 0)
     if (filled.length) window.setTimeout(() => sessionStorage.removeItem('ocbc-fill'), 0)
     if (demo === 'mei' && flow.id === 'overseas') {
       const found = validateForm(flow.id, next, app.balances['360'] ?? 0, app.payees)
@@ -281,7 +290,9 @@ export function FlowPage() {
     if (field.id === 'swift' && fx?.account === 'iban') return false
     return true
   }
-  const continueIssues = stepIssues(flow.id, form, balance, app.limit, app.payees, wstep, reviewAt, flow.fields.filter(shown).map((field) => field.id))
+  const visibleFieldIds = flow.fields.filter(shown).map((field) => field.id)
+  const continueIssues = stepIssues(flow.id, form, balance, app.limit, app.payees, wstep, reviewAt, visibleFieldIds)
+  const hiddenIssues = hiddenBlockingIssues(flow.id, form, balance, app.limit, app.payees, wstep, reviewAt, visibleFieldIds)
   const fieldErrorText = (fieldId: string) => {
     if (!touched.has(fieldId) && !continueTried) return ''
     const issue = issues.find((item) => item.field === fieldId) || continueIssues.find((item) => item.field === fieldId)
@@ -289,7 +300,7 @@ export function FlowPage() {
   }
   const touchField = (fieldId: string) => {
     setTouched((prev) => new Set(prev).add(fieldId))
-    const found = validateForm(flow.id, form, balance, app.payees).filter((issue) => issue.field === fieldId)
+    const found = validateForm(flow.id, form, balance, app.payees, app.limit).filter((issue) => issue.field === fieldId)
     if (found.length) setIssues((current) => [...current.filter((issue) => issue.field !== fieldId), ...found])
   }
   const continueHintKey =
@@ -306,6 +317,7 @@ export function FlowPage() {
     const params: Record<string, string | number> = { ...(issue.params || {}) }
     if (field && params.field) params.field = t(field.label)
     if (issue.code === 'insufficient') params.available = formatMoney(Number(issue.params?.available ?? balance))
+    if (issue.code === 'daily_limit') params.limit = formatMoney(Number(issue.params?.limit ?? app.limit))
     return t(`errors.${issue.code}`, params)
   }
 
@@ -325,7 +337,7 @@ export function FlowPage() {
       const next = { ...prev, [id]: value }
       setIssues((current) => {
         if (!current.some((issue) => issue.field === id)) return current
-        const still = validateForm(flow.id, next, balance, app.payees).filter((issue) => issue.field === id)
+        const still = validateForm(flow.id, next, balance, app.payees, app.limit).filter((issue) => issue.field === id)
         const nextIssues = [...current.filter((issue) => issue.field !== id), ...still]
         if (!nextIssues.length) app.setAnnounce('')
         return nextIssues
@@ -336,7 +348,7 @@ export function FlowPage() {
   }
 
   const submit = () => {
-    const found = validateForm(flow.id, form, balance, app.payees)
+    const found = validateForm(flow.id, form, balance, app.payees, app.limit)
     setIssues(found)
     found.forEach((issue) => app.log('error_shown', { code: issue.code, flowId: flow.id }))
     if (found.length) {
@@ -455,7 +467,7 @@ export function FlowPage() {
               setContinueTried(true)
               if (reviewAt >= 0 && wstep < reviewAt) {
                 const ids = new Set(stepIds || [])
-                const found = validateForm(flow.id, form, balance, app.payees).filter((issue) => ids.has(issue.field))
+                const found = validateForm(flow.id, form, balance, app.payees, app.limit).filter((issue) => ids.has(issue.field))
                 setIssues(found)
                 found.forEach((issue) => app.log('error_shown', { code: issue.code, flowId: flow.id }))
                 if (found.length) {
@@ -469,7 +481,7 @@ export function FlowPage() {
                 return
               }
               if (reviewAt >= 0) {
-                const found = validateForm(flow.id, form, balance, app.payees)
+                const found = validateForm(flow.id, form, balance, app.payees, app.limit)
                 setIssues(found)
                 found.forEach((issue) => app.log('error_shown', { code: issue.code, flowId: flow.id }))
                 if (found.length) {
@@ -676,7 +688,7 @@ export function FlowPage() {
                 <p className="text-[22px] font-bold">{maskPayee(payeeLabel || payeeName(form.to) || form.to || '')}</p>
                 <p className="text-[13px] text-[var(--muted)]">+65 {String(form.to || '').replace(/\D/g, '').slice(0, 4)} ••••</p>
                 <div data-guide="pay-amount" className="flex items-baseline gap-2">
-                  <input data-guide="paynow-amount" className="w-full bg-transparent text-[32px] font-bold outline-none placeholder:text-[#A0A6AD]" inputMode="decimal" aria-label={t('amount')} placeholder="0.00" value={form.amount ? liveAmount(form.amount) : ''} onChange={(event) => changeField('amount', event.target.value.replace(/,/g, '').replace(/[^\d.]/g, ''))} onBlur={() => { const n = Number(form.amount); if (form.amount && !Number.isNaN(n)) changeField('amount', n.toFixed(2)) }} />
+                  <input data-guide="paynow-amount" className="w-full bg-transparent text-[32px] font-bold outline-none placeholder:text-[#A0A6AD]" inputMode="decimal" aria-label={t('amount')} placeholder="0.00" value={form.amount ? formatLiveAmount(form.amount) : ''} onChange={(event) => changeField('amount', normaliseAmount(event.target.value) || event.target.value.replace(/[^\d.,]/g, ''))} onBlur={() => { const norm = normaliseAmount(form.amount); if (norm) changeField('amount', Number(norm).toFixed(2)) }} />
                   <span className="shrink-0 whitespace-nowrap text-[20px] font-bold text-[var(--muted)]">SGD</span>
                 </div>
                 <Link to="/flow/limit" className="block font-semibold text-[var(--link)] underline">{t('look.limitLeft', { amount: formatMoney(app.limit) })}</Link>
@@ -707,12 +719,14 @@ export function FlowPage() {
             )}
             {!(flow.id === 'paynow' && directory && wstep === 0 && !practice) && (
             <>
-            {continueIssues.length > 0 && (
-              <p aria-live="polite" className={`text-sm font-semibold ${engaged ? 'text-[var(--danger)]' : 'text-[var(--muted)]'}`}>
-                {engaged ? continueIssues.map((issue) => describe(issue)).join(' ') : t(continueHintKey)}
+            {(continueIssues.length > 0 || hiddenIssues.length > 0) && (
+              <p aria-live="polite" id={flow.id === 'paynow' && wstep === 1 ? 'pay-alert' : undefined} className={`text-sm font-semibold ${engaged || hiddenIssues.length ? 'text-[var(--danger)]' : 'text-[var(--muted)]'}`} role={engaged || hiddenIssues.length ? 'alert' : 'status'}>
+                {engaged || hiddenIssues.length
+                  ? [...continueIssues, ...hiddenIssues].map((issue) => describe(issue)).join(' ')
+                  : t(continueHintKey)}
               </p>
             )}
-            <button type="submit" data-guide={flow.id === 'paynow' && wstep === 1 ? 'pay-next' : reviewGuide(flow.id)} aria-describedby={flow.id === 'paynow' && wstep === 1 ? 'pay-alert' : undefined} className={`${flow.id === 'paynow' && wstep === 1 ? 'min-h-12 w-full rounded-lg bg-[#E30613] font-bold text-white' : 'ocbc-btn'} disabled:cursor-not-allowed disabled:bg-zinc-300 disabled:text-zinc-600 disabled:opacity-70`} disabled={continueIssues.length > 0 || (touring && !practice && reviewAt >= 0 && wstep >= reviewAt)}>
+            <button type="submit" data-guide={flow.id === 'paynow' && wstep === 1 ? 'pay-next' : reviewGuide(flow.id)} aria-describedby={flow.id === 'paynow' && wstep === 1 ? 'pay-alert' : undefined} className={`${flow.id === 'paynow' && wstep === 1 ? 'min-h-12 w-full rounded-lg bg-[#E30613] font-bold text-white' : 'ocbc-btn'} disabled:cursor-not-allowed disabled:bg-zinc-300 disabled:text-zinc-600 disabled:opacity-70`} disabled={continueIssues.length > 0 || hiddenIssues.length > 0 || (touring && !practice && reviewAt >= 0 && wstep >= reviewAt)}>
               {t('flows.submit')}
             </button>
             </>
@@ -926,49 +940,6 @@ function shortLabel(field: FlowField, t: (key: string) => string) {
   if (field.id === 'name') return t('flows.nameShort')
   if (field.id === 'from') return t('flows.fromShort')
   return t(field.label)
-}
-
-function stepIssues(
-  flowId: string,
-  form: Record<string, string>,
-  balance: number,
-  limit: number,
-  payees: Parameters<typeof validateForm>[3],
-  wstep: number,
-  reviewAt: number,
-  visibleIds: string[],
-) {
-  const found = validateForm(flowId, form, balance, payees)
-  const scoped = reviewAt >= 0 && wstep < reviewAt
-    ? found.filter((issue) => visibleIds.includes(issue.field))
-    : found
-  if (flowId === 'paynow' && wstep === 1) {
-    const amount = Number(form.amount)
-    if (!(amount > 0) && !scoped.some((issue) => issue.field === 'amount')) {
-      scoped.push({ field: 'amount', code: 'amount_positive', params: { amount: 'S$0.00' } })
-    }
-    if (amount > limit) scoped.push({ field: 'amount', code: 'insufficient', params: { available: limit } })
-  }
-  return scoped
-}
-
-function wizardReview(flowId: string) {
-  if (flowId === 'overseas') return 3
-  if (flowId === 'paynow' || flowId === 'transfer') return 2
-  return -1
-}
-
-function wizardFields(flowId: string, step: number) {
-  if (wizardReview(flowId) < 0) return null
-  if (flowId === 'paynow') return step === 0 ? ['proxy', 'to'] : step === 1 ? ['amount', 'from', 'reference', 'savePayee', 'when', 'laterDate'] : []
-  if (flowId === 'transfer') return step === 0 ? ['name', 'bank', 'account'] : step === 1 ? ['amount', 'from', 'savePayee', 'when', 'laterDate'] : []
-  return step === 0 ? ['country'] : step === 1 ? ['name', 'swift', 'account'] : step === 2 ? ['amount', 'from', 'purpose', 'savePayee', 'when', 'laterDate'] : []
-}
-
-function liveAmount(value: string) {
-  const [whole, frac] = value.split('.')
-  const grouped = Number(whole || '0').toLocaleString('en-SG')
-  return frac === undefined ? grouped : `${grouped}.${frac}`
 }
 
 function maskProxy(value: string, proxy = 'mobile') {

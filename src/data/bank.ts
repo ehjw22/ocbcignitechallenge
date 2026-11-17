@@ -1,7 +1,7 @@
 import type { Account, CardItem, Txn } from '@/lib/types'
 
 export const ACCOUNTS: Account[] = [
-  { id: '360', nameKey: 'accounts.a360', number: '9012345671', balance: 12480.22, kind: 'deposit' },
+  { id: '360', nameKey: 'accounts.a360', number: '9012345671', balance: 100000, kind: 'deposit' },
   { id: 'savings', nameKey: 'accounts.savings', number: '9018765432', balance: 3200, kind: 'deposit' },
   { id: 'card', nameKey: 'accounts.card365', number: '4412', balance: 640.15, kind: 'card' },
 ]

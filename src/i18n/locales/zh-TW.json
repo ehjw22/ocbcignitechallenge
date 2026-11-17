@@ -202,6 +202,7 @@
     "amount_positive": "請輸入多於 S$0.00 的金額。",
     "amount_format": "請用數字輸入金額，例如 50.00。",
     "insufficient": "金額超出可用餘額。請輸入較低金額。",
+    "daily_limit": "已超過您的每日限額 {limit}。",
     "swift": "SWIFT 代碼需要 8 或 11 位。您輸入了 {got} 位。",
     "limit_range": "請輸入 S$100.00 至 S$50,000.00 的限額。",
     "nric": "請使用類似 S1234567A 的 NRIC。",
@@ -472,7 +473,8 @@
     "chatScamIntro": "發送前請先回答這些安全問題。",
     "chatScamContinue": "謝謝。準備好後可以繼續。",
     "chatContinueSend": "繼續發送",
-    "chatPracticePaid": "練習 – 已向{name}發送{amount}（未動用真實資金）"
+    "chatPracticePaid": "練習 – 已向{name}發送{amount}（未動用真實資金）",
+    "chatOverCap": "Ollie 最多可發送 {max}。更大金額請使用轉賬頁面。"
   },
   "flows": {
     "paynow": "PayNow",

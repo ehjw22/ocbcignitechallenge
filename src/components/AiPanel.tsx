@@ -18,6 +18,7 @@ import { languageById } from '@/lib/languages'
 import { journeyRoute, queueShowHow } from '@/lib/showHow'
 import { prefetchSpeech, speak, stopSpeaking } from '@/lib/speech'
 import { assessChatRisk, buildChatReview, transferExpired } from '@/lib/chatTransfer'
+import { normaliseFillFields } from '@/lib/fillFields'
 import type { ChatAction, ChatMessage, VoiceTransferCard } from '@/lib/types'
 import { visibleReply } from '@/lib/chatReply'
 import { getFlowTour } from '@/lib/guide'
@@ -502,7 +503,9 @@ export function AiPanel() {
   }
 
   const fill = (action: ChatAction) => {
-    sessionStorage.setItem('ocbc-fill', JSON.stringify({ flow: action.intent, fields: action.fields }))
+    const depositIds = app.accounts.filter((account) => account.kind === 'deposit').map((account) => account.id)
+    const fields = normaliseFillFields(action.intent, action.fields, { payees: app.payees, depositIds })
+    sessionStorage.setItem('ocbc-fill', JSON.stringify({ flow: action.intent, fields }))
     app.setHelpOpen(false)
     navigate(`/flow/${action.intent}`)
   }

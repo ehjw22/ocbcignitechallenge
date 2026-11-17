@@ -1,3 +1,5 @@
+import { amountNumber } from './amount.ts'
+
 export function formatMoney(value: number) {
   const num = new Intl.NumberFormat('en-SG', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(value))
   return `${num} SGD`
@@ -31,9 +33,7 @@ export function formatSGD(value: number) {
 }
 
 export function parseAmount(raw: string) {
-  const cleaned = raw.replace(/,/g, '').trim()
-  if (!/^\d+(\.\d{0,2})?$/.test(cleaned)) return null
-  return Number(cleaned)
+  return amountNumber(raw)
 }
 
 export function cn(...parts: Array<string | false | null | undefined>) {

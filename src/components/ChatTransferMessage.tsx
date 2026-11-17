@@ -204,7 +204,11 @@ export function ChatTransferMessage({ message, scamAnswers, cancelled, onScamAns
     return (
       <div className="mt-3 space-y-2 rounded-xl border border-[var(--danger)] p-3">
         <p className="font-semibold text-[var(--danger)]">
-          {vt.errorReason === 'insufficient' ? t('ai.chatInsufficient', { available: formatMoney(vt.available ?? 0) }) : t('ai.voiceBadAmount')}
+          {vt.errorReason === 'insufficient'
+            ? t('ai.chatInsufficient', { available: formatMoney(vt.available ?? 0) })
+            : vt.errorReason === 'over_hard_cap'
+              ? t('ai.chatOverCap', { max: formatMoney(1000) })
+              : t('ai.voiceBadAmount')}
         </p>
         <button type="button" className="min-h-11 w-full rounded-xl bg-[var(--accent)] px-3 font-semibold text-[var(--on-accent)]" onClick={() => navigate('/flow/paynow')}>{t('ai.voiceOpenTransfer')}</button>
         <button type="button" className="min-h-11 w-full rounded-xl border border-[var(--line)] px-3 font-semibold" onClick={onOpenSettings}>{t('ai.voiceOpenSettings')}</button>

@@ -2,6 +2,7 @@ export const INSIGHT_CATEGORIES = ['food', 'transport', 'shopping', 'bills', 'su
 export type InsightCategory = (typeof INSIGHT_CATEGORIES)[number]
 
 export interface SpendRow {
+  id?: string
   month: string
   day: number
   category: InsightCategory
@@ -88,12 +89,19 @@ export const MONTH_LABELS: Record<string, string> = {
   '2026-10': 'Oct',
 }
 
-export function rowsFor(accountId: string, month: string) {
-  return SPEND_ROWS.filter((row) => row.month === month && (accountId === 'all' || row.accountId === accountId))
+export function rowsFor(accountId: string, month: string, excluded?: Set<string>) {
+  const monthPrefix = `${month}-`
+  const rows = SPEND_ROWS.filter((row) => row.month === month && (accountId === 'all' || row.accountId === accountId))
+  if (!excluded?.size) return rows
+  return rows.filter((row) => !excluded.has(`${monthPrefix}${String(row.day).padStart(2, '0')}|${row.merchant.toLowerCase()}|${row.amount.toFixed(2)}`))
 }
 
 export function sum(rows: SpendRow[]) {
   return rows.reduce((total, row) => total + row.amount, 0)
+}
+
+export function sumFiltered(accountId: string, month: string, excluded?: Set<string>) {
+  return sum(rowsFor(accountId, month, excluded))
 }
 
 export function byCategory(rows: SpendRow[]) {

@@ -1,4 +1,5 @@
 import type { SavedPayee } from '../data/demoAccounts.ts'
+import { amountNumber, normaliseAmount } from './amount.ts'
 import { assessTransferRisk, candidateKeys, loadRiskConfig } from './transferRisk.ts'
 import { loadTransferHistory, recordTransfer } from './transferHistory.ts'
 import { VOICE_TRANSFER_MAX_SGD, type VoiceMatch } from './voiceTransfer.ts'
@@ -43,12 +44,12 @@ export type ExecuteTransferOk = {
 
 export type ExecuteTransferFail = {
   ok: false
-  reason: 'insufficient' | 'over_hard_cap'
+  reason: 'insufficient' | 'over_hard_cap' | 'bad_amount'
   available?: number
 }
 
 export function buildChatReview(match: VoiceMatch): ChatTransferReview {
-  const amount = Number(match.fields.amount) || 0
+  const amount = amountNumber(match.fields.amount) || 0
   const name = match.payee.name
   const digits = (match.fields.to || match.fields.account || match.payee.account || '').replace(/\D/g, '')
   const masked = match.flow === 'paynow'
@@ -64,7 +65,7 @@ export function buildChatReview(match: VoiceMatch): ChatTransferReview {
 }
 
 export function assessChatRisk(match: VoiceMatch, payees: SavedPayee[], profileId: string, usualTransfer: number, text = '') {
-  const amount = Number(match.fields.amount) || 0
+  const amount = amountNumber(match.fields.amount) || 0
   const keys = candidateKeys(match.flow, match.fields)
   const history = loadTransferHistory(profileId)
   return assessTransferRisk({
@@ -79,11 +80,16 @@ export function assessChatRisk(match: VoiceMatch, payees: SavedPayee[], profileI
   })
 }
 
+function defaultDepositId(balances: Record<string, number>) {
+  const first = Object.keys(balances).find((key) => (balances[key] ?? 0) > 0)
+  return first || Object.keys(balances)[0] || ''
+}
+
 export function executeDemoTransfer(input: ExecuteTransferInput): ExecuteTransferOk | ExecuteTransferFail {
-  const amount = Number(String(input.match.fields.amount || '').replace(/,/g, ''))
-  if (!Number.isFinite(amount) || amount <= 0) return { ok: false, reason: 'insufficient' }
+  const amount = amountNumber(input.match.fields.amount)
+  if (amount == null || amount <= 0) return { ok: false, reason: 'bad_amount' }
   if (amount > VOICE_TRANSFER_MAX_SGD) return { ok: false, reason: 'over_hard_cap' }
-  const from = input.match.fields.from || 'frank'
+  const from = input.match.fields.from || defaultDepositId(input.balances)
   const available = input.balances[from] ?? 0
   if (!input.practice && amount > available) return { ok: false, reason: 'insufficient', available }
   const reference = `DEMO-${Math.floor(100000 + Math.random() * 900000)}`

@@ -109,6 +109,7 @@
     "amount_positive": "S$0.00 ஐ விட அதிகமான தொகையை உள்ளிடுங்கள்.",
     "amount_format": "50.00 போல எண்ணில் தொகையை உள்ளிடவும்.",
     "insufficient": "தொகை இருப்புக்கு மேல். குறைந்த தொகையை உள்ளிடவும்.",
+    "daily_limit": "இது உங்கள் தினசரி வரம்பு {limit} ஐ விட அதிகம்.",
     "swift": "SWIFT குறியீட்டுக்கு 8 அல்லது 11 எழுத்துகள் வேண்டும். நீங்கள் {got} உள்ளிட்டீர்கள்.",
     "limit_range": "S$100.00 முதல் S$50,000.00 வரை வரம்பை உள்ளிடவும்.",
     "goal_amount": "S$0.00-ஐ விட அதிக இலக்கை உள்ளிடவும்.",
@@ -407,7 +408,8 @@
     "voiceOpening": "பரிமாற்றத்தைத் திறக்கிறேன். அந்தத் திரையில் சரிபார்த்து உறுதிப்படுத்துங்கள்.",
     "voiceCancelled": "சரி, அந்தப் பரிமாற்றம் ரத்துசெய்யப்பட்டது.",
     "voiceOpenSettings": "Open settings",
-    "voiceOff": "Voice transfers are turned off. You can turn them on in Settings, or use the usual transfer screen."
+    "voiceOff": "Voice transfers are turned off. You can turn them on in Settings, or use the usual transfer screen.",
+    "chatOverCap": "ஒல்லி அனுப்பக்கூடிய அதிகபட்சம் {max}. பெரிய தொகைக்கு பரிமாற்றத் திரையைப் பயன்படுத்தவும்."
   },
   "you": "நீங்கள்",
   "show": "இருப்பைக் காட்டு",

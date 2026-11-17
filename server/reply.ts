@@ -1,3 +1,4 @@
+import { extractAmountFromText } from '../src/lib/amount.ts'
 import { z } from 'zod'
 
 const actionSchema = z.object({
@@ -68,8 +69,7 @@ export function detectTask(message: string, payees: PayeeHint[] = []) {
   if (/system\s*override|ignore previous|ignore all|<\s*\/?\s*system|jailbreak/i.test(text)) {
     return { action: null, scamRisk: 'none' as const, handover: false }
   }
-  const amountMatch = text.match(/(?:s\$|sgd|aud|美元|新币|坡币)?\s*(\d{1,6}(?:[.,]\d{1,2})?)\s*(?:dollars|dollar|sgd|块|元|蚊)?/i)
-  const amount = amountMatch ? amountMatch[1].replace(',', '') : ''
+  const amount = extractAmountFromText(text)
   const overThousand = Number(amount) > 1000
   if (/transfer limit|daily limit|限额|限額|had transaksi/i.test(text) && !/send|transfer|pay|转|轉|汇|匯|pindah/i.test(text)) {
     return { action: null, scamRisk: 'none' as const, handover: false }

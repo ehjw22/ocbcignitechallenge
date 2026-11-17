@@ -1,5 +1,5 @@
 import { FX, lookupPaynow } from '../data/bank.ts'
-import { parseAmount } from './format.ts'
+import { amountNumber, normaliseAmount } from './amount.ts'
 
 export interface Issue {
   field: string
@@ -15,13 +15,20 @@ function issue(field: string, code: string, params?: Record<string, string | num
 
 function amountIssue(field: string, raw: string | undefined): Issue | null {
   if (!raw || !raw.trim()) return issue(field, 'amount_positive')
-  const value = parseAmount(raw)
-  if (value == null) return issue(field, 'amount_format')
-  if (value <= 0) return issue(field, 'amount_positive', { amount: 'S$0.00' })
+  const normal = normaliseAmount(raw)
+  if (!normal) return issue(field, 'amount_format')
+  const value = amountNumber(normal)
+  if (value == null || value <= 0) return issue(field, 'amount_positive', { amount: 'S$0.00' })
   return null
 }
 
-export function validateForm(flowId: string, form: Record<string, string>, balance: number, payees: { name?: string; country?: string; account?: string }[] = []): Issue[] {
+export function validateForm(
+  flowId: string,
+  form: Record<string, string>,
+  balance: number,
+  payees: { name?: string; country?: string; account?: string }[] = [],
+  dailyLimit = Infinity,
+): Issue[] {
   const issues: Issue[] = []
   const need = (field: string, ok: boolean, code = 'required') => {
     if (!ok) issues.push(issue(field, code, { field }))
@@ -103,14 +110,18 @@ export function validateForm(flowId: string, form: Record<string, string>, balan
   }
 
   if (flowId === 'limit') {
-    const value = parseAmount(form.amount || '')
+    const value = amountNumber(form.amount || '')
     if (value == null || value < 100 || value > 50000) issues.push(issue('amount', 'limit_range'))
   }
 
   const payment = ['paynow', 'topup', 'transfer', 'overseas', 'bill', 'scan'].includes(flowId)
-  const amount = parseAmount(form.amount || '')
-  if (payment && amount != null && amount > balance) {
-    issues.push(issue('amount', 'insufficient', { available: balance }))
+  const amount = amountNumber(form.amount || '')
+  if (payment && amount != null) {
+    if (Number.isFinite(dailyLimit) && dailyLimit > 0 && amount > dailyLimit) {
+      issues.push(issue('amount', 'daily_limit', { limit: dailyLimit }))
+    } else if (amount > balance) {
+      issues.push(issue('amount', 'insufficient', { available: balance }))
+    }
   }
 
   return issues

@@ -154,6 +154,6 @@ export interface VoiceTransferCard {
   receiptImage?: string
   receiptWhen?: string
   riskLevel?: 'check' | 'high'
-  errorReason?: 'insufficient' | 'over_hard_cap'
+  errorReason?: 'insufficient' | 'over_hard_cap' | 'bad_amount'
   available?: number
 }

@@ -136,7 +136,7 @@ export async function handleChat(req: IncomingMessage, res: ServerResponse) {
     `Current screen: ${raw.screen || 'unknown'}. Current step: ${raw.step || 'none'}.`,
     balances ? `Sample balances: ${balances}. Say they are sample figures.` : '',
     'Overseas FX sample fees and rates (use only these numbers): Australia fee S$5 rate 1 SGD = 1.10 AUD; Malaysia fee S$5 rate 1 SGD = 3.45 MYR; UK fee S$10 rate 1 SGD = 0.58 GBP; Germany fee S$10 rate 1 SGD = 0.68 EUR.',
-    'Return only JSON with keys reply, action (or null), scamRisk, suggestions, handover. action is { intent, fields } or null. intent is paynow, transfer, overseas, bill, giro, goal, or card-lock. fields is an object of strings.',
+    'Return only JSON with keys reply, action (or null), scamRisk, suggestions, handover. action is { intent, fields } or null. intent is paynow, transfer, overseas, bill, giro, goal, or card-lock. fields is an object of strings. Use exact field keys: paynow -> to, amount, reference; transfer -> name, bank, account, amount; overseas -> name, country, swift, account, amount. Amounts must be plain numeric strings without currency symbols.',
   ].filter(Boolean).join(' ')
   const chatMessages = raw.explain
     ? [{

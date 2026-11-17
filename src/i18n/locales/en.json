@@ -294,6 +294,7 @@
     "amount_positive": "Enter an amount more than S$0.00.",
     "amount_format": "Enter the amount in numbers, like 50.00.",
     "insufficient": "Amount is above your balance. Enter a lower amount.",
+    "daily_limit": "This is over your daily limit of {limit}.",
     "swift": "SWIFT code needs 8 or 11 characters. You entered {got}.",
     "limit_range": "Enter a limit from S$100.00 to S$50,000.00.",
     "goal_amount": "Enter a target more than S$0.00.",
@@ -563,7 +564,8 @@
     "chatScamIntro": "Before we send, please answer these safety questions.",
     "chatScamContinue": "Thanks. You can continue when ready.",
     "chatContinueSend": "Continue to send",
-    "chatPracticePaid": "Practice – {amount} sent to {name} (no money moved)"
+    "chatPracticePaid": "Practice – {amount} sent to {name} (no money moved)",
+    "chatOverCap": "Ollie can send up to {max}. Use the transfer screen for bigger amounts."
   },
   "flows": {
     "paynow": "PayNow",
