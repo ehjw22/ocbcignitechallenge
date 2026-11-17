@@ -28,7 +28,8 @@ export const SPENDING = [
 
 export const PAYNOW_DIRECTORY: Record<string, string> = {
   '81234567': 'Siti Aminah',
-  '91234567': 'Tan Wei Ming',
+  '91234567': 'John Tan',
+  '98765432': 'Tan Wei Ming',
   '92345678': 'Lim Jia Hui',
 }
 

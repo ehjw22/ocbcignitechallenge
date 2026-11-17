@@ -5,15 +5,20 @@ import {
   VOICE_TRANSFER_MAX_SGD,
   clampVoiceTransferLimit,
   formatVoiceTransferAmount,
+  isEmptyVoiceTranscript,
   matchSavedPayee,
   parseVoiceAffirmation,
   invalidVoiceAmount,
   parseVoiceTransfer,
+  resolveVoiceTransfer,
   voiceTransferFields,
+  voiceTransferMessageKey,
 } from './voiceTransfer.ts'
+const DEMO_PAYEE_JOHN = { id: 'john', label: 'John Tan', name: 'John Tan', country: 'Singapore', account: '91234567', key: 'paynow:91234567', aliases: ['John', 'Jon', '约翰', '約翰'] }
 
 const mei = [{ id: 'wei', label: 'Son - Wei Ming (Australia)', name: 'Tan Wei Ming', country: 'Australia', swift: 'CTBAAU2S', account: '0012345678', aliases: ['son', '儿子'] }]
-const arif = [{ id: 'siti', label: 'Siti Aminah', name: 'Siti Aminah', country: 'Singapore', account: '81234567', key: 'paynow:81234567' }]
+const arif = [DEMO_PAYEE_JOHN, { id: 'siti', label: 'Siti Aminah', name: 'Siti Aminah', country: 'Singapore', account: '81234567', key: 'paynow:81234567' }]
+const demoPayees = arif
 
 test('parses English, Chinese and Malay transfer phrases', () => {
   assert.deepEqual(parseVoiceTransfer('transfer 50 dollars to Mei'), { amount: 50, payeeQuery: 'Mei' })
@@ -50,6 +55,7 @@ test('matches saved payees and rejects unknown names', () => {
   assert.equal(matchSavedPayee('son', mei)?.id, 'wei')
   assert.equal(matchSavedPayee('儿子', [{ ...mei[0], aliases: ['son', '儿子', '兒子', 'anak lelaki'] }])?.id, 'wei')
   assert.equal(matchSavedPayee('Siti', arif)?.name, 'Siti Aminah')
+  assert.equal(matchSavedPayee('John', arif)?.name, 'John Tan')
   assert.equal(matchSavedPayee('John', mei), null)
 })
 
@@ -58,7 +64,7 @@ test('builds the real overseas and PayNow forms', () => {
   assert.equal(overseas.flow, 'overseas')
   assert.equal(overseas.fields.amount, '50.00')
   assert.equal(overseas.fields.swift, 'CTBAAU2S')
-  const paynow = voiceTransferFields(arif[0], 20, 'lunch', 'frank')
+  const paynow = voiceTransferFields(arif[1], 20, 'lunch', 'frank')
   assert.equal(paynow.flow, 'paynow')
   assert.equal(paynow.fields.to, '81234567')
   assert.equal(paynow.fields.reference, 'lunch')
@@ -70,6 +76,37 @@ test('hears yes and no in a few languages', () => {
   assert.equal(parseVoiceAffirmation('tidak'), 'no')
   assert.equal(parseVoiceAffirmation('cancel'), 'no')
   assert.equal(parseVoiceAffirmation('transfer 50 to Mei'), null)
+})
+
+test('resolves John Tan from voice demo phrases', () => {
+  assert.equal(parseVoiceTransfer('pay john 20')?.payeeQuery, 'john')
+  assert.equal(matchSavedPayee('john', demoPayees)?.name, 'John Tan')
+  assert.deepEqual(parseVoiceTransfer('send twenty dollars to jon'), { amount: 20, payeeQuery: 'jon' })
+  assert.equal(matchSavedPayee('jon', demoPayees)?.name, 'John Tan')
+  const confirm = resolveVoiceTransfer('pay john 20', demoPayees, 200, 'frank')
+  assert.equal(confirm.type, 'confirm')
+  if (confirm.type === 'confirm') {
+    assert.equal(confirm.payee.name, 'John Tan')
+    assert.equal(confirm.amount, 20)
+    assert.equal(confirm.match.flow, 'paynow')
+  }
+  const typo = resolveVoiceTransfer('pay jhon 20', demoPayees, 200, 'frank')
+  assert.equal(typo.type, 'suggest')
+  if (typo.type === 'suggest') assert.equal(typo.payee.name, 'John Tan')
+  assert.equal(voiceTransferMessageKey(typo), 'ai.voiceDidYouMean')
+  const none = resolveVoiceTransfer('pay zzz 20', demoPayees, 200, 'frank')
+  assert.equal(none.type, 'noMatch')
+  assert.equal(voiceTransferMessageKey(none), 'ai.voiceNoMatchPayees')
+  const zh = resolveVoiceTransfer('给约翰转20元', demoPayees, 200, 'frank')
+  assert.equal(zh.type, 'confirm')
+  if (zh.type === 'confirm') assert.equal(zh.payee.name, 'John Tan')
+})
+
+test('flags an empty transcript as uncaught', () => {
+  assert.equal(isEmptyVoiceTranscript('   '), true)
+  const outcome = resolveVoiceTransfer('', demoPayees, 200, 'frank')
+  assert.equal(outcome.type, 'uncaught')
+  assert.equal(voiceTransferMessageKey(outcome), 'ai.voiceUncaught')
 })
 
 test('clamps the voice transfer limit and never exceeds the hard maximum', () => {

@@ -5,7 +5,15 @@ import { useApp } from '@/context/AppContext'
 import { FX } from '@/data/bank'
 import { translate } from '@/i18n'
 import { formatSGD } from '@/lib/format'
-import { clampVoiceTransferLimit, formatVoiceTransferAmount, invalidVoiceAmount, matchSavedPayee, parseVoiceAffirmation, parseVoiceTransfer, voiceTransferFields } from '@/lib/voiceTransfer'
+import {
+  clampVoiceTransferLimit,
+  formatVoiceTransferAmount,
+  isEmptyVoiceTranscript,
+  parseVoiceAffirmation,
+  resolveVoiceTransfer,
+  voiceTransferFields,
+  type VoiceTransferOutcome,
+} from '@/lib/voiceTransfer'
 import { languageById } from '@/lib/languages'
 import { journeyRoute, queueShowHow } from '@/lib/showHow'
 import { prefetchSpeech, speak, stopSpeaking } from '@/lib/speech'
@@ -14,7 +22,7 @@ import { visibleReply } from '@/lib/chatReply'
 import { RichText, plainSpeech } from './RichText'
 import { Speakable } from './Speakable'
 
-const CHIP_KEYS = ['ai.chipBalance', 'ai.chipPaynow', 'ai.chipGiro', 'ai.chipHow', 'ai.chipScam']
+const CHIP_KEYS = ['ai.chipVoiceJohn', 'ai.chipBalance', 'ai.chipPaynow', 'ai.chipGiro', 'ai.chipHow', 'ai.chipScam']
 const FOLLOW = ['ai.chipSimpler', 'ai.chipTours', 'ai.chipStaff'] as const
 
 function journeyFor(screen: string) {
@@ -117,6 +125,8 @@ export function AiPanel() {
   const box = useRef<HTMLTextAreaElement>(null)
   const abortRef = useRef<AbortController | null>(null)
   const pendingPayee = useRef<string | null>(null)
+  const voiceFailCount = useRef(0)
+  const heardFinal = useRef(false)
   const recRef = useRef<SpeechRecognitionLike | null>(null)
   const micOk = typeof window !== 'undefined' && Boolean(window.SpeechRecognition || window.webkitSpeechRecognition)
 
@@ -153,6 +163,70 @@ export function AiPanel() {
     if (app.prefs.readAloud) void speak(text, speechOptions)
   }
 
+  const stuckVoice = () => voiceFailCount.current >= 2
+
+  const voiceCard = (outcome: VoiceTransferOutcome, stuck: boolean): VoiceTransferCard | undefined => {
+    const extra = { stuck: stuck || undefined }
+    if (outcome.type === 'confirm') {
+      return { kind: 'confirm', amount: outcome.amount, payeeName: outcome.payee.name, flow: outcome.match.flow, fields: outcome.match.fields, ...extra }
+    }
+    if (outcome.type === 'overLimit') {
+      return { kind: 'overLimit', amount: outcome.amount, payeeName: outcome.payee.name, flow: outcome.match.flow, fields: outcome.match.fields, ...extra }
+    }
+    if (outcome.type === 'disabled') {
+      return { kind: 'disabled', amount: outcome.amount, payeeName: outcome.payee?.name || outcome.query, flow: outcome.match?.flow || 'paynow', fields: outcome.match?.fields, ...extra }
+    }
+    if (outcome.type === 'suggest') {
+      const fields = voiceTransferFields(outcome.payee, outcome.amount, undefined, app.accounts.find((account) => account.kind === 'deposit')?.id)
+      return { kind: 'suggestPayee', amount: outcome.amount, payeeName: outcome.payee.name, payeeId: outcome.payee.id, query: outcome.query, flow: fields.flow, fields: fields.fields, ...extra }
+    }
+    if (outcome.type === 'choose') {
+      return { kind: 'choosePayee', amount: outcome.amount, payeeName: outcome.query, payeeIds: outcome.payees.map((payee) => payee.id), query: outcome.query, ...extra }
+    }
+    if (outcome.type === 'noMatch') {
+      return { kind: 'noMatchPayees', amount: outcome.amount, payeeName: outcome.query, payeeIds: app.payees.slice(0, 5).map((payee) => payee.id), query: outcome.query, ...extra }
+    }
+    if (outcome.type === 'askAmount') {
+      pendingPayee.current = outcome.payee.name
+      return { kind: 'askAmount', amount: 0, payeeName: outcome.payee.name, payeeId: outcome.payee.id, ...extra }
+    }
+    if (outcome.type === 'uncaught') return { kind: 'uncaught', amount: 0, payeeName: '', ...extra }
+    return undefined
+  }
+
+  const voiceContent = (outcome: VoiceTransferOutcome) => {
+    if (outcome.type === 'confirm') return t('ai.voiceConfirm', { amount: formatSGD(outcome.amount), name: outcome.payee.name })
+    if (outcome.type === 'overLimit') return t('ai.voiceOverLimit', { amount: formatVoiceTransferAmount(clampVoiceTransferLimit(app.prefs.voiceTransferLimit)) })
+    if (outcome.type === 'disabled') return t('ai.voiceOff')
+    if (outcome.type === 'askAmount') return t('ai.voiceAskAmount', { name: outcome.payee.name })
+    if (outcome.type === 'suggest') return t('ai.voiceDidYouMean', { name: outcome.payee.name })
+    if (outcome.type === 'choose') return t('ai.voiceWhoToPay')
+    if (outcome.type === 'noMatch') return `${t('ai.voiceNoMatchPayees')}\n\n${t('ai.voiceSavedOnlyNote')}`
+    if (outcome.type === 'uncaught') return t('ai.voiceUncaught')
+    if (outcome.type === 'badAmount') return t('ai.voiceBadAmount')
+    return t('ai.voiceUnknownPayee')
+  }
+
+  const replyFromOutcome = (outcome: VoiceTransferOutcome, bumpFail: boolean): ChatMessage => {
+    if (bumpFail) voiceFailCount.current += 1
+    else if (outcome.type === 'confirm') voiceFailCount.current = 0
+    const stuck = stuckVoice()
+    return { role: 'assistant', content: voiceContent(outcome), source: 'demo', voiceTransfer: voiceCard(outcome, stuck) }
+  }
+
+  const pickVoicePayee = (payeeId: string, amount: number) => {
+    const payee = app.payees.find((item) => item.id === payeeId)
+    if (!payee) return
+    const from = app.accounts.find((account) => account.kind === 'deposit')?.id
+    const limit = clampVoiceTransferLimit(app.prefs.voiceTransferLimit)
+    const text = amount > 0 ? `transfer ${amount} to ${payee.name}` : `pay ${payee.name}`
+    const outcome = resolveVoiceTransfer(text, app.payees, limit, from)
+    if (outcome.type === 'notTransfer') return
+    const local = replyFromOutcome(outcome, outcome.type === 'noMatch' || outcome.type === 'suggest')
+    app.setMessages((prev) => [...prev, local])
+    speakReply(local.content)
+  }
+
   const voiceReply = (text: string): ChatMessage | null => {
     const pending = [...app.messages].reverse().find((message) => message.role === 'assistant' && message.voiceTransfer)
     if (pending?.voiceTransfer?.kind === 'confirm') {
@@ -163,55 +237,43 @@ export function AiPanel() {
       }
       if (answer === 'no') return { role: 'assistant', content: t('ai.voiceCancelled'), source: 'demo' }
     }
-    if (invalidVoiceAmount(text)) return { role: 'assistant', content: t('ai.voiceBadAmount'), source: 'demo' }
+    if (pending?.voiceTransfer?.kind === 'suggestPayee') {
+      const answer = parseVoiceAffirmation(text)
+      const payee = app.payees.find((item) => item.id === pending.voiceTransfer?.payeeId)
+      if (answer === 'yes' && payee && pending.voiceTransfer.amount > 0) {
+        const from = app.accounts.find((account) => account.kind === 'deposit')?.id
+        const limit = clampVoiceTransferLimit(app.prefs.voiceTransferLimit)
+        const outcome = resolveVoiceTransfer(`transfer ${pending.voiceTransfer.amount} to ${payee.name}`, app.payees, limit, from)
+        if (outcome.type === 'confirm') return replyFromOutcome(outcome, false)
+      }
+      if (answer === 'no') {
+        voiceFailCount.current += 1
+        const stuck = stuckVoice()
+        return {
+          role: 'assistant',
+          content: `${t('ai.voiceNoMatchPayees')}\n\n${t('ai.voiceSavedOnlyNote')}`,
+          source: 'demo',
+          voiceTransfer: { kind: 'noMatchPayees', amount: pending.voiceTransfer.amount, payeeName: pending.voiceTransfer.query || '', payeeIds: app.payees.slice(0, 5).map((item) => item.id), stuck },
+        }
+      }
+    }
     const bareAmount = text.trim().match(/^(?:s\$|\$)?(\d+(?:\.\d{1,2})?)$/i)
     const waitingPayee = pendingPayee.current
     const parsedText = bareAmount && waitingPayee && Number(bareAmount[1]) > 0 ? `transfer ${bareAmount[1]} to ${waitingPayee}` : text
-    if (bareAmount && pending) pendingPayee.current = null
-    const parsed = parseVoiceTransfer(parsedText)
-    if (!parsed) return null
-    if (parsed.amount == null) {
-      const payee = matchSavedPayee(parsed.payeeQuery, app.payees)
-      pendingPayee.current = payee?.name || parsed.payeeQuery
-      return { role: 'assistant', content: t('ai.voiceAskAmount', { name: payee?.name || parsed.payeeQuery }), source: 'demo' }
-    }
+    if (bareAmount && waitingPayee) pendingPayee.current = null
     const limit = clampVoiceTransferLimit(app.prefs.voiceTransferLimit)
-    const payee = matchSavedPayee(parsed.payeeQuery, app.payees)
     const from = app.accounts.find((account) => account.kind === 'deposit')?.id
-    const match = payee ? voiceTransferFields(payee, parsed.amount, parsed.note, from) : null
-    if (limit === 0) {
-      return {
-        role: 'assistant',
-        content: t('ai.voiceOff'),
-        source: 'demo',
-        voiceTransfer: {
-          kind: 'disabled',
-          amount: parsed.amount,
-          payeeName: payee?.name || parsed.payeeQuery,
-          flow: match?.flow || 'paynow',
-          fields: match?.fields,
-        },
-      }
-    }
-    if (!payee) {
-      return {
-        role: 'assistant',
-        content: t('ai.voiceUnknownPayee'),
-        source: 'demo',
-        voiceTransfer: { kind: 'unknownPayee', amount: parsed.amount, payeeName: parsed.payeeQuery, flow: 'paynow' },
-      }
-    }
-    const card: VoiceTransferCard = {
-      kind: parsed.amount > limit ? 'overLimit' : 'confirm',
-      amount: parsed.amount,
-      payeeName: payee.name,
-      flow: match!.flow,
-      fields: match!.fields,
-    }
-    const content = card.kind === 'overLimit'
-      ? t('ai.voiceOverLimit', { amount: formatVoiceTransferAmount(limit) })
-      : t('ai.voiceConfirm', { amount: formatSGD(parsed.amount), name: payee.name })
-    return { role: 'assistant', content, source: 'demo', voiceTransfer: card }
+    const outcome = resolveVoiceTransfer(parsedText, app.payees, limit, from)
+    if (outcome.type === 'notTransfer') return null
+    const bump = ['uncaught', 'badAmount', 'noMatch', 'choose', 'suggest'].includes(outcome.type)
+    return replyFromOutcome(outcome, bump)
+  }
+
+  const pushUncaught = () => {
+    voiceFailCount.current += 1
+    const local = replyFromOutcome({ type: 'uncaught' }, false)
+    app.setMessages((prev) => [...prev, local])
+    speakReply(local.content)
   }
 
   const ask = async (question: string, retry = false) => {
@@ -219,6 +281,11 @@ export function AiPanel() {
     const text = explain ? t('ai.what') : question.trim()
     if (!text) return
     abortRef.current?.abort()
+    if (!retry && !explain && isEmptyVoiceTranscript(text)) {
+      pushUncaught()
+      setDraft('')
+      return
+    }
     if (!retry && !explain) {
       const local = voiceReply(text)
       if (local) {
@@ -327,24 +394,41 @@ export function AiPanel() {
       setListening(false)
       return
     }
+    heardFinal.current = false
     const rec = new Ctor()
     rec.lang = speechLang(app.prefs.language, app.prefs.dialect)
     rec.interimResults = true
     rec.onresult = (event) => {
       let said = ''
       let interim = ''
+      let confidence = 1
       for (let i = 0; i < event.results.length; i += 1) {
         const bit = event.results[i]?.[0]?.transcript || ''
-        if (event.results[i]?.isFinal) said += bit
-        else interim += bit
+        if (event.results[i]?.isFinal) {
+          said += bit
+          confidence = Number((event.results[i]?.[0] as { confidence?: number } | undefined)?.confidence ?? confidence)
+        } else interim += bit
       }
       const shown = (said || interim).trim()
       setDraft(shown)
       setLive(shown)
-      if (said.trim()) void ask(said.trim())
+      if (said.trim()) {
+        heardFinal.current = true
+        if (confidence > 0 && confidence < 0.55) {
+          pushUncaught()
+          rec.stop()
+          return
+        }
+        void ask(said.trim())
+      }
     }
-    rec.onerror = () => app.setNotice(t('speech.micDenied'))
-    rec.onend = () => setListening(false)
+    rec.onerror = () => {
+      pushUncaught()
+    }
+    rec.onend = () => {
+      setListening(false)
+      if (!heardFinal.current) pushUncaught()
+    }
     recRef.current = rec
     setListening(true)
     rec.start()
@@ -439,8 +523,42 @@ export function AiPanel() {
                         <button type="button" className="min-h-11 w-full rounded-xl border border-[var(--line)] px-3 font-semibold" onClick={() => openVoiceFlow(message.voiceTransfer?.flow || 'paynow', message.voiceTransfer?.fields)}>{t('ai.voiceOpenTransfer')}</button>
                       </>
                     )}
+                    {message.voiceTransfer.kind === 'suggestPayee' && (
+                      <>
+                        <button type="button" className="min-h-11 w-full rounded-xl bg-[var(--accent)] px-3 font-semibold text-[var(--on-accent)]" onClick={() => pickVoicePayee(message.voiceTransfer!.payeeId || '', message.voiceTransfer!.amount)}>{t('yes')}</button>
+                        <button type="button" className="min-h-11 w-full rounded-xl border border-[var(--line)] px-3 font-semibold" onClick={() => setCancelled((prev) => ({ ...prev, [index]: true }))}>{t('no')}</button>
+                      </>
+                    )}
+                    {(message.voiceTransfer.kind === 'choosePayee' || message.voiceTransfer.kind === 'noMatchPayees') && (
+                      <>
+                        {(message.voiceTransfer.payeeIds || []).map((payeeId) => {
+                          const payee = app.payees.find((item) => item.id === payeeId)
+                          if (!payee) return null
+                          return (
+                            <button key={payeeId} type="button" className="min-h-11 w-full rounded-xl border border-[var(--line)] px-3 font-semibold text-left" onClick={() => pickVoicePayee(payeeId, message.voiceTransfer?.amount || 0)}>
+                              {payee.name}
+                            </button>
+                          )
+                        })}
+                        {message.voiceTransfer.stuck && (
+                          <button type="button" className="min-h-11 w-full rounded-xl bg-[var(--accent)] px-3 font-semibold text-[var(--on-accent)]" onClick={() => openVoiceFlow('paynow')}>{t('ai.voiceOpenTransfer')}</button>
+                        )}
+                      </>
+                    )}
+                    {message.voiceTransfer.kind === 'uncaught' && (
+                      <>
+                        <button type="button" className="min-h-11 w-full rounded-xl bg-[var(--accent)] px-3 font-semibold text-[var(--on-accent)]" onClick={toggleMic}>{t('ai.voiceTryAgain')}</button>
+                        <button type="button" className="min-h-11 w-full rounded-xl border border-[var(--line)] px-3 font-semibold" onClick={() => box.current?.focus()}>{t('ai.voiceTypeInstead')}</button>
+                        {message.voiceTransfer.stuck && (
+                          <button type="button" className="min-h-11 w-full rounded-xl border border-[var(--line)] px-3 font-semibold" onClick={() => openVoiceFlow('paynow')}>{t('ai.voiceOpenTransfer')}</button>
+                        )}
+                      </>
+                    )}
                     {message.voiceTransfer.kind === 'unknownPayee' && (
-                      <button type="button" className="min-h-11 w-full rounded-xl bg-[var(--accent)] px-3 font-semibold text-[var(--on-accent)]" onClick={() => openVoiceFlow(message.voiceTransfer?.flow || 'paynow', message.voiceTransfer?.fields)}>{t('ai.voiceOpenTransfer')}</button>
+                      <button type="button" className="min-h-11 w-full rounded-xl bg-[var(--accent)] px-3 font-semibold text-[var(--on-accent)]" onClick={() => openVoiceFlow('paynow')}>{t('ai.voiceOpenTransfer')}</button>
+                    )}
+                    {message.voiceTransfer.stuck && !['uncaught', 'choosePayee', 'noMatchPayees'].includes(message.voiceTransfer.kind) && (
+                      <button type="button" className="min-h-11 w-full rounded-xl border border-[var(--line)] px-3 font-semibold" onClick={() => openVoiceFlow('paynow')}>{t('ai.voiceOpenTransfer')}</button>
                     )}
                   </div>
                 )}

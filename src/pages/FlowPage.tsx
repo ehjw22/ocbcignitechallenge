@@ -124,7 +124,7 @@ export function FlowPage() {
     }
     if (flow.id === 'paynow' && practice) {
       const mei = app.profile.id === 'auntiemei' || app.profile.id === 'persona-mei' || app.payees.some((payee) => payee.name === 'Tan Wei Ming')
-      next.to = mei ? '91234567' : '81234567'
+      next.to = mei ? '98765432' : '91234567'
     }
     setHighlights(filled)
     setForm(next)
@@ -883,7 +883,7 @@ export function FlowPage() {
 }
 
 const PAYNOW_CONTACTS = [
-  { name: 'Tan Wei Ming', mobile: '91234567' },
+  { name: 'Tan Wei Ming', mobile: '98765432' },
   { name: 'Siti Aminah', mobile: '81234567' },
   { name: 'Lim Jia Hui', mobile: '92345678' },
   { name: 'Nur Aisyah', mobile: '83456789' },

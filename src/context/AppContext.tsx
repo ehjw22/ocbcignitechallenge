@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { ACCOUNTS, SEED_CARDS, SEED_TXNS } from '@/data/bank'
-import { clearBooks, demoBook, isDemoAccount, loadBook, saveBook, type BankBook, type SavedPayee } from '@/data/demoAccounts'
+import { clearBooks, demoBook, isDemoAccount, loadBook, mergeSeedPayees, resolveBook, saveBook, type BankBook, type SavedPayee } from '@/data/demoAccounts'
 import { PERSONAS } from '@/data/personas'
 import { SEED_REQUESTS } from '@/data/seed'
 import { translate } from '@/i18n'
@@ -134,7 +134,25 @@ function bootView(): { sessionId: string | null; prefs: Preferences; profile: Pr
   const user = sessionId ? loadUsers().find((item) => item.id === sessionId) : null
   if (user) return { sessionId: user.id, prefs: user.prefs, profile: user.profile }
   const last = loadLastUser()
-  if (last) return { sessionId: null, prefs: last.prefs, profile: last.profile }
+  if (last) {
+    const guest = signedOutPrefs()
+    return {
+      sessionId: null,
+      prefs: {
+        ...guest,
+        language: last.prefs.language,
+        dialect: last.prefs.dialect,
+        textSize: last.prefs.textSize,
+        boldText: last.prefs.boldText,
+        dyslexiaFont: last.prefs.dyslexiaFont,
+        easierTapping: last.prefs.easierTapping,
+        highContrast: last.prefs.highContrast,
+        colourVision: last.prefs.colourVision,
+        scheme: last.prefs.scheme,
+      },
+      profile: defaultProfile(),
+    }
+  }
   return { sessionId: null, prefs: signedOutPrefs(), profile: defaultProfile() }
 }
 
@@ -174,33 +192,33 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [extraTxns, setExtraTxns] = useState<Txn[]>(() => (boot.sessionId && isDemoAccount(boot.sessionId) ? [] : loadExtraTxns()))
   const [baseTxns, setBaseTxns] = useState<Txn[]>(() => {
     if (boot.sessionId && isDemoAccount(boot.sessionId)) {
-      return (loadBook(boot.sessionId) ?? demoBook(boot.sessionId))?.txns ?? SEED_TXNS
+      return resolveBook(boot.sessionId)?.txns ?? SEED_TXNS
     }
     return SEED_TXNS
   })
   const [accounts, setAccounts] = useState(() => {
     if (boot.sessionId && isDemoAccount(boot.sessionId)) {
-      return (loadBook(boot.sessionId) ?? demoBook(boot.sessionId))?.accounts ?? ACCOUNTS
+      return resolveBook(boot.sessionId)?.accounts ?? ACCOUNTS
     }
     return ACCOUNTS
   })
   const [payees, setPayees] = useState<SavedPayee[]>(() => {
     if (boot.sessionId && isDemoAccount(boot.sessionId)) {
-      return (loadBook(boot.sessionId) ?? demoBook(boot.sessionId))?.payees ?? []
+      return resolveBook(boot.sessionId)?.payees ?? []
     }
     return []
   })
   const [guidePrompt, setGuidePrompt] = useState<{ journeyId: string; practice: boolean } | null>(null)
   const [balances, setBalances] = useState<Record<string, number>>(() => {
     if (boot.sessionId && isDemoAccount(boot.sessionId)) {
-      return (loadBook(boot.sessionId) ?? demoBook(boot.sessionId))?.balances ?? loadBalances(seedBalances)
+      return resolveBook(boot.sessionId)?.balances ?? loadBalances(seedBalances)
     }
     return loadBalances(seedBalances)
   })
   const [limit, setLimitState] = useState(() => loadLimit(5000))
   const [goals, setGoalsState] = useState<Goal[]>(() => {
     if (boot.sessionId && isDemoAccount(boot.sessionId)) {
-      return (loadBook(boot.sessionId) ?? demoBook(boot.sessionId))?.goals ?? readGoals()
+      return resolveBook(boot.sessionId)?.goals ?? readGoals()
     }
     return readGoals()
   })
@@ -392,15 +410,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     savePrefs(user.prefs)
     saveProfile(user.profile)
     if (isDemoAccount(user.id)) {
-      const book = loadBook(user.id) ?? demoBook(user.id)
       const seed = demoBook(user.id)
+      const book = resolveBook(user.id) ?? seed
       if (book && seed && book.txns.length === 0 && seed.txns.length) book.txns = seed.txns
-      if (book && seed) {
-        book.payees = (book.payees.length ? book.payees : seed.payees).map((payee) => {
-          const match = seed.payees.find((item) => item.id === payee.id)
-          return match ? { ...match, ...payee, swift: payee.swift || match.swift, account: payee.account || match.account } : payee
-        })
-      }
+      if (book && seed) book.payees = mergeSeedPayees(book.payees, seed.payees)
       if (book) {
         saveBook(user.id, book)
         showBook(book)
@@ -442,6 +455,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     saveSessionId(null)
     sessionRef.current = null
     setSessionId(null)
+    setPrefs(signedOutPrefs())
+    setProfileState(defaultProfile())
     setHelpOpen(false)
     setMessagesState([])
     navigate('/welcome')

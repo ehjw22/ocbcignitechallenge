@@ -41,6 +41,16 @@ export interface SavedPayee {
   aliases?: string[]
 }
 
+export const DEMO_PAYEE_JOHN: SavedPayee = {
+  id: 'john',
+  label: 'John Tan',
+  name: 'John Tan',
+  country: 'Singapore',
+  account: '91234567',
+  key: 'paynow:91234567',
+  aliases: ['John', 'Jon', '约翰', '約翰'],
+}
+
 export interface DemoGoal {
   id: string
   name: string
@@ -121,14 +131,20 @@ const books: Record<string, BankBook> = {
       { id: 'mei-6', title: 'Grab', amount: -14.2, date: '2026-09-18', accountId: '360' },
     ],
     goals: [],
-    payees: [{ id: 'wei', label: 'Son - Wei Ming (Australia)', name: 'Tan Wei Ming', country: 'Australia', swift: 'CTBAAU2S', account: '12345678', aliases: ['son', '儿子', '兒子', 'anak lelaki'] }],
+    payees: [
+      DEMO_PAYEE_JOHN,
+      { id: 'wei', label: 'Son - Wei Ming (Australia)', name: 'Tan Wei Ming', country: 'Australia', swift: 'CTBAAU2S', account: '12345678', aliases: ['son', '儿子', '兒子', 'anak lelaki'] },
+    ],
   },
   arif: {
     accounts: [{ id: 'frank', nameKey: 'accounts.frank', number: '5011223344', balance: 1230.55, kind: 'deposit' }],
     balances: { frank: 1230.55 },
     txns: arifTxns,
     goals: [{ id: 'laptop', name: 'Laptop', target: 1500, monthly: 100, saved: 400 }],
-    payees: [{ id: 'siti', label: 'Siti Aminah', name: 'Siti Aminah', country: 'Singapore', account: '81234567', key: 'paynow:81234567' }],
+    payees: [
+      DEMO_PAYEE_JOHN,
+      { id: 'siti', label: 'Siti Aminah', name: 'Siti Aminah', country: 'Singapore', account: '81234567', key: 'paynow:81234567' },
+    ],
   },
 }
 
@@ -143,6 +159,47 @@ export function demoBook(id: string) {
 }
 
 const BOOK_PREFIX = 'ocbc-bank-'
+
+export function mergeSeedPayees(saved: SavedPayee[], seed: SavedPayee[]): SavedPayee[] {
+  const map = new Map<string, SavedPayee>()
+  for (const payee of saved) map.set(payee.id, payee)
+  for (const seedPayee of seed) {
+    const current = map.get(seedPayee.id)
+    if (!current) {
+      map.set(seedPayee.id, seedPayee)
+      continue
+    }
+    const aliases = [...new Set([...(seedPayee.aliases || []), ...(current.aliases || [])])]
+    map.set(seedPayee.id, {
+      ...seedPayee,
+      ...current,
+      swift: current.swift || seedPayee.swift,
+      account: current.account || seedPayee.account,
+      key: current.key || seedPayee.key,
+      aliases,
+    })
+  }
+  const ordered: SavedPayee[] = []
+  for (const seedPayee of seed) {
+    const item = map.get(seedPayee.id)
+    if (item) ordered.push(item)
+  }
+  for (const payee of saved) {
+    if (!seed.some((item) => item.id === payee.id)) ordered.push(map.get(payee.id) || payee)
+  }
+  return ordered
+}
+
+export function resolveBook(id: string): BankBook | null {
+  const seed = demoBook(id)
+  if (!seed) return null
+  const saved = loadBook(id)
+  if (!saved) return { ...seed, payees: [...seed.payees] }
+  const payees = mergeSeedPayees(saved.payees || [], seed.payees)
+  const book: BankBook = { ...seed, ...saved, payees }
+  if (JSON.stringify(saved.payees) !== JSON.stringify(payees)) saveBook(id, book)
+  return book
+}
 
 export function loadBook(id: string): BankBook | null {
   try {

@@ -116,9 +116,13 @@ export interface ChatMessage {
 }
 
 export interface VoiceTransferCard {
-  kind: 'confirm' | 'overLimit' | 'unknownPayee' | 'disabled'
+  kind: 'confirm' | 'overLimit' | 'unknownPayee' | 'disabled' | 'uncaught' | 'suggestPayee' | 'choosePayee' | 'noMatchPayees' | 'askAmount'
   amount: number
   payeeName: string
+  payeeId?: string
+  payeeIds?: string[]
+  query?: string
   flow?: 'paynow' | 'transfer' | 'overseas'
   fields?: Record<string, string>
+  stuck?: boolean
 }
