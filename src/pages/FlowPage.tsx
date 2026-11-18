@@ -8,7 +8,7 @@ import { useApp } from '@/context/AppContext'
 import { FX, lookupPaynow, maskPayee, payeeName } from '@/data/bank'
 import { flowById, overseasSample, type FlowField } from '@/data/flows'
 import { translate } from '@/i18n'
-import { formatLiveAmount, normaliseAmount } from '@/lib/amount'
+import { formatDraftAmount, normaliseAmount, sanitiseAmountDraft } from '@/lib/amount'
 import { firstFillWizardStep, normaliseFillFields } from '@/lib/fillFields'
 import { hiddenBlockingIssues, stepIssues } from '@/lib/flowStepIssues'
 import { wizardFields, wizardReview } from '@/lib/flowWizard'
@@ -309,6 +309,10 @@ export function FlowPage() {
     : (flow.id === 'paynow' || flow.id === 'transfer' || flow.id === 'overseas') && wstep >= 1 && wstep < reviewAt ? 'flows.continueHintAmount'
     : 'flows.continueHintDefault'
   const engaged = continueTried || [...touched].some((id) => (stepIds || []).includes(id))
+  const prefilled = highlights.length > 0
+  const showHiddenErrors = hiddenIssues.length > 0 && (continueTried || prefilled)
+  const blockContinue = continueIssues.length > 0 || showHiddenErrors
+  const showContinueMessage = continueIssues.length > 0 || hiddenIssues.length > 0
   const sendAmount = Number(String(form.amount || '').replace(/,/g, '')) || 0
   const received = fx ? Math.max(0, sendAmount - fx.fee) * fx.perSgd : 0
 
@@ -688,7 +692,7 @@ export function FlowPage() {
                 <p className="text-[22px] font-bold">{maskPayee(payeeLabel || payeeName(form.to) || form.to || '')}</p>
                 <p className="text-[13px] text-[var(--muted)]">+65 {String(form.to || '').replace(/\D/g, '').slice(0, 4)} ••••</p>
                 <div data-guide="pay-amount" className="flex items-baseline gap-2">
-                  <input data-guide="paynow-amount" className="w-full bg-transparent text-[32px] font-bold outline-none placeholder:text-[#A0A6AD]" inputMode="decimal" aria-label={t('amount')} placeholder="0.00" value={form.amount ? formatLiveAmount(form.amount) : ''} onChange={(event) => changeField('amount', normaliseAmount(event.target.value) || event.target.value.replace(/[^\d.,]/g, ''))} onBlur={() => { const norm = normaliseAmount(form.amount); if (norm) changeField('amount', Number(norm).toFixed(2)) }} />
+                  <input data-guide="paynow-amount" className="w-full bg-transparent text-[32px] font-bold outline-none placeholder:text-[#A0A6AD]" inputMode="decimal" aria-label={t('amount')} placeholder="0.00" value={form.amount ? formatDraftAmount(form.amount) : ''} onChange={(event) => changeField('amount', sanitiseAmountDraft(event.target.value))} onBlur={() => { const norm = normaliseAmount(form.amount); if (norm) changeField('amount', Number(norm).toFixed(2)) }} />
                   <span className="shrink-0 whitespace-nowrap text-[20px] font-bold text-[var(--muted)]">SGD</span>
                 </div>
                 <Link to="/flow/limit" className="block font-semibold text-[var(--link)] underline">{t('look.limitLeft', { amount: formatMoney(app.limit) })}</Link>
@@ -719,14 +723,14 @@ export function FlowPage() {
             )}
             {!(flow.id === 'paynow' && directory && wstep === 0 && !practice) && (
             <>
-            {(continueIssues.length > 0 || hiddenIssues.length > 0) && (
-              <p aria-live="polite" id={flow.id === 'paynow' && wstep === 1 ? 'pay-alert' : undefined} className={`text-sm font-semibold ${engaged || hiddenIssues.length ? 'text-[var(--danger)]' : 'text-[var(--muted)]'}`} role={engaged || hiddenIssues.length ? 'alert' : 'status'}>
-                {engaged || hiddenIssues.length
-                  ? [...continueIssues, ...hiddenIssues].map((issue) => describe(issue)).join(' ')
+            {showContinueMessage && (
+              <p aria-live="polite" id={flow.id === 'paynow' && wstep === 1 ? 'pay-alert' : undefined} className={`text-sm font-semibold ${engaged || showHiddenErrors ? 'text-[var(--danger)]' : 'text-[var(--muted)]'}`} role={engaged || showHiddenErrors ? 'alert' : 'status'}>
+                {engaged || showHiddenErrors
+                  ? [...continueIssues, ...(showHiddenErrors ? hiddenIssues : [])].map((issue) => describe(issue)).join(' ')
                   : t(continueHintKey)}
               </p>
             )}
-            <button type="submit" data-guide={flow.id === 'paynow' && wstep === 1 ? 'pay-next' : reviewGuide(flow.id)} aria-describedby={flow.id === 'paynow' && wstep === 1 ? 'pay-alert' : undefined} className={`${flow.id === 'paynow' && wstep === 1 ? 'min-h-12 w-full rounded-lg bg-[#E30613] font-bold text-white' : 'ocbc-btn'} disabled:cursor-not-allowed disabled:bg-zinc-300 disabled:text-zinc-600 disabled:opacity-70`} disabled={continueIssues.length > 0 || hiddenIssues.length > 0 || (touring && !practice && reviewAt >= 0 && wstep >= reviewAt)}>
+            <button type="submit" data-guide={flow.id === 'paynow' && wstep === 1 ? 'pay-next' : reviewGuide(flow.id)} aria-describedby={flow.id === 'paynow' && wstep === 1 ? 'pay-alert' : undefined} className={`${flow.id === 'paynow' && wstep === 1 ? 'min-h-12 w-full rounded-lg bg-[#E30613] font-bold text-white' : 'ocbc-btn'} disabled:cursor-not-allowed disabled:bg-zinc-300 disabled:text-zinc-600 disabled:opacity-70`} disabled={blockContinue || (touring && !practice && reviewAt >= 0 && wstep >= reviewAt)}>
               {t('flows.submit')}
             </button>
             </>

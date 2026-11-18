@@ -1,10 +1,12 @@
-import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { ACCOUNTS, SEED_CARDS, SEED_TXNS } from '@/data/bank'
-import { clearBooks, demoBook, isDemoAccount, loadBook, mergeSeedPayees, resolveBook, saveBook, type BankBook, type SavedPayee } from '@/data/demoAccounts'
+import { clearBooks, demoBook, DEMO_LOGINS, isDemoAccount, loadBook, mergeSeedPayees, resolveBook, saveBook, type BankBook, type SavedPayee } from '@/data/demoAccounts'
 import { PERSONAS } from '@/data/personas'
 import { SEED_REQUESTS } from '@/data/seed'
 import { translate } from '@/i18n'
+import { loadExcluded, notifyExcluded, setExcluded as setInsightExcluded, subscribeExcluded } from '@/lib/insightExclusions'
+import { clearTransferHistory } from '@/lib/transferHistory'
 import type { AnalyticsEvent, CardItem, ChatMessage, DemoUser, Preferences, Profile, RequestStatus, StaffRequest, Txn } from '@/lib/types'
 import {
   clearTourSeen,
@@ -102,7 +104,10 @@ interface AppApi {
   setGuidePrompt: (prompt: { journeyId: string; practice: boolean } | null) => void
   applyPersona: (id: 'mei' | 'arif') => void
   resetDemo: () => void
+  resetDemoData: () => void
   resetQuiz: () => void
+  excluded: Set<string>
+  toggleExcluded: (key: string, on: boolean) => void
   deleteUser: () => void
   switchUser: () => void
   markTourSeen: () => void
@@ -233,6 +238,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [lastQuestion, setLastQuestion] = useState('')
   const [aiSeed, setAiSeed] = useState('')
   const [staffSeed, setStaffSeed] = useState('')
+  const [exclusionTick, setExclusionTick] = useState(0)
+
+  useEffect(() => subscribeExcluded(() => setExclusionTick((value) => value + 1)), [])
+  const excluded = useMemo(() => (sessionId ? loadExcluded(sessionId) : new Set<string>()), [sessionId, exclusionTick])
+  const toggleExcluded = useCallback((key: string, on: boolean) => {
+    if (!sessionId) return
+    setInsightExcluded(sessionId, key, on)
+    notifyExcluded()
+  }, [sessionId])
 
   useEffect(() => {
     const pending = peekAfterLogin()
@@ -526,6 +540,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
     navigate('/join')
   }
 
+  const resetDemoData = () => {
+    for (const user of DEMO_LOGINS) {
+      const seed = demoBook(user.id)
+      if (seed) saveBook(user.id, { ...seed, payees: [...seed.payees], txns: [...seed.txns], goals: [...(seed.goals || [])] })
+    }
+    clearTransferHistory()
+    for (const user of DEMO_LOGINS) localStorage.removeItem(`ocbc-insights-excluded-${user.id}`)
+    notifyExcluded()
+    if (sessionId && isDemoAccount(sessionId)) {
+      const book = resolveBook(sessionId) ?? demoBook(sessionId)
+      if (book) showBook(book)
+    }
+    setNotice(translate(prefs.language, 'settings.resetDataDone'))
+  }
+
   const resetDemo = () => {
     resetAll()
     clearBooks()
@@ -608,7 +637,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setGoals,
     applyPersona,
     resetDemo,
+    resetDemoData,
     resetQuiz,
+    excluded,
+    toggleExcluded,
     deleteUser,
     switchUser,
     markTourSeen: setTourSeen,

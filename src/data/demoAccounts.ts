@@ -59,7 +59,7 @@ export interface DemoGoal {
   saved?: number
 }
 
-export const DEMO_SEED_VERSION = 2
+export const DEMO_SEED_VERSION = 3
 
 export interface BankBook {
   accounts: Account[]
@@ -214,10 +214,21 @@ export function resolveBook(id: string): BankBook | null {
   const saved = loadBook(id)
   if (!saved) return { ...seed, payees: [...seed.payees] }
   const payees = mergeSeedPayees(saved.payees || [], seed.payees)
-  let book: BankBook = { ...seed, ...saved, payees }
-  const migrated = migrateBalances(book, seed)
-  if (migrated !== book || JSON.stringify(saved.payees) !== JSON.stringify(payees) || (saved.seedVersion ?? 1) < DEMO_SEED_VERSION) {
-    book = { ...migrated, payees }
+  const savedSnapshot: BankBook = { ...saved, payees }
+  const migrated = migrateBalances(savedSnapshot, seed)
+  const book: BankBook = {
+    ...seed,
+    ...saved,
+    payees,
+    accounts: migrated.accounts,
+    balances: migrated.balances,
+    seedVersion: migrated.seedVersion,
+    txns: saved.txns ?? seed.txns,
+    goals: saved.goals ?? seed.goals,
+  }
+  const savedVersion = saved.seedVersion ?? 1
+  const topped = Object.keys(migrated.balances).some((key) => (migrated.balances[key] ?? 0) > (saved.balances?.[key] ?? 0))
+  if (savedVersion < DEMO_SEED_VERSION || topped || JSON.stringify(saved.payees) !== JSON.stringify(payees)) {
     saveBook(id, book)
   }
   return book

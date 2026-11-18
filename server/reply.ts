@@ -1,4 +1,4 @@
-import { extractAmountFromText } from '../src/lib/amount.ts'
+import { extractAmountFromText } from './amount.js'
 import { z } from 'zod'
 
 const actionSchema = z.object({

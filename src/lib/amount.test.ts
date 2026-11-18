@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { extractAmountFromText, formatLiveAmount, normaliseAmount } from './amount.ts'
+import { extractAmountFromText, formatDraftAmount, formatLiveAmount, normaliseAmount } from './amount.ts'
 
 test('normaliseAmount cleans currency and commas', () => {
   assert.equal(normaliseAmount('S$30.00'), '30')
@@ -16,6 +16,12 @@ test('normaliseAmount cleans currency and commas', () => {
   assert.equal(normaliseAmount('-5'), '')
   assert.equal(normaliseAmount('1.234'), '')
   assert.equal(normaliseAmount('NaN'), '')
+})
+
+test('formatDraftAmount preserves partial decimals while typing', () => {
+  assert.equal(formatDraftAmount('1,000.'), '1,000.')
+  assert.equal(formatDraftAmount('20.0'), '20.0')
+  assert.equal(formatDraftAmount('20.05'), '20.05')
 })
 
 test('formatLiveAmount never shows NaN for dirty input', () => {

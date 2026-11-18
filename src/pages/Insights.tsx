@@ -86,16 +86,16 @@ export function Insights() {
     )
   }
 
-  const current = rowsFor(accountId, month)
+  const current = rowsFor(accountId, month, app.excluded)
   const prevId = previousMonth(month)
-  const previous = prevId ? rowsFor(accountId, prevId) : []
+  const previous = prevId ? rowsFor(accountId, prevId, app.excluded) : []
   const spent = sum(current)
   const last = sum(previous)
   const pct = percentChange(spent, last)
   const slices = byCategory(current).filter((item) => item.amount > 0)
   const merchants = topMerchants(current)
   const daily = dailyTotals(current)
-  const trend = monthTotals(accountId)
+  const trend = monthTotals(accountId, app.excluded)
   const foodNow = byCategory(current).find((item) => item.key === 'food')?.amount || 0
   const foodPrev = byCategory(previous).find((item) => item.key === 'food')?.amount || 0
   const foodPct = percentChange(foodNow, foodPrev)

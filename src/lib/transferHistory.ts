@@ -31,3 +31,7 @@ export function recordTransfer(entry: TransferRecord) {
   next.push(entry)
   write(next)
 }
+
+export function clearTransferHistory() {
+  localStorage.removeItem(KEY)
+}

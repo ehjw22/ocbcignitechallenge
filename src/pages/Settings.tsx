@@ -414,6 +414,10 @@ export function Settings() {
             {t('gate.deleteUser')}
           </button>
           <p className="mb-4 text-sm text-[var(--muted)]">{t('gate.deleteUserBody')}</p>
+          <p className="mb-2 text-sm text-[var(--muted)]">{t('settings.resetDataBody')}</p>
+          <button type="button" className="mb-4 min-h-12 rounded-xl border border-[var(--line)] bg-[var(--card)] px-3 font-semibold" onClick={() => { if (window.confirm(t('settings.resetDataConfirm'))) app.resetDemoData() }}>
+            {t('settings.resetDemoData')}
+          </button>
           <p className="mb-2 text-sm text-[var(--muted)]">{t('settings.resetBody')}</p>
           <button type="button" className="min-h-12 rounded-xl border border-[var(--danger)] px-3 text-[var(--danger)]" onClick={app.resetDemo}>
             {t('settings.reset')}

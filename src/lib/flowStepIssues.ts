@@ -1,4 +1,5 @@
 import { amountNumber, normaliseAmount } from './amount.ts'
+import { stepFieldIds } from './flowWizard.ts'
 import type { Issue } from './validate.ts'
 import { validateForm } from './validate.ts'
 
@@ -45,5 +46,6 @@ export function hiddenBlockingIssues(
   const visible = new Set(visibleIds)
   if (flowId === 'paynow' && wstep === 1) visible.add('amount')
   if (reviewAt < 0 || wstep >= reviewAt) return [] as Issue[]
-  return found.filter((issue) => !visible.has(issue.field))
+  const stepIds = stepFieldIds(flowId, wstep)
+  return found.filter((issue) => stepIds.has(issue.field) && !visible.has(issue.field))
 }

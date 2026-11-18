@@ -4,6 +4,14 @@ export function wizardReview(flowId: string) {
   return -1
 }
 
+export function stepFieldIds(flowId: string, wstep: number) {
+  const ids = new Set<string>()
+  for (let step = 0; step <= wstep; step += 1) {
+    for (const field of wizardFields(flowId, step) || []) ids.add(field)
+  }
+  return ids
+}
+
 export function wizardFields(flowId: string, step: number) {
   if (wizardReview(flowId) < 0) return null
   if (flowId === 'paynow') return step === 0 ? ['proxy', 'to'] : step === 1 ? ['amount', 'from', 'reference', 'savePayee', 'when', 'laterDate'] : []

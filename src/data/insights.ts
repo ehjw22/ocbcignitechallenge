@@ -1,3 +1,5 @@
+import { spendKey } from '../lib/insightExclusions.ts'
+
 export const INSIGHT_CATEGORIES = ['food', 'transport', 'shopping', 'bills', 'subscriptions', 'other'] as const
 export type InsightCategory = (typeof INSIGHT_CATEGORIES)[number]
 
@@ -90,10 +92,9 @@ export const MONTH_LABELS: Record<string, string> = {
 }
 
 export function rowsFor(accountId: string, month: string, excluded?: Set<string>) {
-  const monthPrefix = `${month}-`
   const rows = SPEND_ROWS.filter((row) => row.month === month && (accountId === 'all' || row.accountId === accountId))
   if (!excluded?.size) return rows
-  return rows.filter((row) => !excluded.has(`${monthPrefix}${String(row.day).padStart(2, '0')}|${row.merchant.toLowerCase()}|${row.amount.toFixed(2)}`))
+  return rows.filter((row) => !excluded.has(spendKey(row)))
 }
 
 export function sum(rows: SpendRow[]) {
@@ -123,11 +124,11 @@ export function dailyTotals(rows: SpendRow[]) {
   return [...days.entries()].sort((a, b) => a[0] - b[0]).map(([day, amount]) => ({ day: String(day), amount: Math.round(amount * 100) / 100 }))
 }
 
-export function monthTotals(accountId: string) {
+export function monthTotals(accountId: string, excluded?: Set<string>) {
   return INSIGHT_MONTHS.map((month) => ({
     month,
     label: MONTH_LABELS[month],
-    amount: Math.round(sum(rowsFor(accountId, month)) * 100) / 100,
+    amount: Math.round(sum(rowsFor(accountId, month, excluded)) * 100) / 100,
   }))
 }
 

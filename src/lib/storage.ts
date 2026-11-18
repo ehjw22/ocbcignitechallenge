@@ -37,6 +37,9 @@ export const defaultProfile = (): Profile => ({
   usualTransfer: 500,
 })
 
+export const APP_SEED_VERSION = 3
+const SEED_VERSION_KEY = 'ocbc-adaptive-seed-version'
+
 const keys = {
   prefs: 'ocbc-adaptive-prefs',
   profile: 'ocbc-adaptive-profile',
@@ -159,7 +162,16 @@ export function saveCards(cards: CardItem[]) {
 export function loadBalances(seed: Record<string, number>) {
   try {
     const raw = localStorage.getItem(keys.balances)
-    return raw ? { ...seed, ...(JSON.parse(raw) as Record<string, number>) } : seed
+    const balances = raw ? { ...seed, ...(JSON.parse(raw) as Record<string, number>) } : { ...seed }
+    const version = Number(localStorage.getItem(SEED_VERSION_KEY) || '1')
+    if (version < APP_SEED_VERSION) {
+      for (const [accountId, target] of Object.entries(seed)) {
+        if (typeof balances[accountId] === 'number') balances[accountId] = Math.max(balances[accountId], target)
+      }
+      saveBalances(balances)
+      localStorage.setItem(SEED_VERSION_KEY, String(APP_SEED_VERSION))
+    }
+    return balances
   } catch {
     return seed
   }

@@ -33,6 +33,29 @@ export function formatLiveAmount(raw: string) {
   return frac === undefined ? grouped : `${grouped}.${frac}`
 }
 
+/** Live PayNow typing: group thousands but keep partial decimals (e.g. "1,000." or "20.05"). */
+export function sanitiseAmountDraft(raw: string) {
+  let value = raw.replace(/[^\d.,]/g, '')
+  const dots = value.split('.')
+  if (dots.length > 2) value = `${dots[0]}.${dots.slice(1).join('')}`
+  if (value.includes('.')) {
+    const [whole, frac = ''] = value.split('.')
+    value = `${whole}.${frac.slice(0, 2)}`
+  }
+  return value
+}
+
+export function formatDraftAmount(raw: string) {
+  if (!raw) return ''
+  const withoutCommas = raw.replace(/,/g, '')
+  const dotAt = withoutCommas.indexOf('.')
+  const wholeRaw = dotAt >= 0 ? withoutCommas.slice(0, dotAt) : withoutCommas
+  const fracRaw = dotAt >= 0 ? withoutCommas.slice(dotAt + 1) : ''
+  const grouped = wholeRaw ? Number(wholeRaw).toLocaleString('en-SG') : (dotAt >= 0 ? '0' : '')
+  if (dotAt >= 0) return fracRaw.length || raw.endsWith('.') ? `${grouped}.${fracRaw}` : `${grouped}.`
+  return grouped
+}
+
 export function amountNumber(raw: unknown) {
   const normal = normaliseAmount(raw)
   if (!normal) return null
