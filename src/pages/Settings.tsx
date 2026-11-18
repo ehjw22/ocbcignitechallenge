@@ -363,7 +363,7 @@ export function Settings() {
           <div>
             <ShortcutPicker order={order} onChange={setOrder} />
             <div className="mt-3 flex flex-wrap gap-2">
-              <button type="button" className="min-h-12 flex-1 rounded-xl bg-[var(--accent)] text-[var(--on-accent)]" disabled={order.slice(0, 3).length !== 3} onClick={() => app.updatePrefs({ shortcuts: order.slice(0, 3) })}>{t('save')}</button>
+              <button type="button" className="min-h-12 flex-1 rounded-xl border border-transparent bg-[var(--accent)] text-[var(--on-accent)] disabled:cursor-not-allowed disabled:border-[var(--line)] disabled:bg-[var(--soft)] disabled:text-[var(--muted)]" disabled={order.slice(0, 3).length !== 3} onClick={() => app.updatePrefs({ shortcuts: order.slice(0, 3) })}>{t('save')}</button>
               <button type="button" className="min-h-12 flex-1 rounded-xl border border-[var(--line)] bg-[var(--card)]" onClick={() => setOrder([...DEFAULT_SHORTCUTS])}>{t('reset')}</button>
             </div>
           </div>
