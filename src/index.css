@@ -262,8 +262,8 @@ html[data-bold="1"] #customer-app button {
   height: auto;
   min-height: calc(64px + var(--nav-safe, 0px));
   padding-bottom: var(--nav-safe, 0px);
-  background: #fff;
-  border-top: 1px solid #eee;
+  background: var(--card, #fff);
+  border-top: 1px solid var(--line, #eee);
 }
 
 #customer-root[data-scheme='dark'] .app-nav {

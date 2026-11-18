@@ -29,8 +29,18 @@ function MoreGlyph({ active }: { active: boolean }) {
   return (
     <svg width="24" height="24" viewBox="0 0 22 22" aria-hidden>
       {[4, 14].map((y) => [4, 14].map((x) => (
-        <circle key={`${x}-${y}`} cx={x + 2} cy={y + 2} r="2" fill="none" stroke="currentColor" strokeWidth="1.75" />
+        <circle key={`${x}-${y}`} cx={x + 2} cy={y + 2} r={active ? 3 : 2.5} fill={active ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="1.5" />
       )))}
+    </svg>
+  )
+}
+
+// Filled house for the active Home tab (OCBC app style): solid shape with a cut-out door.
+function HomeFilled() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden>
+      <path d="M12 2.6 2.8 10.2c-.5.4-.8 1-.8 1.6V20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-8.2c0-.6-.3-1.2-.8-1.6Z" fill="currentColor" />
+      <rect x="9.5" y="14" width="5" height="8" rx="1" fill="var(--card, #fff)" />
     </svg>
   )
 }
@@ -129,23 +139,30 @@ export function BottomNav() {
             data-guide={item.guide}
             aria-label={label}
             className={({ isActive }) =>
-              `flex min-h-[64px] min-w-0 flex-col items-center justify-start overflow-hidden px-0.5 pt-1.5 text-center text-[0.7rem] font-normal leading-tight ${isActive ? 'font-semibold text-[var(--accent-text)]' : 'text-[var(--muted)]'}`
+              `flex min-h-[64px] min-w-0 flex-col items-center justify-start overflow-hidden px-0.5 pt-1.5 text-center text-[0.7rem] font-normal leading-tight ${isActive ? 'text-[var(--accent-text)]' : 'text-[var(--text)]'}`
             }
-            style={{ gap: 4 }}
+            style={{ gap: 2 }}
           >
             {({ isActive }) => (
               <>
+                <span aria-hidden className="flex h-10 items-center justify-center">
                 {item.to === '/pay' ? (
-                  <ArrowLeftRight aria-hidden size={24} strokeWidth={1.75} />
+                  <span
+                    className="flex h-10 w-10 items-center justify-center rounded-full border-[1.5px]"
+                    style={isActive ? { background: 'var(--accent)', borderColor: 'var(--accent)', color: 'var(--on-accent)' } : { borderColor: 'currentColor' }}
+                  >
+                    <ArrowLeftRight aria-hidden size={22} strokeWidth={1.5} />
+                  </span>
                 ) : item.to === '/' ? (
-                  <House aria-hidden size={24} strokeWidth={1.75} />
+                  isActive ? <HomeFilled /> : <House aria-hidden size={24} strokeWidth={1.5} />
                 ) : item.to === '/plan' ? (
-                  <Sprout aria-hidden size={24} strokeWidth={1.75} />
+                  <Sprout aria-hidden size={24} strokeWidth={1.5} />
                 ) : item.to === '/rewards' ? (
-                  <Gift aria-hidden size={24} strokeWidth={1.75} />
+                  <Gift aria-hidden size={24} strokeWidth={1.5} />
                 ) : (
                   <MoreGlyph active={isActive} />
                 )}
+                </span>
                 <span className="line-clamp-2 flex min-h-[2.2em] w-full items-center justify-center whitespace-normal text-center font-normal leading-tight [font-size:clamp(11px,3.2vw,0.8em)] [overflow-wrap:normal] [word-break:keep-all]">{label}</span>
               </>
             )}
@@ -225,7 +242,7 @@ function OllieFab() {
     <button
       type="button"
       className="absolute right-3 z-30 flex items-center rounded-full text-white"
-      style={{ bottom: 88, height: 48, width: 48, background: '#E30613', boxShadow: '0 4px 14px rgba(0,0,0,0.28)' }}
+      style={{ bottom: 88, height: 48, width: 48, background: 'var(--accent)', boxShadow: '0 4px 14px rgba(0,0,0,0.28)' }}
       aria-label={label}
       onClick={() => {
         localStorage.setItem(OLLIE_LABEL_KEY, '1')
@@ -342,7 +359,7 @@ export function ExplainButton() {
   return (
     <button
       type="button"
-      className="flex h-11 w-11 items-center justify-center rounded-full border border-[var(--line)] text-base font-semibold"
+      className="flex h-11 w-11 items-center justify-center rounded-full border border-[var(--muted)] text-base font-semibold text-[var(--text)]"
       aria-label={t('ai.what')}
       onClick={() => {
         const root = document.getElementById('main') || document.getElementById('customer-root')
@@ -422,10 +439,13 @@ export function Page({
   title,
   children,
   back,
+  tone = 'plain',
 }: {
   title?: string
   children: React.ReactNode
   back?: boolean
+  /** Header background: 'plain' (white, divider) or 'pink' (soft pink, no divider, as on OCBC flow screens). */
+  tone?: 'plain' | 'pink'
 }) {
   const navigate = useNavigate()
   const { prefs } = useApp()
@@ -443,11 +463,11 @@ export function Page({
   }, [location.pathname, title, prefs.readAloud, prefs.language, prefs.speechRate, prefs.dialect])
   return (
     <div className="flex h-full min-h-0 flex-col bg-[var(--bg)] text-[var(--text)]">
-      <header className="grid min-h-14 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-1 border-b border-[var(--line)] bg-[var(--card)] px-2 py-2">
+      <header className={`grid min-h-14 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-1 px-2 py-2 ${tone === 'pink' ? 'bg-[var(--pink-soft)]' : 'border-b border-[var(--line)] bg-[var(--card)]'}`}>
         <span className="flex items-center">
           {back && (
             <button type="button" className="flex h-11 w-11 items-center justify-center" onClick={() => navigate(-1)} aria-label={t('back')}>
-              <ChevronLeft aria-hidden size={26} />
+              <ChevronLeft aria-hidden size={28} strokeWidth={1.5} />
             </button>
           )}
           {title && (
@@ -468,7 +488,7 @@ export function Page({
           )}
         </span>
         <div className="flex min-w-0 flex-col items-center">
-          {title && <h1 className="line-clamp-2 w-full whitespace-normal text-center text-[1.05rem] font-semibold leading-snug">{title}</h1>}
+          {title && <h1 className="line-clamp-2 w-full whitespace-normal text-center text-[1.05rem] font-normal leading-snug">{title}</h1>}
           <DemoBadge />
         </div>
         <span className="flex items-center justify-end">
