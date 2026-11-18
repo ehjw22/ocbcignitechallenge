@@ -114,8 +114,8 @@ export function Home() {
                 }
                 return true
               }).slice(0, 3).map((id) => (
-                <Link key={id} to={SHORTCUT_ROUTES[id] ?? '/pay'} data-guide={id === 'paynow' ? 'home-paynow' : undefined} className="flex min-h-11 min-w-0 flex-col items-center justify-start gap-1 px-0.5 text-[var(--text)]">
-                  <ShortcutMark id={id} />
+                <Link key={id} to={SHORTCUT_ROUTES[id] ?? '/pay'} data-guide={id === 'paynow' ? 'home-paynow' : undefined} className="flex min-h-11 min-w-0 flex-col items-center justify-center gap-1 px-0.5 text-[var(--text)]">
+                  <span aria-hidden className="flex h-[2.75rem] items-center justify-center"><ShortcutMark id={id} /></span>
                   <span className="w-full text-center text-[0.85rem] font-normal leading-tight">{t(`shortcuts.${id}`)}</span>
                 </Link>
               ))}

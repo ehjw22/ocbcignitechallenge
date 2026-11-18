@@ -354,7 +354,7 @@ export function Settings() {
           guide="settings-shortcuts"
           anchor="shortcuts"
           title={t('settings.sections.shortcuts')}
-          summary={order.map((id) => t(`shortcuts.${id}`)).join(' · ')}
+          summary={order.slice(0, 3).map((id) => t(`shortcuts.${id}`)).join(' · ')}
           keywords={`${t('settings.shortcuts')} ${SHORTCUTS.map((id) => t(`shortcuts.${id}`)).join(' ')} ${t('reorderHint')}`}
           query={query}
           open={!!open.shortcuts}
@@ -363,7 +363,7 @@ export function Settings() {
           <div>
             <ShortcutPicker order={order} onChange={setOrder} />
             <div className="mt-3 flex flex-wrap gap-2">
-              <button type="button" className="min-h-12 flex-1 rounded-xl bg-[var(--accent)] text-[var(--on-accent)]" disabled={order.length !== 6} onClick={() => app.updatePrefs({ shortcuts: order })}>{t('save')}</button>
+              <button type="button" className="min-h-12 flex-1 rounded-xl bg-[var(--accent)] text-[var(--on-accent)]" disabled={order.slice(0, 3).length !== 3} onClick={() => app.updatePrefs({ shortcuts: order.slice(0, 3) })}>{t('save')}</button>
               <button type="button" className="min-h-12 flex-1 rounded-xl border border-[var(--line)] bg-[var(--card)]" onClick={() => setOrder([...DEFAULT_SHORTCUTS])}>{t('reset')}</button>
             </div>
           </div>
