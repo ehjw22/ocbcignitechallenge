@@ -13,8 +13,7 @@
     "resolveJsonModule": true,
     "strict": true,
     "noFallthroughCasesInSwitch": true,
-    "baseUrl": ".",
-    "paths": { "@/*": ["src/*"] }
+    "paths": { "@/*": ["./src/*"] }
   },
   "include": ["src", "server", "api", "vite.config.ts"],
   "exclude": ["src/**/*.test.ts"]
