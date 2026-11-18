@@ -17,9 +17,9 @@ export default {
         tile: '#F3F4F6',
       },
       fontSize: {
-        nav: ['10px', { lineHeight: '12px', fontWeight: '500' }],
-        caption: ['12px', { lineHeight: '16px' }],
-        balance: ['32px', { lineHeight: '38px', fontWeight: '700' }],
+        nav: ['0.75rem', { lineHeight: '1rem', fontWeight: '500' }],
+        caption: ['0.75rem', { lineHeight: '1rem' }],
+        balance: ['2rem', { lineHeight: '2.4rem', fontWeight: '700' }],
       },
       boxShadow: {
         card: '0 1px 2px rgba(23,23,23,0.04), 0 8px 20px rgba(23,23,23,0.05)',
