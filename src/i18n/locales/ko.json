@@ -42,7 +42,7 @@
     "help": "어떤 도움을 원하시나요?",
     "ready": "준비가 되었습니다",
     "readyBody": "이 기기에 저장됩니다.",
-    "shortcuts": "바로가기 6개 선택",
+    "shortcuts": "바로가기 3개 선택",
     "colourAdjust": "강조 색이 조금 바뀔 수 있습니다.",
     "voiceLimit": "Voice transfer limit",
     "voiceLimitBody": "Choose a cap for transfers you start by speaking to Ollie. You still review and confirm each one."
@@ -244,7 +244,7 @@
     "home": {
       "balanceTitle": "잔액",
       "balanceBody": "오늘 사용할 수 있는 금액입니다.",
-      "shortcutsBody": "이 바로가기 6개는 사용자 것입니다. 설정에서 바꾸세요.",
+      "shortcutsBody": "이 바로가기 3개는 사용자 것입니다. 설정에서 바꾸세요.",
       "helpBody": "도우미, 단계별 안내, 또는 메시지를 선택하세요."
     },
     "scan": {
@@ -304,7 +304,7 @@
     "demoLogin": "아무 비밀번호나 됩니다.",
     "helpStaff": "직원에게 메시지"
   },
-  "selectedCount": "6개 중 {n}개 선택",
+  "selectedCount": "3개 중 {n}개 선택",
   "allShortcuts": "모든 바로가기",
   "emptySlot": "비어 있음",
   "moveUp": "위로",

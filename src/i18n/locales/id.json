@@ -42,7 +42,7 @@
     "help": "Bagaimana Anda ingin dibantu?",
     "ready": "Anda sudah siap",
     "readyBody": "Disimpan di perangkat ini.",
-    "shortcuts": "Pilih 6 pintasan",
+    "shortcuts": "Pilih 3 pintasan",
     "colourAdjust": "Warna aksen dapat berubah sedikit.",
     "voiceLimit": "Voice transfer limit",
     "voiceLimitBody": "Choose a cap for transfers you start by speaking to Ollie. You still review and confirm each one."
@@ -244,7 +244,7 @@
     "home": {
       "balanceTitle": "Saldo Anda",
       "balanceBody": "Ini uang yang dapat Anda gunakan hari ini.",
-      "shortcutsBody": "Enam pintasan ini milik Anda. Ubah di Pengaturan.",
+      "shortcutsBody": "Tiga pintasan ini milik Anda. Ubah di Pengaturan.",
       "helpBody": "Pilih asisten, panduan langkah demi langkah, atau pesan kepada kami."
     },
     "scan": {
@@ -304,7 +304,7 @@
     "demoLogin": "Kata sandi apa saja dapat digunakan.",
     "helpStaff": "Pesan staf kami"
   },
-  "selectedCount": "{n} dari 6 dipilih",
+  "selectedCount": "{n} dari 3 dipilih",
   "allShortcuts": "Semua pintasan",
   "emptySlot": "Kosong",
   "moveUp": "Naik",

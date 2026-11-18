@@ -38,17 +38,19 @@ export function TxnSheet({
         role="dialog"
         aria-modal="true"
         data-guide="txn-sheet"
-        className="absolute inset-x-0 bottom-0 h-[50vh] overflow-y-auto rounded-t-2xl bg-[var(--card)] p-4 text-[var(--text)]"
+        className="absolute inset-x-0 bottom-0 max-h-[85%] overflow-y-auto rounded-t-2xl bg-[var(--card)] px-4 pb-6 pt-3 text-[var(--text)]"
         onClick={(event) => event.stopPropagation()}
       >
-        <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-[var(--line)]" />
-        <button ref={closeRef} type="button" className="min-h-11 text-[var(--link)] underline" onClick={onClose}>{t('close')}</button>
-        <h2 className="text-[16px] font-bold uppercase">{t(txnKind(txn.title))}</h2>
+        <div className="mx-auto mb-2 h-1 w-10 rounded-full bg-[var(--line)]" />
+        <div className="flex items-start justify-between gap-3">
+          <h2 className="min-w-0 pt-2 text-[1.05rem] font-bold uppercase">{t(txnKind(txn.title))}</h2>
+          <button ref={closeRef} type="button" className="min-h-11 shrink-0 px-1 text-[var(--link)] underline" onClick={onClose}>{t('close')}</button>
+        </div>
         <p>{account ? t(account.nameKey) : ''} {account ? `•••• ${account.number.slice(-4)}` : ''}</p>
         <p>{new Intl.DateTimeFormat(language.startsWith('zh') ? 'zh-CN' : 'en-SG', { day: 'numeric', month: language.startsWith('zh') ? 'long' : 'short', year: 'numeric' }).format(new Date(`${txn.date}T00:00:00`))}</p>
-        <p className="text-[28px] font-bold">{formatSignedMoney(txn.amount)}</p>
-        <p className="mt-3 text-[13px] text-[var(--muted)]">{t('look.description')}</p>
-        <p className="border-l-4 border-[#E30613] pl-3">{payeeName(txn.title)}</p>
+        <p className="mt-1 text-[1.75rem] font-bold">{formatSignedMoney(txn.amount)}</p>
+        <p className="mt-3 text-[0.85rem] text-[var(--muted)]">{t('look.description')}</p>
+        <p className="border-l-4 border-[var(--accent)] pl-3">{payeeName(txn.title)}</p>
       </div>
     </div>
   )

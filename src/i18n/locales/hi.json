@@ -42,7 +42,7 @@
     "help": "आप किस तरह की सहायता चाहते हैं?",
     "ready": "आप तैयार हैं",
     "readyBody": "इस डिवाइस पर सहेजा गया।",
-    "shortcuts": "6 शॉर्टकट चुनें",
+    "shortcuts": "3 शॉर्टकट चुनें",
     "colourAdjust": "एक्सेंट रंग थोड़ा बदल सकते हैं।",
     "voiceLimit": "Voice transfer limit",
     "voiceLimitBody": "Choose a cap for transfers you start by speaking to Ollie. You still review and confirm each one."
@@ -244,7 +244,7 @@
     "home": {
       "balanceTitle": "आपका शेष",
       "balanceBody": "यह वह राशि है जिसे आप आज उपयोग कर सकते हैं।",
-      "shortcutsBody": "ये छह शॉर्टकट आपके हैं। इन्हें सेटिंग में बदलें।",
+      "shortcutsBody": "ये तीन शॉर्टकट आपके हैं। इन्हें सेटिंग में बदलें।",
       "helpBody": "सहायक, चरणबद्ध गाइड, या हमें संदेश चुनें।"
     },
     "scan": {
@@ -304,7 +304,7 @@
     "demoLogin": "कोई भी पासवर्ड चलेगा।",
     "helpStaff": "हमारे स्टाफ को संदेश"
   },
-  "selectedCount": "6 में से {n} चुने गए",
+  "selectedCount": "3 में से {n} चुने गए",
   "allShortcuts": "सभी शॉर्टकट",
   "emptySlot": "खाली",
   "moveUp": "ऊपर",

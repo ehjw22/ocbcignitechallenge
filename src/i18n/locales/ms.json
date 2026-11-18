@@ -60,7 +60,7 @@
     "help": "Bagaimana anda mahu bantuan?",
     "ready": "Anda sudah sedia",
     "readyBody": "Disimpan pada peranti ini.",
-    "shortcuts": "Pilih 6 pintasan",
+    "shortcuts": "Pilih 3 pintasan",
     "colourAdjust": "Warna aksen mungkin berubah sedikit.",
     "voiceLimit": "Had pindahan suara",
     "voiceLimitBody": "Pilih had untuk pindahan yang dimulakan dengan bercakap kepada Ollie. Anda masih perlu menyemak dan mengesahkan setiap pindahan.",
@@ -347,7 +347,7 @@
     "home": {
       "balanceTitle": "Baki anda",
       "balanceBody": "Ini wang yang boleh anda guna hari ini.",
-      "shortcutsBody": "Enam pintasan ini milik anda. Ketik Sesuaikan untuk mengubahnya.",
+      "shortcutsBody": "Tiga pintasan ini milik anda. Ketik Sesuaikan untuk mengubahnya.",
       "helpBody": "Pilih pembantu, panduan langkah demi langkah, atau mesej kepada kami."
     },
     "scan": {
@@ -378,7 +378,7 @@
       "helpTitle": "Cara mendapat bantuan",
       "helpBody": "Pilih pembantu, panduan, atau mesej kepada kakitangan.",
       "shortcutsTitle": "Pintasan utama",
-      "shortcutsBody": "Pilih enam pintasan di skrin utama."
+      "shortcutsBody": "Pilih tiga pintasan di skrin utama."
     }
   },
   "profile": {
@@ -486,7 +486,7 @@
     "demoLogin": "Sebarang kata laluan boleh digunakan.",
     "helpStaff": "Mesej kakitangan kami"
   },
-  "selectedCount": "{n} daripada 6 dipilih",
+  "selectedCount": "{n} daripada 3 dipilih",
   "allShortcuts": "Semua pintasan",
   "emptySlot": "Kosong",
   "moveUp": "Naik",

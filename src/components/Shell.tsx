@@ -359,7 +359,7 @@ export function ExplainButton() {
   return (
     <button
       type="button"
-      className="flex h-11 w-11 items-center justify-center rounded-full border border-[var(--muted)] text-base font-semibold text-[var(--text)]"
+      className="flex h-11 min-h-11 w-11 min-w-11 items-center justify-center rounded-full border border-[var(--muted)] p-0 text-base font-semibold text-[var(--text)]"
       aria-label={t('ai.what')}
       onClick={() => {
         const root = document.getElementById('main') || document.getElementById('customer-root')

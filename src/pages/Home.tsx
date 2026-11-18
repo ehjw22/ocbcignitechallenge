@@ -69,12 +69,14 @@ export function Home() {
       <main id="main" className="nav-clearance min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[var(--bg)]">
         <GuideDone />
         <header className="flex min-h-14 items-center justify-between gap-2 border-b border-[var(--line)] bg-[var(--card)] py-1 pl-4 pr-3">
-          <Link to="/rewards" className="flex min-h-11 min-w-0 items-center gap-1.5 rounded-full border-[1.5px] border-[var(--accent)] px-3 text-[0.9rem]" aria-label={`${t('rewards.title')}: 1,280 OCBC$`}>
-            <Coins aria-hidden size={18} strokeWidth={1.5} className="shrink-0 text-[var(--accent-text)]" />
-            <span className="truncate">1,280 OCBC$</span>
-          </Link>
-          <span className="flex shrink-0 items-center">
+          <span className="flex min-w-0 items-center gap-2">
+            <Link to="/rewards" className="flex min-h-11 min-w-0 items-center gap-1.5 rounded-full border-[1.5px] border-[var(--accent)] px-3 text-[0.9rem]" aria-label={`${t('rewards.title')}: 1,280 OCBC$`}>
+              <Coins aria-hidden size={18} strokeWidth={1.5} className="shrink-0 text-[var(--accent-text)]" />
+              <span className="truncate">1,280 OCBC$</span>
+            </Link>
             <SpeakButton playing={speaking} listenLabel={t('speech.readAloud')} stopLabel={t('stop')} onClick={readHome} />
+          </span>
+          <span className="flex shrink-0 items-center gap-1">
             <Link to="/notifications" className="relative flex min-h-11 min-w-11 items-center justify-center" aria-label={t('notifications.title')}>
               <Bell aria-hidden size={22} strokeWidth={1.5} />
               <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-[var(--accent)]" />
@@ -111,7 +113,7 @@ export function Home() {
                   return false
                 }
                 return true
-              }).slice(0, 6).map((id) => (
+              }).slice(0, 3).map((id) => (
                 <Link key={id} to={SHORTCUT_ROUTES[id] ?? '/pay'} data-guide={id === 'paynow' ? 'home-paynow' : undefined} className="flex min-h-11 min-w-0 flex-col items-center justify-start gap-1 px-0.5 text-[var(--text)]">
                   <ShortcutMark id={id} />
                   <span className="w-full text-center text-[0.85rem] font-normal leading-tight">{t(`shortcuts.${id}`)}</span>
@@ -127,7 +129,7 @@ export function Home() {
         </section>
 
         <div className="mt-5 flex items-center gap-3 pl-4">
-          <button type="button" className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-[var(--soft)]" aria-pressed={hidden} aria-label={hidden ? t('show') : t('hide')} onClick={() => setHidden((value) => !value)}>
+          <button type="button" className="grid h-11 min-h-11 w-11 min-w-11 shrink-0 place-items-center rounded-full bg-[var(--soft)] p-0" aria-pressed={hidden} aria-label={hidden ? t('show') : t('hide')} onClick={() => setHidden((value) => !value)}>
             {hidden ? <EyeOff aria-hidden size={20} strokeWidth={1.5} /> : <Eye aria-hidden size={20} strokeWidth={1.5} />}
           </button>
           <span aria-hidden className="h-8 w-px shrink-0 bg-[var(--muted)]" />
