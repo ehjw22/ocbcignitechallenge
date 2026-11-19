@@ -106,7 +106,7 @@
   },
   "gate": {
     "headline": "Untuk sekarang dan nanti.",
-    "brand": "OCBC Singapore",
+    "brand": "OCBC Singapura",
     "login": "Masuk ke OCBC Singapore",
     "create": "Masuk",
     "scan": "Pindai",
@@ -176,7 +176,7 @@
     "shortcuts": "Pilih 6 pintasan",
     "readAloudBody": "Tombol pengeras suara muncul di sebelah teks. Nyalakan untuk membaca setiap layar secara otomatis.",
     "minutes": "3 menit. Bisa diubah kapan saja di Pengaturan.",
-    "voiceConfirmHint": "You can choose Face ID or PIN for the final check in Settings → Safety."
+    "voiceConfirmHint": "Anda bisa pilih Face ID atau PIN untuk cek terakhir di Pengaturan → Keamanan."
   },
   "detail": {
     "short": "Singkat",
@@ -287,10 +287,10 @@
     "voiceLimitRaise": "Naikkan batas kirim uang dengan suara?",
     "voiceLimitRaiseBody": "Naikkan batas kirim uang dengan suara ke {amount}? Bapak atau Ibu tetap periksa dan setujui setiap kiriman.",
     "voiceLimitConfirm": "Naikkan batas",
-    "voiceTransferConfirm": "Confirm voice transfers with",
-    "voiceTransferConfirmBody": "After you review a transfer in Ollie chat, confirm with simulated Face ID or a 6-digit PIN (demo only).",
-    "voiceConfirmFace": "Face ID (default)",
-    "voiceConfirmPin": "6-digit PIN"
+    "voiceTransferConfirm": "Setujui kirim uang suara dengan",
+    "voiceTransferConfirmBody": "Setelah Anda cek kirim uang di obrolan Ollie, setujui dengan tiruan Face ID atau PIN 6 angka (khusus demo).",
+    "voiceConfirmFace": "Face ID (utama)",
+    "voiceConfirmPin": "PIN 6 angka"
   },
   "errors": {
     "summary": "Periksa item di bawah.",
@@ -401,7 +401,20 @@
       "account": "Rekening",
       "login": "Masuk",
       "other": "Lainnya"
-    }
+    },
+    "needs": {
+      "scam": "Mungkin penipuan",
+      "largeText": "Teks besar",
+      "readAloud": "Baca dengan suara",
+      "cantonese": "Kanton",
+      "highContrast": "Kontras tinggi"
+    },
+    "transcript": {
+      "customer": "Nasabah",
+      "ollie": "Ollie",
+      "scamCheck": "Cek penipuan Ollie. {summary} Jawaban: {answers}."
+    },
+    "scamSummary": "Mungkin penipuan. {money} kepada {name}. {reasons}"
   },
   "ai": {
     "title": "Asisten",
@@ -584,20 +597,22 @@
     "spendLastMonth": "Pengeluaran terbesar Anda adalah untuk {category}, sebesar {amount} pada {month}.",
     "seeInsights": "Lihat laporan pengeluaran",
     "offline": "Ollie sedang offline, jadi jawaban yang diberikan terbatas.",
-    "chatVerifyFaceTitle": "Confirm with Face ID",
-    "chatVerifyFaceBody": "Simulated Face ID for this demo — not real biometrics.",
-    "chatVerifyScanning": "Scanning…",
-    "chatVerifyDemoNote": "Practice demo only. No real Face ID or PIN is checked.",
-    "chatUsePinInstead": "Use PIN instead",
-    "chatUseFaceInstead": "Use Face ID instead",
-    "chatVerified": "Verified",
-    "chatEnterPin": "Enter your 6-digit PIN",
-    "chatEnterPinBody": "Demo PIN only — never shared with Ollie.",
-    "chatPinDemoHint": "Demo PIN: 123456",
-    "chatPinWrong": "Wrong PIN. {left} attempt(s) left.",
-    "chatPinLocked": "Transfer cancelled — too many wrong PIN tries.",
-    "chatAuthCancelled": "Transfer cancelled. No money was sent.",
-    "chatPinBackspace": "Delete last digit"
+    "chatVerifyFaceTitle": "Setujui dengan Face ID",
+    "chatVerifyFaceBody": "Tiruan Face ID untuk demo ini — bukan data wajah asli.",
+    "chatVerifyScanning": "Memindai…",
+    "chatVerifyDemoNote": "Khusus latihan demo. Tidak ada Face ID atau PIN asli yang dicek.",
+    "chatUsePinInstead": "Gunakan PIN saja",
+    "chatUseFaceInstead": "Gunakan Face ID saja",
+    "chatVerified": "Disetujui",
+    "chatEnterPin": "Masukkan PIN 6 angka Anda",
+    "chatEnterPinBody": "PIN demo saja — tidak pernah dibagikan ke Ollie.",
+    "chatPinDemoHint": "PIN demo: 123456",
+    "chatPinWrong": "PIN salah. Sisa {left} kali coba.",
+    "chatPinLocked": "Kirim uang dibatalkan — salah masukkan PIN terlalu sering.",
+    "chatAuthCancelled": "Kirim uang dibatalkan. Tidak ada uang yang dikirim.",
+    "chatPinBackspace": "Hapus angka terakhir",
+    "samplePayee": "Tan Wei Ming",
+    "sampleCountry": "Australia"
   },
   "flows": {
     "paynow": "PayNow",
@@ -689,7 +704,8 @@
     "ibanHint": "Contoh: GB29 NWBK 6016 1331 9268 19",
     "uen": "UEN",
     "available": "Tersedia {amount}",
-    "readThisScreen": "Read this screen"
+    "readThisScreen": "Baca layar ini",
+    "currencyLabel": "SGD"
   },
   "shortcuts": {
     "transfer": "Kirim uang",
@@ -710,8 +726,8 @@
     "accounts": "Rekening",
     "help": "Bantuan",
     "insights": "Catatan pengeluaran",
-    "mostUsed": "Most used",
-    "resetRecommended": "Reset to recommended"
+    "mostUsed": "Paling sering dipakai",
+    "resetRecommended": "Kembalikan ke pilihan awal"
   },
   "accounts": {
     "title": "Rekening",
@@ -997,14 +1013,14 @@
     "practised": "✓ Sudah dicoba",
     "completed": "✓ Selesai",
     "aboutMin": "sekitar {min} min",
-    "recommended": "Recommended",
-    "recommendedForYou": "Recommended for you",
-    "pace": "Tour pace",
-    "paceSlow": "Slower",
+    "recommended": "Pilihan untuk Anda",
+    "recommendedForYou": "Pilihan untuk Anda",
+    "pace": "Kecepatan latihan",
+    "paceSlow": "Lebih pelan",
     "paceNormal": "Normal",
-    "confidenceTitle": "You've practised {flow} 🎉",
-    "confidenceBody": "{done} of {total} journeys practised",
-    "nextJourney": "Next journey"
+    "confidenceTitle": "Anda sudah latihan {flow} 🎉",
+    "confidenceBody": "{done} dari {total} latihan sudah dicoba",
+    "nextJourney": "Latihan berikutnya"
   },
   "rewards": {
     "title": "Hadiah",
@@ -1035,7 +1051,7 @@
     "none": "Tidak ada transaksi yang cocok.",
     "sample": "Tidak ada uang yang dipindahkan."
   },
-  "demoBadge": "Demo",
+  "demoBadge": "Contoh",
   "admin": {
     "title": "Dasbor desainer",
     "note": "Angka contoh dari perangkat ini.",
@@ -1185,10 +1201,10 @@
     "goalLine": "Tetap semangat dan wujudkan impian Anda",
     "insightKicker": "INFO KEUANGAN",
     "insightLine": "Buat rincian anggaran uang",
-    "goalLink": "View/manage goals",
-    "insightLink": "See my spending",
-    "practiceKicker": "PRACTICE MODE",
-    "practiceLink": "Try it safely",
+    "goalLink": "Lihat/atur target tabungan",
+    "insightLink": "Lihat uang saya dipakai untuk apa",
+    "practiceKicker": "CARA LATIHAN",
+    "practiceLink": "Coba dengan aman",
     "new": "Baru",
     "recentHint": "Hingga 50 (7 hari terakhir saja)",
     "logout": "Keluar",
@@ -1271,7 +1287,8 @@
     "slidePractice": "Geser untuk bayar (latihan)",
     "ollieSafety": "Ollie · Cek keamanan",
     "holdToPay": "Tekan dan tahan untuk membayar",
-    "holdingToPay": "Tetap tahan…"
+    "holdingToPay": "Tetap tahan…",
+    "hiddenBalance": "•••••••• SGD"
   },
   "risk": {
     "titleCheck": "Tetap waspada",
@@ -1294,19 +1311,21 @@
     }
   },
   "voice": {
-    "en": "English voice",
-    "ms": "Malay voice",
-    "ta": "Tamil voice",
-    "id": "Indonesian voice",
-    "vi": "Vietnamese voice",
-    "th": "Thai voice",
-    "tl": "Filipino voice",
-    "ko": "Korean voice",
-    "ja": "Japanese voice",
-    "hi": "Hindi voice",
-    "bn": "Bengali voice",
-    "mandarin": "Mandarin voice",
-    "cantonese": "Cantonese voice"
+    "en": "Suara Bahasa Inggris",
+    "ms": "Suara Bahasa Melayu",
+    "ta": "Suara Bahasa Tamil",
+    "id": "Suara Bahasa Indonesia",
+    "vi": "Suara Bahasa Vietnam",
+    "th": "Suara Bahasa Thailand",
+    "tl": "Suara Bahasa Filipina",
+    "ko": "Suara Bahasa Korea",
+    "ja": "Suara Bahasa Jepang",
+    "hi": "Suara Bahasa Hindi",
+    "bn": "Suara Bahasa Bengali",
+    "mandarin": "Suara Bahasa Mandarin",
+    "cantonese": "Suara Bahasa Kanton",
+    "zh": "Suara Bahasa China",
+    "zh-TW": "Traditional Chinese voice"
   },
   "insightsExclude": {
     "toggle": "Jangan masukkan ke laporan pengeluaran",
@@ -1322,14 +1341,13 @@
     "enterMode": "⤢ Presentasi",
     "exitMode": "Keluar presentasi",
     "exitLink": "Keluar",
-    "f11": "Tekan F11 untuk layar penuh",
     "tapsOn": "Sorotan sentuh aktif",
     "tapsOff": "Sorotan sentuh mati"
   },
   "languages": {
-    "morePreview": "Lebih banyak bahasa (pratinjau)",
-    "previewPill": "Pratinjau",
-    "previewNote": "Terjemahan mesin. Mungkin ada kata yang kurang pas."
+    "moreLanguages": "More languages",
+    "machineNote": "Machine translated, may not be fully accurate.",
+    "switchNotice": "This language is machine translated. Some wording may be imperfect."
   },
   "judge": {
     "title": "Naskah demo",
@@ -1348,21 +1366,21 @@
     "more": "மேலும்"
   },
   "customise": {
-    "livePreview": "Live Home preview",
-    "presetEasy": "Bigger & simpler",
-    "presetStandard": "Standard",
-    "presetLowVision": "Low vision",
-    "presetDyslexia": "Dyslexia-friendly",
-    "presetApplied": "Preset applied",
-    "undo": "Undo"
+    "livePreview": "Lihat tampilan Beranda",
+    "presetEasy": "Lebih besar & mudah",
+    "presetStandard": "Biasa",
+    "presetLowVision": "Teks lebih jelas",
+    "presetDyslexia": "Mudah dibaca",
+    "presetApplied": "Pilihan sudah dipasang",
+    "undo": "Batal"
   },
   "nudge": {
-    "showHow": "Want me to show you how?",
-    "biggerText": "Make the text bigger?",
-    "easierTap": "Turn on easier tapping?",
-    "tourSuggest": "Try a short guided tour?",
-    "yes": "Yes, please",
-    "dismiss": "Not now"
+    "showHow": "Mau saya tunjukkan caranya?",
+    "biggerText": "Mau perbesar hurufnya?",
+    "easierTap": "Tombol jadi lebih mudah ditekan?",
+    "tourSuggest": "Mau coba lihat-lihat sebentar?",
+    "yes": "Ya, boleh",
+    "dismiss": "Jangan sekarang"
   },
   "_meta": {
     "machine": true,

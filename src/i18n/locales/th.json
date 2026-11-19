@@ -401,7 +401,20 @@
       "account": "บัญชี",
       "login": "1เข้าสู่ระบบ",
       "other": "เรื่องอื่นๆ"
-    }
+    },
+    "needs": {
+      "scam": "Possible scam",
+      "largeText": "Large text",
+      "readAloud": "Read aloud",
+      "cantonese": "Cantonese",
+      "highContrast": "High contrast"
+    },
+    "transcript": {
+      "customer": "Customer",
+      "ollie": "Ollie",
+      "scamCheck": "Ollie scam check. {summary} Answers: {answers}."
+    },
+    "scamSummary": "Possible scam. {money} to {name}. {reasons}"
   },
   "ai": {
     "title": "ผู้ช่วย",
@@ -597,7 +610,9 @@
     "chatPinWrong": "Wrong PIN. {left} attempt(s) left.",
     "chatPinLocked": "Transfer cancelled — too many wrong PIN tries.",
     "chatAuthCancelled": "Transfer cancelled. No money was sent.",
-    "chatPinBackspace": "Delete last digit"
+    "chatPinBackspace": "Delete last digit",
+    "samplePayee": "Tan Wei Ming",
+    "sampleCountry": "Australia"
   },
   "flows": {
     "paynow": "PayNow",
@@ -689,7 +704,8 @@
     "ibanHint": "ตัวอย่าง: GB29 NWBK 6016 1331 9268 19",
     "uen": "UEN",
     "available": "มีเงินใช้ได้ {amount}",
-    "readThisScreen": "Read this screen"
+    "readThisScreen": "Read this screen",
+    "currencyLabel": "SGD"
   },
   "shortcuts": {
     "transfer": "โอนเงิน",
@@ -1271,7 +1287,8 @@
     "slidePractice": "เลื่อนเพื่อจ่ายเงิน (ลองทำดู)",
     "ollieSafety": "Ollie · ตรวจสอบความปลอดภัย",
     "holdToPay": "กดค้างเพื่อชำระเงิน",
-    "holdingToPay": "กดค้างต่อไป…"
+    "holdingToPay": "กดค้างต่อไป…",
+    "hiddenBalance": "•••••••• SGD"
   },
   "risk": {
     "titleCheck": "ระวังตัวด้วยนะ",
@@ -1306,7 +1323,9 @@
     "hi": "เสียงภาษาฮินดี",
     "bn": "เสียงภาษาเบงกาลี",
     "mandarin": "เสียงภาษาจีนกลาง",
-    "cantonese": "เสียงภาษาจีนกวางตุ้ง"
+    "cantonese": "เสียงภาษาจีนกวางตุ้ง",
+    "zh": "Chinese voice",
+    "zh-TW": "Traditional Chinese voice"
   },
   "insightsExclude": {
     "toggle": "ไม่เอาไปรวมในสรุปยอดใช้จ่าย",
@@ -1322,14 +1341,13 @@
     "enterMode": "⤢ นำเสนอ",
     "exitMode": "ออกจากโหมดนำเสนอ",
     "exitLink": "ออก",
-    "f11": "กด F11 เพื่อขยายเต็มจอ",
     "tapsOn": "เปิดแสดงรอยแตะ",
     "tapsOff": "ปิดแสดงรอยแตะ"
   },
   "languages": {
-    "morePreview": "ภาษาอื่นๆ (ทดลองใช้)",
-    "previewPill": "ทดลองใช้",
-    "previewNote": "แปลด้วยระบบอัตโนมัติ คำบางคำอาจยังไม่สมบูรณ์"
+    "moreLanguages": "More languages",
+    "machineNote": "Machine translated, may not be fully accurate.",
+    "switchNotice": "This language is machine translated. Some wording may be imperfect."
   },
   "judge": {
     "title": "บทพูดตัวอย่าง",

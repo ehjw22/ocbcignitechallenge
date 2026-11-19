@@ -20,8 +20,6 @@ import { speak, stopSpeaking } from '@/lib/speech'
 import { readableText } from '@/lib/tourPlace'
 import { SpeakButton } from './SpeakButton'
 import {
-  f11HintShown,
-  markF11HintShown,
   readTapsVisualizer,
   subscribePresent,
   toggleTapsVisualizer,
@@ -112,12 +110,33 @@ function JudgeScript() {
   )
 }
 
+function presentChromeAnchor(scale: number) {
+  if (typeof window === 'undefined') return { bottom: 24, right: 16 }
+  const phoneW = 390 * scale
+  const phoneH = 844 * scale
+  const phoneRight = window.innerWidth / 2 + phoneW / 2
+  const phoneTop = (window.innerHeight - phoneH) / 2
+  const gap = 16
+  const stackW = 148
+  if (phoneRight + gap + stackW <= window.innerWidth - 8) {
+    return {
+      left: phoneRight + gap,
+      bottom: Math.max(16, window.innerHeight - phoneTop - phoneH + 16),
+    }
+  }
+  if (phoneTop > 120) {
+    return { right: 16, top: Math.max(16, phoneTop - 8) }
+  }
+  return { right: 16, bottom: Math.max(16, (window.innerHeight - phoneH) / 2) }
+}
+
 function PresentChrome({ full }: { full: boolean }) {
   const { prefs } = useApp()
   const { present, toggle, exit } = usePresentMode()
-  const [toast, setToast] = useState('')
+  const { scale } = usePhoneScale()
   const tapsOn = useSyncExternalStore(subscribePresent, readTapsVisualizer, () => false)
   const t = (key: string) => translate(prefs.language, key)
+  const anchor = presentChromeAnchor(scale)
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -134,33 +153,33 @@ function PresentChrome({ full }: { full: boolean }) {
     return () => window.removeEventListener('keydown', onKey)
   }, [present, toggle, exit])
 
-  useEffect(() => {
-    if (!present || f11HintShown()) return
-    setToast(t('present.f11'))
-    markF11HintShown()
-    const timer = window.setTimeout(() => setToast(''), 3000)
-    return () => window.clearTimeout(timer)
-  }, [present, t])
-
   if (full) return null
+  const chromeBtn =
+    'present-chrome flex min-h-12 min-w-[11rem] items-center justify-center rounded-xl border border-zinc-600 bg-[#1a1f24] px-4 text-sm font-semibold text-white shadow-lg transition hover:bg-[#252b32]'
   return (
-  <>
-    {toast && <div className="present-chrome fixed left-1/2 top-6 z-[120] -translate-x-1/2 rounded-full bg-[#1a1f24] px-4 py-2 text-sm text-white shadow-lg" role="status">{toast}</div>}
-    <button type="button" className="present-chrome fixed bottom-6 right-6 z-[120] min-h-11 rounded-full border border-zinc-600 bg-[#1a1f24] px-4 text-sm font-semibold text-white shadow-lg max-[480px]:hidden" onClick={toggle}>
-      {present ? t('present.exitMode') : t('present.enterMode')}
-    </button>
-    {present && (
-      <button type="button" className="present-chrome fixed bottom-6 right-28 z-[120] text-sm text-white opacity-30 transition hover:opacity-100 max-[480px]:hidden" onClick={exit}>
-        {t('present.exitLink')}
-      </button>
-    )}
-    {present && (
-      <button type="button" className="present-chrome fixed bottom-14 right-6 z-[120] text-xs text-white/70 max-[480px]:hidden" onClick={() => toggleTapsVisualizer()}>
-        {tapsOn ? t('present.tapsOff') : t('present.tapsOn')}
-      </button>
-    )}
-    <JudgeScript />
-  </>
+    <>
+      <div
+        className="present-chrome fixed z-[120] flex max-[480px]:hidden flex-col gap-2"
+        style={anchor}
+        role="toolbar"
+        aria-label={t('present.enterMode')}
+      >
+        <button type="button" className={chromeBtn} onClick={toggle}>
+          {present ? t('present.exitMode') : t('present.enterMode')}
+        </button>
+        {present && (
+          <button type="button" className={chromeBtn} onClick={() => toggleTapsVisualizer()}>
+            {tapsOn ? t('present.tapsOff') : t('present.tapsOn')}
+          </button>
+        )}
+        {present && (
+          <button type="button" className={`${chromeBtn} text-white/90`} onClick={exit}>
+            {t('present.exitLink')}
+          </button>
+        )}
+      </div>
+      <JudgeScript />
+    </>
   )
 }
 

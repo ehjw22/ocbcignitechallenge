@@ -54,7 +54,7 @@ export function TxnSheet({
         </div>
         <p>{account ? t(account.nameKey) : ''} {account ? `•••• ${account.number.slice(-4)}` : ''}</p>
         <p>{new Intl.DateTimeFormat(localeFor(language), { day: 'numeric', month: language.startsWith('zh') ? 'long' : 'short', year: 'numeric', ...(localeFor(language) === 'th-TH' ? { calendar: 'gregory' as const } : {}) }).format(new Date(`${txn.date}T00:00:00`))}</p>
-        <p className="mt-1 text-[1.75rem] font-bold">{formatSignedMoney(txn.amount)}</p>
+        <p className="mt-1 text-[1.75rem] font-bold">{formatSignedMoney(txn.amount, language)}</p>
         <p className="mt-3 text-[0.85rem] text-[var(--muted)]">{t('look.description')}</p>
         <p className="border-l-4 border-[var(--accent)] pl-3">{payeeName(txn.title)}</p>
         {txn.amount < 0 && (

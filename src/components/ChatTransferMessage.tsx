@@ -25,6 +25,7 @@ type Props = {
 
 export function ChatTransferMessage({ message, scamAnswers, cancelled, onScamAnswer, onCancel, onUpdateCard, onDone, onOpenSettings, practice }: Props) {
   const app = useApp()
+  const lang = app.prefs.language
   const navigate = useNavigate()
   const vt = message.voiceTransfer
   const t = (key: string, vars?: Record<string, string | number>) => translate(app.prefs.language, key, vars)
@@ -56,7 +57,7 @@ export function ChatTransferMessage({ message, scamAnswers, cancelled, onScamAns
   const fromAccount = app.accounts.find((account) => account.id === (vt.review?.fromAccountId || vt.fields?.from))
   const fromLabel = fromAccount ? t(fromAccount.nameKey) : vt.review?.fromAccountId || ''
   const reviewText = vt.review
-    ? `${t('ai.chatReviewPayee')}: ${vt.review.payeeName}. ${vt.review.payeeMasked}. ${t('ai.chatReviewAmount')}: ${formatSGD(vt.review.amount)}. ${t('ai.chatReviewFrom')}: ${fromLabel}. ${t('flows.now')}.`
+    ? `${t('ai.chatReviewPayee')}: ${vt.review.payeeName}. ${vt.review.payeeMasked}. ${t('ai.chatReviewAmount')}: ${formatSGD(vt.review.amount, lang)}. ${t('ai.chatReviewFrom')}: ${fromLabel}. ${t('flows.now')}.`
     : ''
 
   const runSend = () => {
@@ -84,8 +85,8 @@ export function ChatTransferMessage({ message, scamAnswers, cancelled, onScamAns
       })
     }
     const when = receiptWhenLabel(app.prefs.language)
-    const paidLabel = practice ? t('ai.chatPracticePaid', { amount: formatMoney(result.amount), name: result.payeeName }) : t('look.paid', { amount: formatMoney(result.amount) })
-    const doneLine = t('ai.chatDone', { amount: formatSGD(result.amount), name: result.payeeName, balance: formatMoney(practice ? (app.balances[result.fromAccountId] ?? 0) : result.newBalance) })
+    const paidLabel = practice ? t('ai.chatPracticePaid', { amount: formatMoney(result.amount, lang), name: result.payeeName }) : t('look.paid', { amount: formatMoney(result.amount, lang) })
+    const doneLine = t('ai.chatDone', { amount: formatSGD(result.amount, lang), name: result.payeeName, balance: formatMoney(practice ? (app.balances[result.fromAccountId] ?? 0) : result.newBalance, lang) })
     const card: VoiceTransferCard = {
       ...vt,
       kind: 'receipt',
@@ -142,7 +143,7 @@ export function ChatTransferMessage({ message, scamAnswers, cancelled, onScamAns
           <dl className="space-y-2 text-sm">
             <div className="flex justify-between gap-2"><dt className="text-[var(--muted)]">{t('success.payee')}</dt><dd className="font-semibold">{vt.review.payeeName}</dd></div>
             <div className="flex justify-between gap-2"><dt className="text-[var(--muted)]">{t('flows.paynowTo')}</dt><dd className="font-semibold">{vt.review.payeeMasked}</dd></div>
-            <div className="flex justify-between gap-2"><dt className="text-[var(--muted)]">{t('amount')}</dt><dd className="money font-bold">{formatSGD(vt.review.amount)}</dd></div>
+            <div className="flex justify-between gap-2"><dt className="text-[var(--muted)]">{t('amount')}</dt><dd className="money font-bold">{formatSGD(vt.review.amount, lang)}</dd></div>
             <div className="flex justify-between gap-2"><dt className="text-[var(--muted)]">{t('flows.from')}</dt><dd className="font-semibold">{fromLabel}</dd></div>
             <div className="flex justify-between gap-2"><dt className="text-[var(--muted)]">{t('flows.when')}</dt><dd className="font-semibold">{t('flows.now')}</dd></div>
           </dl>
@@ -184,8 +185,8 @@ export function ChatTransferMessage({ message, scamAnswers, cancelled, onScamAns
 
   if (vt.kind === 'receipt') {
     const paidLabel = practice
-      ? t('ai.chatPracticePaid', { amount: formatMoney(vt.amount), name: vt.payeeName })
-      : receiptPaidText(vt.amount, vt.payeeName)
+      ? t('ai.chatPracticePaid', { amount: formatMoney(vt.amount, lang), name: vt.payeeName })
+      : receiptPaidText(vt.amount, vt.payeeName, lang)
     return (
       <div className="mt-3 space-y-2">
         {vt.receiptImage ? (
@@ -243,9 +244,9 @@ export function ChatTransferMessage({ message, scamAnswers, cancelled, onScamAns
       <div className="mt-3 space-y-2 rounded-xl border border-[var(--danger)] p-3">
         <p className="font-semibold text-[var(--danger)]">
           {vt.errorReason === 'insufficient'
-            ? t('ai.chatInsufficient', { available: formatMoney(vt.available ?? 0) })
+            ? t('ai.chatInsufficient', { available: formatMoney(vt.available ?? 0, lang) })
             : vt.errorReason === 'over_hard_cap'
-              ? t('ai.chatOverCap', { max: formatMoney(1000) })
+              ? t('ai.chatOverCap', { max: formatMoney(1000, lang) })
               : t('ai.voiceBadAmount')}
         </p>
         <button type="button" className="min-h-11 w-full rounded-xl bg-[var(--accent)] px-3 font-semibold text-[var(--on-accent)]" onClick={() => navigate('/flow/paynow')}>{t('ai.voiceOpenTransfer')}</button>

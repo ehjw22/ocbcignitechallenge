@@ -13,7 +13,8 @@ import { practisedJourneyCount } from '@/lib/tourTracking'
 export function AccountDetail() {
   const { accountId = '' } = useParams()
   const app = useApp()
-  const t = (key: string) => translate(app.prefs.language, key)
+  const lang = app.prefs.language
+  const t = (key: string) => translate(lang, key)
   const account = app.accounts.find((item) => item.id === accountId)
   const txns = useMemo(() => app.txns.filter((txn) => txn.accountId === accountId), [app.txns, accountId])
   const months = useMemo(() => {
@@ -38,9 +39,9 @@ export function AccountDetail() {
           <Link to="/info/money-lock" className="flex flex-col items-center gap-1"><LockKeyhole size={22} strokeWidth={1.5} />{t('look.moneyLock')}</Link>
         </div>
         <p className="mt-4 text-[13px] text-[var(--muted)]">{t('look.total')}</p>
-        <p className="text-[18px] font-bold">{formatMoney(balance)}</p>
+        <p className="text-[18px] font-bold">{formatMoney(balance, lang)}</p>
         <p className="mt-2 text-[13px] text-[var(--muted)]">{t('look.available')}</p>
-        <p className="text-[18px] font-bold">{formatMoney(balance)}</p>
+        <p className="text-[18px] font-bold">{formatMoney(balance, lang)}</p>
       </div>
       <div className="px-4">
         <div className="mb-3 flex items-center justify-between">
@@ -80,7 +81,8 @@ export function AccountDetail() {
 export function TxnDetail() {
   const { txnId = '' } = useParams()
   const app = useApp()
-  const t = (key: string) => translate(app.prefs.language, key)
+  const lang = app.prefs.language
+  const t = (key: string) => translate(lang, key)
   const txn = app.txns.find((item) => item.id === txnId)
   const setScreen = app.setScreen
   useEffect(() => { setScreen('transaction') }, [setScreen])
@@ -92,7 +94,7 @@ export function TxnDetail() {
         <h2 className="text-xl font-semibold leading-normal">{t('look.fastPayment')}</h2>
         <p>{account ? t(account.nameKey) : ''} · {account?.number.slice(-4)}</p>
         <p>{formatDay(txn.date, app.prefs.language)} {txn.date.slice(0, 4)}</p>
-        <p className="text-2xl font-bold tabular-nums">{formatSignedMoney(txn.amount)}</p>
+        <p className="text-2xl font-bold tabular-nums">{formatSignedMoney(txn.amount, lang)}</p>
         <p className="border-l-4 border-[#E30613] pl-3">{payeeName(txn.title)}</p>
         <Link to="/help?staff=1" className="block min-h-11 font-semibold text-[var(--link)] underline">{t('look.report')}</Link>
         <p><span className="text-[var(--muted)]">{t('flows.from')}</span> {account ? t(account.nameKey) : txn.accountId}</p>

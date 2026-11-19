@@ -43,6 +43,7 @@ export function FlowPage() {
   const practice = params.get('practice') === '1'
   const touring = params.get('tour') === '1'
   const demo = params.get('demo')
+  const lang = app.prefs.language
   const t = (key: string, vars?: Record<string, string | number>) => translate(app.prefs.language, key, vars)
   const [form, setForm] = useState<Record<string, string>>({})
   const [issues, setIssues] = useState<Issue[]>([])
@@ -347,8 +348,8 @@ export function FlowPage() {
     const field = flow.fields.find((item) => item.id === issue.field)
     const params: Record<string, string | number> = { ...(issue.params || {}) }
     if (field && params.field) params.field = t(field.label)
-    if (issue.code === 'insufficient') params.available = formatMoney(Number(issue.params?.available ?? balance))
-    if (issue.code === 'daily_limit') params.limit = formatMoney(Number(issue.params?.limit ?? app.limit))
+    if (issue.code === 'insufficient') params.available = formatMoney(Number(issue.params?.available ?? balance), lang)
+    if (issue.code === 'daily_limit') params.limit = formatMoney(Number(issue.params?.limit ?? app.limit), lang)
     return t(`errors.${issue.code}`, params)
   }
 
@@ -466,7 +467,7 @@ export function FlowPage() {
       practice
         ? t('practice.done')
         : flow.kind === 'payment' && payAmount > 0
-          ? t('success.paidAnnounce', { amount: formatMoney(payAmount), name: displayPayee || title })
+          ? t('success.paidAnnounce', { amount: formatMoney(payAmount, lang), name: displayPayee || title })
           : t('success.demo'),
     )
   }
@@ -488,7 +489,7 @@ export function FlowPage() {
           </div>
         )}
         {flow.id === 'limit' && (
-          <p data-guide="limit-current" className="card p-3 font-semibold">{t('flows.currentLimit', { amount: formatMoney(app.limit) })}</p>
+          <p data-guide="limit-current" className="card p-3 font-semibold">{t('flows.currentLimit', { amount: formatMoney(app.limit, lang) })}</p>
         )}
         {flow.id === 'scan' && stage === 'form' && (
           <div data-guide="scan-frame" className="card flex flex-col items-center gap-3 p-4">
@@ -546,7 +547,7 @@ export function FlowPage() {
                 <p className="font-semibold">{t('fx.sample')}</p>
                 <p>{t('fx.currency')}: {t(fx.currencyKey)}</p>
                 <p>{t('fx.rate', { currency: t(fx.currencyKey), rate: fx.perSgd.toFixed(2) })}</p>
-                <p>{t('fx.fee', { fee: formatMoney(fx.fee) })}</p>
+                <p>{t('fx.fee', { fee: formatMoney(fx.fee, lang) })}</p>
                 <p>{t('fx.received', { amount: `${t(fx.currencyKey)} ${received.toFixed(2)}` })}</p>
                 <p className="text-[var(--muted)]">{t('fx.accountHint', { hint: t(`fx.hint.${fx.account}`) })}</p>
               </section>
@@ -604,14 +605,14 @@ export function FlowPage() {
                 {flow.fields.filter((field) => field.id !== 'laterDate' && field.id !== 'lock').map((field) => (
                   <p key={field.id} className="flex justify-between gap-3 text-sm">
                     <span className="text-[var(--muted)]">{shortLabel(field, t)}</span>
-                    <span className="text-right font-semibold">{display(field, form[field.id] || '', t)}</span>
+                    <span className="text-right font-semibold">{display(field, form[field.id] || '', t, lang)}</span>
                   </p>
                 ))}
                 {lookedUp && <p className="font-semibold">{lookedUp}</p>}
                 {fx && (
                   <>
                     <p className="flex justify-between gap-3 text-sm"><span className="text-[var(--muted)]">{t('success.rate')}</span><span className="money text-right font-semibold">{t('fx.rate', { currency: t(fx.currencyKey), rate: fx.perSgd.toFixed(2) })}</span></p>
-                    <p className="flex justify-between gap-3 text-sm"><span className="text-[var(--muted)]">{t('success.fee')}</span><span className="money text-right font-semibold">{formatMoney(fx.fee)}</span></p>
+                    <p className="flex justify-between gap-3 text-sm"><span className="text-[var(--muted)]">{t('success.fee')}</span><span className="money text-right font-semibold">{formatMoney(fx.fee, lang)}</span></p>
                     <p className="flex justify-between gap-3 text-sm"><span className="text-[var(--muted)]">{t('success.received')}</span><span className="money text-right font-semibold">{t(fx.currencyKey)} {received.toFixed(2)}</span></p>
                     <p className="text-sm text-[var(--muted)]">{t('ai.sampleRate')}</p>
                   </>
@@ -685,7 +686,7 @@ export function FlowPage() {
                     highlight={highlights.includes(field.id)}
                     error={fieldErrorText(field.id)}
                     onBlur={() => touchField(field.id)}
-                    balanceHint={field.id === 'from' ? t('flows.available', { amount: formatMoney(balance) }) : ''}
+                    balanceHint={field.id === 'from' ? t('flows.available', { amount: formatMoney(balance, lang) }) : ''}
                     onChange={(value) => {
                       if (field.id === 'country' && flow.id === 'overseas') {
                         const sample = overseasSample(value)
@@ -735,9 +736,9 @@ export function FlowPage() {
                 <p className="text-[13px] text-[var(--muted)]">+65 {String(form.to || '').replace(/\D/g, '').slice(0, 4)} ••••</p>
                 <div data-guide="pay-amount" className="flex items-baseline gap-2">
                   <input data-guide="paynow-amount" className="w-full bg-transparent text-[32px] font-bold outline-none placeholder:text-[#A0A6AD]" inputMode="decimal" aria-label={t('amount')} placeholder="0.00" value={form.amount ? formatDraftAmount(form.amount) : ''} onChange={(event) => changeField('amount', sanitiseAmountDraft(event.target.value))} onBlur={() => { const norm = normaliseAmount(form.amount); if (norm) changeField('amount', Number(norm).toFixed(2)) }} />
-                  <span className="shrink-0 whitespace-nowrap text-[20px] font-bold text-[var(--muted)]">SGD</span>
+                  <span className="shrink-0 whitespace-nowrap text-[20px] font-bold text-[var(--muted)]">{t('flows.currencyLabel')}</span>
                 </div>
-                <Link to="/flow/limit" className="block font-semibold text-[var(--link)] underline">{t('look.limitLeft', { amount: formatMoney(app.limit) })}</Link>
+                <Link to="/flow/limit" className="block font-semibold text-[var(--link)] underline">{t('look.limitLeft', { amount: formatMoney(app.limit, lang) })}</Link>
                 <div data-guide="pay-message">
                   <input data-guide="paynow-reference" className="min-h-11 w-full rounded-full bg-[var(--soft)] px-4" maxLength={35} placeholder={t('look.addMessage')} aria-label={t('look.addMessage')} value={form.reference || ''} onChange={(event) => changeField('reference', event.target.value)} />
                 </div>
@@ -745,9 +746,9 @@ export function FlowPage() {
                   <span className="block text-[13px] text-[var(--muted)]">{t('flows.from')}</span>
                   <span className="block font-bold">{t(app.accounts.find((account) => account.id === form.from)?.nameKey || 'accounts.a360')}</span>
                 </button>
-                <button type="button" className="min-h-11 text-[14px] underline" onClick={() => setShowBal((value) => !value)}>{showBal ? `${t('look.available')} ${formatMoney(balance)}` : t('look.showBalance')}</button>
-                {Number(form.amount) > app.limit && <p id="pay-alert" role="alert" className="rounded-lg border border-[#E30613] border-l-4 bg-[#FDECEC] p-3 text-[15px] font-bold text-[#1A1A1A]">{t('look.overLimit', { amount: formatMoney(app.limit) })} <Link to="/flow/limit" className="underline">{t('look.changeLimit')}</Link></p>}
-                {Number(form.amount) > balance && Number(form.amount) <= app.limit && <p id="pay-alert" role="alert" className="rounded-lg border border-[#E30613] border-l-4 bg-[#FDECEC] p-3 text-[15px] font-bold text-[#1A1A1A]">{t('look.overBalance', { amount: formatMoney(balance) })}</p>}
+                <button type="button" className="min-h-11 text-[14px] underline" onClick={() => setShowBal((value) => !value)}>{showBal ? `${t('look.available')} ${formatMoney(balance, lang)}` : t('look.showBalance')}</button>
+                {Number(form.amount) > app.limit && <p id="pay-alert" role="alert" className="rounded-lg border border-[#E30613] border-l-4 bg-[#FDECEC] p-3 text-[15px] font-bold text-[#1A1A1A]">{t('look.overLimit', { amount: formatMoney(app.limit, lang) })} <Link to="/flow/limit" className="underline">{t('look.changeLimit')}</Link></p>}
+                {Number(form.amount) > balance && Number(form.amount) <= app.limit && <p id="pay-alert" role="alert" className="rounded-lg border border-[#E30613] border-l-4 bg-[#FDECEC] p-3 text-[15px] font-bold text-[#1A1A1A]">{t('look.overBalance', { amount: formatMoney(balance, lang) })}</p>}
                 {Number(form.amount) <= 0 && <p id="pay-alert" className="text-[14px] text-[var(--muted)]">{t('look.enterAmount')}</p>}
               </section>
             )}
@@ -801,13 +802,13 @@ export function FlowPage() {
             }).map((field) => (
               <p key={field.id} className={app.prefs.textSize >= 20 ? 'flex min-w-0 flex-col gap-1' : 'flex min-w-0 justify-between gap-3'}>
                 <span className="text-[var(--muted)]">{field.id === 'account' && fx?.account === 'iban' ? t('flows.iban') : shortLabel(field, t)}</span>
-                <span className="money min-w-0 whitespace-nowrap font-semibold">{field.id === 'to' ? maskProxy(form[field.id] || '', form.proxy) : display(field, form[field.id] || '', t)}</span>
+                <span className="money min-w-0 whitespace-nowrap font-semibold">{field.id === 'to' ? maskProxy(form[field.id] || '', form.proxy) : display(field, form[field.id] || '', t, lang)}</span>
               </p>
             ))}
             {fx && (
               <>
                 <p className={app.prefs.textSize >= 20 ? 'flex flex-col gap-1' : 'flex justify-between gap-3'}><span className="text-[var(--muted)]">{t('success.rate')}</span><span className="money font-semibold">{t('fx.rate', { currency: t(fx.currencyKey), rate: fx.perSgd.toFixed(2) })}</span></p>
-                <p className={app.prefs.textSize >= 20 ? 'flex flex-col gap-1' : 'flex justify-between gap-3'}><span className="text-[var(--muted)]">{t('success.fee')}</span><span className="money font-semibold">{formatMoney(fx.fee)}</span></p>
+                <p className={app.prefs.textSize >= 20 ? 'flex flex-col gap-1' : 'flex justify-between gap-3'}><span className="text-[var(--muted)]">{t('success.fee')}</span><span className="money font-semibold">{formatMoney(fx.fee, lang)}</span></p>
                 <p className={app.prefs.textSize >= 20 ? 'flex flex-col gap-1' : 'flex justify-between gap-3'}><span className="text-[var(--muted)]">{t('success.received')}</span><span className="money font-semibold">{t(fx.currencyKey)} {received.toFixed(2)}</span></p>
               </>
             )}
@@ -816,7 +817,7 @@ export function FlowPage() {
               <div data-guide={reviewGuide(flow.id)} className="space-y-2">
                 {/* Shown (inert) only while the guide runs, so its "slide to pay" step has something to point at. */}
                 {flow.kind === 'payment' && guideOn && (
-                  <PayControl easier={app.prefs.easierTapping} disabled label={t('look.slide')} holdLabel={t('look.holdToPay')} holdingLabel={t('look.holdingToPay')} ariaLabel={`${app.prefs.easierTapping ? t('look.holdToPay') : t('look.slide')} ${formatMoney(Number(form.amount) || 0)}`} guide={reviewGuide(flow.id)} onPay={() => {}} />
+                  <PayControl easier={app.prefs.easierTapping} disabled label={t('look.slide')} holdLabel={t('look.holdToPay')} holdingLabel={t('look.holdingToPay')} ariaLabel={`${app.prefs.easierTapping ? t('look.holdToPay') : t('look.slide')} ${formatMoney(Number(form.amount) || 0, lang)}`} guide={reviewGuide(flow.id)} onPay={() => {}} />
                 )}
                 <button type="button" className="ocbc-btn" onClick={() => { stopGuide(); navigate(`/flow/${flow.id}?practice=1`) }}>{t('flows.practiseThis')}</button>
                 <button type="button" className="tap w-full rounded-xl border border-[var(--line)] bg-[var(--card)]" onClick={() => { stopGuide(); navigate(`/flow/${flow.id}`, { replace: true }) }}>{t('doForReal')}</button>
@@ -825,7 +826,7 @@ export function FlowPage() {
               <>
                 {flow.kind === 'payment' ? (
                   <>
-                    <PayControl easier={app.prefs.easierTapping} disabled={false} label={practice ? t('look.slidePractice') : t('look.slide')} holdLabel={t('look.holdToPay')} holdingLabel={t('look.holdingToPay')} ariaLabel={`${app.prefs.easierTapping ? t('look.holdToPay') : t('look.slide')} ${formatMoney(Number(form.amount) || 0)}`} guide={reviewGuide(flow.id)} onPay={() => { setOtp(''); setOtpError(''); setStage('otp') }} />
+                    <PayControl easier={app.prefs.easierTapping} disabled={false} label={practice ? t('look.slidePractice') : t('look.slide')} holdLabel={t('look.holdToPay')} holdingLabel={t('look.holdingToPay')} ariaLabel={`${app.prefs.easierTapping ? t('look.holdToPay') : t('look.slide')} ${formatMoney(Number(form.amount) || 0, lang)}`} guide={reviewGuide(flow.id)} onPay={() => { setOtp(''); setOtpError(''); setStage('otp') }} />
                     <button type="button" className="min-h-11 w-full text-[15px] font-semibold text-[var(--link)] underline" onClick={() => setConfirmPay(true)}>{t('look.tapToPay')}</button>
                   </>
                 ) : (
@@ -837,11 +838,11 @@ export function FlowPage() {
               type="button"
               className="flex min-h-14 w-full items-center justify-center gap-2 rounded-xl border border-[var(--line)] bg-[var(--card)] font-semibold"
               onClick={() => {
-                const fromLabel = flow.fields.find((f) => f.id === 'from') ? display(flow.fields.find((f) => f.id === 'from')!, form.from || '', t) : ''
+                const fromLabel = flow.fields.find((f) => f.id === 'from') ? display(flow.fields.find((f) => f.id === 'from')!, form.from || '', t, lang) : ''
                 const lines = [
                   t('review'),
                   `${t('success.payee')}: ${displayPayee || payeeLabel || form.name || form.to || ''}`,
-                  `${t('amount')}: ${formatMoney(sendAmount)}`,
+                  `${t('amount')}: ${formatMoney(sendAmount, lang)}`,
                   fromLabel ? `${t('from')}: ${fromLabel}` : '',
                 ].filter(Boolean).join('. ')
                 void speak(lines, { language: app.prefs.language, rate: app.prefs.speechRate, dialect: app.prefs.dialect })
@@ -853,7 +854,7 @@ export function FlowPage() {
             {confirmPay && (
               <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 p-4" role="dialog" aria-modal="true">
                 <div className="w-full max-w-sm rounded-2xl bg-[var(--card)] p-4">
-                  <p className="text-lg font-bold">{t('look.payAsk', { amount: formatMoney(Number(form.amount) || 0), name: maskPayee(payeeLabel || form.name || form.to || '') })}</p>
+                  <p className="text-lg font-bold">{t('look.payAsk', { amount: formatMoney(Number(form.amount) || 0, lang), name: maskPayee(payeeLabel || form.name || form.to || '') })}</p>
                   <button type="button" className="ocbc-btn mt-3" onClick={() => { setConfirmPay(false); setOtp(''); setOtpError(''); setStage('otp') }}>{t('look.pay')}</button>
                   <button type="button" className="mt-2 min-h-11 w-full font-semibold underline" onClick={() => setConfirmPay(false)}>{t('cancel')}</button>
                 </div>
@@ -906,18 +907,18 @@ export function FlowPage() {
           <section className="card space-y-3 p-4" role="status">
             <div className="flex items-center gap-2">
               <h2 className="min-w-0 text-lg font-semibold leading-snug text-[var(--success)]">
-                <span aria-hidden>✓</span> {practice ? t('practice.doneTitle') : flow.id === 'goal' ? t('success.goalAdded', { amount: formatMoney(Number(form.monthly) || Number(form.target) || 0), name: form.name || 'Holiday' }) : t('look.paid', { amount: formatMoney(sendAmount) })}
+                <span aria-hidden>✓</span> {practice ? t('practice.doneTitle') : flow.id === 'goal' ? t('success.goalAdded', { amount: formatMoney(Number(form.monthly) || Number(form.target) || 0, lang), name: form.name || 'Holiday' }) : t('look.paid', { amount: formatMoney(sendAmount, lang) })}
               </h2>
-              <Speakable text={practice ? t('practice.done') : t('success.summarySpoken', { amount: formatMoney(sendAmount), name: displayPayee || title, ref })} auto={app.prefs.readAloud} hideText />
+              <Speakable text={practice ? t('practice.done') : t('success.summarySpoken', { amount: formatMoney(sendAmount, lang), name: displayPayee || title, ref })} auto={app.prefs.readAloud} hideText />
             </div>
             <dl className="space-y-2">
-              {flow.id !== 'goal' && <div className={app.prefs.textSize >= 20 ? 'flex flex-col' : 'flex justify-between gap-3'}><dt className="text-[var(--muted)]">{t('amount')}</dt><dd className="money font-semibold">{formatMoney(sendAmount)}</dd></div>}
+              {flow.id !== 'goal' && <div className={app.prefs.textSize >= 20 ? 'flex flex-col' : 'flex justify-between gap-3'}><dt className="text-[var(--muted)]">{t('amount')}</dt><dd className="money font-semibold">{formatMoney(sendAmount, lang)}</dd></div>}
               <div className={app.prefs.textSize >= 20 ? 'flex flex-col' : 'flex justify-between gap-3'}><dt className="text-[var(--muted)]">{t('success.payee')}</dt><dd className="min-w-0 font-semibold">{displayPayee || form.name || title}</dd></div>
               <div className={app.prefs.textSize >= 20 ? 'flex flex-col' : 'flex justify-between gap-3'}><dt className="text-[var(--muted)]">{t('success.reference')}</dt><dd className="money font-semibold">{ref}</dd></div>
               <div className={app.prefs.textSize >= 20 ? 'flex flex-col' : 'flex justify-between gap-3'}><dt className="text-[var(--muted)]">{t('success.when')}</dt><dd className="money font-semibold">{form.when === 'later' && form.laterDate ? form.laterDate : new Intl.DateTimeFormat(localeFor(app.prefs.language), { day: '2-digit', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit', ...(localeFor(app.prefs.language) === 'th-TH' ? { calendar: 'gregory' as const } : {}) }).format(new Date())}</dd></div>
               {fx && (
                 <>
-                  <div className={app.prefs.textSize >= 20 ? 'flex flex-col' : 'flex justify-between gap-3'}><dt className="text-[var(--muted)]">{t('success.fee')}</dt><dd className="money font-semibold">{formatMoney(fx.fee)}</dd></div>
+                  <div className={app.prefs.textSize >= 20 ? 'flex flex-col' : 'flex justify-between gap-3'}><dt className="text-[var(--muted)]">{t('success.fee')}</dt><dd className="money font-semibold">{formatMoney(fx.fee, lang)}</dd></div>
                   <div className={app.prefs.textSize >= 20 ? 'flex flex-col' : 'flex justify-between gap-3'}><dt className="text-[var(--muted)]">{t('success.rate')}</dt><dd className="money font-semibold">{t('fx.rate', { currency: t(fx.currencyKey), rate: fx.perSgd.toFixed(2) })}</dd></div>
                   <div className={app.prefs.textSize >= 20 ? 'flex flex-col' : 'flex justify-between gap-3'}><dt className="text-[var(--muted)]">{t('success.received')}</dt><dd className="money font-semibold">{t(fx.currencyKey)} {received.toFixed(2)}</dd></div>
                 </>
@@ -1012,7 +1013,7 @@ function reviewGuide(flowId: string) {
   return map[flowId]
 }
 
-function display(field: FlowField, value: string, t: (key: string) => string) {
+function display(field: FlowField, value: string, t: (key: string) => string, language: string) {
   if (field.type === 'account' || field.type === 'select') {
     const option = field.options?.find((item) => item.value === value)
     if (option) return t(option.label)
@@ -1023,7 +1024,7 @@ function display(field: FlowField, value: string, t: (key: string) => string) {
   }
   if (field.id === 'savePayee') return value === 'yes' ? t('yes') : t('no')
   if (field.type === 'toggle') return value === 'no' ? t('flows.unlocked') : t('flows.locked')
-  if (field.type === 'amount') return formatMoney(Number(value || 0))
+  if (field.type === 'amount') return formatMoney(Number(value || 0), language)
   return value
 }
 

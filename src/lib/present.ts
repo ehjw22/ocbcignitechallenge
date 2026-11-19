@@ -2,7 +2,6 @@ import { useEffect, useState, useSyncExternalStore } from 'react'
 
 const STORAGE_KEY = 'ocbc-present'
 const TAPS_KEY = 'ocbc-present-taps'
-const F11_KEY = 'ocbc-present-f11-hint'
 
 let scaleSnapshot = 1
 
@@ -72,20 +71,6 @@ export function toggleTapsVisualizer() {
   } catch { /* ignore */ }
   notify()
   return next
-}
-
-export function f11HintShown() {
-  try {
-    return localStorage.getItem(F11_KEY) === '1'
-  } catch {
-    return true
-  }
-}
-
-export function markF11HintShown() {
-  try {
-    localStorage.setItem(F11_KEY, '1')
-  } catch { /* ignore */ }
 }
 
 export function getPhoneScale() {

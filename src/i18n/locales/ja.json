@@ -401,7 +401,20 @@
       "account": "口座",
       "login": "ログイン",
       "other": "その他"
-    }
+    },
+    "needs": {
+      "scam": "Possible scam",
+      "largeText": "Large text",
+      "readAloud": "Read aloud",
+      "cantonese": "Cantonese",
+      "highContrast": "High contrast"
+    },
+    "transcript": {
+      "customer": "Customer",
+      "ollie": "Ollie",
+      "scamCheck": "Ollie scam check. {summary} Answers: {answers}."
+    },
+    "scamSummary": "Possible scam. {money} to {name}. {reasons}"
   },
   "ai": {
     "title": "アシスタント",
@@ -597,7 +610,9 @@
     "chatPinWrong": "Wrong PIN. {left} attempt(s) left.",
     "chatPinLocked": "Transfer cancelled — too many wrong PIN tries.",
     "chatAuthCancelled": "Transfer cancelled. No money was sent.",
-    "chatPinBackspace": "Delete last digit"
+    "chatPinBackspace": "Delete last digit",
+    "samplePayee": "Tan Wei Ming",
+    "sampleCountry": "Australia"
   },
   "flows": {
     "paynow": "PayNow",
@@ -689,7 +704,8 @@
     "ibanHint": "例：GB29 NWBK 6016 1331 9268 19",
     "uen": "UEN",
     "available": "使えるお金 {amount}",
-    "readThisScreen": "Read this screen"
+    "readThisScreen": "Read this screen",
+    "currencyLabel": "SGD"
   },
   "shortcuts": {
     "transfer": "おくるとどく",
@@ -1271,7 +1287,8 @@
     "slidePractice": "スライドして払う（れんしゅう）",
     "ollieSafety": "Ollie · あんしんチェック",
     "holdToPay": "長押しで支払う",
-    "holdingToPay": "そのまま押してください…"
+    "holdingToPay": "そのまま押してください…",
+    "hiddenBalance": "•••••••• SGD"
   },
   "risk": {
     "titleCheck": "気をつけましょう",
@@ -1306,7 +1323,9 @@
     "hi": "ヒンディー語の声",
     "bn": "ベンガル語の声",
     "mandarin": "中国語の声",
-    "cantonese": "広東語の声"
+    "cantonese": "広東語の声",
+    "zh": "Chinese voice",
+    "zh-TW": "Traditional Chinese voice"
   },
   "insightsExclude": {
     "toggle": "使い方メモに入れない",
@@ -1322,14 +1341,13 @@
     "enterMode": "⤢ Present",
     "exitMode": "Exit present",
     "exitLink": "Exit",
-    "f11": "Press F11 for full screen",
     "tapsOn": "Tap highlight on",
     "tapsOff": "Tap highlight off"
   },
   "languages": {
-    "morePreview": "More languages (preview)",
-    "previewPill": "Preview",
-    "previewNote": "Machine-translated preview. Some wording may be imperfect."
+    "moreLanguages": "More languages",
+    "machineNote": "Machine translated, may not be fully accurate.",
+    "switchNotice": "This language is machine translated. Some wording may be imperfect."
   },
   "judge": {
     "title": "Demo script",

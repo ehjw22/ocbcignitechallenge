@@ -10,8 +10,9 @@ import { useApp } from '@/context/AppContext'
 import { peekAfterLogin } from '@/lib/storage'
 import { translate } from '@/i18n'
 import { DEFAULT_SHORTCUTS } from '@/lib/languages'
-import { LanguagePicker } from '@/components/LanguagePicker'
 import { HomePreview } from '@/components/HomePreview'
+import { formatSignedMoney } from '@/lib/format'
+import { dismissPreviewLanguageNotice, LanguagePicker } from '@/components/LanguagePicker'
 import { UndoSnackbar } from '@/components/UndoSnackbar'
 import { patchForPreset, snapshotPrefs, type PresetId, type PresetSnapshot } from '@/lib/presets'
 import type { ColourVision, DetailLevel, HelpPreference } from '@/lib/types'
@@ -66,6 +67,10 @@ export function Join() {
                   language={app.prefs.language}
                   t={t}
                   onPick={(language) => app.updatePrefs({ language: language.id, dialect: language.id === 'zh-TW' ? 'cantonese' : 'standard' })}
+                  onPreviewPick={(item) => {
+                    app.setNotice(translate(item.id, 'languages.switchNotice'))
+                    dismissPreviewLanguageNotice()
+                  }}
                 />
               </div>
               {(app.prefs.language === 'zh' || app.prefs.language === 'zh-TW') && (
@@ -181,8 +186,8 @@ export function Join() {
               <p className="mt-1 text-sm text-[var(--muted)]">{t('onboarding.colourHint')}</p>
               <div className="keep-words mt-3 overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--card)]">
                 {[
-                  [t('quiz.merchant'), t('quiz.date'), 'paid', '−6.50 SGD', 'var(--success)'],
-                  [t('quiz.merchant2'), t('quiz.date2'), 'check', '−12.40 SGD', 'var(--warning)'],
+                  [t('quiz.merchant'), t('quiz.date'), 'paid', formatSignedMoney(-6.5, app.prefs.language), 'var(--success)'],
+                  [t('quiz.merchant2'), t('quiz.date2'), 'check', formatSignedMoney(-12.4, app.prefs.language), 'var(--warning)'],
                 ].map(([name, date, status, amount, colour], index) => (
                   <div key={name} className={`flex items-start justify-between gap-3 px-3 py-3 ${index === 0 ? 'border-b border-[var(--line)]' : ''}`}>
                     <span className="min-w-0">

@@ -82,16 +82,20 @@ async function readChatStream(res: Response, onText: (text: string) => void): Pr
   return donePayload || { role: 'assistant', content: '', reply: '' }
 }
 
-function confirmCopy(action: ChatAction, t: (key: string, vars?: Record<string, string | number>) => string) {
+function confirmCopy(
+  action: ChatAction,
+  t: (key: string, vars?: Record<string, string | number>) => string,
+  lang: string,
+) {
   if (action.intent === 'overseas') {
     const fx = FX[action.fields.country] || FX.Australia
     const amount = Number(action.fields.amount || 0) || 500
     const received = Math.max(0, Math.round((amount - fx.fee) * fx.perSgd))
     return t('ai.confirmOverseas', {
-      amount: formatSGD(amount),
-      name: action.fields.name || 'Tan Wei Ming',
-      country: action.fields.country || 'Australia',
-      fee: formatSGD(fx.fee),
+      amount: formatSGD(amount, lang),
+      name: action.fields.name || t('ai.samplePayee'),
+      country: action.fields.country || t('ai.sampleCountry'),
+      fee: formatSGD(fx.fee, lang),
       received: `${t(fx.currencyKey)} ${received}`,
     })
   }
@@ -115,9 +119,10 @@ function OllieAvatar() {
 
 export function AiPanel() {
   const app = useApp()
+  const moneyLocale = app.prefs.language
   const location = useLocation()
   const navigate = useNavigate()
-  const t = (key: string, vars?: Record<string, string | number>) => translate(app.prefs.language, key, vars)
+  const t = (key: string, vars?: Record<string, string | number>) => translate(moneyLocale, key, vars)
   const [draft, setDraft] = useState('')
   const [busy, setBusy] = useState(false)
   const [slow, setSlow] = useState(false)
@@ -257,7 +262,7 @@ export function AiPanel() {
   }
 
   const voiceContent = (outcome: VoiceTransferOutcome) => {
-    if (outcome.type === 'confirm') return t('ai.chatReviewIntro', { amount: formatSGD(outcome.amount), name: outcome.payee.name })
+    if (outcome.type === 'confirm') return t('ai.chatReviewIntro', { amount: formatSGD(outcome.amount, moneyLocale), name: outcome.payee.name })
     if (outcome.type === 'overLimit') return t('ai.voiceOverLimit', { amount: formatVoiceTransferAmount(clampVoiceTransferLimit(app.prefs.voiceTransferLimit)) })
     if (outcome.type === 'disabled') return t('ai.voiceOff')
     if (outcome.type === 'askAmount') return t('ai.voiceAskAmount', { name: outcome.payee.name })
@@ -357,7 +362,7 @@ export function AiPanel() {
       if (top) {
         const content = t('ai.spendLastMonth', {
           category: t(`categories.${top.key}`),
-          amount: formatMoney(top.amount),
+          amount: formatMoney(top.amount, moneyLocale),
           month: t(`months.${month}`),
         })
         app.setMessages((prev) => [...prev, { role: 'user', content: text }, { role: 'assistant', content, source: 'demo', suggestions: [t('ai.seeInsights')] }])
@@ -600,7 +605,7 @@ export function AiPanel() {
                 )}
                 {showCard && message.action && (
                   <div className="mt-3 space-y-2 rounded-xl border border-[var(--line)] p-3">
-                    <p>{confirmCopy(message.action, t)}</p>
+                    <p>{confirmCopy(message.action, t, app.prefs.language)}</p>
                     {message.action.intent === 'overseas' && <p className="text-sm text-[var(--muted)]">{t('ai.sampleRate')}</p>}
                     <button type="button" className="min-h-11 w-full rounded-xl bg-[var(--accent)] px-3 font-semibold text-[var(--on-accent)]" onClick={() => fill(message.action as ChatAction)}>{t('ai.fillIn')}</button>
                     <button type="button" className="min-h-11 w-full rounded-xl border border-[var(--line)] px-3 font-semibold" onClick={() => { app.setHelpOpen(false); queueShowHow(message.action?.intent || message.journeyId || '', false); navigate(journeyRoute(message.action?.intent || '')) }}>{t('ai.chipHow')}</button>

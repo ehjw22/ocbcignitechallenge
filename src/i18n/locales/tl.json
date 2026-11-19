@@ -401,7 +401,20 @@
       "account": "Account",
       "login": "Mag-log in",
       "other": "Iba pa"
-    }
+    },
+    "needs": {
+      "scam": "Possible scam",
+      "largeText": "Large text",
+      "readAloud": "Read aloud",
+      "cantonese": "Cantonese",
+      "highContrast": "High contrast"
+    },
+    "transcript": {
+      "customer": "Customer",
+      "ollie": "Ollie",
+      "scamCheck": "Ollie scam check. {summary} Answers: {answers}."
+    },
+    "scamSummary": "Possible scam. {money} to {name}. {reasons}"
   },
   "ai": {
     "title": "Katulong",
@@ -597,7 +610,9 @@
     "chatPinWrong": "Wrong PIN. {left} attempt(s) left.",
     "chatPinLocked": "Transfer cancelled — too many wrong PIN tries.",
     "chatAuthCancelled": "Transfer cancelled. No money was sent.",
-    "chatPinBackspace": "Delete last digit"
+    "chatPinBackspace": "Delete last digit",
+    "samplePayee": "Tan Wei Ming",
+    "sampleCountry": "Australia"
   },
   "flows": {
     "paynow": "PayNow",
@@ -689,7 +704,8 @@
     "ibanHint": "Halimbawa: GB29 NWBK 6016 1331 9268 19",
     "uen": "UEN",
     "available": "Magagamit na pera {amount}",
-    "readThisScreen": "Read this screen"
+    "readThisScreen": "Read this screen",
+    "currencyLabel": "SGD"
   },
   "shortcuts": {
     "transfer": "Magpadala",
@@ -1271,7 +1287,8 @@
     "slidePractice": "I-slide para magbayad (praktis)",
     "ollieSafety": "Ollie · Pagsusuri ng kaligtasan",
     "holdToPay": "Pindutin at hawakan para magbayad",
-    "holdingToPay": "Patuloy na hawakan…"
+    "holdingToPay": "Patuloy na hawakan…",
+    "hiddenBalance": "•••••••• SGD"
   },
   "risk": {
     "titleCheck": "Maging mapagbantay",
@@ -1306,7 +1323,9 @@
     "hi": "Boses na Hindi",
     "bn": "Boses na Bengali",
     "mandarin": "Boses na Mandarin",
-    "cantonese": "Boses na Cantonese"
+    "cantonese": "Boses na Cantonese",
+    "zh": "Chinese voice",
+    "zh-TW": "Traditional Chinese voice"
   },
   "insightsExclude": {
     "toggle": "Huwag isama sa mga ulat ng gastos",
@@ -1322,15 +1341,14 @@
     "enterMode": "⤢ I-present",
     "exitMode": "Lumabas sa pag-present",
     "exitLink": "Lumabas",
-    "f11": "Pindutin ang F11 para sa buong screen",
     "tapsOn": "Naka-on ang highlight sa pag-tap",
     "tapsOff": "Naka-off ang highlight sa pag-tap"
   },
   "languages": {
-    "morePreview": "Iba pang wika (preview)",
-    "previewPill": "Preview",
-    "previewNote": "Isinalin ng computer. Maaaring may ilang hindi perpektong salita.",
-    "previewPreviewPill": "Preview"
+    "previewPreviewPill": "Preview",
+    "moreLanguages": "More languages",
+    "machineNote": "Machine translated, may not be fully accurate.",
+    "switchNotice": "This language is machine translated. Some wording may be imperfect."
   },
   "judge": {
     "title": "Demo script",

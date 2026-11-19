@@ -171,10 +171,13 @@ export async function speak(text: string, options: SpeakOptions): Promise<'devic
   if (url) {
     const played = await playUrl(url, clean, options, myToken)
     if (myToken !== token) return 'cancelled'
-    return played ? 'cloud' : 'none'
+    if (played) return 'cloud'
   }
-  if (options.dialect === 'cantonese') window.dispatchEvent(new Event('ocbc-cantonese'))
-  return 'none'
+  if (myToken !== token) return 'cancelled'
+  if (options.dialect === 'cantonese' && !url) window.dispatchEvent(new Event('ocbc-cantonese'))
+  await speakOnDevice(clean, options)
+  if (myToken !== token) return 'cancelled'
+  return 'device'
 }
 
 export function speakableWords(text: string) {

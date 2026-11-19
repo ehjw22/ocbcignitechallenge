@@ -15,7 +15,7 @@ export function HomePreview({ balance = 1230.55 }: { balance?: number }) {
     >
       <p className="text-sm text-[var(--muted)]">{t('totalBalance')}</p>
       <p className="font-bold tabular-nums text-[var(--text)]" style={{ fontSize: app.prefs.textSize + 6 }}>
-        {formatMoney(balance)}
+        {formatMoney(balance, app.prefs.language)}
       </p>
       <div className="mt-3 grid grid-cols-3 gap-2">
         {shortcuts.map((id) => {
