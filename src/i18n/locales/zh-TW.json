@@ -1,13 +1,4 @@
 {
-  "nav": {
-    "home": "首頁",
-    "plan": "計劃",
-    "accounts": "賬戶",
-    "pay": "轉賬與付款",
-    "rewards": "獎勵",
-    "help": "幫助",
-    "more": "更多"
-  },
   "you": "你",
   "show": "顯示餘額",
   "hide": "隱藏餘額",
@@ -31,6 +22,7 @@
   "edit": "編輯",
   "remove": "移除",
   "reset": "恢復默認",
+  "from": "從",
   "amount": "金額",
   "review": "核對",
   "yesContinue": "繼續",
@@ -89,9 +81,19 @@
   "moveUp": "上移",
   "moveDown": "下移",
   "reorderHint": "拖到空位，或點按添加。",
-  "selectedCount": "已選 {n} / 3",
+  "selectedCount": "已選 {n} / 6",
   "needSix": "請先移除一個，再添加。",
   "contrastWarn": "這張照片太亮。請換一張較暗的。",
+  "imageTooBig": "這張照片太大。請換一張較小的。",
+  "nav": {
+    "home": "首頁",
+    "plan": "計劃",
+    "accounts": "賬戶",
+    "pay": "轉賬與付款",
+    "rewards": "獎勵",
+    "help": "幫助",
+    "more": "更多"
+  },
   "help": {
     "fab": "幫助",
     "askOllie": "問問 Ollie",
@@ -171,7 +173,8 @@
     "colourAdjust": "強調色可能會略有變化。",
     "voiceLimit": "語音轉賬限額",
     "voiceLimitBody": "請為通過 Ollie 語音發起的轉賬設置限額。每筆轉賬仍需你核對並確認。",
-    "shortcuts": "選擇 3 個快捷方式",
+    "voiceConfirmHint": "可在“設置 → 安全”中選擇面容 ID 或 PIN 作為最後確認方式。",
+    "shortcuts": "選擇 6 個快捷方式",
     "readAloudBody": "文字旁邊會出現喇叭按鈕。打開後，每個屏幕會自動朗讀。",
     "minutes": "大約 3 分鐘。之後可在設置中更改。"
   },
@@ -192,6 +195,103 @@
     "check": "請核對",
     "failed": "未成功"
   },
+  "themes": {
+    "title": "顏色主題",
+    "ocbc": "華僑銀行紅",
+    "ocean": "海洋",
+    "forest": "森林",
+    "sunset": "日落",
+    "plum": "梅子",
+    "custom": "自定義",
+    "accent": "自定義強調色",
+    "light": "淺色",
+    "dark": "深色",
+    "background": "首頁背景照片",
+    "upload": "上傳照片",
+    "removePhoto": "移除照片"
+  },
+  "months": {
+    "2026-05": "5月",
+    "2026-06": "6月",
+    "2026-07": "7月",
+    "2026-08": "8月",
+    "2026-09": "9月",
+    "2026-10": "10月"
+  },
+  "dialects": {
+    "title": "朗讀語言",
+    "standard": "普通話",
+    "cantonese": "粵語",
+    "note": "粵語語音適用於簡體中文或繁體中文。",
+    "hokkien": "福建話",
+    "teochew": "潮州話",
+    "hakka": "客家話",
+    "soon": "暫不可用",
+    "request": "請一位會說{dialect}的職員聯繫我",
+    "cloud": "粵語在可用時使用雲端語音。"
+  },
+  "speech": {
+    "noVoice": "這句話暫時無法朗讀。",
+    "listening": "正在聽…",
+    "voiceInput": "語音輸入",
+    "micDenied": "麥克風已關閉。您可以改為輸入。",
+    "readAloud": "朗讀",
+    "slower": "更慢",
+    "faster": "更快",
+    "cantoneseDown": "粵語語音暫時無法使用，這次沒有朗讀。",
+    "stopListening": "停止"
+  },
+  "settings": {
+    "title": "設置",
+    "language": "語言",
+    "text": "文字",
+    "textSize": "文字大小",
+    "colour": "色彩視覺",
+    "explain": "說明",
+    "helpPref": "偏好的幫助方式",
+    "shortcuts": "首頁快捷方式",
+    "persona": "示例資料",
+    "personaBody": "加載一份示例資料。",
+    "mei": "梅阿姨",
+    "meiBody": "中文、大號文字、簡要回答。打開一筆海外轉賬。",
+    "arif": "Arif",
+    "arifBody": "英文、完整詳情、支出洞察。打開 GIRO 設置。",
+    "reset": "重置應用",
+    "resetDemoData": "重置演示數據",
+    "resetDataBody": "將餘額、交易、收款人和目標恢復為演示樣本。您的語言、文字大小和測驗答案將保持不變。",
+    "resetDataConfirm": "為兩個演示用戶重置餘額和交易？",
+    "resetDataDone": "演示數據已重置。餘額已恢復為 S$100,000。",
+    "resetBody": "清除此設備上保存的選擇。",
+    "insights": "開支概覽",
+    "large": "大字",
+    "insightsOn": "已開開支概覽",
+    "insightsOff": "已關開支概覽",
+    "sections": {
+      "language": "語言和語音",
+      "text": "文字和顯示",
+      "colour": "顏色和主題",
+      "help": "幫助偏好",
+      "shortcuts": "首頁快捷方式",
+      "privacy": "隱私和概覽",
+      "account": "賬戶",
+      "safety": "安全"
+    },
+    "dyslexiaFont": "閱讀障礙友好字體",
+    "dyslexiaFontBody": "使用 OpenDyslexic 字體並加大字距。中文、泰米爾文和其他文字仍使用原來的字體。",
+    "easierTapping": "更易點按",
+    "easierTappingBody": "按鈕更大，付款時可以長按，不必滑動。",
+    "voiceLimit": "語音轉賬限額",
+    "voiceLimitSummary": "語音轉賬上限 {amount}",
+    "voiceLimitBody": "你可以用語音讓 Ollie 發起轉賬，最高不超過此限額。每筆轉賬仍需你核對並確認。選擇“關閉”即可停用語音轉賬。",
+    "voiceLimitOff": "關閉",
+    "voiceLimitRaise": "提高語音轉賬限額？",
+    "voiceLimitRaiseBody": "要將語音轉賬限額提高至 {amount} 嗎？每筆轉賬仍需你核對並確認。",
+    "voiceLimitConfirm": "提高限額",
+    "voiceTransferConfirm": "語音轉賬確認方式",
+    "voiceTransferConfirmBody": "在 Ollie 聊天中核對轉賬後，用模擬面容 ID 或 6 位 PIN 確認（僅演示）。",
+    "voiceConfirmFace": "面容 ID（默認）",
+    "voiceConfirmPin": "6 位 PIN"
+  },
   "errors": {
     "summary": "請檢查以下項目。",
     "required": "請輸入{field}。",
@@ -199,13 +299,13 @@
     "account_au": "澳大利亞賬號需要 6 到 9 位數字。您輸入了 {got} 位。",
     "account_uk": "英國賬號需要 8 位數字。您輸入了 {got} 位。",
     "paynow_mobile": "請使用以 8 或 9 開頭的 8 位號碼。",
+    "nric": "請使用類似 S1234567A 的 NRIC。",
     "amount_positive": "請輸入多於 S$0.00 的金額。",
     "amount_format": "請用數字輸入金額，例如 50.00。",
     "insufficient": "金額超出可用餘額。請輸入較低金額。",
     "daily_limit": "已超過您的每日限額 {limit}。",
     "swift": "SWIFT 代碼需要 8 或 11 位。您輸入了 {got} 位。",
     "limit_range": "請輸入 S$100.00 至 S$50,000.00 的限額。",
-    "nric": "請使用類似 S1234567A 的 NRIC。",
     "goal_amount": "請輸入大於 S$0.00 的目標。",
     "email": "請輸入類似 name@email.com 的電子郵箱。",
     "phone": "請輸入至少 8 位數字的電話號碼。",
@@ -221,8 +321,8 @@
     "body": "這比您平時的轉賬金額更高。向 {name} 轉賬 {amount}？"
   },
   "practice": {
-    "done": "練習完成。",
     "banner": "練習。不會轉移資金。",
+    "done": "練習完成。",
     "step": "第 {n} 步，共 {total} 步",
     "doneTitle": "練習完成"
   },
@@ -234,10 +334,11 @@
     "reference": "參考編號",
     "when": "日期",
     "summarySpoken": "{amount} 轉給 {name}。參考編號 {ref}。",
-    "goalAdded": "已將 {amount} 存入{name}目標",
-    "received": "到賬金額",
     "fee": "手續費",
-    "rate": "匯率"
+    "rate": "匯率",
+    "received": "到賬金額",
+    "goalAdded": "已將 {amount} 存入{name}目標",
+    "paidAnnounce": "已付款：{amount} 給 {name}。這是演示金額。"
   },
   "staff": {
     "title": "聯繫我們",
@@ -318,93 +419,19 @@
     "demoNote": "正在使用示例回答。",
     "stuck": "如仍需幫助，請聯繫我們。",
     "hotline": "24 小時熱線 +65 6363 3333。您可以鎖定卡。",
+    "onScreen": "你正在 {screen}。",
+    "liveFailed": "助手暫不可用。這是一個簡短回答。",
+    "busy": "助手正忙。這是一個簡短回答。",
     "suggestions": "建議",
     "empty": "請提問。",
     "chipBalance": "我的餘額是多少？",
     "chipPaynow": "PayNow 怎麼用？",
-    "chipVoiceJohn": "給 John 轉 20 元",
     "chipGiro": "什麼是 GIRO？",
     "chipScam": "我覺得這是騙局",
     "chipGuide": "顯示步驟",
     "chipOverseas": "什麼是 SWIFT 代碼？",
-    "faq": {
-      "giro": {
-        "short": "GIRO 讓公司按你設定的上限，自動從賬戶扣賬單。",
-        "full": "GIRO 是一種定期扣款授權。你指定賬單機構、扣款賬戶，以及他們最多能扣多少。你可以在這裡練習步驟。這個演示不會建立真實 GIRO，也不會編造手續費。我可以一步一步引導你，或者幫你聯繫職員。"
-      },
-      "overseas": {
-        "short": "海外轉賬需要收款人姓名、國家、SWIFT 代碼和賬號。",
-        "full": "SWIFT 代碼用來識別收款銀行，是 8 位或 11 位字母和數字。這個演示使用示例數據，不會編造匯率或手續費。如果不確定，可以聯繫職員。我也可以一步一步引導你。"
-      },
-      "offtopic": {
-        "short": "我只能幫助處理銀行業務和本應用。",
-        "full": "我可以幫助處理賬戶、轉賬、PayNow、GIRO、賬單、卡、儲蓄以及您當前的頁面。"
-      },
-      "fraud": {
-        "short": "如果這可能是詐騙，請致電[ScamShield 防詐騙熱線 1799（免費，全天）](tel:1799)。您也可以鎖定卡。",
-        "full": "如果這筆付款不是您本人操作，或有人要求您轉賬，請致電[ScamShield 防詐騙熱線 1799（免費，全天）](tel:1799)。您也可以鎖定卡。"
-      },
-      "lostcard": {
-        "short": "請先鎖定卡，然後致電 +65 6363 3333。",
-        "full": "鎖定卡以停止新的付款，然後致電 +65 6363 3333。"
-      },
-      "secret": {
-        "short": "請不要分享密碼、PIN 或一次性驗證碼。",
-        "full": "請不要分享密碼、PIN、一次性驗證碼或完整卡號。如果有人向您索取這些信息，請致電[ScamShield 防詐騙熱線 1799（免費，全天）](tel:1799)。"
-      },
-      "fees": {
-        "short": "我沒有這項費用或匯率。請聯繫我們確認。",
-        "full": "我沒有這項費用、利息或匯率。請聯繫我們，我們可以為您確認。"
-      },
-      "weather": {
-        "short": "我查不到實時天氣預報。珀斯十二月通常溫暖乾燥。我也可以幫你匯款或查看餘額。",
-        "full": "我在這裡查不到實時天氣預報。珀斯十二月通常溫暖乾燥，那邊正是夏天。如果你要匯款去澳洲，我可以先幫你填好，讓你核對。這個應用裡的匯率是示例數據。"
-      },
-      "advice": {
-        "short": "我不能提供醫療、法律或投資建議。我可以幫忙處理轉賬、銀行卡和這個應用。",
-        "full": "我不能提供醫療、法律或個人投資建議。我可以說明轉賬、鎖卡，或你現在的頁面，也可以幫你留言給職員。"
-      },
-      "general": {
-        "short": "我可以幫助處理賬戶、轉賬、PayNow、GIRO、賬單、卡和儲蓄。",
-        "full": "我可以幫助處理賬戶、轉賬、PayNow、GIRO、賬單、卡、儲蓄以及您當前的頁面。我可以開始指引，或聯繫我們的工作人員。"
-      },
-      "staff": {
-        "short": "我可以把消息發給工作人員。他們會以消息回覆。",
-        "full": "我可以發送您的問題、您停下的步驟和您的語言。請選擇消息、回電或電子郵件。"
-      },
-      "paynow": {
-        "short": "PayNow 用手機號碼或身份證號碼匯款。確認前請核對收款人姓名。",
-        "full": "PayNow 使用手機號碼、身份證號碼或 UEN，而不是一長串賬號。在這個演示裡，91234567 對應示例姓名 Tan Wei Ming。你仍然要核對姓名和金額。我不會編造費用。我可以逐步指引你。"
-      },
-      "limit": {
-        "short": "在這個演示裡，示例轉賬限額可以改成 S$100.00 到 S$50,000.00。",
-        "full": "轉賬限額是這個演示允許你一次匯出的最高金額。你可以在 S$100.00 到 S$50,000.00 之間更改示例限額。真實銀行可能有額外檢查。我不會編造那些。我可以逐步指引你。"
-      },
-      "savings": {
-        "short": "儲蓄目標包括名稱、目標金額，以及每月存下的金額。",
-        "full": "這個演示裡的儲蓄目標只把名稱、目標和每月金額保存在這臺設備上。它不會轉移真實資金。我可以帶你創建一個。"
-      },
-      "bill": {
-        "short": "付賬單需要收款機構、賬單參考編號和金額。",
-        "full": "選擇收款機構，輸入賬單上的參考編號和金額。請仔細核對參考編號。這個演示不會支付真實賬單。我可以逐步指引你。"
-      },
-      "balance": {
-        "short": "您的餘額顯示在首頁。",
-        "full": "首頁上的 360 賬戶和結單儲蓄構成您的餘額。您確認的轉賬會在此設備上更新余額。"
-      },
-      "scan": {
-        "short": "這個演示裡的掃碼是練習掃描。點示例二維碼，然後輸入金額。",
-        "full": "相機是模擬的。點示例二維碼填入 Hawker Stall 12，核對名稱，再輸入金額並檢查。不會產生真實付款。我可以逐步指引你。"
-      },
-      "transfer": {
-        "short": "本地轉賬需要姓名、銀行、10 位賬號和金額。",
-        "full": "輸入收款人姓名，選擇銀行，並輸入 10 位賬號。如果少了一位，應用會告訴你現在有幾位、需要幾位。金額比平時大很多時會再確認一次。我可以逐步指引你。"
-      }
-    },
-    "onScreen": "你正在 {screen}。",
-    "liveFailed": "助手暫不可用。這是一個簡短回答。",
-    "busy": "助手正忙。這是一個簡短回答。",
     "chipLimit": "如何更改轉賬限額？",
+    "chipVoiceJohn": "給 John 轉 20 元",
     "chipHow": "示範給我看",
     "chipSimpler": "用更簡單的話說明",
     "chipTours": "導覽",
@@ -437,6 +464,84 @@
     "hearing": "正在聽…",
     "aboutAi": "Ollie 使用人工智能。它可以說明頁面、回答日常問題，並幫你準備轉賬讓你核對。它不會轉賬，不會提供醫療、法律或投資建議，也不會索取密碼、PIN 或一次性驗證碼。",
     "explainFallback": "這是{screen}頁面。你可以看到：{labels}。這裡的數字是示例。哪個詞不清楚，可以問我。",
+    "faq": {
+      "weather": {
+        "short": "我查不到實時天氣預報。珀斯十二月通常溫暖乾燥。我也可以幫你匯款或查看餘額。",
+        "full": "我在這裡查不到實時天氣預報。珀斯十二月通常溫暖乾燥，那邊正是夏天。如果你要匯款去澳洲，我可以先幫你填好，讓你核對。這個應用裡的匯率是示例數據。"
+      },
+      "advice": {
+        "short": "我不能提供醫療、法律或投資建議。我可以幫忙處理轉賬、銀行卡和這個應用。",
+        "full": "我不能提供醫療、法律或個人投資建議。我可以說明轉賬、鎖卡，或你現在的頁面，也可以幫你留言給職員。"
+      },
+      "general": {
+        "short": "我可以幫助處理賬戶、轉賬、PayNow、GIRO、賬單、卡和儲蓄。",
+        "full": "我可以幫助處理賬戶、轉賬、PayNow、GIRO、賬單、卡、儲蓄以及您當前的頁面。我可以開始指引，或聯繫我們的工作人員。"
+      },
+      "secret": {
+        "short": "請不要分享密碼、PIN 或一次性驗證碼。",
+        "full": "請不要分享密碼、PIN、一次性驗證碼或完整卡號。如果有人向您索取這些信息，請致電[ScamShield 防詐騙熱線 1799（免費，全天）](tel:1799)。"
+      },
+      "fraud": {
+        "short": "如果這可能是詐騙，請致電[ScamShield 防詐騙熱線 1799（免費，全天）](tel:1799)。您也可以鎖定卡。",
+        "full": "如果這筆付款不是您本人操作，或有人要求您轉賬，請致電[ScamShield 防詐騙熱線 1799（免費，全天）](tel:1799)。您也可以鎖定卡。"
+      },
+      "lostcard": {
+        "short": "請先鎖定卡，然後致電 +65 6363 3333。",
+        "full": "鎖定卡以停止新的付款，然後致電 +65 6363 3333。"
+      },
+      "staff": {
+        "short": "我可以把消息發給工作人員。他們會以消息回覆。",
+        "full": "我可以發送您的問題、您停下的步驟和您的語言。請選擇消息、回電或電子郵件。"
+      },
+      "giro": {
+        "short": "GIRO 讓公司按你設定的上限，自動從賬戶扣賬單。",
+        "full": "GIRO 是一種定期扣款授權。你指定賬單機構、扣款賬戶，以及他們最多能扣多少。你可以在這裡練習步驟。這個演示不會建立真實 GIRO，也不會編造手續費。我可以一步一步引導你，或者幫你聯繫職員。"
+      },
+      "paynow": {
+        "short": "PayNow 用手機號碼或身份證號碼匯款。確認前請核對收款人姓名。",
+        "full": "PayNow 使用手機號碼、身份證號碼或 UEN，而不是一長串賬號。在這個演示裡，91234567 對應示例姓名 Tan Wei Ming。你仍然要核對姓名和金額。我不會編造費用。我可以逐步指引你。"
+      },
+      "overseas": {
+        "short": "海外轉賬需要收款人姓名、國家、SWIFT 代碼和賬號。",
+        "full": "SWIFT 代碼用來識別收款銀行，是 8 位或 11 位字母和數字。這個演示使用示例數據，不會編造匯率或手續費。如果不確定，可以聯繫職員。我也可以一步一步引導你。"
+      },
+      "limit": {
+        "short": "在這個演示裡，示例轉賬限額可以改成 S$100.00 到 S$50,000.00。",
+        "full": "轉賬限額是這個演示允許你一次匯出的最高金額。你可以在 S$100.00 到 S$50,000.00 之間更改示例限額。真實銀行可能有額外檢查。我不會編造那些。我可以逐步指引你。"
+      },
+      "savings": {
+        "short": "儲蓄目標包括名稱、目標金額，以及每月存下的金額。",
+        "full": "這個演示裡的儲蓄目標只把名稱、目標和每月金額保存在這臺設備上。它不會轉移真實資金。我可以帶你創建一個。"
+      },
+      "bill": {
+        "short": "付賬單需要收款機構、賬單參考編號和金額。",
+        "full": "選擇收款機構，輸入賬單上的參考編號和金額。請仔細核對參考編號。這個演示不會支付真實賬單。我可以逐步指引你。"
+      },
+      "balance": {
+        "short": "您的餘額顯示在首頁。",
+        "full": "首頁上的 360 賬戶和結單儲蓄構成您的餘額。您確認的轉賬會在此設備上更新余額。"
+      },
+      "fees": {
+        "short": "我沒有這項費用或匯率。請聯繫我們確認。",
+        "full": "我沒有這項費用、利息或匯率。請聯繫我們，我們可以為您確認。"
+      },
+      "scan": {
+        "short": "這個演示裡的掃碼是練習掃描。點示例二維碼，然後輸入金額。",
+        "full": "相機是模擬的。點示例二維碼填入 Hawker Stall 12，核對名稱，再輸入金額並檢查。不會產生真實付款。我可以逐步指引你。"
+      },
+      "transfer": {
+        "short": "本地轉賬需要姓名、銀行、10 位賬號和金額。",
+        "full": "輸入收款人姓名，選擇銀行，並輸入 10 位賬號。如果少了一位，應用會告訴你現在有幾位、需要幾位。金額比平時大很多時會再確認一次。我可以逐步指引你。"
+      },
+      "offtopic": {
+        "short": "我只能幫助處理銀行業務和本應用。",
+        "full": "我可以幫助處理賬戶、轉賬、PayNow、GIRO、賬單、卡、儲蓄以及您當前的頁面。"
+      },
+      "security": {
+        "short": "請立刻鎖卡。致電 OCBC +65 6363 3333（24 小時）。切勿分享一次性驗證碼或密碼。我可以幫您聯繫職員。",
+        "full": "如果懷疑有人進入您的賬戶：1）立刻鎖卡。2）致電 OCBC +65 6363 3333（全天）。3）切勿向任何人透露一次性驗證碼或密碼。4）我可以幫您留言給職員跟進。"
+      }
+    },
     "voiceConfirm": "向 {name} 轉 {amount}？",
     "voiceUncaught": "對不起，我沒聽清楚。可以再說一遍嗎？",
     "voiceTryAgain": "再試一次",
@@ -460,6 +565,20 @@
     "chatReviewAmount": "金額",
     "chatReviewFrom": "付款賬戶",
     "chatConfirmSend": "確認併發送",
+    "chatVerifyFaceTitle": "使用面容 ID 確認",
+    "chatVerifyFaceBody": "演示用模擬面容 ID，並非真實生物識別。",
+    "chatVerifyScanning": "正在掃描…",
+    "chatVerifyDemoNote": "僅供練習演示，不會檢驗真實面容 ID 或 PIN。",
+    "chatUsePinInstead": "改用 PIN",
+    "chatUseFaceInstead": "改用面容 ID",
+    "chatVerified": "已驗證",
+    "chatEnterPin": "請輸入 6 位 PIN",
+    "chatEnterPinBody": "演示 PIN，不會發送給 Ollie。",
+    "chatPinDemoHint": "演示 PIN：123456",
+    "chatPinWrong": "PIN 錯誤，還可嘗試 {left} 次。",
+    "chatPinLocked": "轉賬已取消——PIN 錯誤次數過多。",
+    "chatAuthCancelled": "轉賬已取消，未扣款。",
+    "chatPinBackspace": "刪除最後一位",
     "chatCancel": "取消",
     "chatHoldProgress": "請繼續按住…",
     "chatSure": "確定嗎？",
@@ -474,7 +593,11 @@
     "chatScamContinue": "謝謝。準備好後可以繼續。",
     "chatContinueSend": "繼續發送",
     "chatPracticePaid": "練習 – 已向{name}發送{amount}（未動用真實資金）",
-    "chatOverCap": "Ollie 最多可發送 {max}。更大金額請使用轉賬頁面。"
+    "chatOverCap": "Ollie 最多可發送 {max}。更大金額請使用轉賬頁面。",
+    "thinking": "正在思考…",
+    "spendLastMonth": "您上個月在{category}花費最多，{month}共 {amount}。",
+    "seeInsights": "查看支出洞察",
+    "offline": "Ollie 目前離線，回答有限。"
   },
   "flows": {
     "paynow": "PayNow",
@@ -488,38 +611,27 @@
     "cardLost": "報失銀行卡",
     "limit": "轉賬限額",
     "topup": "充值",
+    "proxyType": "發送方式",
+    "mobile": "手機號碼",
+    "nric": "身份證號碼",
+    "paynowTo": "手機號碼或身份證號碼",
+    "paynowPh": "8 位手機號碼",
+    "from": "從哪個賬戶",
+    "reference": "參考",
     "recipient": "收款人姓名",
+    "bank": "銀行",
+    "bankOcbc": "華僑銀行",
+    "bankDbs": "星展銀行",
+    "bankUob": "大華銀行",
     "account10": "賬號（10 位數字）",
     "accountShort": "賬號",
     "nameShort": "姓名",
     "fromShort": "轉出",
     "country": "國家",
     "australia": "澳大利亞",
-    "swift": "SWIFT 代碼",
-    "from": "從哪個賬戶",
-    "submit": "繼續",
-    "practiseThis": "先練習",
-    "tourEndBody": "步驟都講完了。要先安全練習一次嗎？",
-    "continueHintDefault": "請填寫以下內容後再繼續。",
-    "continueHintTransfer": "請填寫收款人姓名和賬號（10 位）後再繼續。",
-    "continueHintPaynow": "請輸入手機號或選擇聯繫人後再繼續。",
-    "continueHintAmount": "請輸入金額並選擇付款賬戶後再繼續。",
-    "whatGiro": "什麼是 GIRO？",
-    "currentLimit": "當前限額 {amount}",
-    "nameCheck": "姓名核對：{name}",
-    "nameUnknown": "我們無法確認這個姓名。請檢查號碼。",
-    "proxyType": "發送方式",
-    "mobile": "手機號碼",
-    "nric": "身份證號碼",
-    "paynowTo": "手機號碼或身份證號碼",
-    "paynowPh": "8 位手機號碼",
-    "reference": "參考",
-    "bank": "銀行",
-    "bankOcbc": "華僑銀行",
-    "bankDbs": "星展銀行",
-    "bankUob": "大華銀行",
     "malaysia": "馬來西亞",
     "uk": "英國",
+    "swift": "SWIFT 代碼",
     "biller": "收款機構",
     "sp": "SP Group",
     "singtel": "Singtel",
@@ -539,12 +651,23 @@
     "lockCard": "鎖定這張卡",
     "newLimit": "新的轉賬限額",
     "mobileNumber": "手機號碼",
+    "nameCheck": "姓名核對：{name}",
+    "nameUnknown": "我們無法確認這個姓名。請檢查號碼。",
+    "currentLimit": "當前限額 {amount}",
     "locked": "已鎖定",
     "unlocked": "未鎖定",
     "scanButton": "使用示例二維碼",
     "scanHint": "練習用的示例二維碼。",
+    "submit": "繼續",
+    "practiseThis": "先練習",
+    "tourEndBody": "步驟都講完了。要先安全練習一次嗎？",
+    "continueHintDefault": "請填寫以下內容後再繼續。",
+    "continueHintTransfer": "請填寫收款人姓名和賬號（10 位）後再繼續。",
+    "continueHintPaynow": "請輸入手機號或選擇聯繫人後再繼續。",
+    "continueHintAmount": "請輸入金額並選擇付款賬戶後再繼續。",
     "confirmPay": "確認",
     "lostNote": "此卡將被鎖定。如果確實丟失，請致電我們。",
+    "whatGiro": "什麼是 GIRO？",
     "savePayee": "保存為新收款人",
     "when": "轉賬日期",
     "now": "現在",
@@ -565,7 +688,8 @@
     "iban": "IBAN",
     "ibanHint": "示例：GB29 NWBK 6016 1331 9268 19",
     "uen": "UEN",
-    "available": "可用 {amount}"
+    "available": "可用 {amount}",
+    "readThisScreen": "朗讀此頁"
   },
   "shortcuts": {
     "transfer": "轉賬",
@@ -585,7 +709,9 @@
     "staff": "聯繫職員",
     "accounts": "賬戶",
     "help": "幫助",
-    "insights": "支出洞察"
+    "insights": "支出洞察",
+    "mostUsed": "最常用",
+    "resetRecommended": "恢復推薦"
   },
   "accounts": {
     "title": "賬戶",
@@ -609,61 +735,29 @@
     "settings": "設置",
     "cards": "銀行卡",
     "limit": "轉賬限額",
+    "practice": "接著練習",
     "tour": "首頁導覽",
     "about": "關於",
-    "practice": "接著練習",
     "aboutBody": "這是演示。餘額和消息為示例數據。"
   },
   "pay": {
     "title": "付款和轉賬",
     "body": "選擇一項付款。"
   },
-  "settings": {
-    "title": "設置",
-    "language": "語言",
-    "text": "文字",
-    "textSize": "文字大小",
-    "colour": "色彩視覺",
-    "explain": "說明",
-    "helpPref": "偏好的幫助方式",
-    "shortcuts": "首頁快捷方式",
-    "persona": "示例資料",
-    "personaBody": "加載一份示例資料。",
-    "mei": "梅阿姨",
-    "meiBody": "中文、大號文字、簡要回答。打開一筆海外轉賬。",
-    "arif": "Arif",
-    "arifBody": "英文、完整詳情、支出洞察。打開 GIRO 設置。",
-    "reset": "重置應用",
-    "insights": "開支概覽",
-    "resetDemoData": "重置演示數據",
-    "resetDataBody": "將餘額、交易、收款人和目標恢復為演示樣本。您的語言、文字大小和測驗答案將保持不變。",
-    "resetDataConfirm": "為兩個演示用戶重置餘額和交易？",
-    "resetDataDone": "演示數據已重置。餘額已恢復為 S$100,000。",
-    "resetBody": "清除此設備上保存的選擇。",
-    "large": "大字",
-    "insightsOn": "已開開支概覽",
-    "insightsOff": "已關開支概覽",
-    "sections": {
-      "language": "語言和語音",
-      "text": "文字和顯示",
-      "colour": "顏色和主題",
-      "help": "幫助偏好",
-      "shortcuts": "首頁快捷方式",
-      "privacy": "隱私和概覽",
-      "account": "賬戶",
-      "safety": "安全"
-    },
-    "dyslexiaFont": "閱讀障礙友好字體",
-    "dyslexiaFontBody": "使用 OpenDyslexic 字體並加大字距。中文、泰米爾文和其他文字仍使用原來的字體。",
-    "easierTapping": "更易點按",
-    "easierTappingBody": "按鈕更大，付款時可以長按，不必滑動。",
-    "voiceLimit": "語音轉賬限額",
-    "voiceLimitSummary": "語音轉賬上限 {amount}",
-    "voiceLimitBody": "你可以用語音讓 Ollie 發起轉賬，最高不超過此限額。每筆轉賬仍需你核對並確認。選擇“關閉”即可停用語音轉賬。",
-    "voiceLimitOff": "關閉",
-    "voiceLimitRaise": "提高語音轉賬限額？",
-    "voiceLimitRaiseBody": "要將語音轉賬限額提高至 {amount} 嗎？每筆轉賬仍需你核對並確認。",
-    "voiceLimitConfirm": "提高限額"
+  "info": {
+    "investments": "投資",
+    "investmentsBody": "本演示中的示例投資組合，價格並非實時。",
+    "insurance": "保險",
+    "insuranceBody": "保險詳情在這裡不可用。",
+    "loans": "貸款",
+    "loansBody": "這個演示裡沒有貸款。",
+    "moneyLockBody": "資金鎖會留住一部分餘額，鎖定後不能轉出，直到你解開。",
+    "statements": "結單",
+    "statementsBody": "這些是示例電子結單，不會發到真實郵箱。",
+    "lockMoney": "鎖定資金",
+    "investmentsHoldings": "示例持倉",
+    "investmentsTotal": "總值",
+    "investmentsTour": "跟著導覽學習"
   },
   "demo": {
     "mei": "正在向澳大利亞的 Tan Wei Ming 轉賬。",
@@ -682,23 +776,6 @@
       "helpBody": "請選擇助手、分步指引，或給我們發消息。",
       "navTitle": "在應用裡移動",
       "navBody": "使用首頁、計劃、轉賬與付款、獎勵和更多。"
-    },
-    "overseas": {
-      "title": "海外轉賬",
-      "nameTitle": "收款人",
-      "nameBody": "按照收款銀行要求的方式填寫姓名。",
-      "countryTitle": "國家",
-      "countryBody": "選擇錢要匯去的國家。",
-      "swiftTitle": "SWIFT 代碼",
-      "swiftBody": "SWIFT 代碼是 8 位或 11 位字母和數字，用來識別銀行。",
-      "accountTitle": "賬號",
-      "accountBody": "請使用欄位下方顯示的賬號格式。",
-      "amountTitle": "金額",
-      "amountBody": "在這個示例裡，金額用新加坡元輸入。",
-      "reviewTitle": "核對",
-      "reviewBody": "如果有一項不對，應用會用淺白的話說明，並保留你已經輸入的內容。",
-      "purposeTitle": "匯款用途",
-      "purposeBody": "請選擇匯款原因。"
     },
     "paynow": {
       "title": "PayNow",
@@ -725,6 +802,23 @@
       "amountBody": "輸入要匯出的金額。金額比平時大很多時會請你確認。",
       "reviewTitle": "檢查",
       "reviewBody": "核對姓名、賬號和金額，然後繼續。"
+    },
+    "overseas": {
+      "title": "海外轉賬",
+      "nameTitle": "收款人",
+      "nameBody": "按照收款銀行要求的方式填寫姓名。",
+      "countryTitle": "國家",
+      "countryBody": "選擇錢要匯去的國家。",
+      "swiftTitle": "SWIFT 代碼",
+      "swiftBody": "SWIFT 代碼是 8 位或 11 位字母和數字，用來識別銀行。",
+      "accountTitle": "賬號",
+      "accountBody": "請使用欄位下方顯示的賬號格式。",
+      "amountTitle": "金額",
+      "amountBody": "在這個示例裡，金額用新加坡元輸入。",
+      "reviewTitle": "核對",
+      "reviewBody": "如果有一項不對，應用會用淺白的話說明，並保留你已經輸入的內容。",
+      "purposeTitle": "匯款用途",
+      "purposeBody": "請選擇匯款原因。"
     },
     "bill": {
       "title": "付賬單",
@@ -813,43 +907,16 @@
       "helpTitle": "獲得幫助的方式",
       "helpBody": "選擇助手、引導，或給職員發消息。",
       "shortcutsTitle": "首頁快捷方式",
-      "shortcutsBody": "選擇首頁上的 3 個快捷方式。"
+      "shortcutsBody": "選擇首頁上的 3 個快捷方式。",
+      "readTitle": "朗讀",
+      "readBody": "打開朗讀，並選擇 Ollie 的語速。",
+      "colourTitle": "顏色和對比度",
+      "colourBody": "選擇淺色或深色、色覺模式，以及背景。",
+      "privacyTitle": "隱私",
+      "privacyBody": "選擇消費洞察是否只保存在此設備。",
+      "endTitle": "設置好了",
+      "endBody": "您可以隨時在設置裡更改這些選項。"
     }
-  },
-  "themes": {
-    "title": "顏色主題",
-    "light": "淺色",
-    "dark": "深色",
-    "background": "首頁背景照片",
-    "upload": "上傳照片",
-    "removePhoto": "移除照片",
-    "accent": "自定義強調色",
-    "ocbc": "華僑銀行紅",
-    "ocean": "海洋",
-    "forest": "森林",
-    "sunset": "日落",
-    "plum": "梅子",
-    "custom": "自定義"
-  },
-  "months": {
-    "2026-05": "5月",
-    "2026-06": "6月",
-    "2026-07": "7月",
-    "2026-08": "8月",
-    "2026-09": "9月",
-    "2026-10": "10月"
-  },
-  "dialects": {
-    "title": "朗讀語言",
-    "standard": "普通話",
-    "cantonese": "粵語",
-    "note": "粵語語音適用於簡體中文或繁體中文。",
-    "hokkien": "福建話",
-    "teochew": "潮州話",
-    "hakka": "客家話",
-    "soon": "暫不可用",
-    "request": "請一位會說{dialect}的職員聯繫我",
-    "cloud": "粵語在可用時使用雲端語音。"
   },
   "categories": {
     "food": "餐飲",
@@ -860,31 +927,6 @@
     "other": "其他"
   },
   "adminNote": "職員控制台",
-  "from": "從",
-  "imageTooBig": "這張照片太大。請換一張較小的。",
-  "speech": {
-    "noVoice": "這句話暫時無法朗讀。",
-    "listening": "正在聽…",
-    "voiceInput": "語音輸入",
-    "micDenied": "麥克風已關閉。您可以改為輸入。",
-    "readAloud": "朗讀",
-    "slower": "更慢",
-    "faster": "更快",
-    "cantoneseDown": "粵語語音暫時無法使用，這次沒有朗讀。",
-    "stopListening": "停止"
-  },
-  "info": {
-    "investments": "投資",
-    "investmentsBody": "投資詳情在這裡不可用。",
-    "insurance": "保險",
-    "insuranceBody": "保險詳情在這裡不可用。",
-    "loans": "貸款",
-    "loansBody": "這個演示裡沒有貸款。",
-    "moneyLockBody": "資金鎖會留住一部分餘額，鎖定後不能轉出，直到你解開。",
-    "statements": "結單",
-    "statementsBody": "這些是示例電子結單，不會發到真實郵箱。",
-    "lockMoney": "鎖定資金"
-  },
   "totalBalance": "總餘額",
   "totalBalanceHint": "360 賬戶和結單儲蓄",
   "forYou": "為你推薦",
@@ -922,7 +964,15 @@
   },
   "profile": {
     "title": "個人資料",
-    "sample": "保存在此設備上。"
+    "sample": "保存在此設備上。",
+    "mySetup": "我的設置",
+    "mySetupSummary": "文字 {text}px · {bold} · {voice} · 已完成 {tours} 個導覽",
+    "mySetupBold": "粗體",
+    "mySetupPlain": "常規文字",
+    "mySetupVoice": "語音轉賬最高 {amount}",
+    "mySetupVoiceOff": "語音轉賬已關閉",
+    "editSettings": "在設置中編輯",
+    "editTours": "查看導覽"
   },
   "tours": {
     "guided": "導覽",
@@ -941,7 +991,19 @@
     "cardBody": "鎖定或解鎖您的卡。",
     "insightsBody": "查看錢花到哪裡。",
     "start": "開始",
-    "done": "已完成"
+    "done": "已完成",
+    "resume": "從第 {step} 步繼續，共 {total} 步",
+    "practised": "✓ 已練習",
+    "completed": "✓ 已完成",
+    "aboutMin": "約 {min} 分鐘",
+    "recommended": "推薦",
+    "recommendedForYou": "為您推薦",
+    "pace": "導覽語速",
+    "paceSlow": "較慢",
+    "paceNormal": "正常",
+    "confidenceTitle": "您已練習 {flow} 🎉",
+    "confidenceBody": "已練習 {done}/{total} 個旅程",
+    "nextJourney": "下一個旅程"
   },
   "rewards": {
     "title": "獎勵",
@@ -1165,13 +1227,13 @@
     "limitLeft": "今日剩餘限額：{amount}",
     "overLimit": "這筆金額超過您的每日限額（{amount}）。請輸入較低的金額，或更改限額。",
     "overBalance": "金額超過您的可用餘額（{amount}）。",
+    "description": "說明",
     "changeLimit": "更改限額",
     "enterAmount": "請輸入金額後再繼續",
     "showBalance": "顯示可用餘額",
     "payAsk": "向{name}支付{amount}？",
     "pay": "支付",
     "noMessages": "還沒有消息。問問 Ollie 或聯繫我們，回覆會顯示在這裡。",
-    "description": "說明",
     "moneyLockHint": "開了資金鎖定？需要的話先釋放資金。",
     "enterMobile": "+ 輸入手機號",
     "recentTab": "最近",
@@ -1222,7 +1284,12 @@
       "day": "加上這筆，您今天付給這個人的總額是 {amount}。",
       "overseas": "匯到海外，收款人是新的。",
       "words": "附言提到“{word}”，騙子常用這個說法。",
-      "unusual": "比您平時轉的多很多（大約 {usual}）。"
+      "unusual": "比您平時轉的多很多（大約 {usual}）。",
+      "unusualAmount": "這比您平時的付款大很多（通常低於 {usual}）。",
+      "newPayeeLarge": "第一次付款給這個人，而且金額較大。",
+      "firstOverseas": "這是您在本演示中的第一次海外轉賬。",
+      "burst": "短時間內有多筆付款。",
+      "oddHourLarge": "在不太常見的時間進行大額付款。"
     }
   },
   "voice": {
@@ -1239,5 +1306,65 @@
     "bn": "孟加拉語語音",
     "mandarin": "普通話語音",
     "cantonese": "粵語語音"
+  },
+  "insightsExclude": {
+    "toggle": "不計入支出洞察",
+    "helper": "適用於您自己的賬戶之間轉賬、退款或一次性交易。",
+    "tag": "已排除",
+    "summary": "已排除 {count} 筆交易 · 查看",
+    "view": "查看",
+    "undo": "撤銷",
+    "restored": "已重新計入支出洞察",
+    "excluded": "已不計入支出洞察"
+  },
+  "present": {
+    "enterMode": "⤢ 演示模式",
+    "exitMode": "退出演示模式",
+    "exitLink": "退出",
+    "f11": "按 F11 進入全屏",
+    "tapsOn": "點擊高亮：開",
+    "tapsOff": "點擊高亮：關"
+  },
+  "languages": {
+    "morePreview": "更多語言（預覽）",
+    "previewPill": "預覽",
+    "previewNote": "機器翻譯預覽，部分措辭可能不準確。"
+  },
+  "judge": {
+    "title": "演示腳本",
+    "homeTour": "首頁導覽",
+    "paynow": "練習 PayNow",
+    "ollie": "Ollie 轉賬",
+    "scam": "詐騙檢查 S$1,000",
+    "customise": "個性化設置",
+    "tamil": "切換到泰米爾語"
+  },
+  "navShort": {
+    "home": "முகப்பு",
+    "plan": "திட்டம்",
+    "pay": "செலுத்து",
+    "rewards": "வெகுமதி",
+    "more": "மேலும்"
+  },
+  "customise": {
+    "livePreview": "首頁實時預覽",
+    "presetEasy": "更大更簡單",
+    "presetStandard": "標準",
+    "presetLowVision": "低視力",
+    "presetDyslexia": "閱讀障礙友好",
+    "presetApplied": "已應用預設",
+    "undo": "撤銷"
+  },
+  "nudge": {
+    "showHow": "需要我一步步教您嗎？",
+    "biggerText": "要把字調大一些嗎？",
+    "easierTap": "要開啟更易點按嗎？",
+    "tourSuggest": "要試試簡短導覽嗎？",
+    "yes": "好的",
+    "dismiss": "暫時不用"
+  },
+  "_meta": {
+    "machine": true,
+    "reviewed": []
   }
 }

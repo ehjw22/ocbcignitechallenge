@@ -1,4 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { loadTourProgress } from '@/lib/tourProgress'
+import { recommendedTourIds } from '@/lib/recommendedTours'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { Check, ChevronRight, Compass, Globe, House, Lock, PieChart, Receipt, ScanLine, Smartphone, ArrowLeftRight, Headset, MessageSquare, CircleHelp } from 'lucide-react'
 import { BottomNav, Page } from '@/components/Shell'
@@ -200,46 +202,78 @@ const TOUR_LIST = [
   { id: 'settings', title: 'settings.title', body: 'tours.settingsBody', icon: CircleHelp, start: '/settings?tour=1', practice: '' },
 ] as const
 
-function tourDone(id: string) {
-  if (id === 'home') return tourSeen()
-  try {
-    const raw = localStorage.getItem('ocbc-tours-done')
-    return raw ? (JSON.parse(raw) as string[]).includes(id) : false
-  } catch {
-    return false
+function tourBadge(id: string, progress: ReturnType<typeof loadTourProgress>) {
+  const entry = progress[id]
+  if (entry?.completedReal) return 'done'
+  if (entry?.completedPractice) return 'practised'
+  if (!entry?.opened) return 'new'
+  return ''
+}
+
+function startTour(tour: (typeof TOUR_LIST)[number], navigate: ReturnType<typeof useNavigate>) {
+  if (tour.id === 'home') {
+    navigate('/')
+    window.setTimeout(() => startAppTour(false), 300)
+    return
   }
+  if (tour.id === 'settings') {
+    queueShowHow('settings', false)
+    navigate('/settings')
+    return
+  }
+  navigate(tour.start)
 }
 
 export function GuidedTours() {
   const app = useApp()
   const navigate = useNavigate()
-  const t = (key: string) => translate(app.prefs.language, key)
+  const t = (key: string, vars?: Record<string, string | number>) => translate(app.prefs.language, key, vars)
   const setScreen = app.setScreen
+  const progress = useMemo(() => loadTourProgress(app.profile.id), [app.profile.id])
+  const pinned = useMemo(() => recommendedTourIds(app.prefs), [app.prefs])
+  const ordered = useMemo(() => {
+    const set = new Set(pinned)
+    return [...TOUR_LIST.filter((item) => set.has(item.id)), ...TOUR_LIST.filter((item) => !set.has(item.id))]
+  }, [pinned])
   useEffect(() => { setScreen('tours') }, [setScreen])
+  const renderRow = (tour: (typeof TOUR_LIST)[number], pin?: boolean) => {
+    const Icon = tour.icon
+    const entry = progress[tour.id]
+    const badge = tourBadge(tour.id, progress)
+    const resume = entry?.lastStep != null && entry?.totalSteps && entry.lastStep + 1 < entry.totalSteps
+      ? t('tours.resume', { step: entry.lastStep + 1, total: entry.totalSteps })
+      : ''
+    return (
+      <li key={tour.id} className="flex items-start gap-3 px-4 py-3 text-[var(--text)]">
+        <Icon aria-hidden size={24} strokeWidth={1.75} className="mt-1 shrink-0 text-[var(--text)]" />
+        <div className="min-w-0 flex-1">
+          <p className="flex flex-wrap items-center gap-2 font-semibold">
+            {t(tour.title)}
+            {pin && <span className="rounded-full bg-[var(--soft)] px-2 py-0.5 text-[11px] font-bold text-[var(--link)]">{t('tours.recommended')}</span>}
+            {badge === 'new' && <span className="rounded-full bg-[var(--accent)] px-2 py-0.5 text-[11px] font-bold text-white">{t('look.new')}</span>}
+            {badge === 'done' && <span className="text-[11px] font-semibold text-[var(--muted)]">{t('tours.completed')}</span>}
+            {badge === 'practised' && <span className="text-[11px] font-semibold text-[var(--muted)]">{t('tours.practised')}</span>}
+          </p>
+                <p className="text-[var(--muted)]">{t(tour.body)}</p>
+                {resume && <p className="text-sm font-semibold text-[var(--link)]">{resume}</p>}
+                <p className="text-[12px] text-[var(--muted)]">{t('tours.aboutMin', { min: 1 })}</p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            <button type="button" className="min-h-14 rounded-lg bg-[var(--slate)] px-3 font-semibold text-white underline" onClick={() => startTour(tour, navigate)}>{resume ? resume : t('tours.start')}</button>
+            {tour.practice && <button type="button" className="min-h-14 rounded-lg border border-[var(--line)] px-3 font-semibold" onClick={() => navigate(tour.practice)}>{t('practise')}</button>}
+          </div>
+        </div>
+      </li>
+    )
+  }
   return (
     <Page title={t('tours.guided')} back>
-      <ul className="divide-y divide-[var(--line)]">
-        {TOUR_LIST.map((tour) => {
-          const Icon = tour.icon
-          const done = tourDone(tour.id)
-          return (
-            <li key={tour.id} className="flex items-start gap-3 px-4 py-3 text-[var(--text)]">
-              <Icon aria-hidden size={24} strokeWidth={1.75} className="mt-1 shrink-0 text-[var(--text)]" />
-              <div className="min-w-0 flex-1">
-                <p className="flex flex-wrap items-center gap-2 font-semibold">
-                  {t(tour.title)}
-                  <span className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${done ? 'bg-[var(--soft)] text-[var(--muted)]' : 'bg-[var(--accent)] text-white'}`}>{done ? t('tours.done') : t('look.new')}</span>
-                </p>
-                <p className="text-[var(--muted)]">{t(tour.body)}</p>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  <button type="button" className="min-h-11 rounded-lg bg-[var(--slate)] px-3 font-semibold text-white underline" onClick={() => { if (tour.id === 'home') { navigate('/'); window.setTimeout(() => startAppTour(false), 300); return }; if (tour.id === 'settings') { queueShowHow('settings', false); navigate('/settings'); return }; navigate(tour.start) }}>{t('tours.start')}</button>
-                  {tour.practice && <button type="button" className="min-h-11 rounded-lg border border-[var(--line)] px-3 font-semibold" onClick={() => navigate(tour.practice)}>{t('practise')}</button>}
-                </div>
-              </div>
-            </li>
-          )
-        })}
-      </ul>
+      {pinned.length > 0 && (
+        <section className="border-b border-[var(--line)] pb-2">
+          <h2 className="px-4 pt-2 text-lg font-bold">{t('tours.recommendedForYou')}</h2>
+          <ul>{TOUR_LIST.filter((item) => pinned.includes(item.id)).map((tour) => renderRow(tour, true))}</ul>
+        </section>
+      )}
+      <ul className="divide-y divide-[var(--line)]">{(pinned.length ? ordered.filter((item) => !pinned.includes(item.id)) : ordered).map((tour) => renderRow(tour))}</ul>
     </Page>
   )
 }
@@ -373,6 +407,36 @@ export function InfoPage({ topic: topicProp }: { topic?: string } = {}) {
     )
   }
   const key = topic === 'investments' || topic === 'insurance' || topic === 'loans' ? topic : 'investments'
+  if (key === 'investments') {
+    const holdings = [
+      { name: 'OCBC Asia Dividend', value: 12840 },
+      { name: 'STI ETF', value: 8320 },
+      { name: 'SG Bond Fund', value: 5140 },
+    ]
+    const total = holdings.reduce((sum, item) => sum + item.value, 0)
+    return (
+      <Page title={t(`info.${key}`)} back>
+        <div className="space-y-3 p-4">
+          <span className="inline-flex rounded-full bg-[var(--soft)] px-2 py-0.5 text-[11px] font-bold">{t('sample')}</span>
+          <article className="card space-y-2 p-4">
+            <p className="text-sm text-[var(--muted)]">{t('info.investmentsBody')}</p>
+            <p className="text-sm font-semibold">{t('info.investmentsTotal')}</p>
+            <p className="text-2xl font-bold tabular-nums">S${total.toLocaleString('en-SG')}</p>
+          </article>
+          <h2 className="font-semibold">{t('info.investmentsHoldings')}</h2>
+          <ul className="divide-y divide-[var(--line)] rounded-xl bg-[var(--card)]">
+            {holdings.map((item) => (
+              <li key={item.name} className="flex items-center justify-between px-3 py-3 text-sm">
+                <span>{item.name}</span>
+                <span className="font-semibold tabular-nums">S${item.value.toLocaleString('en-SG')}</span>
+              </li>
+            ))}
+          </ul>
+          <Link to="/tours" className="tap block w-full rounded-xl border border-[var(--line)] bg-[var(--card)] px-3 py-3 text-center font-semibold">{t('info.investmentsTour')}</Link>
+        </div>
+      </Page>
+    )
+  }
   return (
     <Page title={t(`info.${key}`)} back>
       <div className="space-y-3 p-4">

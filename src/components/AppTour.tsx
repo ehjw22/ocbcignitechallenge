@@ -4,7 +4,8 @@ import { useApp } from '@/context/AppContext'
 import { TourFrame } from '@/components/TourFrame'
 import { translate } from '@/i18n'
 import { APP_TOUR, tourState, writeTour } from '@/lib/appTour'
-import { speak, stopSpeaking } from '@/lib/speech'
+import { stopSpeaking } from '@/lib/speech'
+import { markTourDropped, markTourFinished, markTourOpened, markTourStep } from '@/lib/tourTracking'
 import { collapseOpened } from '@/lib/tourPlace'
 
 export function AppTour() {
@@ -19,6 +20,12 @@ export function AppTour() {
     window.addEventListener('ocbc-tour', sync)
     return () => window.removeEventListener('ocbc-tour', sync)
   }, [])
+
+  useEffect(() => {
+    if (!state.active) return
+    markTourOpened(app.profile.id, 'app-tour', APP_TOUR.length)
+    markTourStep(app.profile.id, 'app-tour', state.index, APP_TOUR.length)
+  }, [state.active, state.index, app.profile.id])
 
   const step = APP_TOUR[state.index]
   useEffect(() => {
@@ -38,6 +45,7 @@ export function AppTour() {
     collapseOpened()
     writeTour({ active: false, index: state.index })
     setState({ active: false, index: state.index })
+    markTourDropped(app.profile.id, 'app-tour', state.index, APP_TOUR.length)
     app.log('guide_dropped', { guideId: 'app-tour', stepId: step.id })
     if (location.search.includes('tour=1')) navigate(location.pathname, { replace: true })
   }
@@ -57,6 +65,7 @@ export function AppTour() {
           stopSpeaking()
           writeTour({ active: false, index: 0 })
           setState({ active: false, index: 0 })
+          markTourFinished(app.profile.id, 'app-tour', false)
           app.log('guide_completed', { guideId: 'app-tour' })
           return
         }
@@ -68,7 +77,8 @@ export function AppTour() {
         else go(state.index + 1)
       }}
       autoSpeak={app.prefs.readAloud}
-      speak={(text) => speak(text, { language: app.prefs.language, rate: app.prefs.speechRate, dialect: app.prefs.dialect })}
+      nextTitle={!last ? t(APP_TOUR[state.index + 1].title) : undefined}
+      nextBody={!last ? t(APP_TOUR[state.index + 1].body) : undefined}
     />
   )
 }

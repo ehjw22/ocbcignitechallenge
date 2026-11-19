@@ -1,5 +1,25 @@
 import { amountNumber } from './amount.ts'
 
+const LOCALE: Record<string, string> = {
+  en: 'en-SG',
+  zh: 'zh-CN',
+  'zh-TW': 'zh-TW',
+  ms: 'ms-MY',
+  ta: 'ta-SG',
+  id: 'id-ID',
+  vi: 'vi-VN',
+  th: 'th-TH',
+  tl: 'fil-PH',
+  ko: 'ko-KR',
+  ja: 'ja-JP',
+  hi: 'hi-IN',
+  bn: 'bn-IN',
+}
+
+export function localeFor(language: string) {
+  return LOCALE[language] || (language.startsWith('zh') ? 'zh-CN' : 'en-SG')
+}
+
 export function formatMoney(value: number) {
   const num = new Intl.NumberFormat('en-SG', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(value))
   return `${num} SGD`
@@ -14,11 +34,14 @@ export function formatDay(iso: string, language = 'en') {
   const day = new Date(`${iso.slice(0, 10)}T00:00:00`)
   if (Number.isNaN(day.getTime())) return iso
   const sameYear = day.getFullYear() === new Date().getFullYear()
-  return new Intl.DateTimeFormat(language.startsWith('zh') ? 'zh-CN' : language, {
+  const locale = localeFor(language)
+  const options: Intl.DateTimeFormatOptions = {
     day: 'numeric',
     month: 'short',
     year: sameYear ? undefined : 'numeric',
-  }).format(day)
+  }
+  if (locale === 'th-TH') options.calendar = 'gregory'
+  return new Intl.DateTimeFormat(locale, options).format(day)
 }
 
 export function formatTxnAmount(value: number) {

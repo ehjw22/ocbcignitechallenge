@@ -28,6 +28,7 @@ export const defaultPrefs = (): Preferences => ({
   dyslexiaFont: false,
   easierTapping: false,
   voiceTransferLimit: VOICE_TRANSFER_LIMIT_SGD,
+  voiceTransferConfirm: 'faceId',
 })
 
 export const defaultProfile = (): Profile => ({
@@ -75,6 +76,7 @@ export function loadPrefs(): Preferences {
   if (shortcutsChanged) savePrefs(saved)
   saved.textSize = Math.min(24, Math.max(16, Number(saved.textSize) || 16))
   saved.voiceTransferLimit = clampVoiceTransferLimit(saved.voiceTransferLimit)
+  saved.voiceTransferConfirm = saved.voiceTransferConfirm === 'pin' ? 'pin' : 'faceId'
   saved.quizCompleted = typeof saved.quizCompleted === 'boolean' ? saved.quizCompleted : Boolean(saved.onboarded)
   saved.onboarded = saved.quizCompleted
   return saved

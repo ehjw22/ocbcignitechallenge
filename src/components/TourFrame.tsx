@@ -4,7 +4,8 @@ import { useApp } from '@/context/AppContext'
 import { SpeakButton } from '@/components/SpeakButton'
 import { translate } from '@/i18n'
 import { getFlowTour, moveFlowTour, subscribeFlowTour } from '@/lib/guide'
-import { prefetchSpeech, stopSpeaking } from '@/lib/speech'
+import { prefetchSpeech, speak as speakText, stopSpeaking } from '@/lib/speech'
+import { loadTourPace, saveTourPace, tourHighlightPad, tourSpeakDelayMs, tourSpeechRate, type TourPace } from '@/lib/tourPace'
 import { collapseOpened, prepareTarget } from '@/lib/tourPlace'
 
 type Box = { top: number; left: number; width: number; height: number; radius: number }
@@ -22,7 +23,8 @@ export function TourFrame({
   onClose,
   onSkip,
   autoSpeak,
-  speak,
+  nextTitle,
+  nextBody,
   flowEnd,
 }: {
   active: boolean
@@ -37,15 +39,21 @@ export function TourFrame({
   onClose: () => void
   onSkip?: () => void
   autoSpeak: boolean
-  speak: (text: string) => void | Promise<unknown>
+  nextTitle?: string
+  nextBody?: string
   flowEnd?: { onPractise: () => void; onReal: () => void; onDone: () => void }
 }) {
   const app = useApp()
   const t = (key: string) => translate(app.prefs.language, key)
   const cardRef = useRef<HTMLDivElement>(null)
-  const speakRef = useRef(speak)
+  const [pace, setPace] = useState<TourPace>(loadTourPace)
+  const speechOpts = () => ({
+    language: app.prefs.language,
+    rate: tourSpeechRate(app.prefs.speechRate, pace),
+    dialect: app.prefs.dialect,
+  })
+  const pacedSpeak = (text: string) => speakText(text, speechOpts())
   const closeRef = useRef(onClose)
-  speakRef.current = speak
   closeRef.current = onClose
   const [playing, setPlaying] = useState(false)
   const [hole, setHole] = useState<Box | null>(null)
@@ -56,26 +64,29 @@ export function TourFrame({
 
   useEffect(() => {
     if (!active) return
-    prefetchSpeech(`${title}. ${body}`, {
-      language: app.prefs.language,
-      rate: app.prefs.speechRate,
-      dialect: app.prefs.dialect,
-    })
-  }, [active, title, body, app.prefs.language, app.prefs.speechRate, app.prefs.dialect])
+    const opts = speechOpts()
+    prefetchSpeech(`${title}. ${body}`, opts)
+    if (nextTitle && nextBody) prefetchSpeech(`${nextTitle}. ${nextBody}`, opts)
+  }, [active, title, body, nextTitle, nextBody, app.prefs.language, app.prefs.speechRate, app.prefs.dialect, pace])
 
   useEffect(() => {
     if (!active || !autoSpeak) return
-    setPlaying(true)
+  const delay = tourSpeakDelayMs(pace)
     let live = true
-    void Promise.resolve(speakRef.current(`${title}. ${body}`)).finally(() => {
-      if (live) setPlaying(false)
-    })
+    const timer = window.setTimeout(() => {
+      if (!live) return
+      setPlaying(true)
+      void pacedSpeak(`${title}. ${body}`).finally(() => {
+        if (live) setPlaying(false)
+      })
+    }, delay)
     return () => {
       live = false
+      window.clearTimeout(timer)
       stopSpeaking()
       setPlaying(false)
     }
-  }, [active, autoSpeak, element, title, body])
+  }, [active, autoSpeak, element, title, body, pace])
 
   useEffect(() => {
     if (!active || !element) return
@@ -85,7 +96,7 @@ export function TourFrame({
     void prepareTarget(element).then((found) => {
       if (!live) return
       if (!found) {
-        skipRef.current?.()
+        setReady(true)
         return
       }
       setReady(true)
@@ -138,7 +149,7 @@ export function TourFrame({
           const toggle = found.closest('section')?.querySelector('button[aria-expanded]')
           if (toggle instanceof HTMLButtonElement && toggle.getAttribute('aria-expanded') !== 'true') toggle.click()
         }
-        const pad = 6
+        const pad = tourHighlightPad(pace)
         const radius = Number.parseFloat(getComputedStyle(found).borderRadius) || 12
         const rawLeft = (rect.left - rootBox.left) / scale - pad
         const rawWidth = rect.width / scale + pad * 2
@@ -218,7 +229,7 @@ export function TourFrame({
       collapseOpened()
       stopSpeaking()
     }
-  }, [active, ready, element, title, body, step])
+  }, [active, ready, element, title, body, step, pace])
 
   if (!active || !ready) return null
   return (
@@ -256,9 +267,32 @@ export function TourFrame({
               ×
             </button>
           </div>
-          <p className={`mt-1 min-h-0 flex-1 overflow-y-auto leading-snug ${app.prefs.textSize >= 22 ? 'text-[16px]' : 'text-[1rem]'}`}>
+          <p
+            className={`mt-1 min-h-0 flex-1 overflow-y-auto leading-snug ${app.prefs.textSize >= 22 ? 'text-[16px]' : 'text-[1rem]'}`}
+            onClick={() => {
+              if (!app.prefs.readAloud) return
+              setPlaying(true)
+              void pacedSpeak(`${title}. ${flowEnd ? t('flows.tourEndBody') : body}`).finally(() => setPlaying(false))
+            }}
+          >
             {flowEnd ? t('flows.tourEndBody') : body}
           </p>
+          <div className="mt-2 flex gap-2" role="group" aria-label={t('tours.pace')}>
+            {(['normal', 'slow'] as const).map((item) => (
+              <button
+                key={item}
+                type="button"
+                className={`min-h-9 flex-1 rounded-lg px-2 text-sm font-semibold ${pace === item ? 'bg-white text-[#2A3B43]' : 'border border-white/40 text-white'}`}
+                aria-pressed={pace === item}
+                onClick={() => {
+                  setPace(item)
+                  saveTourPace(item)
+                }}
+              >
+                {t(item === 'slow' ? 'tours.paceSlow' : 'tours.paceNormal')}
+              </button>
+            ))}
+          </div>
           {flowEnd ? (
             <div className="mt-3 flex shrink-0 flex-col gap-2">
               <div className="flex items-center gap-2">
@@ -273,7 +307,7 @@ export function TourFrame({
                       return
                     }
                     setPlaying(true)
-                    void Promise.resolve(speak(`${translate(app.prefs.language, 'practice.step', { n: step, total })}. ${title}. ${t('flows.tourEndBody')}`)).finally(() => setPlaying(false))
+                    void pacedSpeak(`${translate(app.prefs.language, 'practice.step', { n: step, total })}. ${title}. ${t('flows.tourEndBody')}`).finally(() => setPlaying(false))
                   }}
                 />
                 {step > 1 && (
@@ -298,7 +332,7 @@ export function TourFrame({
                     return
                   }
                   setPlaying(true)
-                  void Promise.resolve(speak(`${translate(app.prefs.language, 'practice.step', { n: step, total })}. ${title}. ${body}`)).finally(() => setPlaying(false))
+                  void pacedSpeak(`${translate(app.prefs.language, 'practice.step', { n: step, total })}. ${title}. ${body}`).finally(() => setPlaying(false))
                 }}
               />
               <span className="sr-only" aria-live="polite">{translate(app.prefs.language, 'practice.step', { n: step, total })}</span>
@@ -346,6 +380,7 @@ export function FlowTour() {
   const t = (key: string) => translate(app.prefs.language, key)
   const last = tour.index >= tour.steps.length - 1
   const flowId = GUIDE_FLOW[tour.guideId] || tour.guideId
+  const flowTourEnd = Boolean(GUIDE_FLOW[tour.guideId])
   return (
     <TourFrame
       active
@@ -360,8 +395,9 @@ export function FlowTour() {
       onClose={() => moveFlowTour(-1)}
       onSkip={() => moveFlowTour(tour.index + 1 >= tour.steps.length ? -1 : tour.index + 1)}
       autoSpeak={app.prefs.readAloud}
-      speak={(text) => tour.speak(text)}
-      flowEnd={last ? {
+      nextTitle={!last ? t(tour.steps[tour.index + 1].title) : undefined}
+      nextBody={!last ? t(tour.steps[tour.index + 1].body) : undefined}
+      flowEnd={last && flowTourEnd ? {
         onPractise: () => { moveFlowTour(-1); navigate(`/flow/${flowId}?practice=1`) },
         onReal: () => { moveFlowTour(-1); navigate(`/flow/${flowId}`, { replace: true }) },
         onDone: () => moveFlowTour(tour.steps.length),

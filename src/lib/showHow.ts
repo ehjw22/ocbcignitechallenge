@@ -1,6 +1,7 @@
 import journeys from '@/guides/journeys.json'
 import { formatRate, nextRate } from '@/lib/rates'
-import { startGuide } from '@/lib/guide'
+import { getFlowTour, guideById, startGuide } from '@/lib/guide'
+import { markTourDropped, markTourFinished, markTourOpened, markTourStep } from '@/lib/tourTracking'
 import { speak } from '@/lib/speech'
 import type { Preferences } from '@/lib/types'
 import type { useApp } from '@/context/AppContext'
@@ -70,12 +71,25 @@ export function beginShowHow(app: App, getPrefs: () => Preferences, journeyId: s
       app.log('guide_step_missing', { guideId: journeyId, element, stepId })
       app.setNotice('')
     },
-    onStart: (guideId) => app.log('guide_started', { guideId, practice }),
-    onStep: (stepId) => app.setGuideStep(`${journeyId}:${stepId}`),
-    onDrop: (guideId, stepId) => app.log('guide_dropped', { guideId, stepId, practice }),
+    onStart: (guideId) => {
+      const total = guideById(guideId)?.steps.length || 0
+      if (total) markTourOpened(app.profile.id, guideId, total)
+      app.log('guide_started', { guideId, practice })
+    },
+    onStep: (stepId) => {
+      app.setGuideStep(`${journeyId}:${stepId}`)
+      const tour = getFlowTour()
+      if (tour && tour.guideId === journeyId) markTourStep(app.profile.id, journeyId, tour.index, tour.steps.length)
+    },
+    onDrop: (guideId, stepId) => {
+      const tour = getFlowTour()
+      if (tour && tour.guideId === guideId) markTourDropped(app.profile.id, guideId, tour.index, tour.steps.length)
+      app.log('guide_dropped', { guideId, stepId, practice })
+    },
     onDone: (guideId) => {
+      markTourFinished(app.profile.id, guideId, practice)
       app.log('guide_completed', { guideId, practice })
-      app.setGuidePrompt({ journeyId, practice })
+      if (practice) app.setGuidePrompt({ journeyId, practice })
     },
   })
 }

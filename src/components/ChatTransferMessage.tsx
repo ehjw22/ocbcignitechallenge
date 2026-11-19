@@ -7,8 +7,8 @@ import { executeDemoTransfer, transferExpired } from '@/lib/chatTransfer'
 import { formatMoney, formatSGD } from '@/lib/format'
 import type { ChatMessage, VoiceTransferCard } from '@/lib/types'
 import type { VoiceMatch } from '@/lib/voiceTransfer'
-import { ChatHoldButton } from './ChatHoldButton'
 import { Speakable } from './Speakable'
+import { VoiceTransferAuthSheet } from './VoiceTransferAuthSheet'
 import { receiptPaidText, receiptWhenLabel, SuccessReceipt } from './SuccessReceipt'
 
 type Props = {
@@ -30,6 +30,7 @@ export function ChatTransferMessage({ message, scamAnswers, cancelled, onScamAns
   const t = (key: string, vars?: Record<string, string | number>) => translate(app.prefs.language, key, vars)
   const receiptRef = useRef<HTMLDivElement>(null)
   const [preview, setPreview] = useState(false)
+  const [authOpen, setAuthOpen] = useState(false)
   const match: VoiceMatch | null =
     vt?.payeeId && vt.fields && vt.flow
       ? (() => {
@@ -123,28 +124,62 @@ export function ChatTransferMessage({ message, scamAnswers, cancelled, onScamAns
     )
   }
 
+  const cancelAuth = () => {
+    setAuthOpen(false)
+    onUpdateCard({ ...vt, kind: 'authCancelled' })
+  }
+
+  const lockAuth = () => {
+    setAuthOpen(false)
+    onUpdateCard({ ...vt, kind: 'authFailed' })
+  }
+
   if (vt.kind === 'sendReady' && vt.review) {
     return (
-      <div className="mt-3 space-y-3 rounded-xl border border-[var(--line)] bg-[var(--soft)] p-3">
-        <h3 className="text-base font-bold">{t('review')}</h3>
-        <dl className="space-y-2 text-sm">
-          <div className="flex justify-between gap-2"><dt className="text-[var(--muted)]">{t('success.payee')}</dt><dd className="font-semibold">{vt.review.payeeName}</dd></div>
-          <div className="flex justify-between gap-2"><dt className="text-[var(--muted)]">{t('flows.paynowTo')}</dt><dd className="font-semibold">{vt.review.payeeMasked}</dd></div>
-          <div className="flex justify-between gap-2"><dt className="text-[var(--muted)]">{t('amount')}</dt><dd className="money font-bold">{formatSGD(vt.review.amount)}</dd></div>
-          <div className="flex justify-between gap-2"><dt className="text-[var(--muted)]">{t('flows.from')}</dt><dd className="font-semibold">{fromLabel}</dd></div>
-          <div className="flex justify-between gap-2"><dt className="text-[var(--muted)]">{t('flows.when')}</dt><dd className="font-semibold">{t('flows.now')}</dd></div>
-        </dl>
-        {app.prefs.readAloud && reviewText && <Speakable text={reviewText} auto hideText />}
-        <ChatHoldButton
-          label={t('ai.chatConfirmSend')}
-          holdingLabel={t('ai.chatHoldProgress')}
-          confirmLabel={t('ai.chatSure')}
-          easier={app.prefs.easierTapping}
-          onConfirm={runSend}
+      <>
+        <div className="mt-3 space-y-3 rounded-xl border border-[var(--line)] bg-[var(--soft)] p-3">
+          <h3 className="text-base font-bold">{t('review')}</h3>
+          <dl className="space-y-2 text-sm">
+            <div className="flex justify-between gap-2"><dt className="text-[var(--muted)]">{t('success.payee')}</dt><dd className="font-semibold">{vt.review.payeeName}</dd></div>
+            <div className="flex justify-between gap-2"><dt className="text-[var(--muted)]">{t('flows.paynowTo')}</dt><dd className="font-semibold">{vt.review.payeeMasked}</dd></div>
+            <div className="flex justify-between gap-2"><dt className="text-[var(--muted)]">{t('amount')}</dt><dd className="money font-bold">{formatSGD(vt.review.amount)}</dd></div>
+            <div className="flex justify-between gap-2"><dt className="text-[var(--muted)]">{t('flows.from')}</dt><dd className="font-semibold">{fromLabel}</dd></div>
+            <div className="flex justify-between gap-2"><dt className="text-[var(--muted)]">{t('flows.when')}</dt><dd className="font-semibold">{t('flows.now')}</dd></div>
+          </dl>
+          {app.prefs.readAloud && reviewText && <Speakable text={reviewText} auto hideText />}
+          <button
+            type="button"
+            className="min-h-11 w-full rounded-xl bg-[var(--accent)] px-3 font-semibold text-[var(--on-accent)]"
+            onClick={() => setAuthOpen(true)}
+          >
+            {t('ai.chatConfirmSend')}
+          </button>
+          <button type="button" className="min-h-11 w-full rounded-xl border border-[var(--line)] bg-[var(--card)] px-3 font-semibold" onClick={onCancel}>{t('ai.chatCancel')}</button>
+        </div>
+        <VoiceTransferAuthSheet
+          open={authOpen}
+          confirmMode={app.prefs.voiceTransferConfirm}
+          easierTapping={app.prefs.easierTapping}
+          readAloud={app.prefs.readAloud}
+          practice={practice}
+          t={t}
+          onClose={cancelAuth}
+          onVerified={() => {
+            setAuthOpen(false)
+            runSend()
+          }}
+          onLocked={lockAuth}
         />
-        <button type="button" className="min-h-11 w-full rounded-xl border border-[var(--line)] bg-[var(--card)] px-3 font-semibold" onClick={onCancel}>{t('ai.chatCancel')}</button>
-      </div>
+      </>
     )
+  }
+
+  if (vt.kind === 'authCancelled') {
+    return <p className="mt-3 text-sm font-semibold text-[var(--muted)]">{t('ai.chatAuthCancelled')}</p>
+  }
+
+  if (vt.kind === 'authFailed') {
+    return <p className="mt-3 rounded-xl border border-[var(--danger)] p-3 text-sm font-semibold text-[var(--danger)]">{t('ai.chatPinLocked')}</p>
   }
 
   if (vt.kind === 'receipt') {
@@ -163,6 +198,9 @@ export function ChatTransferMessage({ message, scamAnswers, cancelled, onScamAns
             data={{ amount: vt.amount, payeeName: vt.payeeName, reference: vt.reference || '', when: vt.receiptWhen || '', fromLabel, practice: Boolean(vt.practice) }}
             paidLabel={paidLabel}
             practiceLabel={t('practice.banner')}
+            refLabel={t('success.reference')}
+            whenLabel={t('success.when')}
+            fromLabel={t('flows.from')}
           />
         )}
         <div className="flex flex-col gap-2">

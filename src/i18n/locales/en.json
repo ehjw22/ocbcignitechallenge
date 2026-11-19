@@ -81,7 +81,7 @@
   "moveUp": "Move up",
   "moveDown": "Move down",
   "reorderHint": "Drag into a slot, or tap to add.",
-  "selectedCount": "{n} of 3 selected",
+  "selectedCount": "{n} of 6 selected",
   "needSix": "Remove one to add another.",
   "contrastWarn": "This photo is very bright. Try a darker one.",
   "imageTooBig": "This photo is too large. Try a smaller one.",
@@ -173,7 +173,8 @@
     "colourAdjust": "Accent colours may change slightly.",
     "voiceLimit": "Voice transfer limit",
     "voiceLimitBody": "Choose a cap for transfers you start by speaking to Ollie. You still review and confirm each one.",
-    "shortcuts": "Choose 3 shortcuts",
+    "voiceConfirmHint": "You can choose Face ID or PIN for the final check in Settings → Safety.",
+    "shortcuts": "Choose 6 shortcuts",
     "readAloudBody": "A speaker button appears next to text. Turn on to read each screen automatically.",
     "minutes": "3 minutes. Change anytime in Settings."
   },
@@ -285,7 +286,11 @@
     "voiceLimitOff": "Off",
     "voiceLimitRaise": "Raise voice transfer limit?",
     "voiceLimitRaiseBody": "Raise your voice transfer limit to {amount}? You will still review and confirm each transfer.",
-    "voiceLimitConfirm": "Raise limit"
+    "voiceLimitConfirm": "Raise limit",
+    "voiceTransferConfirm": "Confirm voice transfers with",
+    "voiceTransferConfirmBody": "After you review a transfer in Ollie chat, confirm with simulated Face ID or a 6-digit PIN (demo only).",
+    "voiceConfirmFace": "Face ID (default)",
+    "voiceConfirmPin": "6-digit PIN"
   },
   "errors": {
     "summary": "Check the items below.",
@@ -332,7 +337,8 @@
     "fee": "Fee",
     "rate": "Exchange rate",
     "received": "Amount received",
-    "goalAdded": "Added {amount} to {name} goal"
+    "goalAdded": "Added {amount} to {name} goal",
+    "paidAnnounce": "Payment sent: {amount} to {name}. This is demo money."
   },
   "staff": {
     "title": "Message us",
@@ -530,6 +536,10 @@
       "offtopic": {
         "short": "I can only help with banking and this app.",
         "full": "I can help with accounts, transfers, PayNow, GIRO, bills, cards, savings and the screen you are on."
+      },
+      "security": {
+        "short": "Lock your card now. Call OCBC +65 6363 3333 (24h). Never share your OTP or password. I can message staff for you.",
+        "full": "If someone may have accessed your account: 1) Lock your card now. 2) Call OCBC +65 6363 3333 (24 hours). 3) Never share your one-time code or password with anyone. 4) I can message staff so they can follow up."
       }
     },
     "voiceConfirm": "Send {amount} to {name}?",
@@ -555,6 +565,20 @@
     "chatReviewAmount": "Amount",
     "chatReviewFrom": "From",
     "chatConfirmSend": "Confirm and send",
+    "chatVerifyFaceTitle": "Confirm with Face ID",
+    "chatVerifyFaceBody": "Simulated Face ID for this demo — not real biometrics.",
+    "chatVerifyScanning": "Scanning…",
+    "chatVerifyDemoNote": "Practice demo only. No real Face ID or PIN is checked.",
+    "chatUsePinInstead": "Use PIN instead",
+    "chatUseFaceInstead": "Use Face ID instead",
+    "chatVerified": "Verified",
+    "chatEnterPin": "Enter your 6-digit PIN",
+    "chatEnterPinBody": "Demo PIN only — never shared with Ollie.",
+    "chatPinDemoHint": "Demo PIN: 123456",
+    "chatPinWrong": "Wrong PIN. {left} attempt(s) left.",
+    "chatPinLocked": "Transfer cancelled — too many wrong PIN tries.",
+    "chatAuthCancelled": "Transfer cancelled. No money was sent.",
+    "chatPinBackspace": "Delete last digit",
     "chatCancel": "Cancel",
     "chatHoldProgress": "Keep holding…",
     "chatSure": "Are you sure?",
@@ -569,7 +593,11 @@
     "chatScamContinue": "Thanks. You can continue when ready.",
     "chatContinueSend": "Continue to send",
     "chatPracticePaid": "Practice – {amount} sent to {name} (no money moved)",
-    "chatOverCap": "Ollie can send up to {max}. Use the transfer screen for bigger amounts."
+    "chatOverCap": "Ollie can send up to {max}. Use the transfer screen for bigger amounts.",
+    "thinking": "Thinking…",
+    "spendLastMonth": "You spent the most on {category}, {amount} in {month}.",
+    "seeInsights": "See Spending insights",
+    "offline": "Ollie is in offline mode, so answers are limited."
   },
   "flows": {
     "paynow": "PayNow",
@@ -632,6 +660,7 @@
     "scanHint": "Sample QR for practice.",
     "submit": "Continue",
     "practiseThis": "Practise this",
+    "readThisScreen": "Read this screen",
     "tourEndBody": "That's the whole journey. Want to try it safely first?",
     "continueHintDefault": "Fill in the details below to continue.",
     "continueHintTransfer": "Fill in the name and account number to continue.",
@@ -680,7 +709,9 @@
     "staff": "Message staff",
     "accounts": "Accounts",
     "help": "Help",
-    "insights": "Spending insights"
+    "insights": "Spending insights",
+    "mostUsed": "Most used",
+    "resetRecommended": "Reset to recommended"
   },
   "accounts": {
     "title": "Accounts",
@@ -715,7 +746,7 @@
   },
   "info": {
     "investments": "Investments",
-    "investmentsBody": "Investment details are not available here.",
+    "investmentsBody": "Sample portfolio for this demo. Values are not live prices.",
     "insurance": "Insurance",
     "insuranceBody": "Insurance details are not available here.",
     "loans": "Loans",
@@ -723,7 +754,10 @@
     "moneyLockBody": "Money Lock holds part of your balance so it cannot be transferred until you release it.",
     "statements": "Statements",
     "statementsBody": "These are sample e-statements. Nothing is sent to a real inbox.",
-    "lockMoney": "Lock money"
+    "lockMoney": "Lock money",
+    "investmentsHoldings": "Sample holdings",
+    "investmentsTotal": "Total value",
+    "investmentsTour": "Learn with a tour"
   },
   "demo": {
     "mei": "Sending money to Tan Wei Ming in Australia.",
@@ -873,7 +907,15 @@
       "helpTitle": "How you get help",
       "helpBody": "Choose the assistant, a guide, or a message to staff.",
       "shortcutsTitle": "Home shortcuts",
-      "shortcutsBody": "Choose the three shortcuts on Home."
+      "shortcutsBody": "Choose the three shortcuts on Home.",
+      "readTitle": "Read aloud",
+      "readBody": "Turn on read aloud and choose how fast Ollie speaks.",
+      "colourTitle": "Colours and contrast",
+      "colourBody": "Pick light or dark, colour-vision mode, and a background.",
+      "privacyTitle": "Privacy",
+      "privacyBody": "Choose whether spending insights stay on this device.",
+      "endTitle": "You are set",
+      "endBody": "You can change these any time in Settings."
     }
   },
   "categories": {
@@ -922,7 +964,15 @@
   },
   "profile": {
     "title": "Profile",
-    "sample": "Saved on this device."
+    "sample": "Saved on this device.",
+    "mySetup": "My setup",
+    "mySetupSummary": "Text {text}px · {bold} · {voice} · {tours} tours done",
+    "mySetupBold": "Bold",
+    "mySetupPlain": "Regular text",
+    "mySetupVoice": "Voice transfers up to {amount}",
+    "mySetupVoiceOff": "Voice transfers off",
+    "editSettings": "Edit in Settings",
+    "editTours": "View tours"
   },
   "tours": {
     "guided": "Guided tours",
@@ -941,7 +991,36 @@
     "cardBody": "Lock or unlock your card.",
     "insightsBody": "See where your money went.",
     "start": "Start",
-    "done": "Done"
+    "done": "Done",
+    "resume": "Resume step {step} of {total}",
+    "practised": "✓ Practised",
+    "completed": "✓ Done",
+    "aboutMin": "about {min} min",
+    "recommended": "Recommended",
+    "recommendedForYou": "Recommended for you",
+    "pace": "Tour pace",
+    "paceSlow": "Slower",
+    "paceNormal": "Normal",
+    "confidenceTitle": "You've practised {flow} 🎉",
+    "confidenceBody": "{done} of {total} journeys practised",
+    "nextJourney": "Next journey"
+  },
+  "customise": {
+    "livePreview": "Live Home preview",
+    "presetEasy": "Bigger & simpler",
+    "presetStandard": "Standard",
+    "presetLowVision": "Low vision",
+    "presetDyslexia": "Dyslexia-friendly",
+    "presetApplied": "Preset applied",
+    "undo": "Undo"
+  },
+  "nudge": {
+    "showHow": "Want me to show you how?",
+    "biggerText": "Make the text bigger?",
+    "easierTap": "Turn on easier tapping?",
+    "tourSuggest": "Try a short guided tour?",
+    "yes": "Yes, please",
+    "dismiss": "Not now"
   },
   "rewards": {
     "title": "Rewards",
@@ -1222,7 +1301,12 @@
       "day": "This brings your total to this person today to {amount}.",
       "overseas": "Overseas, to someone new.",
       "words": "The reference mentions '{word}', which scammers often use.",
-      "unusual": "Much more than you usually send (about {usual})."
+      "unusual": "Much more than you usually send (about {usual}).",
+      "unusualAmount": "This is much larger than your usual payments (usually under {usual}).",
+      "newPayeeLarge": "First time paying this person, and it's a large amount.",
+      "firstOverseas": "Your first overseas transfer in this demo.",
+      "burst": "Several payments in a short time.",
+      "oddHourLarge": "Large payment at an unusual hour."
     }
   },
   "voice": {
@@ -1239,5 +1323,44 @@
     "bn": "Bengali voice",
     "mandarin": "Mandarin voice",
     "cantonese": "Cantonese voice"
+  },
+  "insightsExclude": {
+    "toggle": "Leave out of Spending insights",
+    "helper": "Use this for transfers between your own accounts, refunds or one-offs.",
+    "tag": "Left out",
+    "summary": "{count} transactions left out · View",
+    "view": "View",
+    "undo": "Undo",
+    "restored": "Included in insights again",
+    "excluded": "Left out of Spending insights"
+  },
+  "present": {
+    "enterMode": "⤢ Present",
+    "exitMode": "Exit present",
+    "exitLink": "Exit",
+    "f11": "Press F11 for full screen",
+    "tapsOn": "Tap highlight on",
+    "tapsOff": "Tap highlight off"
+  },
+  "languages": {
+    "morePreview": "More languages (preview)",
+    "previewPill": "Preview",
+    "previewNote": "Machine-translated preview. Some wording may be imperfect."
+  },
+  "judge": {
+    "title": "Demo script",
+    "homeTour": "Home tour",
+    "paynow": "Practise PayNow",
+    "ollie": "Ollie transfer",
+    "scam": "Scam check S$1,000",
+    "customise": "Customise",
+    "tamil": "Switch to Tamil"
+  },
+  "navShort": {
+    "home": "முகப்பு",
+    "plan": "திட்டம்",
+    "pay": "செலுத்து",
+    "rewards": "வெகுமதி",
+    "more": "மேலும்"
   }
 }

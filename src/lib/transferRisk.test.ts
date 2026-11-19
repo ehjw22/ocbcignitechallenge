@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
+import { buildBaseline } from './transferBaseline.ts'
 import { assessTransferRisk } from './transferRisk.ts'
 
 const meiPayee = [{ name: 'Tan Wei Ming', country: 'Australia', swift: 'CTBAAU2S', account: '12345678' }]
@@ -119,4 +120,61 @@ test('S$6,000 to someone new is high', () => {
 test('job does not match inside another word', () => {
   const result = assessTransferRisk({ flowId: 'paynow', amount: 12, payeeKey: 'paynow:1', text: 'Jobson jobs', usualTransfer: 80 })
   assert.equal(result.level, 'none')
+})
+
+test('mei to john at S$30 stays quiet', () => {
+  const history = [30, 40, 35].map((amount, index) => ({
+    payeeKey: 'local:john tan:ocbc',
+    amount,
+    at: Date.now() - (index + 1) * 86_400_000,
+    userId: 'mei',
+  }))
+  const baseline = buildBaseline(history)
+  const result = assessTransferRisk({
+    flowId: 'transfer',
+    amount: 30,
+    payeeKey: 'local:john tan:ocbc',
+    keys: ['local:john tan:ocbc'],
+    history,
+    baseline,
+    usualTransfer: 200,
+  })
+  assert.equal(result.level, 'none')
+})
+
+test('mei to john at S$1,000 warns with unusual amount', () => {
+  const history = [30, 40, 35, 50, 45].map((amount, index) => ({
+    payeeKey: 'local:john tan:ocbc',
+    amount,
+    at: Date.now() - (index + 1) * 86_400_000,
+    userId: 'mei',
+  }))
+  const baseline = buildBaseline(history)
+  const result = assessTransferRisk({
+    flowId: 'transfer',
+    amount: 1000,
+    payeeKey: 'local:john tan:ocbc',
+    keys: ['local:john tan:ocbc'],
+    history,
+    baseline,
+    usualTransfer: 200,
+  })
+  assert.ok(result.reasons.includes('unusual-amount'))
+  assert.equal(result.level, 'check')
+})
+
+test('burst of paynow in 10 minutes warns', () => {
+  const now = Date.now()
+  const history = [1, 2, 3].map((n) => ({ payeeKey: `paynow:9${n}`, amount: 50, at: now - n * 60_000, userId: 'arif' }))
+  const result = assessTransferRisk({
+    flowId: 'paynow',
+    amount: 200,
+    payeeKey: 'paynow:94',
+    keys: ['paynow:94'],
+    history,
+    baseline: buildBaseline(history),
+    usualTransfer: 80,
+    now,
+  })
+  assert.ok(result.reasons.includes('burst'))
 })

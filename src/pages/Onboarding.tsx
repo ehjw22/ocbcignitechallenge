@@ -5,7 +5,7 @@ import { BottomNav, DemoBadge } from '@/components/Shell'
 import { useApp } from '@/context/AppContext'
 import { translate } from '@/i18n'
 import { VoiceLimitChoices } from '@/components/VoiceLimitChoices'
-import { LANGUAGES } from '@/lib/languages'
+import { LanguagePicker } from '@/components/LanguagePicker'
 import type { ColourVision, DetailLevel, HelpPreference } from '@/lib/types'
 
 const STEPS = 6
@@ -51,19 +51,12 @@ export function Onboarding() {
         <section className="mt-4">
           <h1 className="text-2xl font-semibold">{t('onboarding.language')}</h1>
           <p className="mt-2">{t('onboarding.languageBody')}</p>
-          <div role="radiogroup" aria-label={t('onboarding.language')} className="mt-4 space-y-2">
-            {LANGUAGES.map((language) => (
-              <button
-                key={language.id}
-                type="button"
-                role="radio"
-                aria-checked={prefs.language === language.id}
-                className="tap flex w-full items-center justify-between rounded-2xl border border-[var(--line)] bg-[var(--card)] px-3 text-left"
-                onClick={() => updatePrefs({ language: language.id })}
-              >
-                <span>{language.native}</span>
-              </button>
-            ))}
+          <div className="mt-4">
+            <LanguagePicker
+              language={prefs.language}
+              t={t}
+              onPick={(item) => updatePrefs({ language: item.id })}
+            />
           </div>
         </section>
       )}

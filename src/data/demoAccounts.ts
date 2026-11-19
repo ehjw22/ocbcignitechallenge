@@ -27,6 +27,7 @@ function basePrefs(): Preferences {
     dyslexiaFont: false,
     easierTapping: false,
     voiceTransferLimit: VOICE_TRANSFER_LIMIT_SGD,
+    voiceTransferConfirm: 'faceId',
   }
 }
 

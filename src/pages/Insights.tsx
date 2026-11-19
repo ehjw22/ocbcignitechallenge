@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { spendKey } from '@/lib/insightExclusions'
 import { useSearchParams } from 'react-router-dom'
 import { Cell, Pie, PieChart, Bar, BarChart, Line, LineChart, ResponsiveContainer, XAxis, YAxis } from 'recharts'
 import { Page } from '@/components/Shell'
@@ -50,8 +51,13 @@ export function Insights() {
   const [month, setMonth] = useState('2026-10')
   const [budgets, setBudgets] = useState(loadBudgets)
   const [note, setNote] = useState('')
+  const [showExcluded, setShowExcluded] = useState(false)
   const [params] = useSearchParams()
   const setScreen = app.setScreen
+  const excludedRows = useMemo(
+    () => app.txns.filter((txn) => txn.amount < 0 && app.excluded.has(spendKey(txn))),
+    [app.txns, app.excluded],
+  )
   useEffect(() => { setScreen('insights') }, [setScreen])
   useEffect(() => {
     if (params.get('tour') !== '1') return
@@ -123,6 +129,14 @@ export function Insights() {
     <Page title={t('insights')} back>
       <div className="space-y-4 p-4">
         <p className="text-sm text-[var(--muted)]">{t('insight.sample')}</p>
+        {excludedRows.length > 0 && (
+          <p className="text-sm">
+            <button type="button" className="font-semibold text-[var(--link)] underline" onClick={() => setShowExcluded(true)}>
+              {t('insightsExclude.summary', { count: excludedRows.length })}
+            </button>
+          </p>
+        )}
+        {note && <p className="rounded-lg bg-[var(--soft)] p-2 text-sm" role="status">{note}</p>}
         <div className={`grid gap-2 ${app.prefs.textSize >= 22 ? 'grid-cols-1' : 'grid-cols-2'}`} data-guide="insights-filters">
           <label className="block min-w-0 text-sm font-semibold">
             {t('insight.account')}
@@ -153,7 +167,7 @@ export function Insights() {
         </section>
 
         <section className="card space-y-2 p-3" data-guide="insights-donut">
-          <h2 className="text-base font-semibold">{t('insight.donut')}</h2>
+          <h2 className="text-base font-semibold leading-snug [overflow-wrap:anywhere]">{t('insight.donut')}</h2>
           {slices.length === 0 ? <p>{t('insight.empty')}</p> : (
             <div>
               <div aria-hidden className="mx-auto h-[220px] w-full max-w-[280px]">
@@ -299,8 +313,32 @@ export function Insights() {
         <button type="button" className="h-12 w-full rounded-xl bg-[var(--accent)] font-semibold text-[var(--on-accent)]" onClick={addToGoal}>
           {t('insight.goalAction', { name: goalName })}
         </button>
-        {note && <p role="status">{note}</p>}
       </div>
+      {showExcluded && (
+        <div className="absolute inset-0 z-40 flex items-end bg-black/40" onClick={() => setShowExcluded(false)}>
+          <div className="max-h-[60vh] w-full overflow-y-auto rounded-t-2xl bg-[var(--card)] p-4" onClick={(event) => event.stopPropagation()}>
+            <h2 className="text-lg font-bold">{t('insightsExclude.view')}</h2>
+            <ul className="mt-3 divide-y divide-[var(--line)]">
+              {excludedRows.map((txn) => (
+                <li key={txn.id} className="flex items-center justify-between gap-2 py-3">
+                  <span className="min-w-0 text-sm">{txn.title}</span>
+                  <button
+                    type="button"
+                    className="min-h-11 shrink-0 rounded-lg border border-[var(--line)] px-3 font-semibold"
+                    onClick={() => {
+                      app.toggleExcluded(spendKey(txn), false)
+                      setNote(t('insightsExclude.restored'))
+                      window.setTimeout(() => setNote(''), 5000)
+                    }}
+                  >
+                    {t('insightsExclude.undo')}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
     </Page>
   )
 }

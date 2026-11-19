@@ -2,9 +2,10 @@ import { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Info, Mic, Send } from 'lucide-react'
 import { useApp } from '@/context/AppContext'
+import { buildOllieContext } from '@/lib/ollieContext'
 import { FX } from '@/data/bank'
 import { translate } from '@/i18n'
-import { formatSGD } from '@/lib/format'
+import { formatMoney, formatSGD } from '@/lib/format'
 import {
   clampVoiceTransferLimit,
   formatVoiceTransferAmount,
@@ -22,6 +23,7 @@ import { normaliseFillFields } from '@/lib/fillFields'
 import type { ChatAction, ChatMessage, VoiceTransferCard } from '@/lib/types'
 import { visibleReply } from '@/lib/chatReply'
 import { getFlowTour } from '@/lib/guide'
+import { byCategory, previousMonth, rowsFor } from '@/data/insights'
 import { ChatTransferMessage } from './ChatTransferMessage'
 import { RichText, plainSpeech } from './RichText'
 import { Speakable } from './Speakable'
@@ -113,8 +115,8 @@ function OllieAvatar() {
 
 export function AiPanel() {
   const app = useApp()
-  const navigate = useNavigate()
   const location = useLocation()
+  const navigate = useNavigate()
   const t = (key: string, vars?: Record<string, string | number>) => translate(app.prefs.language, key, vars)
   const [draft, setDraft] = useState('')
   const [busy, setBusy] = useState(false)
@@ -178,7 +180,7 @@ export function AiPanel() {
       setSlow(false)
       return
     }
-    const timer = window.setTimeout(() => setSlow(true), 15000)
+    const timer = window.setTimeout(() => setSlow(true), 1500)
     return () => window.clearTimeout(timer)
   }, [busy])
 
@@ -348,6 +350,22 @@ export function AiPanel() {
       setDraft('')
       return
     }
+    if (!retry && !explain && /what did i spend|last month|上个月|花最多/i.test(text) && app.prefs.spendingInsights) {
+      const month = previousMonth('2026-10') || '2026-09'
+      const rows = rowsFor('all', month, app.excluded)
+      const top = [...byCategory(rows)].sort((a, b) => b.amount - a.amount)[0]
+      if (top) {
+        const content = t('ai.spendLastMonth', {
+          category: t(`categories.${top.key}`),
+          amount: formatMoney(top.amount),
+          month: t(`months.${month}`),
+        })
+        app.setMessages((prev) => [...prev, { role: 'user', content: text }, { role: 'assistant', content, source: 'demo', suggestions: [t('ai.seeInsights')] }])
+        setBusy(false)
+        setDraft('')
+        return
+      }
+    }
     if (!retry && !explain) {
       const local = voiceReply(text)
       if (local) {
@@ -397,6 +415,16 @@ export function AiPanel() {
             balance: app.balances[account.id] ?? account.balance,
           })),
           payees: app.payees.map((payee) => ({ name: payee.name, country: payee.country, label: payee.label })),
+          context: buildOllieContext({
+            pathname: location.pathname,
+            screen: app.screen,
+            step: app.step,
+            prefs: app.prefs,
+            payees: app.payees,
+            txns: app.txns,
+            excluded: app.excluded,
+            accounts: app.accounts,
+          }),
         }),
       })
       if (!res.ok) throw new Error('chat')
@@ -580,8 +608,8 @@ export function AiPanel() {
                   </div>
                 )}
                 {message.voiceTransfer && !cancelled[index] && (
-                  <div className={['scamQuiz', 'sendReady', 'receipt', 'transferError', 'expired'].includes(message.voiceTransfer.kind) ? '' : 'mt-3 space-y-2 rounded-xl border border-[var(--line)] p-3'} data-voice-transfer={message.voiceTransfer.kind}>
-                    {['scamQuiz', 'sendReady', 'receipt', 'transferError', 'expired'].includes(message.voiceTransfer.kind) && (
+                  <div className={['scamQuiz', 'sendReady', 'receipt', 'transferError', 'expired', 'authCancelled', 'authFailed'].includes(message.voiceTransfer.kind) ? '' : 'mt-3 space-y-2 rounded-xl border border-[var(--line)] p-3'} data-voice-transfer={message.voiceTransfer.kind}>
+                    {['scamQuiz', 'sendReady', 'receipt', 'transferError', 'expired', 'authCancelled', 'authFailed'].includes(message.voiceTransfer.kind) && (
                       <ChatTransferMessage
                         message={message}
                         scamAnswers={chatScam[index] || [null, null, null]}
@@ -698,7 +726,7 @@ export function AiPanel() {
                 <span className="typing-dot" style={{ animationDelay: '0.15s' }} />
                 <span className="typing-dot" style={{ animationDelay: '0.3s' }} />
               </span>
-              <p className="text-sm">{slow ? t('ai.slow') : t('ai.typing')}</p>
+              <p className="text-sm">{slow ? t('ai.thinking') : t('ai.typing')}</p>
               {slow && (
                 <button type="button" className="mt-2 min-h-11 rounded-xl border border-[var(--line)] px-3 font-semibold" onClick={() => void ask(app.lastQuestion, true)}>
                   {t('ai.retry')}

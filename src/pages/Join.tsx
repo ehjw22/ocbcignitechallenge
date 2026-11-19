@@ -9,7 +9,11 @@ import { VoiceLimitChoices } from '@/components/VoiceLimitChoices'
 import { useApp } from '@/context/AppContext'
 import { peekAfterLogin } from '@/lib/storage'
 import { translate } from '@/i18n'
-import { DEFAULT_SHORTCUTS, LANGUAGES } from '@/lib/languages'
+import { DEFAULT_SHORTCUTS } from '@/lib/languages'
+import { LanguagePicker } from '@/components/LanguagePicker'
+import { HomePreview } from '@/components/HomePreview'
+import { UndoSnackbar } from '@/components/UndoSnackbar'
+import { patchForPreset, snapshotPrefs, type PresetId, type PresetSnapshot } from '@/lib/presets'
 import type { ColourVision, DetailLevel, HelpPreference } from '@/lib/types'
 
 const STEPS = 8
@@ -20,6 +24,11 @@ export function Join() {
   const t = (key: string, vars?: Record<string, string | number>) => translate(app.prefs.language, key, vars)
   const [step, setStep] = useState(0)
   const [picked, setPicked] = useState<string[]>(app.prefs.shortcuts)
+  const [undo, setUndo] = useState<PresetSnapshot | null>(null)
+  const applyPreset = (id: PresetId) => {
+    setUndo(snapshotPrefs(app.prefs))
+    app.updatePrefs(patchForPreset(id))
+  }
 
   useEffect(() => {
     document.getElementById('join-main')?.scrollTo(0, 0)
@@ -52,12 +61,12 @@ export function Join() {
             <section>
               <h2 id="quiz-title" className="text-xl font-semibold">{t('onboarding.language')}</h2>
               <p className="mt-1 text-sm text-[var(--muted)]">{t('onboarding.minutes')}</p>
-              <div role="radiogroup" aria-label={t('onboarding.language')} className="mt-3">
-                {LANGUAGES.map((language) => (
-                  <Choice key={language.id} selected={app.prefs.language === language.id} onClick={() => app.updatePrefs({ language: language.id, dialect: language.id === 'zh-TW' ? 'cantonese' : 'standard' })}>
-                    {language.native}
-                  </Choice>
-                ))}
+              <div className="mt-3">
+                <LanguagePicker
+                  language={app.prefs.language}
+                  t={t}
+                  onPick={(language) => app.updatePrefs({ language: language.id, dialect: language.id === 'zh-TW' ? 'cantonese' : 'standard' })}
+                />
               </div>
               {(app.prefs.language === 'zh' || app.prefs.language === 'zh-TW') && (
                 <div className="mt-3" role="radiogroup" aria-label={t('dialects.title')}>
@@ -91,20 +100,29 @@ export function Join() {
                 offLabel={t('settings.voiceLimitOff')}
                 label={t('onboarding.voiceLimit')}
               />
+              <p className="text-sm text-[var(--muted)]">{t('onboarding.voiceConfirmHint')}</p>
             </section>
           )}
           {step === 2 && (
             <section className="space-y-3">
               <h2 id="quiz-title" className="text-xl font-semibold">{t('onboarding.text')}</h2>
+              <div className="flex flex-wrap gap-2">
+                {([
+                  ['easyReading', 'customise.presetEasy'],
+                  ['standard', 'customise.presetStandard'],
+                  ['lowVision', 'customise.presetLowVision'],
+                  ['dyslexia', 'customise.presetDyslexia'],
+                ] as const).map(([id, key]) => (
+                  <button key={id} type="button" className="min-h-11 flex-1 rounded-xl border border-[var(--line)] bg-[var(--card)] px-2 text-sm font-semibold" onClick={() => applyPreset(id)}>
+                    {t(key)}
+                  </button>
+                ))}
+              </div>
+              <HomePreview />
               <label className="block font-semibold" htmlFor="quiz-size">
                 {app.prefs.textSize}px
                 <input id="quiz-size" type="range" min={16} max={24} step={1} value={app.prefs.textSize} onChange={(event) => app.updatePrefs({ textSize: Number(event.target.value) })} className="mt-2 w-full" />
               </label>
-              <div className="rounded-2xl border border-[var(--line)] bg-[var(--card)] p-4">
-                <p className="text-sm text-[var(--muted)]">{t('totalBalance')}</p>
-                <p className="mt-1 font-semibold tabular-nums" style={{ fontSize: app.prefs.textSize + 8 }}>S$1,230.55</p>
-                <p className="mt-2" style={{ fontSize: app.prefs.textSize }}>{t('onboarding.preview', { name: (app.profile.shortName || '').toLowerCase().includes('arif') ? 'Siti Aminah' : 'Tan Wei Ming' })}</p>
-              </div>
               <div className="flex min-h-11 items-center justify-between gap-3">
                 <span>
                   <span className="block font-semibold">{t('settings.dyslexiaFont')}</span>
@@ -152,7 +170,8 @@ export function Join() {
           )}
           {step === 6 && (
             <section>
-              <h2 id="quiz-title" className="text-xl font-semibold">{t('themes.title')}</h2>
+              <HomePreview />
+              <h2 id="quiz-title" className="mt-3 text-xl font-semibold">{t('themes.title')}</h2>
               <div role="radiogroup" aria-label={t('themes.title')} className="mt-2 grid grid-cols-2 gap-2">
                 {(['light', 'dark'] as const).map((scheme) => (
                   <Choice key={scheme} selected={app.prefs.scheme === scheme} onClick={() => app.updatePrefs({ scheme })}>{t(`themes.${scheme}`)}</Choice>
@@ -192,7 +211,8 @@ export function Join() {
           )}
           {step === 7 && (
             <section>
-              <h2 id="quiz-title" className="text-xl font-semibold">{t('onboarding.shortcuts')}</h2>
+              <HomePreview />
+              <h2 id="quiz-title" className="mt-3 text-xl font-semibold">{t('onboarding.shortcuts')}</h2>
               <div className="mt-3">
                 <ShortcutPicker order={picked} onChange={setPicked} />
               </div>
@@ -211,6 +231,14 @@ export function Join() {
           </button>
         </div>
       </div>
+      <UndoSnackbar
+        snapshot={undo}
+        onUndo={() => {
+          if (undo) app.updatePrefs(undo)
+          setUndo(null)
+        }}
+        onDone={() => setUndo(null)}
+      />
     </div>
   )
 }

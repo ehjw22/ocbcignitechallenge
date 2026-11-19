@@ -5,6 +5,9 @@ import { useApp } from '@/context/AppContext'
 import { JOURNEY_IDS } from '@/data/flows'
 import { translate } from '@/i18n'
 import { journeyRoute } from '@/lib/showHow'
+import { loadTourProgress } from '@/lib/tourProgress'
+import { nextPracticeJourney, JOURNEY_TOUR_IDS } from '@/lib/recommendedTours'
+import { practisedJourneyCount } from '@/lib/tourTracking'
 import { themeVars } from '@/lib/accent'
 import { AppTour } from './AppTour'
 import { FlowTour } from './TourFrame'
@@ -16,6 +19,15 @@ import { StaffPanel } from './StaffPanel'
 import { speak, stopSpeaking } from '@/lib/speech'
 import { readableText } from '@/lib/tourPlace'
 import { SpeakButton } from './SpeakButton'
+import {
+  f11HintShown,
+  markF11HintShown,
+  readTapsVisualizer,
+  subscribePresent,
+  toggleTapsVisualizer,
+  usePhoneScale,
+  usePresentMode,
+} from '@/lib/present'
 
 const NAV = [
   { to: '/', key: 'nav.home', guide: 'nav-home', end: true, center: false },
@@ -45,27 +57,122 @@ function HomeFilled() {
   )
 }
 
-function usePhoneScale() {
-  const [state, setState] = useState({ scale: 1, full: false })
+function TapVisualizer() {
+  const tapsOn = useSyncExternalStore(subscribePresent, readTapsVisualizer, () => false)
+  const [dots, setDots] = useState<{ x: number; y: number; id: number }[]>([])
   useEffect(() => {
-    const update = () => {
-      const full = window.innerWidth <= 480
-      const scale = full ? 1 : Math.min(1, (window.innerHeight - 72) / 844)
-      setState({ scale, full })
+    if (!tapsOn) return
+    const root = document.getElementById('customer-root')
+    if (!root) return
+    let serial = 0
+    const onDown = (event: PointerEvent) => {
+      const box = root.getBoundingClientRect()
+      const id = ++serial
+      setDots((prev) => [...prev, { x: event.clientX - box.left, y: event.clientY - box.top, id }])
+      window.setTimeout(() => setDots((prev) => prev.filter((dot) => dot.id !== id)), 400)
     }
-    update()
-    window.addEventListener('resize', update)
-    return () => window.removeEventListener('resize', update)
-  }, [])
-  return state
+    root.addEventListener('pointerdown', onDown)
+    return () => root.removeEventListener('pointerdown', onDown)
+  }, [tapsOn])
+  if (!tapsOn || dots.length === 0) return null
+  return (
+    <div className="pointer-events-none absolute inset-0 z-[60]" aria-hidden>
+      {dots.map((dot) => (
+        <span key={dot.id} className="present-tap" style={{ left: dot.x - 18, top: dot.y - 18 }} />
+      ))}
+    </div>
+  )
 }
+
+function JudgeScript() {
+  const { prefs } = useApp()
+  const location = useLocation()
+  const judge = new URLSearchParams(location.search).get('demo') === 'judge'
+  if (!judge) return null
+  const t = (key: string) => translate(prefs.language, key)
+  const links = [
+    ['/', '?tour=1', 'judge.homeTour'],
+    ['/flow/paynow?practice=1&tour=1', '', 'judge.paynow'],
+    ['/help', '', 'judge.ollie'],
+    ['/flow/paynow', '', 'judge.scam'],
+    ['/settings', '', 'judge.customise'],
+    ['/join', '?langs=core', 'judge.tamil'],
+  ] as const
+  return (
+    <aside className="present-chrome fixed bottom-24 left-4 z-[120] max-w-[220px] rounded-xl border border-zinc-600 bg-[#1a1f24] p-3 text-sm text-white shadow-lg">
+      <p className="mb-2 font-bold">{t('judge.title')}</p>
+      <ol className="space-y-1">
+        {links.map(([path, query, key], index) => (
+          <li key={key}>
+            <a className="underline opacity-90 hover:opacity-100" href={`${path}${query}`}>{index + 1}. {t(key)}</a>
+          </li>
+        ))}
+      </ol>
+    </aside>
+  )
+}
+
+function PresentChrome({ full }: { full: boolean }) {
+  const { prefs } = useApp()
+  const { present, toggle, exit } = usePresentMode()
+  const [toast, setToast] = useState('')
+  const tapsOn = useSyncExternalStore(subscribePresent, readTapsVisualizer, () => false)
+  const t = (key: string) => translate(prefs.language, key)
+
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      const tag = (event.target as HTMLElement | null)?.tagName
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || (event.target as HTMLElement | null)?.isContentEditable) return
+      if (event.key === 'p' || event.key === 'P') {
+        event.preventDefault()
+        toggle()
+      }
+      if (event.key === 'Escape' && present) exit()
+      if (present && (event.key === 't' || event.key === 'T')) toggleTapsVisualizer()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [present, toggle, exit])
+
+  useEffect(() => {
+    if (!present || f11HintShown()) return
+    setToast(t('present.f11'))
+    markF11HintShown()
+    const timer = window.setTimeout(() => setToast(''), 3000)
+    return () => window.clearTimeout(timer)
+  }, [present, t])
+
+  if (full) return null
+  return (
+  <>
+    {toast && <div className="present-chrome fixed left-1/2 top-6 z-[120] -translate-x-1/2 rounded-full bg-[#1a1f24] px-4 py-2 text-sm text-white shadow-lg" role="status">{toast}</div>}
+    <button type="button" className="present-chrome fixed bottom-6 right-6 z-[120] min-h-11 rounded-full border border-zinc-600 bg-[#1a1f24] px-4 text-sm font-semibold text-white shadow-lg max-[480px]:hidden" onClick={toggle}>
+      {present ? t('present.exitMode') : t('present.enterMode')}
+    </button>
+    {present && (
+      <button type="button" className="present-chrome fixed bottom-6 right-28 z-[120] text-sm text-white opacity-30 transition hover:opacity-100 max-[480px]:hidden" onClick={exit}>
+        {t('present.exitLink')}
+      </button>
+    )}
+    {present && (
+      <button type="button" className="present-chrome fixed bottom-14 right-6 z-[120] text-xs text-white/70 max-[480px]:hidden" onClick={() => toggleTapsVisualizer()}>
+        {tapsOn ? t('present.tapsOff') : t('present.tapsOn')}
+      </button>
+    )}
+    <JudgeScript />
+  </>
+  )
+}
+
+export { usePhoneScale }
 
 export function PhoneFrame({ children }: { children: React.ReactNode }) {
   const { prefs, announce } = useApp()
-  const { scale, full } = usePhoneScale()
+  const { scale, full, present } = usePhoneScale()
   const vars = themeVars(prefs)
+  const stageBg = present && !full ? '#0f1316' : vars['--bg']
   return (
-    <div className="phone-stage" style={full ? { background: vars['--bg'] } : undefined}>
+    <div className="phone-stage" style={{ background: full ? vars['--bg'] : stageBg, minHeight: full ? undefined : '100dvh', display: full ? undefined : 'flex', flexDirection: full ? undefined : 'column', alignItems: full ? undefined : 'center', justifyContent: full ? undefined : 'center' }}>
       <div className={full ? 'w-full min-w-0 max-w-full self-stretch' : undefined} style={full ? undefined : { width: 390 * scale, height: 844 * scale }}>
       <div className={full ? 'phone-frame is-full' : 'phone-frame'} style={full ? undefined : { transform: `scale(${scale})`, transformOrigin: 'top left' }}>
         {!full && <div className="phone-notch" aria-hidden />}
@@ -76,22 +183,25 @@ export function PhoneFrame({ children }: { children: React.ReactNode }) {
           data-contrast={prefs.highContrast ? 'high' : 'normal'}
           data-bold={prefs.boldText ? 'true' : 'false'}
           data-cvd={prefs.colourVision}
+          lang={prefs.language}
           style={{ ...vars, paddingTop: full ? 'env(safe-area-inset-top)' : '28px' }}
         >
           <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:z-50 focus:bg-white focus:px-3 focus:py-2">
             {translate(prefs.language, 'skipToContent')}
           </a>
           {children}
+          <TapVisualizer />
           <div className="sr-only" aria-live="polite">{announce}</div>
           <HelpLayer />
         </div>
       </div>
       </div>
-      {!full && (
+      {!full && !present && (
         <a href="/admin" className="mt-4 text-sm font-semibold underline" style={{ color: '#0b4f9e' }}>
           {translate(prefs.language, 'adminNote')}
         </a>
       )}
+      <PresentChrome full={full} />
     </div>
   )
 }
@@ -130,7 +240,9 @@ export function BottomNav() {
     <nav aria-label={t('nav.home')} className="app-nav">
       <div className="grid min-h-[64px] grid-cols-5">
       {NAV.map((item) => {
-        const label = t(item.key)
+        const shortKey = prefs.language === 'ta' ? `navShort.${item.key.split('.')[1]}` : item.key
+        const short = prefs.language === 'ta' ? translate(prefs.language, shortKey) : ''
+        const label = short && short !== shortKey ? short : t(item.key)
         return (
           <NavLink
             key={item.to}
@@ -355,7 +467,7 @@ function HelpLayer() {
 
 export function ExplainButton() {
   const app = useApp()
-  const t = (key: string) => translate(app.prefs.language, key)
+  const t = (key: string, vars?: Record<string, string | number>) => translate(app.prefs.language, key, vars)
   return (
     <button
       type="button"
@@ -380,7 +492,7 @@ export function ExplainButton() {
 export function GuideDone() {
   const app = useApp()
   const navigate = useNavigate()
-  const t = (key: string) => translate(app.prefs.language, key)
+  const t = (key: string, vars?: Record<string, string | number>) => translate(app.prefs.language, key, vars)
   const ref = useRef<HTMLDivElement>(null)
   useEffect(() => {
     if (!app.guidePrompt) return
@@ -403,27 +515,49 @@ export function GuideDone() {
     }
   }, [app])
   if (!app.guidePrompt) return null
+  const progress = loadTourProgress(app.profile.id)
+  const practised = practisedJourneyCount(progress)
+  const prompt = app.guidePrompt
+  const flowLabel = ['paynow', 'transfer', 'overseas', 'bill', 'scan', 'giro', 'goal', 'card-lock', 'card-lost', 'limit'].includes(prompt.journeyId)
+    ? t(`flows.${prompt.journeyId === 'card-lock' ? 'cardLock' : prompt.journeyId === 'card-lost' ? 'cardLost' : prompt.journeyId}`)
+    : t('tours.guided')
+  const nextId = prompt.practice ? nextPracticeJourney(app.prefs, progress, prompt.journeyId) : null
   return (
     <div ref={ref} className="mx-4 mt-3 rounded-2xl border border-[var(--line)] bg-[var(--card)] p-3">
-      <p className="font-semibold">{t('guideDone')}</p>
-      <div className="mt-2 flex gap-2">
+      <p className="font-semibold">{prompt.practice ? t('tours.confidenceTitle', { flow: flowLabel }) : t('guideDone')}</p>
+      {prompt.practice && (
+        <p className="text-sm text-[var(--muted)]">{t('tours.confidenceBody', { done: practised, total: JOURNEY_TOUR_IDS.length })}</p>
+      )}
+      <div className="mt-2 flex flex-col gap-2">
         <button
           type="button"
-          className="min-h-11 flex-1 rounded-xl bg-[var(--accent)] font-semibold text-[var(--on-accent)]"
+          className="min-h-14 rounded-xl bg-[var(--accent)] font-semibold text-[var(--on-accent)]"
           onClick={() => {
-            const prompt = app.guidePrompt
             if (prompt) sessionStorage.setItem('ocbc-guide-prompt', prompt.journeyId)
             app.setGuidePrompt(null)
-            if (prompt?.practice) navigate(journeyRoute(prompt.journeyId))
+            if (prompt?.practice) navigate(`/flow/${prompt.journeyId}`)
+            else if (prompt) navigate(journeyRoute(prompt.journeyId))
           }}
         >
-          {t('continue')}
+          {prompt.practice ? t('doForReal') : t('continue')}
         </button>
+        {nextId && (
+          <button
+            type="button"
+            className="min-h-14 rounded-xl border border-[var(--line)] font-semibold"
+            onClick={() => {
+              sessionStorage.setItem('ocbc-guide-prompt', prompt.journeyId)
+              app.setGuidePrompt(null)
+              navigate(`/flow/${nextId}?practice=1&tour=1`)
+            }}
+          >
+            {t('tours.nextJourney')}
+          </button>
+        )}
         <button
           type="button"
-          className="min-h-11 flex-1 rounded-xl border border-[var(--line)] font-semibold"
+          className="min-h-11 rounded-xl border border-[var(--line)] font-semibold"
           onClick={() => {
-            const prompt = app.guidePrompt
             if (prompt) sessionStorage.setItem('ocbc-guide-prompt', prompt.journeyId)
             app.setGuidePrompt(null)
           }}

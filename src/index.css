@@ -4,8 +4,9 @@
 
 :root {
   color-scheme: light;
-  font-family: "Segoe UI", "Nirmala UI", "Leelawadee UI", "Malgun Gothic", "Yu Gothic UI",
-    "Microsoft YaHei", "Microsoft JhengHei", sans-serif;
+  font-family: "Segoe UI", "Open Sans", "Nirmala UI", "Noto Sans Tamil", "Noto Sans Bengali",
+    "Noto Sans Devanagari", "Noto Sans Thai", "Noto Sans JP", "Noto Sans KR",
+    "Leelawadee UI", "Malgun Gothic", "Yu Gothic UI", "Microsoft YaHei", "Microsoft JhengHei", sans-serif;
 }
 
 html[data-mode="dark"] {
@@ -39,6 +40,20 @@ html[data-bold="1"] #customer-app h2,
 html[data-bold="1"] #customer-app strong,
 html[data-bold="1"] #customer-app button {
   font-weight: 800;
+}
+
+@keyframes vt-face-pulse {
+  0%,
+  100% {
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 35%, transparent);
+  }
+  50% {
+  box-shadow: 0 0 0 12px color-mix(in srgb, var(--accent) 8%, transparent);
+  }
+}
+
+.vt-face-scan {
+  animation: vt-face-pulse 1.2s ease-in-out infinite;
 }
 
 #customer-app :focus-visible,
@@ -275,6 +290,27 @@ html[data-bold="1"] #customer-app button {
   padding-bottom: calc(140px + var(--nav-safe, 0px));
 }
 
+#customer-root[lang='ta'] .app-nav span,
+#customer-root[lang='ta'] [data-guide='home-shortcuts'] span {
+  hyphens: auto;
+  overflow-wrap: anywhere;
+  font-size: clamp(11px, 3.2vw, 13px);
+}
+
+.present-tap {
+  position: absolute;
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  background: rgba(227, 6, 19, 0.35);
+  animation: present-tap-fade 0.4s ease-out forwards;
+}
+
+@keyframes present-tap-fade {
+  from { opacity: 1; transform: scale(1); }
+  to { opacity: 0; transform: scale(1.2); }
+}
+
 .phone-notch {
   position: absolute;
   top: 8px;
@@ -328,7 +364,7 @@ html[data-bold="1"] #customer-app button {
 
 .ocbc-btn {
   display: flex;
-  min-height: 48px;
+  min-height: 56px;
   height: auto;
   width: 100%;
   align-items: center;
@@ -349,7 +385,7 @@ html[data-bold="1"] #customer-app button {
 
 .ocbc-btn-secondary {
   display: flex;
-  min-height: 48px;
+  min-height: 56px;
   width: 100%;
   align-items: center;
   justify-content: center;

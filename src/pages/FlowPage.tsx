@@ -12,14 +12,21 @@ import { formatDraftAmount, normaliseAmount, sanitiseAmountDraft } from '@/lib/a
 import { firstFillWizardStep, normaliseFillFields } from '@/lib/fillFields'
 import { hiddenBlockingIssues, stepIssues } from '@/lib/flowStepIssues'
 import { wizardFields, wizardReview } from '@/lib/flowWizard'
-import { formatMoney } from '@/lib/format'
-import { getFlowTour, startGuide, stopGuide, subscribeFlowTour } from '@/lib/guide'
+import { formatMoney, localeFor } from '@/lib/format'
+import { getFlowTour, guideById, startGuide, stopGuide, subscribeFlowTour } from '@/lib/guide'
+import { recordFlowBack, recordValidationFail } from '@/lib/adaptiveNudges'
+import { nextPracticeJourney } from '@/lib/recommendedTours'
+import { loadTourProgress } from '@/lib/tourProgress'
+import { markTourDropped, markTourFinished, markTourOpened, markTourStep, practisedJourneyCount } from '@/lib/tourTracking'
+import { tourBlocksRealPayment } from '@/lib/tourPayment'
 import { guideStepFill, resolveDemoValue } from '@/lib/guideSync'
 import { formatRate, nextRate } from '@/lib/rates'
 import { beginShowHow, peekShowHow, takeShowHow } from '@/lib/showHow'
 import { speak } from '@/lib/speech'
 import { assessTransferRisk, candidateKeys, loadRiskConfig, type RiskLevel, type RiskReason } from '@/lib/transferRisk'
 import { loadTransferHistory, recordTransfer } from '@/lib/transferHistory'
+import { buildBaseline } from '@/lib/transferBaseline'
+import { phoneScale } from '@/lib/present'
 import { validateForm, type Issue } from '@/lib/validate'
 import { ScamSheet } from '@/components/ScamSheet'
 
@@ -140,7 +147,7 @@ export function FlowPage() {
     if (known) setPayeeLabel(known.name)
     setStage('form')
     const fromBal = app.balances[next.from || deposits[0]?.id || '360'] ?? 0
-  setWstep(flow.id === 'paynow' && practice ? 1 : filled.length ? firstFillWizardStep(flow.id, next, fromBal, app.limit, app.payees) : 0)
+  setWstep(flow.id === 'paynow' && practice ? 1 : filled.length ? firstFillWizardStep(flow.id, next, fromBal, app.limit, app.payees, filled) : 0)
     if (filled.length) window.setTimeout(() => sessionStorage.removeItem('ocbc-fill'), 0)
     if (demo === 'mei' && flow.id === 'overseas') {
       const found = validateForm(flow.id, next, app.balances['360'] ?? 0, app.payees)
@@ -173,10 +180,25 @@ export function FlowPage() {
           app.log('guide_step_missing', { guideId: flow.guideId, element, stepId })
           app.setNotice('')
         },
-        onStart: (guideId) => app.log('guide_started', { guideId }),
-        onStep: (stepId) => app.setGuideStep(`${flow.guideId}:${stepId}`),
-        onDrop: (guideId, stepId) => app.log('guide_dropped', { guideId, stepId }),
-        onDone: (guideId) => app.log('guide_completed', { guideId }),
+        onStart: (guideId) => {
+          const total = guideById(guideId)?.steps.length || 0
+          if (total) markTourOpened(app.profile.id, guideId, total)
+          app.log('guide_started', { guideId })
+        },
+        onStep: (stepId) => {
+          app.setGuideStep(`${flow.guideId}:${stepId}`)
+          const tour = getFlowTour()
+          if (tour) markTourStep(app.profile.id, flow.guideId, tour.index, tour.steps.length)
+        },
+        onDrop: (guideId, stepId) => {
+          const tour = getFlowTour()
+          if (tour) markTourDropped(app.profile.id, guideId, tour.index, tour.steps.length)
+          app.log('guide_dropped', { guideId, stepId })
+        },
+        onDone: (guideId) => {
+          markTourFinished(app.profile.id, guideId, practice)
+          app.log('guide_completed', { guideId })
+        },
       })
       if (!result.started) app.setNotice(t('guideEmpty'))
     }, 400)
@@ -376,12 +398,14 @@ export function FlowPage() {
     if (!watched.includes(flow.id) || !flow.amountField) return false
     const keys = candidateKeys(flow.id, form)
     const history = loadTransferHistory(app.profile.id)
+    const baseline = buildBaseline(history)
     const result = assessTransferRisk({
       flowId: flow.id,
       amount,
       keys,
       payees: app.payees,
       history,
+      baseline,
       text: [form.reference, form.purpose, form.note, form.message].filter(Boolean).join(' '),
       usualTransfer: app.profile.usualTransfer,
       config: loadRiskConfig(),
@@ -407,10 +431,15 @@ export function FlowPage() {
   }
 
   const confirm = () => {
+    if (tourBlocksRealPayment(touring, practice)) return
     const reference = `DEMO-${Math.floor(100000 + Math.random() * 900000)}`
     setRef(reference)
+    const payAmount = Number(String(form[flow.amountField || ''] || form.amount || '').replace(/,/g, ''))
+    if (practice) {
+      markTourFinished(app.profile.id, flow.id, true)
+    }
     if (!practice) {
-      const amount = Number(String(form[flow.amountField || ''] || '').replace(/,/g, ''))
+      const amount = payAmount
       if (flow.kind === 'payment' && amount > 0) {
         const from = form.from || '360'
         app.setBalance(from, (app.balances[from] ?? 0) - amount)
@@ -433,7 +462,13 @@ export function FlowPage() {
       setStage('processing')
       window.setTimeout(() => setStage('done'), 1200)
     }
-    app.setAnnounce(practice ? t('practice.done') : t('success.demo'))
+    app.setAnnounce(
+      practice
+        ? t('practice.done')
+        : flow.kind === 'payment' && payAmount > 0
+          ? t('success.paidAnnounce', { amount: formatMoney(payAmount), name: displayPayee || title })
+          : t('success.demo'),
+    )
   }
 
   return (
@@ -480,6 +515,7 @@ export function FlowPage() {
                 setIssues(found)
                 found.forEach((issue) => app.log('error_shown', { code: issue.code, flowId: flow.id }))
                 if (found.length) {
+                  recordValidationFail(app.profile.id)
                   if (app.prefs.readAloud) app.setAnnounce(describe(found[0]))
                   focusIssues(found)
                   return
@@ -494,6 +530,7 @@ export function FlowPage() {
                 setIssues(found)
                 found.forEach((issue) => app.log('error_shown', { code: issue.code, flowId: flow.id }))
                 if (found.length) {
+                  recordValidationFail(app.profile.id)
                   if (app.prefs.readAloud) app.setAnnounce(describe(found[0]))
                   focusIssues(found)
                   return
@@ -776,7 +813,7 @@ export function FlowPage() {
             )}
             {flow.id === 'card-lost' && <p>{t('flows.lostNote')}</p>}
             {touring && !practice ? (
-              <div className="space-y-2">
+              <div data-guide={reviewGuide(flow.id)} className="space-y-2">
                 {/* Shown (inert) only while the guide runs, so its "slide to pay" step has something to point at. */}
                 {flow.kind === 'payment' && guideOn && (
                   <PayControl easier={app.prefs.easierTapping} disabled label={t('look.slide')} holdLabel={t('look.holdToPay')} holdingLabel={t('look.holdingToPay')} ariaLabel={`${app.prefs.easierTapping ? t('look.holdToPay') : t('look.slide')} ${formatMoney(Number(form.amount) || 0)}`} guide={reviewGuide(flow.id)} onPay={() => {}} />
@@ -784,15 +821,35 @@ export function FlowPage() {
                 <button type="button" className="ocbc-btn" onClick={() => { stopGuide(); navigate(`/flow/${flow.id}?practice=1`) }}>{t('flows.practiseThis')}</button>
                 <button type="button" className="tap w-full rounded-xl border border-[var(--line)] bg-[var(--card)]" onClick={() => { stopGuide(); navigate(`/flow/${flow.id}`, { replace: true }) }}>{t('doForReal')}</button>
               </div>
-            ) : flow.kind === 'payment' ? (
-              <PayControl easier={app.prefs.easierTapping} disabled={false} label={practice ? t('look.slidePractice') : t('look.slide')} holdLabel={t('look.holdToPay')} holdingLabel={t('look.holdingToPay')} ariaLabel={`${app.prefs.easierTapping ? t('look.holdToPay') : t('look.slide')} ${formatMoney(Number(form.amount) || 0)}`} guide={reviewGuide(flow.id)} onPay={() => { setOtp(''); setOtpError(''); setStage('otp') }} />
-            ) : null}
-            {flow.kind === 'payment' && !(touring && !practice) ? (
-              <button type="button" className="min-h-11 w-full text-[15px] font-semibold text-[var(--link)] underline" onClick={() => setConfirmPay(true)}>{t('look.tapToPay')}</button>
             ) : (
-              <button type="button" className="ocbc-btn" onClick={() => confirm()}>{t('confirm')}</button>
+              <>
+                {flow.kind === 'payment' ? (
+                  <>
+                    <PayControl easier={app.prefs.easierTapping} disabled={false} label={practice ? t('look.slidePractice') : t('look.slide')} holdLabel={t('look.holdToPay')} holdingLabel={t('look.holdingToPay')} ariaLabel={`${app.prefs.easierTapping ? t('look.holdToPay') : t('look.slide')} ${formatMoney(Number(form.amount) || 0)}`} guide={reviewGuide(flow.id)} onPay={() => { setOtp(''); setOtpError(''); setStage('otp') }} />
+                    <button type="button" className="min-h-11 w-full text-[15px] font-semibold text-[var(--link)] underline" onClick={() => setConfirmPay(true)}>{t('look.tapToPay')}</button>
+                  </>
+                ) : (
+                  <button type="button" className="ocbc-btn" onClick={() => confirm()}>{t('confirm')}</button>
+                )}
+              </>
             )}
-            <button type="button" className="tap w-full" onClick={() => setStage('form')}>{t('back')}</button>
+            <button
+              type="button"
+              className="flex min-h-14 w-full items-center justify-center gap-2 rounded-xl border border-[var(--line)] bg-[var(--card)] font-semibold"
+              onClick={() => {
+                const fromLabel = flow.fields.find((f) => f.id === 'from') ? display(flow.fields.find((f) => f.id === 'from')!, form.from || '', t) : ''
+                const lines = [
+                  t('review'),
+                  `${t('success.payee')}: ${displayPayee || payeeLabel || form.name || form.to || ''}`,
+                  `${t('amount')}: ${formatMoney(sendAmount)}`,
+                  fromLabel ? `${t('from')}: ${fromLabel}` : '',
+                ].filter(Boolean).join('. ')
+                void speak(lines, { language: app.prefs.language, rate: app.prefs.speechRate, dialect: app.prefs.dialect })
+              }}
+            >
+              {t('flows.readThisScreen')}
+            </button>
+            <button type="button" className="tap w-full min-h-14" onClick={() => { recordFlowBack(app.profile.id); setStage('form') }}>{t('back')}</button>
             {confirmPay && (
               <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 p-4" role="dialog" aria-modal="true">
                 <div className="w-full max-w-sm rounded-2xl bg-[var(--card)] p-4">
@@ -815,6 +872,7 @@ export function FlowPage() {
               className="ocbc-btn"
               onClick={() => {
                 if (!/^\d{6}$/.test(otp.trim())) {
+                  recordValidationFail(app.profile.id)
                   setOtpError(t('errors.otp'))
                   window.setTimeout(() => {
                     const el = document.getElementById('demo-otp')
@@ -856,7 +914,7 @@ export function FlowPage() {
               {flow.id !== 'goal' && <div className={app.prefs.textSize >= 20 ? 'flex flex-col' : 'flex justify-between gap-3'}><dt className="text-[var(--muted)]">{t('amount')}</dt><dd className="money font-semibold">{formatMoney(sendAmount)}</dd></div>}
               <div className={app.prefs.textSize >= 20 ? 'flex flex-col' : 'flex justify-between gap-3'}><dt className="text-[var(--muted)]">{t('success.payee')}</dt><dd className="min-w-0 font-semibold">{displayPayee || form.name || title}</dd></div>
               <div className={app.prefs.textSize >= 20 ? 'flex flex-col' : 'flex justify-between gap-3'}><dt className="text-[var(--muted)]">{t('success.reference')}</dt><dd className="money font-semibold">{ref}</dd></div>
-              <div className={app.prefs.textSize >= 20 ? 'flex flex-col' : 'flex justify-between gap-3'}><dt className="text-[var(--muted)]">{t('success.when')}</dt><dd className="money font-semibold">{form.when === 'later' && form.laterDate ? form.laterDate : new Intl.DateTimeFormat(app.prefs.language.startsWith('zh') ? 'zh-CN' : 'en-SG', { day: '2-digit', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit' }).format(new Date())}</dd></div>
+              <div className={app.prefs.textSize >= 20 ? 'flex flex-col' : 'flex justify-between gap-3'}><dt className="text-[var(--muted)]">{t('success.when')}</dt><dd className="money font-semibold">{form.when === 'later' && form.laterDate ? form.laterDate : new Intl.DateTimeFormat(localeFor(app.prefs.language), { day: '2-digit', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit', ...(localeFor(app.prefs.language) === 'th-TH' ? { calendar: 'gregory' as const } : {}) }).format(new Date())}</dd></div>
               {fx && (
                 <>
                   <div className={app.prefs.textSize >= 20 ? 'flex flex-col' : 'flex justify-between gap-3'}><dt className="text-[var(--muted)]">{t('success.fee')}</dt><dd className="money font-semibold">{formatMoney(fx.fee)}</dd></div>
@@ -872,9 +930,30 @@ export function FlowPage() {
               </div>
             )}
             {practice && (
-              <button type="button" className="tap w-full rounded-xl bg-[var(--accent)] font-semibold text-[var(--on-accent)]" onClick={() => navigate(`/flow/${flow.id}`)}>
-                {t('doForReal')}
-              </button>
+              <article className="rounded-xl border border-[var(--line)] bg-[var(--soft)] p-3">
+                <p className="font-semibold">{t('tours.confidenceTitle', { flow: title })}</p>
+                <p className="text-sm text-[var(--muted)]">{t('tours.confidenceBody', {
+                  done: practisedJourneyCount(loadTourProgress(app.profile.id)),
+                  total: 8,
+                })}</p>
+                <div className="mt-2 flex flex-col gap-2">
+                  <button type="button" className="ocbc-btn" onClick={() => navigate(`/flow/${flow.id}`)}>
+                    {t('doForReal')}
+                  </button>
+                  {nextPracticeJourney(app.prefs, loadTourProgress(app.profile.id), flow.id) && (
+                    <button
+                      type="button"
+                      className="min-h-14 rounded-xl border border-[var(--line)] bg-[var(--card)] font-semibold"
+                      onClick={() => {
+                        const next = nextPracticeJourney(app.prefs, loadTourProgress(app.profile.id), flow.id)
+                        if (next) navigate(`/flow/${next}?practice=1&tour=1`)
+                      }}
+                    >
+                      {t('tours.nextJourney')}
+                    </button>
+                  )}
+                </div>
+              </article>
             )}
             <Link to={`/txn/${ref || 'latest'}`} className="block min-h-11 font-semibold text-[var(--link)] underline">{t('look.seeTxn')}</Link>
             <Link to="/pay" className="ocbc-btn">{t('look.goTransfers')}</Link>
@@ -1120,7 +1199,8 @@ function PaySlider({ label, ariaLabel, guide, onPay, disabled }: { label: string
       onPointerMove={(event) => {
         if (!drag.current) return
         const width = event.currentTarget.clientWidth - 48
-        move(drag.current.start + (event.clientX - drag.current.x) / Math.max(width, 1))
+        const scale = phoneScale() || 1
+        move(drag.current.start + (event.clientX - drag.current.x) / scale / Math.max(width, 1))
       }}
       onPointerUp={() => {
         const finished = ratioRef.current >= 0.85

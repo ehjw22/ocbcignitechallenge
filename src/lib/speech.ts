@@ -123,8 +123,18 @@ function playUrl(url: string, text: string, options: SpeakOptions, myToken: numb
   })
 }
 
+function mostlyLatin(text: string) {
+  const letters = text.replace(/\s+/g, '')
+  if (!letters.length) return false
+  const latin = (letters.match(/[A-Za-z]/g) || []).length
+  return latin / letters.length > 0.55
+}
+
 async function speakOnDevice(text: string, options: SpeakOptions) {
   const lang = languageById(options.language)
+  if (import.meta.env.DEV && mostlyLatin(text) && ['ta', 'th', 'ja', 'ko', 'hi', 'bn', 'zh', 'zh-TW'].includes(options.language)) {
+    console.warn('[tts] english-fallback', { language: options.language, sample: text.slice(0, 80) })
+  }
   const voices = await voicesReady()
   const voice = matchVoice(voices, lang.voicePrefix)
   await new Promise<void>((resolve) => {
