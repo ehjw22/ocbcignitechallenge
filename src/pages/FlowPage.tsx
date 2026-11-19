@@ -1,14 +1,16 @@
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { ChevronsRight, CircleAlert, TriangleAlert } from 'lucide-react'
+import { ArrowLeftRight, Building2, ChevronRight, ChevronsRight, CircleAlert, CircleCheck, Eye, EyeOff, IdCard, KeyRound, Search, Smartphone, TriangleAlert } from 'lucide-react'
 import { FieldError } from '@/components/FieldError'
+import { Amount } from '@/components/ui/Amount'
+import { Avatar } from '@/components/ui/Avatar'
 import { Page } from '@/components/Shell'
 import { Speakable } from '@/components/Speakable'
 import { useApp } from '@/context/AppContext'
 import { FX, lookupPaynow, maskPayee, payeeName } from '@/data/bank'
 import { flowById, overseasSample, type FlowField } from '@/data/flows'
 import { translate } from '@/i18n'
-import { formatDraftAmount, normaliseAmount, sanitiseAmountDraft } from '@/lib/amount'
+import { formatDraftAmount } from '@/lib/amount'
 import { firstFillWizardStep, normaliseFillFields } from '@/lib/fillFields'
 import { hiddenBlockingIssues, stepIssues } from '@/lib/flowStepIssues'
 import { wizardFields, wizardReview } from '@/lib/flowWizard'
@@ -62,6 +64,7 @@ export function FlowPage() {
   const [showBal, setShowBal] = useState(false)
   const [fromOpen, setFromOpen] = useState(false)
   const [confirmPay, setConfirmPay] = useState(false)
+  const [shareNote, setShareNote] = useState('')
   const [highlights, setHighlights] = useState<string[]>([])
   const guideOn = useSyncExternalStore(subscribeFlowTour, () => getFlowTour()?.guideId === (flow?.guideId || ''), () => false)
   const alertRef = useRef<HTMLDivElement>(null)
@@ -140,7 +143,9 @@ export function FlowPage() {
     if (known) setPayeeLabel(known.name)
     setStage('form')
     const fromBal = app.balances[next.from || deposits[0]?.id || '360'] ?? 0
-  setWstep(flow.id === 'paynow' && practice ? 1 : filled.length ? firstFillWizardStep(flow.id, next, fromBal, app.limit, app.payees) : 0)
+    const fillStep = filled.length ? firstFillWizardStep(flow.id, next, fromBal, app.limit, app.payees) : 0
+    // PayNow has a single review screen (stage 'review'), so a filled form opens on the amount step; Next then runs the scam check.
+    setWstep(flow.id === 'paynow' && practice ? 1 : flow.id === 'paynow' ? Math.min(fillStep, 1) : fillStep)
     if (filled.length) window.setTimeout(() => sessionStorage.removeItem('ocbc-fill'), 0)
     if (demo === 'mei' && flow.id === 'overseas') {
       const found = validateForm(flow.id, next, app.balances['360'] ?? 0, app.payees)
@@ -320,6 +325,90 @@ export function FlowPage() {
   const showContinueMessage = continueIssues.length > 0 || hiddenIssues.length > 0
   const sendAmount = Number(String(form.amount || '').replace(/,/g, '')) || 0
   const received = fx ? Math.max(0, sendAmount - fx.fee) * fx.perSgd : 0
+  // PayNow payee as in the OCBC app: saved contact name on top, then "+65 8123 4567 • SITI AXXXXX".
+  const pn = (() => {
+    const proxy = form.proxy || 'mobile'
+    const digits = String(form.to || '').replace(/\D/g, '').replace(/^65(?=\d{8}$)/, '')
+    const registered = paynowHit?.status === 'ok' ? paynowHit.name || '' : ''
+    const saved = proxy === 'mobile'
+      ? app.payees.find((item) => item.key === `paynow:${digits}`)?.label || PAYNOW_CONTACTS.find((contact) => contact.mobile === digits)?.name || ''
+      : ''
+    const number = proxy === 'mobile' && digits.length === 8 ? `+65 ${digits.slice(0, 4)} ${digits.slice(4)}` : maskProxy(form.to || '', proxy)
+    const top = saved || registered || number
+    const sub = top === number ? '' : saved && registered ? `${number} • ${registered}` : number
+    return { top, sub }
+  })()
+  const fromAccount = app.accounts.find((account) => account.id === form.from)
+  const amountNumber = Number(String(form.amount || '').replace(/,/g, ''))
+  const paynowAmountText = Number.isFinite(amountNumber) && amountNumber > 0 ? formatDraftAmount(amountNumber.toFixed(2)) : ''
+  // Split "Daily limit remaining: {amount}" so only the amount is the underlined link (works for any word order).
+  const limitParts = t('look.limitLeft', { amount: '\u0001' }).split('\u0001')
+  // Success screen text, shared by the screen itself and the Share link.
+  const paidTitle = practice ? t('practice.doneTitle') : flow.id === 'goal' ? t('success.goalAdded', { amount: formatMoney(Number(form.monthly) || Number(form.target) || 0), name: form.name || 'Holiday' }) : t('look.paid', { amount: formatMoney(sendAmount) })
+  const paidToLabel = t(flow.id === 'goal' ? 'success.payee' : 'look.to')
+  const paidTo = flow.id === 'paynow' ? pn.top : displayPayee || form.name || title
+  const paidWhen = form.when === 'later' && form.laterDate ? form.laterDate : new Intl.DateTimeFormat(app.prefs.language.startsWith('zh') ? 'zh-CN' : 'en-SG', { day: '2-digit', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit' }).format(new Date())
+  const sharePayment = () => {
+    const text = [paidTitle, `${paidToLabel}: ${paidTo}${flow.id === 'paynow' && pn.sub ? ` (${pn.sub})` : ''}`, `${t('success.when')}: ${paidWhen}`, t('look.transactionId', { id: ref })].join('\n')
+    if (typeof navigator.share === 'function') {
+      void navigator.share({ title: t('success.demo'), text }).catch(() => {})
+      return
+    }
+    void navigator.clipboard?.writeText(text).then(() => setShareNote(t('look.shareCopied'))).catch(() => {})
+  }
+  // Review layout for the other payment flows (transfer, overseas, bills, scan, top-up), same look as PayNow's review.
+  // Used on the Transfer/Overseas summary step and on the slide-to-pay screen. Display only: values come from the form.
+  const payField = flow.fields.find((field) => field.id === flow.payeeField)
+  const payTop = flow.id === 'topup' ? lookedUp || maskProxy(form.to || '') : payField ? display(payField, form[payField.id] || '', t) : ''
+  const paySub = flow.fields
+    .filter((field) => ['bank', 'country', 'swift', 'account', 'ref'].includes(field.id) || (flow.id === 'topup' && field.id === 'to' && !!lookedUp))
+    .filter((field) => !(field.id === 'swift' && fx?.account === 'iban'))
+    .map((field) => field.id === 'to' ? maskProxy(form.to || '') : field.id === 'ref' ? `${shortLabel(field, t)} ${form.ref || ''}` : display(field, form[field.id] || '', t))
+    .filter((text) => text.trim())
+    .join(' • ')
+  const payDetails = flow.fields.filter((field) => {
+    if (['amount', 'from', 'lock', 'to', 'bank', 'country', 'swift', 'account', 'ref', flow.payeeField].includes(field.id)) return false
+    if (field.id === 'laterDate') return form.when === 'later'
+    if (field.id === 'when') return form.when !== 'later'
+    return true
+  })
+  const otherReview = flow.kind === 'payment' && flow.id !== 'paynow' ? (
+    <div className="space-y-5">
+      <div>
+        <h2 className="text-[1rem] font-normal text-[var(--muted)]">{t('look.reviewPaymentOf')}</h2>
+        <Amount value={sendAmount} size="2.25rem" />
+      </div>
+      <div className="border-l-4 border-[var(--accent)] pl-4">
+        <p className="text-[0.95rem] text-[var(--muted)]">{t('look.payTo')}</p>
+        <p className="text-[1.25rem] font-bold leading-snug">{payTop}</p>
+        {paySub && <p className="text-[0.95rem] text-[var(--muted)]">{paySub}</p>}
+      </div>
+      <div>
+        <p className="text-[0.95rem] text-[var(--muted)]">{t('look.from')}</p>
+        <p className="text-[1.1rem] font-bold">{t(fromAccount?.nameKey || 'accounts.a360')}</p>
+        {fromAccount?.number && <p className="text-[0.95rem]">{fromAccount.number}</p>}
+      </div>
+      {(payDetails.length > 0 || fx) && (
+        <dl className="space-y-3">
+          {payDetails.map((field) => (
+            <div key={field.id}>
+              <dt className="text-[0.95rem] text-[var(--muted)]">{shortLabel(field, t)}</dt>
+              <dd className="money text-[1.05rem] font-bold">{display(field, form[field.id] || '', t)}</dd>
+            </div>
+          ))}
+          {fx && (
+            <>
+              <div><dt className="text-[0.95rem] text-[var(--muted)]">{t('success.rate')}</dt><dd className="money text-[1.05rem] font-bold">{t('fx.rate', { currency: t(fx.currencyKey), rate: fx.perSgd.toFixed(2) })}</dd></div>
+              <div><dt className="text-[0.95rem] text-[var(--muted)]">{t('success.fee')}</dt><dd className="money text-[1.05rem] font-bold">{formatMoney(fx.fee)}</dd></div>
+              <div><dt className="text-[0.95rem] text-[var(--muted)]">{t('success.received')}</dt><dd className="money text-[1.05rem] font-bold">{t(fx.currencyKey)} {received.toFixed(2)}</dd></div>
+            </>
+          )}
+        </dl>
+      )}
+      {fx && <p className="text-[0.85rem] text-[var(--muted)]">{t('ai.sampleRate')}</p>}
+      <p className="text-[0.75rem] leading-snug text-[var(--muted)]">{t('look.checkDetails')}</p>
+    </div>
+  ) : null
 
   const describe = (issue: Issue) => {
     const field = flow.fields.find((item) => item.id === issue.field)
@@ -329,6 +418,12 @@ export function FlowPage() {
     if (issue.code === 'daily_limit') params.limit = formatMoney(Number(issue.params?.limit ?? app.limit))
     return t(`errors.${issue.code}`, params)
   }
+  // Message above Next. Errors already shown under their own field on this screen aren't repeated here.
+  const continueText = engaged || showHiddenErrors
+    ? [...continueIssues, ...(showHiddenErrors ? hiddenIssues : [])]
+      .filter((issue) => !(visibleFieldIds.includes(issue.field) && fieldErrorText(issue.field)))
+      .map((issue) => describe(issue)).join(' ')
+    : t(continueHintKey)
 
   const focusIssues = (found: Issue[]) => {
     if (!found.length) return
@@ -437,7 +532,19 @@ export function FlowPage() {
   }
 
   return (
-    <Page title={title} back>
+    <Page
+      title={title}
+      back
+      tone={flow.id === 'paynow' && stage === 'form' && wstep === 0 && (!practice || guideOn) ? 'pink' : 'plain'}
+      // PayNow header back arrow: review -> amount screen (same as the in-page Back button); amount -> contacts list.
+      // Practice mode has no contacts screen, so its amount screen keeps the normal back. Guides control navigation themselves.
+      // Local transfer / Overseas header back arrow: review -> summary step, then one wizard step back at a time (same as the in-page Back).
+      onBack={flow.id === 'paynow' && !guideOn && (stage === 'review' || (stage === 'form' && wstep === 1 && !practice))
+        ? () => { setIssues([]); setStage('form'); setWstep(stage === 'review' ? 1 : 0); document.getElementById('main')?.scrollTo(0, 0) }
+        : (flow.id === 'transfer' || flow.id === 'overseas') && !guideOn && (stage === 'review' || (stage === 'form' && wstep > 0))
+          ? () => { setIssues([]); if (stage === 'review') setStage('form'); else setWstep((value) => Math.max(0, value - 1)); document.getElementById('main')?.scrollTo(0, 0) }
+          : undefined}
+    >
       <div className="space-y-3 p-4">
         {practice && (
           <p className="rounded-lg border-l-4 border-[var(--accent)] bg-[var(--card)] px-3 py-2 text-[0.85rem] font-semibold leading-normal" role="status">
@@ -453,17 +560,17 @@ export function FlowPage() {
           </div>
         )}
         {flow.id === 'limit' && (
-          <p data-guide="limit-current" className="card p-3 font-semibold">{t('flows.currentLimit', { amount: formatMoney(app.limit) })}</p>
+          <p data-guide="limit-current" className="rounded-lg bg-[var(--beige)] p-4 font-semibold">{t('flows.currentLimit', { amount: formatMoney(app.limit) })}</p>
         )}
         {flow.id === 'scan' && stage === 'form' && (
-          <div data-guide="scan-frame" className="card flex flex-col items-center gap-3 p-4">
+          <div data-guide="scan-frame" className="flex flex-col items-center gap-3 rounded-lg bg-[var(--beige)] p-4">
             <div aria-hidden className="grid h-28 w-28 grid-cols-5 gap-1 bg-white p-2">
               {Array.from({ length: 25 }, (_, i) => (
                 <span key={i} className={i % 3 === 0 ? 'bg-black' : 'bg-transparent'} />
               ))}
             </div>
             <p>{t('flows.scanHint')}</p>
-            <button type="button" className="tap rounded-xl bg-[var(--accent)] px-3 text-[var(--on-accent)]" onClick={() => setForm((prev) => ({ ...prev, merchant: 'Hawker Stall 12' }))}>
+            <button type="button" className="ocbc-btn" onClick={() => setForm((prev) => ({ ...prev, merchant: 'Hawker Stall 12' }))}>
               {t('flows.scanButton')}
             </button>
           </div>
@@ -474,6 +581,21 @@ export function FlowPage() {
             onSubmit={(e) => {
               e.preventDefault()
               setContinueTried(true)
+              if (flow.id === 'paynow' && wstep === 1) {
+                // Single review: validate everything, run the scam check, then go straight to "Review payment of".
+                const found = validateForm(flow.id, form, balance, app.payees, app.limit)
+                setIssues(found)
+                found.forEach((issue) => app.log('error_shown', { code: issue.code, flowId: flow.id }))
+                if (found.length) {
+                  if (app.prefs.readAloud) app.setAnnounce(describe(found[0]))
+                  focusIssues(found)
+                  return
+                }
+                const amount = Number(String(form[flow.amountField || ''] || '').replace(/,/g, ''))
+                if (openScamCheck(amount, () => setStage('review'))) return
+                setStage('review')
+                return
+              }
               if (reviewAt >= 0 && wstep < reviewAt) {
                 const ids = new Set(stepIds || [])
                 const found = validateForm(flow.id, form, balance, app.payees, app.limit).filter((issue) => ids.has(issue.field))
@@ -505,7 +627,7 @@ export function FlowPage() {
             }}
           >
             {fx && (reviewAt < 0 || wstep >= 2) && (
-              <section className="card space-y-1 p-3" aria-label={t('fx.sample')}>
+              <section className="space-y-1 rounded-lg bg-[var(--beige)] p-4" aria-label={t('fx.sample')}>
                 <p className="font-semibold">{t('fx.sample')}</p>
                 <p>{t('fx.currency')}: {t(fx.currencyKey)}</p>
                 <p>{t('fx.rate', { currency: t(fx.currencyKey), rate: fx.perSgd.toFixed(2) })}</p>
@@ -515,13 +637,13 @@ export function FlowPage() {
               </section>
             )}
             {flow.id === 'overseas' && app.payees.length > 0 && (
-              <section className="card space-y-2 p-3">
-                <p className="font-semibold">{t('savedPayees')}</p>
+              <section>
+                <p className="text-[1.15rem] font-bold">{t('savedPayees')}</p>
                 {app.payees.map((payee) => (
                   <button
                     key={payee.id}
                     type="button"
-                    className="min-h-12 w-full rounded-xl border border-[var(--line)] bg-[var(--card)] px-3 text-left"
+                    className="flex min-h-12 w-full items-center gap-3 border-b border-[var(--line)] py-3 text-left"
                     onClick={() => {
                       setForm((prev) => ({
                         ...prev,
@@ -533,25 +655,19 @@ export function FlowPage() {
                       setWstep(1)
                     }}
                   >
-                    {payee.label}
+                    <Avatar name={payee.label} size="2.75rem" />
+                    <span className="min-w-0 flex-1 text-[1.05rem]">{payee.label}</span>
+                    <ChevronRight aria-hidden size={20} strokeWidth={1.5} className="shrink-0 text-[var(--muted)]" />
                   </button>
                 ))}
               </section>
             )}
             {issues.length > 1 && (
-              <div ref={alertRef} tabIndex={-1} role="alert" className="rounded-xl border-l-4 border-[#9f1239] bg-[#FDECEC] p-3 text-[15px] font-bold text-[#9f1239]">
+              <div ref={alertRef} tabIndex={-1} role="alert" className="field-error flex-col items-stretch">
                 <p className="flex items-center gap-2 font-bold">
                   <CircleAlert aria-hidden size={18} /> {t('errors.count', { n: issues.length })}
                 </p>
-                <ul className="mt-2 space-y-1">
-                  {issues.map((issue) => (
-                    <li key={`${issue.field}-${issue.code}`}>
-                      <a className="font-semibold underline" href={`#field-${issue.field}`} onClick={(event) => { event.preventDefault(); document.getElementById(`field-${issue.field}`)?.focus() }}>
-                        {describe(issue)}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
+                {/* The individual errors show under each field, so they aren't listed again here. */}
                 <div className="mt-2 flex gap-2">
                   {issues.some((issue) => issue.code === 'insufficient') && (
                     <button type="button" className="min-h-11 flex-1 rounded-xl border border-[var(--danger)] px-2 font-semibold" onClick={() => changeField('amount', Math.max(0, balance).toFixed(2))}>{t('errors.useMax')}</button>
@@ -561,29 +677,11 @@ export function FlowPage() {
                 {app.prefs.readAloud && <Speakable text={issues.map(describe).join('. ')} auto hideText />}
               </div>
             )}
-            {reviewAt >= 0 && wstep === reviewAt && (
-              <section className="card space-y-2 p-3">
-                <h2 className="text-lg font-semibold">{t('review')}</h2>
-                {flow.fields.filter((field) => field.id !== 'laterDate' && field.id !== 'lock').map((field) => (
-                  <p key={field.id} className="flex justify-between gap-3 text-sm">
-                    <span className="text-[var(--muted)]">{shortLabel(field, t)}</span>
-                    <span className="text-right font-semibold">{display(field, form[field.id] || '', t)}</span>
-                  </p>
-                ))}
-                {lookedUp && <p className="font-semibold">{lookedUp}</p>}
-                {fx && (
-                  <>
-                    <p className="flex justify-between gap-3 text-sm"><span className="text-[var(--muted)]">{t('success.rate')}</span><span className="money text-right font-semibold">{t('fx.rate', { currency: t(fx.currencyKey), rate: fx.perSgd.toFixed(2) })}</span></p>
-                    <p className="flex justify-between gap-3 text-sm"><span className="text-[var(--muted)]">{t('success.fee')}</span><span className="money text-right font-semibold">{formatMoney(fx.fee)}</span></p>
-                    <p className="flex justify-between gap-3 text-sm"><span className="text-[var(--muted)]">{t('success.received')}</span><span className="money text-right font-semibold">{t(fx.currencyKey)} {received.toFixed(2)}</span></p>
-                    <p className="text-sm text-[var(--muted)]">{t('ai.sampleRate')}</p>
-                  </>
-                )}
-              </section>
-            )}
+            {reviewAt >= 0 && wstep === reviewAt && flow.id !== 'paynow' && <section>{otherReview}</section>}
             {flow.id === 'paynow' && directory && wstep === 0 && (!practice || guideOn) && (
               <section className="space-y-3">
-                <div role="tablist" data-guide="paynow-id-tabs" aria-label={t('flows.proxyType')} className="grid grid-cols-3" onKeyDown={(event) => {
+                <div className={`-mx-4 bg-[var(--pink-soft)] px-4 pb-4 pt-1 ${practice || demo ? '' : '-mt-4'}`}>
+                <div role="tablist" data-guide="paynow-id-tabs" aria-label={t('flows.proxyType')} className="grid grid-cols-3 gap-2" onKeyDown={(event) => {
                   const order = ['mobile', 'nric', 'uen']
                   const index = order.indexOf(form.proxy || 'mobile')
                   if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
@@ -594,34 +692,44 @@ export function FlowPage() {
                     tabs[nextIndex]?.focus()
                   }
                 }}>
-                  {(['mobile', 'nric', 'uen'] as const).map((id) => (
-                    <button key={id} type="button" role="tab" aria-selected={(form.proxy || 'mobile') === id} className={`min-h-11 text-[14px] ${(form.proxy || 'mobile') === id ? 'border-b-2 border-[var(--accent-text)] font-bold text-[var(--accent-text)]' : 'font-normal text-[var(--muted)]'}`} onClick={() => setForm((prev) => ({ ...prev, proxy: id, to: '' }))}>
-                      {t(id === 'mobile' ? 'flows.mobile' : id === 'nric' ? 'look.nric' : 'look.uen')}
-                    </button>
-                  ))}
+                  {(['mobile', 'nric', 'uen'] as const).map((id) => {
+                    const on = (form.proxy || 'mobile') === id
+                    const Icon = id === 'mobile' ? Smartphone : id === 'nric' ? IdCard : Building2
+                    return (
+                      <button key={id} type="button" role="tab" aria-selected={on} className={`flex min-h-[4.5rem] flex-col items-center justify-center gap-1 rounded-lg px-1 text-[0.9rem] leading-tight ${on ? 'bg-[var(--card)] font-semibold ring-1 ring-[var(--line)]' : 'font-normal'}`} onClick={() => setForm((prev) => ({ ...prev, proxy: id, to: '' }))}>
+                        <span aria-hidden className="grid h-9 w-9 place-items-center rounded-full bg-[var(--card)] text-[var(--link)]"><Icon size={20} strokeWidth={1.5} /></span>
+                        {t(id === 'mobile' ? 'flows.mobile' : id === 'nric' ? 'look.nric' : 'look.uen')}
+                      </button>
+                    )
+                  })}
                 </div>
-                <input id="paynow-mobile" data-guide="paynow-to" inputMode={form.proxy === 'mobile' || !form.proxy ? 'tel' : 'text'} className="ocbc-field" placeholder={t(form.proxy === 'nric' ? 'look.nricPh' : form.proxy === 'uen' ? 'look.uenPh' : 'look.mobilePh')} aria-label={t('look.searchPayee')} value={form.to || ''} onChange={(event) => setForm((prev) => ({ ...prev, to: event.target.value }))} />
+                </div>
+                <div className="relative">
+                  <Search aria-hidden size={20} strokeWidth={1.5} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[var(--muted)]" />
+                  <input id="paynow-mobile" data-guide="paynow-to" inputMode={form.proxy === 'mobile' || !form.proxy ? 'tel' : 'text'} className="min-h-12 w-full rounded-lg bg-[var(--soft)] py-2 pl-10 pr-3 text-[1rem] text-[var(--text)] placeholder:text-[var(--muted)]" placeholder={t(form.proxy === 'nric' ? 'look.nricPh' : form.proxy === 'uen' ? 'look.uenPh' : 'look.mobilePh')} aria-label={t('look.searchPayee')} value={form.to || ''} onChange={(event) => setForm((prev) => ({ ...prev, to: event.target.value }))} />
+                </div>
                 {(form.proxy || 'mobile') === 'mobile' && (
                 <>
-                <div className="flex gap-4 border-b border-[var(--line)] text-[15px]">
-                  <span className="border-b-2 border-[#E30613] pb-2 font-semibold">{t('look.recentTab')}</span>
+                <div className="-mx-4 grid grid-cols-2 border-b border-[var(--line)] text-center text-[1rem]">
+                  <span className="border-b-2 border-[var(--accent)] pb-2 font-semibold">{t('look.recentTab')}</span>
                   <span className="pb-2 text-[var(--muted)]">{t('look.contactsTab')}</span>
                 </div>
                 {(app.payees.some((payee) => payee.name === 'Tan Wei Ming') ? PAYNOW_CONTACTS.filter((contact) => contact.name === 'Tan Wei Ming') : PAYNOW_CONTACTS.filter((contact) => contact.name !== 'Tan Wei Ming')).map((contact) => (
-                  <button key={contact.mobile} type="button" className="flex min-h-11 w-full items-center gap-3 text-left" onClick={() => { setPayeeLabel(contact.name); setForm((prev) => ({ ...prev, proxy: 'mobile', to: contact.mobile })); setWstep(1) }}>
-                    <span className="grid h-10 w-10 place-items-center rounded-full bg-[var(--soft)] text-[12px] font-bold">{contact.name.slice(0, 1)}</span>
-                    <span>
-                      <span className="block font-bold">{contact.name}</span>
-                      <span className="block text-[13px] text-[var(--muted)]">+65{contact.mobile.slice(0, 4)}••••</span>
+                  <button key={contact.mobile} type="button" className="flex min-h-11 w-full items-center gap-3 border-b border-[var(--line)] py-3 text-left" onClick={() => { setPayeeLabel(contact.name); setForm((prev) => ({ ...prev, proxy: 'mobile', to: contact.mobile })); setWstep(1) }}>
+                    <Avatar name={contact.name} size="2.75rem" />
+                    <span className="min-w-0">
+                      <span className="block text-[1.05rem]">{contact.name}</span>
+                      <span className="block text-[0.95rem] text-[var(--muted)]">+65 {contact.mobile.slice(0, 4)} {contact.mobile.slice(4)}</span>
                     </span>
                   </button>
                 ))}
-                <button type="button" className="min-h-11 font-semibold text-[var(--link)] underline" onClick={() => document.getElementById('paynow-mobile')?.focus()}>{t('look.enterMobile')}</button>
+                <button type="button" className="min-h-11 text-[1rem] text-[var(--link)] underline" onClick={() => document.getElementById('paynow-mobile')?.focus()}>{t('look.enterMobile')}</button>
                 </>
                 )}
                 {lookupPaynow(form.to || '', form.proxy || 'mobile').status === 'ok' && (
-                  <button type="button" data-guide="paynow-name" className="flex min-h-11 w-full items-center text-left font-bold" onClick={() => { setPayeeLabel(payeeName(form.to) || ''); setWstep(1) }}>
-                    {lookupPaynow(form.to || '', form.proxy || 'mobile').name}
+                  <button type="button" data-guide="paynow-name" className="flex min-h-12 w-full items-center gap-3 rounded-lg border border-[var(--line)] px-3 text-left font-bold" onClick={() => { setPayeeLabel(payeeName(form.to) || ''); setWstep(1) }}>
+                    <span className="min-w-0 flex-1">{lookupPaynow(form.to || '', form.proxy || 'mobile').name}</span>
+                    <ChevronRight aria-hidden size={20} strokeWidth={1.5} className="shrink-0" />
                   </button>
                 )}
                 {lookupPaynow(form.to || '', form.proxy || 'mobile').status === 'unknown' && (
@@ -633,7 +741,7 @@ export function FlowPage() {
               const fields = group.fields.filter(shown)
               if (!fields.length) return null
               return (
-              <fieldset key={group.guide} className="card space-y-3 p-3">
+              <fieldset key={group.guide} className="space-y-3 border-b border-[var(--line)] pb-4">
                 {fields.map((field) => {
                   const iban = field.id === 'account' && fx?.account === 'iban'
                   return (
@@ -646,6 +754,7 @@ export function FlowPage() {
                     placeholder={iban ? 'GB29 NWBK 6016 1331 9268 19' : undefined}
                     options={field.id === 'card' ? app.cards.map((card) => ({ value: card.id, label: card.nameKey })) : field.type === 'account' ? app.accounts.filter((account) => account.kind === 'deposit').map((account) => ({ value: account.id, label: account.nameKey })) : undefined}
                     highlight={highlights.includes(field.id)}
+                    cents={flow.kind === 'payment' && field.id === 'amount'}
                     error={fieldErrorText(field.id)}
                     onBlur={() => touchField(field.id)}
                     balanceHint={field.id === 'from' ? t('flows.available', { amount: formatMoney(balance) }) : ''}
@@ -680,7 +789,7 @@ export function FlowPage() {
               )
             })}
             {flow.id === 'card-lock' && (
-              <label data-guide="card-toggle" className="card flex min-h-tap items-center justify-between px-3">
+              <label data-guide="card-toggle" className="flex min-h-tap items-center justify-between border-b border-[var(--line)] py-3">
                 <span className="font-semibold">{t('flows.lockCard')}</span>
                 <input
                   type="checkbox"
@@ -692,26 +801,34 @@ export function FlowPage() {
               </label>
             )}
             {flow.id === 'paynow' && wstep === 1 && (
-              <section className="space-y-3">
-                <p className="text-[14px] text-[var(--muted)]">{t('look.payTo')}</p>
-                <p className="text-[22px] font-bold">{maskPayee(payeeLabel || payeeName(form.to) || form.to || '')}</p>
-                <p className="text-[13px] text-[var(--muted)]">+65 {String(form.to || '').replace(/\D/g, '').slice(0, 4)} ••••</p>
+              <section className="space-y-4">
+                <div>
+                  <p className="text-[0.95rem] text-[var(--muted)]">{t('look.payTo')}</p>
+                  <p className="text-[1.6rem] font-bold leading-tight">{pn.top}</p>
+                  {pn.sub && <p className="mt-1 text-[0.95rem] text-[var(--muted)]">{pn.sub}</p>}
+                </div>
                 <div data-guide="pay-amount" className="flex items-baseline gap-2">
-                  <input data-guide="paynow-amount" className="w-full bg-transparent text-[32px] font-bold outline-none placeholder:text-[#A0A6AD]" inputMode="decimal" aria-label={t('amount')} placeholder="0.00" value={form.amount ? formatDraftAmount(form.amount) : ''} onChange={(event) => changeField('amount', sanitiseAmountDraft(event.target.value))} onBlur={() => { const norm = normaliseAmount(form.amount); if (norm) changeField('amount', Number(norm).toFixed(2)) }} />
-                  <span className="shrink-0 whitespace-nowrap text-[20px] font-bold text-[var(--muted)]">SGD</span>
+                  {/* Cents-first entry, like a bank keypad: typing 1, 2, 3 shows 0.01, 0.12, 1.23. */}
+                  <input data-guide="paynow-amount" className="min-w-0 max-w-[75%] bg-transparent text-[2.25rem] font-semibold leading-tight outline-none placeholder:text-[var(--muted)] placeholder:opacity-60" style={{ width: `${Math.max(4, paynowAmountText.length) + 0.5}ch` }} inputMode="numeric" aria-label={t('amount')} placeholder="0.00" value={paynowAmountText} onFocus={(event) => { const el = event.currentTarget; window.setTimeout(() => el.setSelectionRange(el.value.length, el.value.length), 0) }} onChange={(event) => { const digits = event.target.value.replace(/\D/g, '').replace(/^0+/, '').slice(0, 10); changeField('amount', digits ? (Number(digits) / 100).toFixed(2) : '') }} />
+                  <span className="shrink-0 whitespace-nowrap text-[1rem]">SGD</span>
                 </div>
-                <Link to="/flow/limit" className="block font-semibold text-[var(--link)] underline">{t('look.limitLeft', { amount: formatMoney(app.limit) })}</Link>
+                <p className="text-[1rem]">{limitParts[0]}<Link to="/flow/limit" className="text-[var(--link)] underline">{formatMoney(app.limit)}</Link>{limitParts[1]}</p>
                 <div data-guide="pay-message">
-                  <input data-guide="paynow-reference" className="min-h-11 w-full rounded-full bg-[var(--soft)] px-4" maxLength={35} placeholder={t('look.addMessage')} aria-label={t('look.addMessage')} value={form.reference || ''} onChange={(event) => changeField('reference', event.target.value)} />
+                  <input data-guide="paynow-reference" className="min-h-11 max-w-full rounded-full bg-[var(--slate)] px-4 text-[1rem] text-white placeholder:text-white" style={{ width: `calc(${Math.max(1, textWidth(form.reference || t('look.addMessage')))}ch + 2.25rem)` }} maxLength={35} placeholder={t('look.addMessage')} aria-label={t('look.addMessage')} value={form.reference || ''} onChange={(event) => changeField('reference', event.target.value)} />
                 </div>
-                <button type="button" data-guide="pay-from" className="min-h-11 w-full rounded-xl border border-[var(--line)] px-3 text-left" onClick={() => setFromOpen(true)}>
-                  <span className="block text-[13px] text-[var(--muted)]">{t('flows.from')}</span>
-                  <span className="block font-bold">{t(app.accounts.find((account) => account.id === form.from)?.nameKey || 'accounts.a360')}</span>
+                <hr className="-mx-4 border-t border-[color:color-mix(in_srgb,var(--muted)_45%,transparent)]" />
+                <button type="button" data-guide="pay-from" className="block min-h-11 w-full text-left" onClick={() => setFromOpen(true)}>
+                  <span className="block text-[0.95rem] text-[var(--muted)]">{t('look.from')}</span>
+                  <span className="block text-[1.1rem] font-bold">{t(fromAccount?.nameKey || 'accounts.a360')}</span>
+                  {fromAccount?.number && <span className="block text-[0.95rem]">{fromAccount.number}</span>}
                 </button>
-                <button type="button" className="min-h-11 text-[14px] underline" onClick={() => setShowBal((value) => !value)}>{showBal ? `${t('look.available')} ${formatMoney(balance)}` : t('look.showBalance')}</button>
-                {Number(form.amount) > app.limit && <p id="pay-alert" role="alert" className="rounded-lg border border-[#E30613] border-l-4 bg-[#FDECEC] p-3 text-[15px] font-bold text-[#1A1A1A]">{t('look.overLimit', { amount: formatMoney(app.limit) })} <Link to="/flow/limit" className="underline">{t('look.changeLimit')}</Link></p>}
-                {Number(form.amount) > balance && Number(form.amount) <= app.limit && <p id="pay-alert" role="alert" className="rounded-lg border border-[#E30613] border-l-4 bg-[#FDECEC] p-3 text-[15px] font-bold text-[#1A1A1A]">{t('look.overBalance', { amount: formatMoney(balance) })}</p>}
-                {Number(form.amount) <= 0 && <p id="pay-alert" className="text-[14px] text-[var(--muted)]">{t('look.enterAmount')}</p>}
+                <button type="button" className="inline-flex min-h-11 items-center gap-2 text-[1rem] text-[var(--link)]" aria-pressed={showBal} onClick={() => setShowBal((value) => !value)}>
+                  {showBal ? <EyeOff aria-hidden size={20} strokeWidth={1.5} /> : <Eye aria-hidden size={20} strokeWidth={1.5} />}
+                  <span className={showBal ? 'text-[var(--text)]' : 'underline'}>{showBal ? `${t('look.available')} ${formatMoney(balance)}` : t('look.showBalance')}</span>
+                </button>
+                {Number(form.amount) > app.limit && <p id="pay-alert" role="alert" className="rounded-lg border border-l-4 border-[var(--danger)] bg-[var(--soft)] p-3 text-[0.95rem] font-bold text-[var(--text)]">{t('look.overLimit', { amount: formatMoney(app.limit) })} <Link to="/flow/limit" className="underline">{t('look.changeLimit')}</Link></p>}
+                {Number(form.amount) > balance && Number(form.amount) <= app.limit && <p id="pay-alert" role="alert" className="rounded-lg border border-l-4 border-[var(--danger)] bg-[var(--soft)] p-3 text-[0.95rem] font-bold text-[var(--text)]">{t('look.overBalance', { amount: formatMoney(balance) })}</p>}
+                {Number(form.amount) <= 0 && <p id="pay-alert" className="text-[0.9rem] text-[var(--muted)]">{t('look.enterAmount')}</p>}
               </section>
             )}
             {fromOpen && (
@@ -724,57 +841,80 @@ export function FlowPage() {
               </div>
             )}
             {!(flow.id === 'paynow' && (directory && wstep === 0 || wstep === 1)) && reviewAt >= 0 && wstep > 0 && (
-              <button type="button" className="text-sm font-semibold text-[var(--link)]" onClick={() => { setIssues([]); setWstep((value) => value - 1) }}>{t('back')}</button>
+              <button type="button" className="text-sm font-semibold text-[var(--link)] underline" onClick={() => { setIssues([]); setWstep((value) => value - 1) }}>{t('back')}</button>
             )}
             {!(flow.id === 'paynow' && directory && wstep === 0 && (!practice || guideOn)) && (
             <>
-            {showContinueMessage && (
+            {/* Errors left over (e.g. from a field on another step) use the same red box as the field errors. PayNow keeps its own amount-screen style. */}
+            {showContinueMessage && continueText && (engaged || showHiddenErrors) && flow.id !== 'paynow' ? (
+              <FieldError>{continueText}</FieldError>
+            ) : showContinueMessage && continueText && (
               <p aria-live="polite" id={flow.id === 'paynow' && wstep === 1 ? 'pay-alert' : undefined} className={`text-sm font-semibold ${engaged || showHiddenErrors ? 'text-[var(--danger)]' : 'text-[var(--muted)]'}`} role={engaged || showHiddenErrors ? 'alert' : 'status'}>
-                {engaged || showHiddenErrors
-                  ? [...continueIssues, ...(showHiddenErrors ? hiddenIssues : [])].map((issue) => describe(issue)).join(' ')
-                  : t(continueHintKey)}
+                {continueText}
               </p>
             )}
-            <button type="submit" data-guide={flow.id === 'paynow' && wstep === 1 ? 'pay-next' : reviewGuide(flow.id)} aria-describedby={flow.id === 'paynow' && wstep === 1 ? 'pay-alert' : undefined} className={`${flow.id === 'paynow' && wstep === 1 ? 'min-h-12 w-full rounded-lg bg-[#E30613] font-bold text-white' : 'ocbc-btn'} disabled:cursor-not-allowed disabled:bg-zinc-300 disabled:text-zinc-600 disabled:opacity-70`} disabled={blockContinue || (touring && !practice && reviewAt >= 0 && wstep >= reviewAt)}>
+            <button type="submit" data-guide={flow.id === 'paynow' && wstep === 1 ? 'pay-next' : reviewGuide(flow.id)} aria-describedby={flow.id === 'paynow' && wstep === 1 ? 'pay-alert' : undefined} className={`${flow.id === 'paynow' && wstep === 1 ? 'ocbc-btn-secondary' : 'ocbc-btn'} disabled:cursor-not-allowed`} disabled={blockContinue || (touring && !practice && reviewAt >= 0 && wstep >= reviewAt)}>
               {t('flows.submit')}
             </button>
             </>
             )}
             {!practice && (
-              <button type="button" className="tap w-full rounded-xl border border-[var(--line)] bg-[var(--card)]" onClick={() => navigate(`/flow/${flow.id}?practice=1&tour=1`)}>
+              <button type="button" className="ocbc-btn-secondary" onClick={() => navigate(`/flow/${flow.id}?practice=1&tour=1`)}>
                 {t('practise')}
               </button>
             )}
             {demo === 'mei' && (
-              <button type="button" className="tap w-full rounded-xl border border-[var(--line)] bg-[var(--card)]" onClick={() => { app.setStaffSeed(t('demo.mei')); app.openHelp('staff') }}>
+              <button type="button" className="ocbc-btn-secondary" onClick={() => { app.setStaffSeed(t('demo.mei')); app.openHelp('staff') }}>
                 {t('demo.contactStaff')}
               </button>
             )}
           </form>
         )}
-        {stage === 'review' && (
-          <section className="card space-y-2 p-4">
-            <h2 className="text-lg font-semibold">{t('review')}</h2>
-            {flow.id === 'paynow' && <p data-guide="paynow-review-name" className="text-[22px] font-bold">{maskPayee(payeeLabel || payeeName(form.to) || form.to || '')}</p>}
+        {(stage === 'review' || stage === 'processing') && (
+          <section className={flow.id === 'paynow' || otherReview ? 'space-y-5' : 'space-y-4'}>
+            {flow.id === 'paynow' ? (
+              <>
+                <div>
+                  <h2 className="text-[1rem] font-normal text-[var(--muted)]">{t('look.reviewPaymentOf')}</h2>
+                  <Amount value={sendAmount} size="2.25rem" />
+                </div>
+                <div className="border-l-4 border-[var(--accent)] pl-4">
+                  <p className="text-[0.95rem] text-[var(--muted)]">{t('look.payTo')}</p>
+                  <p data-guide="paynow-review-name" className="text-[1.25rem] font-bold leading-snug">{pn.top}</p>
+                  {pn.sub && <p className="text-[0.95rem] text-[var(--muted)]">{pn.sub}</p>}
+                  {form.reference?.trim() && (
+                    <>
+                      <p className="mt-3 text-[0.95rem] text-[var(--muted)]">{t('look.message')}</p>
+                      <p className="text-[1rem] font-bold">{form.reference}</p>
+                    </>
+                  )}
+                </div>
+                <div>
+                  <p className="text-[0.95rem] text-[var(--muted)]">{t('look.from')}</p>
+                  <p className="text-[1.1rem] font-bold">{t(fromAccount?.nameKey || 'accounts.a360')}</p>
+                  {fromAccount?.number && <p className="text-[0.95rem]">{fromAccount.number}</p>}
+                </div>
+                <p className="text-[0.75rem] leading-snug text-[var(--muted)]">{t('look.checkDetails')}</p>
+              </>
+            ) : otherReview || (
+            <>
+            <h2 className="text-[1.4rem] font-bold">{t('review')}</h2>
+            <dl className="space-y-3">
             {flow.fields.filter((field) => {
               if (field.id === 'laterDate') return form.when === 'later'
               if (field.id === 'when') return form.when !== 'later'
               if (field.id === 'swift') return fx?.account !== 'iban'
               return true
             }).map((field) => (
-              <p key={field.id} className={app.prefs.textSize >= 20 ? 'flex min-w-0 flex-col gap-1' : 'flex min-w-0 justify-between gap-3'}>
-                <span className="text-[var(--muted)]">{field.id === 'account' && fx?.account === 'iban' ? t('flows.iban') : shortLabel(field, t)}</span>
-                <span className="money min-w-0 whitespace-nowrap font-semibold">{field.id === 'to' ? maskProxy(form[field.id] || '', form.proxy) : display(field, form[field.id] || '', t)}</span>
-              </p>
+              <div key={field.id} className="min-w-0 border-b border-[var(--line)] pb-3">
+                <dt className="text-[0.95rem] text-[var(--muted)]">{field.id === 'account' && fx?.account === 'iban' ? t('flows.iban') : shortLabel(field, t)}</dt>
+                <dd className="money min-w-0 text-[1.05rem] font-bold">{field.id === 'to' ? maskProxy(form[field.id] || '', form.proxy) : display(field, form[field.id] || '', t)}</dd>
+              </div>
             ))}
-            {fx && (
-              <>
-                <p className={app.prefs.textSize >= 20 ? 'flex flex-col gap-1' : 'flex justify-between gap-3'}><span className="text-[var(--muted)]">{t('success.rate')}</span><span className="money font-semibold">{t('fx.rate', { currency: t(fx.currencyKey), rate: fx.perSgd.toFixed(2) })}</span></p>
-                <p className={app.prefs.textSize >= 20 ? 'flex flex-col gap-1' : 'flex justify-between gap-3'}><span className="text-[var(--muted)]">{t('success.fee')}</span><span className="money font-semibold">{formatMoney(fx.fee)}</span></p>
-                <p className={app.prefs.textSize >= 20 ? 'flex flex-col gap-1' : 'flex justify-between gap-3'}><span className="text-[var(--muted)]">{t('success.received')}</span><span className="money font-semibold">{t(fx.currencyKey)} {received.toFixed(2)}</span></p>
-              </>
-            )}
+            </dl>
             {flow.id === 'card-lost' && <p>{t('flows.lostNote')}</p>}
+            </>
+            )}
             {touring && !practice ? (
               <div className="space-y-2">
                 {/* Shown (inert) only while the guide runs, so its "slide to pay" step has something to point at. */}
@@ -782,21 +922,21 @@ export function FlowPage() {
                   <PayControl easier={app.prefs.easierTapping} disabled label={t('look.slide')} holdLabel={t('look.holdToPay')} holdingLabel={t('look.holdingToPay')} ariaLabel={`${app.prefs.easierTapping ? t('look.holdToPay') : t('look.slide')} ${formatMoney(Number(form.amount) || 0)}`} guide={reviewGuide(flow.id)} onPay={() => {}} />
                 )}
                 <button type="button" className="ocbc-btn" onClick={() => { stopGuide(); navigate(`/flow/${flow.id}?practice=1`) }}>{t('flows.practiseThis')}</button>
-                <button type="button" className="tap w-full rounded-xl border border-[var(--line)] bg-[var(--card)]" onClick={() => { stopGuide(); navigate(`/flow/${flow.id}`, { replace: true }) }}>{t('doForReal')}</button>
+                <button type="button" className="ocbc-btn-secondary" onClick={() => { stopGuide(); navigate(`/flow/${flow.id}`, { replace: true }) }}>{t('doForReal')}</button>
               </div>
             ) : flow.kind === 'payment' ? (
               <PayControl easier={app.prefs.easierTapping} disabled={false} label={practice ? t('look.slidePractice') : t('look.slide')} holdLabel={t('look.holdToPay')} holdingLabel={t('look.holdingToPay')} ariaLabel={`${app.prefs.easierTapping ? t('look.holdToPay') : t('look.slide')} ${formatMoney(Number(form.amount) || 0)}`} guide={reviewGuide(flow.id)} onPay={() => { setOtp(''); setOtpError(''); setStage('otp') }} />
             ) : null}
             {flow.kind === 'payment' && !(touring && !practice) ? (
-              <button type="button" className="min-h-11 w-full text-[15px] font-semibold text-[var(--link)] underline" onClick={() => setConfirmPay(true)}>{t('look.tapToPay')}</button>
+              <button type="button" className="min-h-11 w-full text-[0.95rem] text-[var(--link)] underline" onClick={() => setConfirmPay(true)}>{t('look.tapToPay')}</button>
             ) : (
               <button type="button" className="ocbc-btn" onClick={() => confirm()}>{t('confirm')}</button>
             )}
-            <button type="button" className="tap w-full" onClick={() => setStage('form')}>{t('back')}</button>
+            <button type="button" className="tap w-full" onClick={() => { setStage('form'); if (flow.id === 'paynow') setWstep(1) }}>{t('back')}</button>
             {confirmPay && (
               <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 p-4" role="dialog" aria-modal="true">
                 <div className="w-full max-w-sm rounded-2xl bg-[var(--card)] p-4">
-                  <p className="text-lg font-bold">{t('look.payAsk', { amount: formatMoney(Number(form.amount) || 0), name: maskPayee(payeeLabel || form.name || form.to || '') })}</p>
+                  <p className="text-lg font-bold">{t('look.payAsk', { amount: formatMoney(Number(form.amount) || 0), name: flow.id === 'paynow' ? pn.top : maskPayee(payeeLabel || form.name || form.to || '') })}</p>
                   <button type="button" className="ocbc-btn mt-3" onClick={() => { setConfirmPay(false); setOtp(''); setOtpError(''); setStage('otp') }}>{t('look.pay')}</button>
                   <button type="button" className="mt-2 min-h-11 w-full font-semibold underline" onClick={() => setConfirmPay(false)}>{t('cancel')}</button>
                 </div>
@@ -805,10 +945,11 @@ export function FlowPage() {
           </section>
         )}
         {stage === 'otp' && (
-          <section className="card space-y-3 p-4">
-            <h2 className="text-lg font-semibold" id="otp-title">{t('flows.otpTitle')}</h2>
-            <p className="text-sm text-[var(--muted)]">{t('flows.otpBody')}</p>
-            <input id="demo-otp" aria-labelledby="otp-title" aria-invalid={otpError ? true : undefined} aria-describedby={otpError ? 'otp-error' : undefined} inputMode="numeric" autoComplete="one-time-code" value={otp} onChange={(e) => { setOtp(e.target.value); if (/^\d{6}$/.test(e.target.value.trim())) { setOtpError(''); app.setAnnounce('') } }} className={`ocbc-field ${otpError ? 'is-invalid' : ''}`} />
+          <section className="space-y-4 pt-2">
+            <span aria-hidden className="ocbc-icon-circle h-14 w-14 text-[var(--link)]"><KeyRound size={26} strokeWidth={1.5} /></span>
+            <h2 className="text-[1.4rem] font-bold leading-tight" id="otp-title">{t('flows.otpTitle')}</h2>
+            <p className="text-[0.95rem] text-[var(--muted)]">{t('flows.otpBody')}</p>
+            <input id="demo-otp" aria-labelledby="otp-title" aria-invalid={otpError ? true : undefined} aria-describedby={otpError ? 'otp-error' : undefined} inputMode="numeric" autoComplete="one-time-code" value={otp} onChange={(e) => { setOtp(e.target.value); if (/^\d{6}$/.test(e.target.value.trim())) { setOtpError(''); app.setAnnounce('') } }} className={`ocbc-field text-center text-[1.5rem] font-semibold tracking-[0.3em] ${otpError ? 'is-invalid' : ''}`} />
             <FieldError id="otp-error">{otpError}</FieldError>
             <button
               type="button"
@@ -833,9 +974,14 @@ export function FlowPage() {
           </section>
         )}
         {stage === 'processing' && (
-          <section className="card p-8 text-center" role="status" aria-live="polite">
-            <p className="text-[18px] font-bold">{t('look.processing')}</p>
-          </section>
+          <div className="absolute inset-0 z-40 flex flex-col justify-end bg-black/45">
+            <section className="rounded-t-2xl bg-[var(--card)] px-6 pb-10 pt-3 text-center text-[var(--text)]" role="status" aria-live="polite">
+              <div aria-hidden className="mx-auto h-1 w-10 rounded-full bg-[var(--line)]" />
+              {/* Neutral placeholder where the real app shows an illustration. */}
+              <span aria-hidden className="mx-auto mt-6 grid h-28 w-28 place-items-center rounded-full bg-[var(--soft)] text-[var(--link)]"><ArrowLeftRight size={40} strokeWidth={1.25} /></span>
+              <p className="mt-6 text-[1.15rem] font-bold">{t('look.processing')}</p>
+            </section>
+          </div>
         )}
         {stage === 'done' && flow.id === 'card-lock' && (
           <section className="card space-y-3 p-4" role="status">
@@ -845,18 +991,33 @@ export function FlowPage() {
           </section>
         )}
         {stage === 'done' && flow.id !== 'card-lock' && (
-          <section className="card space-y-3 p-4" role="status">
-            <div className="flex items-center gap-2">
-              <h2 className="min-w-0 text-lg font-semibold leading-snug text-[var(--success)]">
-                <span aria-hidden>✓</span> {practice ? t('practice.doneTitle') : flow.id === 'goal' ? t('success.goalAdded', { amount: formatMoney(Number(form.monthly) || Number(form.target) || 0), name: form.name || 'Holiday' }) : t('look.paid', { amount: formatMoney(sendAmount) })}
-              </h2>
-              <Speakable text={practice ? t('practice.done') : t('success.summarySpoken', { amount: formatMoney(sendAmount), name: displayPayee || title, ref })} auto={app.prefs.readAloud} hideText />
+          <section role="status">
+            {/* Neutral placeholder where the real app shows an illustration. */}
+            <div aria-hidden className={`relative -mx-4 h-36 overflow-hidden ${practice || demo || flow.id === 'limit' ? '' : '-mt-4'}`}>
+              <span className="absolute -right-16 -top-24 h-64 w-64 rounded-full bg-[var(--soft)]" />
+              <span className="absolute right-10 top-8 grid h-20 w-20 place-items-center rounded-full bg-[var(--card)] text-[var(--ok)]"><CircleCheck size={48} strokeWidth={1.5} /></span>
             </div>
-            <dl className="space-y-2">
-              {flow.id !== 'goal' && <div className={app.prefs.textSize >= 20 ? 'flex flex-col' : 'flex justify-between gap-3'}><dt className="text-[var(--muted)]">{t('amount')}</dt><dd className="money font-semibold">{formatMoney(sendAmount)}</dd></div>}
-              <div className={app.prefs.textSize >= 20 ? 'flex flex-col' : 'flex justify-between gap-3'}><dt className="text-[var(--muted)]">{t('success.payee')}</dt><dd className="min-w-0 font-semibold">{displayPayee || form.name || title}</dd></div>
-              <div className={app.prefs.textSize >= 20 ? 'flex flex-col' : 'flex justify-between gap-3'}><dt className="text-[var(--muted)]">{t('success.reference')}</dt><dd className="money font-semibold">{ref}</dd></div>
-              <div className={app.prefs.textSize >= 20 ? 'flex flex-col' : 'flex justify-between gap-3'}><dt className="text-[var(--muted)]">{t('success.when')}</dt><dd className="money font-semibold">{form.when === 'later' && form.laterDate ? form.laterDate : new Intl.DateTimeFormat(app.prefs.language.startsWith('zh') ? 'zh-CN' : 'en-SG', { day: '2-digit', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit' }).format(new Date())}</dd></div>
+            <div className="mt-2 flex items-start gap-2">
+              <h2 className="min-w-0 flex-1 text-[1.75rem] font-bold leading-tight">{paidTitle}</h2>
+              {/* Fixed-width wrapper: Speakable is full-width by default and was squeezing the heading onto two lines. */}
+              <span className="w-11 shrink-0">
+                <Speakable text={practice ? t('practice.done') : t('success.summarySpoken', { amount: formatMoney(sendAmount), name: flow.id === 'paynow' ? pn.top : displayPayee || title, ref })} auto={app.prefs.readAloud} hideText />
+              </span>
+            </div>
+            <dl className="mt-6 space-y-5">
+              {practice && flow.id !== 'goal' && <div><dt className="text-[0.95rem] text-[var(--muted)]">{t('amount')}</dt><dd className="money text-[1.1rem] font-bold">{formatMoney(sendAmount)}</dd></div>}
+              <div>
+                <dt className="flex items-center justify-between gap-3 text-[0.95rem] text-[var(--muted)]">
+                  <span>{paidToLabel}</span>
+                  <button type="button" className="-my-3 min-h-11 px-1 text-[1rem] text-[var(--link)] underline" onClick={sharePayment}>{t('ai.chatShare')}</button>
+                </dt>
+                <dd className="min-w-0 text-[1.1rem] font-bold">{paidTo}</dd>
+                {flow.id === 'paynow' && pn.sub && <dd className="text-[0.95rem] text-[var(--muted)]">{pn.sub}</dd>}
+              </div>
+              <div>
+                <dt className="text-[0.95rem] text-[var(--muted)]">{t('success.when')}</dt>
+                <dd className="money text-[1.1rem] font-bold">{paidWhen}</dd>
+              </div>
               {fx && (
                 <>
                   <div className={app.prefs.textSize >= 20 ? 'flex flex-col' : 'flex justify-between gap-3'}><dt className="text-[var(--muted)]">{t('success.fee')}</dt><dd className="money font-semibold">{formatMoney(fx.fee)}</dd></div>
@@ -865,20 +1026,24 @@ export function FlowPage() {
                 </>
               )}
             </dl>
+            {shareNote && <p role="status" className="mt-2 text-[0.85rem] text-[var(--muted)]">{shareNote}</p>}
+            <Link to={`/txn/${ref || 'latest'}`} className="mt-4 inline-flex min-h-11 items-center text-[1rem] text-[var(--link)] underline">{t('look.seeTxn')}</Link>
             {flow.id === 'card-lost' && (
-              <div className="status-danger rounded-xl bg-[var(--soft)] p-3">
+              <div className="status-danger mt-4 rounded-xl bg-[var(--soft)] p-3">
                 <p className="font-semibold">{t('staff.hotline')}</p>
                 <p>{t('staff.hotlineBody')}</p>
               </div>
             )}
-            {practice && (
-              <button type="button" className="tap w-full rounded-xl bg-[var(--accent)] font-semibold text-[var(--on-accent)]" onClick={() => navigate(`/flow/${flow.id}`)}>
-                {t('doForReal')}
-              </button>
-            )}
-            <Link to={`/txn/${ref || 'latest'}`} className="block min-h-11 font-semibold text-[var(--link)] underline">{t('look.seeTxn')}</Link>
-            <Link to="/pay" className="ocbc-btn">{t('look.goTransfers')}</Link>
-            <Link to="/" className="tap flex items-center justify-center rounded-xl border border-[var(--line)]">{t('backHome')}</Link>
+            <div className="mt-10 space-y-3">
+              <p className="text-[0.85rem] text-[var(--muted)]">{t('look.transactionId', { id: ref })}</p>
+              {practice && (
+                <button type="button" className="ocbc-btn" onClick={() => navigate(`/flow/${flow.id}`)}>
+                  {t('doForReal')}
+                </button>
+              )}
+              <Link to="/pay" className={practice ? 'ocbc-btn-secondary' : 'ocbc-btn'}>{t('look.goTransfers')}</Link>
+              <Link to="/" className="ocbc-btn-secondary">{t('look.backToHome')}</Link>
+            </div>
           </section>
         )}
       </div>
@@ -953,6 +1118,11 @@ function shortLabel(field: FlowField, t: (key: string) => string) {
   if (field.id === 'name') return t('flows.nameShort')
   if (field.id === 'from') return t('flows.fromShort')
   return t(field.label)
+}
+
+// Rough text width in `ch` so the message pill hugs its text; wide (CJK) characters count double.
+function textWidth(text: string) {
+  return Array.from(text).reduce((sum, char) => sum + (/[⺀-￯]/.test(char) ? 2 : 1), 0)
 }
 
 function maskProxy(value: string, proxy = 'mobile') {
@@ -1051,7 +1221,7 @@ function PayHold({
       aria-valuemin={0}
       aria-valuemax={100}
       aria-valuenow={Math.round(progress * 100)}
-      className={`relative flex h-14 w-full items-center justify-center overflow-hidden rounded-full bg-[#2A3B43] px-4 font-semibold text-white ${disabled ? 'opacity-60' : ''}`}
+      className={`relative flex h-14 w-full items-center justify-center overflow-hidden rounded-full bg-[var(--slate)] px-4 text-[1.05rem] font-semibold text-white ${disabled ? 'opacity-60' : ''}`}
       onPointerDown={(event) => {
         if (disabled) return
         event.currentTarget.setPointerCapture(event.pointerId)
@@ -1079,7 +1249,7 @@ function PayHold({
       onBlur={cancel}
     >
       <span className="pointer-events-none absolute inset-y-0 left-0" style={{ width: `${Math.round(progress * 100)}%`, background: "var(--accent)" }} />
-      <span className="relative z-[1] underline">{progress > 0 && progress < 1 ? holdingLabel : label}</span>
+      <span className="relative z-[1]">{progress > 0 && progress < 1 ? holdingLabel : label}</span>
     </button>
   )
 }
@@ -1104,7 +1274,7 @@ function PaySlider({ label, ariaLabel, guide, onPay, disabled }: { label: string
       aria-valuenow={Math.round(ratio * 100)}
       aria-label={ariaLabel}
       aria-disabled={disabled || undefined}
-      className={`relative h-14 touch-none overflow-hidden rounded-full bg-[#2A3B43] text-white ${disabled ? 'opacity-60' : ''}`}
+      className={`relative h-14 touch-none overflow-hidden rounded-full bg-[var(--slate)] text-white ${disabled ? 'opacity-60' : ''}`}
       onKeyDown={(event) => {
         if (disabled) return
         if (event.key === 'Enter' || event.key === ' ' || event.key === 'ArrowRight') {
@@ -1129,8 +1299,8 @@ function PaySlider({ label, ariaLabel, guide, onPay, disabled }: { label: string
         if (finished) onPay()
       }}
     >
-      <span className="pointer-events-none absolute inset-0 grid place-items-center font-semibold underline">{label}</span>
-      <span className="absolute top-2 grid h-10 w-10 place-items-center rounded-full bg-white text-[#2A3B43]" style={{ left: `calc(${ratio} * (100% - 48px) + 4px)` }}><ChevronsRight size={18} /></span>
+      <span className="pointer-events-none absolute inset-0 grid place-items-center text-[1.05rem] font-semibold">{label}</span>
+      <span className="absolute top-1 grid h-12 w-12 place-items-center rounded-full bg-white text-[var(--slate)]" style={{ left: `calc(${ratio} * (100% - 56px) + 4px)` }}><ChevronsRight size={24} strokeWidth={1.5} /></span>
     </div>
   )
 }
@@ -1147,6 +1317,7 @@ function Field({
   error,
   balanceHint,
   highlight,
+  cents,
   onBlur,
 }: {
   field: FlowField
@@ -1161,6 +1332,7 @@ function Field({
   error?: string
   balanceHint?: string
   highlight?: boolean
+  cents?: boolean
 }) {
   if (field.type === 'toggle') {
     if (field.id === 'lock') return null
@@ -1174,13 +1346,34 @@ function Field({
   const id = `field-${field.id}`
   const errorId = error ? `${id}-error` : undefined
   const invalid = error ? true : undefined
+  const centsNumber = Number(String(value || '').replace(/,/g, ''))
+  const centsText = cents && Number.isFinite(centsNumber) && centsNumber > 0 ? formatDraftAmount(centsNumber.toFixed(2)) : ''
   return (
     <label className="block min-w-0" htmlFor={id} data-guide={field.guide}>
-      <span className="mb-1 block text-[12px] font-medium text-[var(--muted)]">
+      <span className="mb-1 block text-[0.95rem] text-[var(--muted)]">
         {label || t(field.label)} {field.placeholder === 'optional' && <span className="font-normal text-[var(--muted)]">({t('optional')})</span>}
       </span>
       {hint && <span className="mb-1 block text-[0.85rem] font-normal text-[var(--muted)]">{hint}</span>}
-      {field.type === 'select' || field.type === 'account' ? (
+      {cents ? (
+        // Same cents-first entry as PayNow: typing 1, 2, 3 shows 0.01, 0.12, 1.23. Stored as "1.23", like before.
+        <span className="flex items-baseline gap-2">
+          <input
+            id={id}
+            value={centsText}
+            inputMode="numeric"
+            autoComplete="off"
+            placeholder="0.00"
+            aria-invalid={invalid}
+            aria-describedby={errorId}
+            onFocus={(event) => { const el = event.currentTarget; window.setTimeout(() => el.setSelectionRange(el.value.length, el.value.length), 0) }}
+            onChange={(event) => { const digits = event.target.value.replace(/\D/g, '').replace(/^0+/, '').slice(0, 10); onChange(digits ? (Number(digits) / 100).toFixed(2) : '') }}
+            onBlur={onBlur}
+            className={`min-w-0 max-w-[75%] rounded-md bg-transparent text-[2.25rem] font-semibold leading-tight outline-none placeholder:text-[var(--muted)] placeholder:opacity-60 ${highlight ? 'ocbc-filled' : ''}`}
+            style={{ width: `${Math.max(4, centsText.length) + 0.5}ch` }}
+          />
+          <span className="shrink-0 whitespace-nowrap text-[1rem]">SGD</span>
+        </span>
+      ) : field.type === 'select' || field.type === 'account' ? (
         <select id={id} value={value} aria-invalid={invalid} aria-describedby={errorId} onChange={(e) => onChange(e.target.value)} onBlur={onBlur} className={`ocbc-field ${error ? 'is-invalid' : ''} ${highlight ? 'ocbc-filled' : ''}`}>
           {(options || field.options)?.map((option) => (
             <option key={option.value} value={option.value}>{t(option.label)}</option>
@@ -1190,14 +1383,20 @@ function Field({
         <input
           id={id}
           value={value}
-          inputMode={field.inputMode}
+          // "Later" date: type digits only, the dashes are added for you (20261225 -> 2026-12-25).
+          inputMode={field.id === 'laterDate' ? 'numeric' : field.inputMode}
+          maxLength={field.id === 'laterDate' ? 10 : undefined}
           autoComplete="off"
           placeholder={placeholder || (field.placeholder ? t(field.placeholder) : undefined)}
           aria-invalid={invalid}
           aria-describedby={errorId}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={(e) => {
+            if (field.id !== 'laterDate') return onChange(e.target.value)
+            const digits = e.target.value.replace(/\D/g, '').slice(0, 8)
+            onChange(`${digits.slice(0, 4)}${digits.length > 4 ? `-${digits.slice(4, 6)}` : ''}${digits.length > 6 ? `-${digits.slice(6)}` : ''}`)
+          }}
           onBlur={onBlur}
-          className={`ocbc-field ${error ? 'is-invalid' : ''} ${highlight ? 'ocbc-filled' : ''} ${field.type === 'amount' ? 'text-center text-[28px] font-semibold' : ''}`}
+          className={`ocbc-field ${error ? 'is-invalid' : ''} ${highlight ? 'ocbc-filled' : ''} ${field.type === 'amount' ? 'text-center text-[1.75rem] font-semibold' : ''}`}
         />
       )}
       {balanceHint && <span className="mt-1 block text-sm text-[var(--muted)]">{balanceHint}</span>}
