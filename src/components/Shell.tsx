@@ -440,12 +440,15 @@ export function Page({
   children,
   back,
   tone = 'plain',
+  onBack,
 }: {
   title?: string
   children: React.ReactNode
   back?: boolean
   /** Header background: 'plain' (white, divider) or 'pink' (soft pink, no divider, as on OCBC flow screens). */
   tone?: 'plain' | 'pink'
+  /** Optional in-page back step for multi-screen flows (used by PayNow); defaults to browser history back. */
+  onBack?: () => void
 }) {
   const navigate = useNavigate()
   const { prefs } = useApp()
@@ -466,7 +469,7 @@ export function Page({
       <header className={`grid min-h-14 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-1 px-2 py-2 ${tone === 'pink' ? 'bg-[var(--pink-soft)]' : 'border-b border-[var(--line)] bg-[var(--card)]'}`}>
         <span className="flex items-center">
           {back && (
-            <button type="button" className="flex h-11 w-11 items-center justify-center" onClick={() => navigate(-1)} aria-label={t('back')}>
+            <button type="button" className="flex h-11 w-11 items-center justify-center" onClick={() => (onBack ? onBack() : navigate(-1))} aria-label={t('back')}>
               <ChevronLeft aria-hidden size={28} strokeWidth={1.5} />
             </button>
           )}
@@ -487,9 +490,9 @@ export function Page({
             />
           )}
         </span>
-        <div className="flex min-w-0 flex-col items-center">
-          {title && <h1 className="line-clamp-2 w-full whitespace-normal text-center text-[1.05rem] font-normal leading-snug">{title}</h1>}
-          <DemoBadge />
+        <div className="flex min-w-0 flex-wrap items-center justify-center gap-x-2 gap-y-1">
+          {title && <h1 className="line-clamp-2 min-w-0 whitespace-normal text-center text-[1.05rem] font-normal leading-snug">{title}</h1>}
+          <span className="shrink-0"><DemoBadge /></span>
         </div>
         <span className="flex items-center justify-end">
           <ExplainButton />
