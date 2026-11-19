@@ -42,7 +42,7 @@
     "help": "Bạn muốn được giúp thế nào?",
     "ready": "Bạn đã sẵn sàng",
     "readyBody": "Đã lưu trên thiết bị này.",
-    "shortcuts": "Chọn 6 lối tắt",
+    "shortcuts": "Chọn 3 lối tắt",
     "colourAdjust": "Màu nhấn có thể thay đổi một chút.",
     "voiceLimit": "Voice transfer limit",
     "voiceLimitBody": "Choose a cap for transfers you start by speaking to Ollie. You still review and confirm each one."
@@ -244,7 +244,7 @@
     "home": {
       "balanceTitle": "Số dư của bạn",
       "balanceBody": "Đây là số tiền bạn có thể dùng hôm nay.",
-      "shortcutsBody": "Sáu lối tắt này là của bạn. Đổi chúng trong Cài đặt.",
+      "shortcutsBody": "Ba lối tắt này là của bạn. Đổi chúng trong Cài đặt.",
       "helpBody": "Chọn trợ lý, hướng dẫn từng bước, hoặc tin nhắn cho chúng tôi."
     },
     "scan": {
@@ -304,7 +304,7 @@
     "demoLogin": "Mật khẩu nào cũng được.",
     "helpStaff": "Nhắn cho nhân viên"
   },
-  "selectedCount": "Đã chọn {n} / 6",
+  "selectedCount": "Đã chọn {n} / 3",
   "allShortcuts": "Mọi lối tắt",
   "emptySlot": "Trống",
   "moveUp": "Lên",

@@ -89,7 +89,7 @@
   "moveUp": "上移",
   "moveDown": "下移",
   "reorderHint": "拖到空位，或点按添加。",
-  "selectedCount": "已选 {n} / 6",
+  "selectedCount": "已选 {n} / 3",
   "needSix": "请先移除一个，再添加。",
   "contrastWarn": "这张照片太亮。请换一张较暗的。",
   "help": {
@@ -171,7 +171,7 @@
     "colourAdjust": "强调色可能会略有变化。",
     "voiceLimit": "语音转账限额",
     "voiceLimitBody": "请为通过 Ollie 语音发起的转账设置限额。每笔转账仍需你核对并确认。",
-    "shortcuts": "选择 6 个快捷方式",
+    "shortcuts": "选择 3 个快捷方式",
     "readAloudBody": "文字旁边会出现喇叭按钮。打开后，每个屏幕会自动朗读。",
     "minutes": "大约 3 分钟。之后可在设置中更改。"
   },
@@ -677,7 +677,7 @@
       "balanceTitle": "您的余额",
       "balanceBody": "这是您今天可以使用的金额。",
       "shortcutsTitle": "你的快捷方式",
-      "shortcutsBody": "这六个快捷方式是您的。点自定义来更改。",
+      "shortcutsBody": "这三个快捷方式是您的。点自定义来更改。",
       "helpTitle": "帮助一直都在",
       "helpBody": "请选择助手、分步指引，或给我们发消息。",
       "navTitle": "在应用里移动",
@@ -813,7 +813,7 @@
       "helpTitle": "获得帮助的方式",
       "helpBody": "选择助手、引导，或给职员发消息。",
       "shortcutsTitle": "首页快捷方式",
-      "shortcutsBody": "选择首页上的 6 个快捷方式。"
+      "shortcutsBody": "选择首页上的 3 个快捷方式。"
     }
   },
   "themes": {
@@ -1122,6 +1122,10 @@
     "goalLine": "按计划储蓄，实现你的目标",
     "insightKicker": "消费洞察",
     "insightLine": "设定预算分类",
+    "goalLink": "查看/管理目标",
+    "insightLink": "查看我的消费",
+    "practiceKicker": "练习模式",
+    "practiceLink": "安全试一试",
     "new": "新",
     "recentHint": "最多 50 笔（仅最近 7 天）",
     "logout": "退出",

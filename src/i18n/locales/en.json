@@ -81,7 +81,7 @@
   "moveUp": "Move up",
   "moveDown": "Move down",
   "reorderHint": "Drag into a slot, or tap to add.",
-  "selectedCount": "{n} of 6 selected",
+  "selectedCount": "{n} of 3 selected",
   "needSix": "Remove one to add another.",
   "contrastWarn": "This photo is very bright. Try a darker one.",
   "imageTooBig": "This photo is too large. Try a smaller one.",
@@ -173,7 +173,7 @@
     "colourAdjust": "Accent colours may change slightly.",
     "voiceLimit": "Voice transfer limit",
     "voiceLimitBody": "Choose a cap for transfers you start by speaking to Ollie. You still review and confirm each one.",
-    "shortcuts": "Choose 6 shortcuts",
+    "shortcuts": "Choose 3 shortcuts",
     "readAloudBody": "A speaker button appears next to text. Turn on to read each screen automatically.",
     "minutes": "3 minutes. Change anytime in Settings."
   },
@@ -737,7 +737,7 @@
       "balanceTitle": "Your balance",
       "balanceBody": "This is the money you can use today.",
       "shortcutsTitle": "Your shortcuts",
-      "shortcutsBody": "These six shortcuts are yours. Tap Customise to change them.",
+      "shortcutsBody": "These three shortcuts are yours. Tap Customise to change them.",
       "helpTitle": "Help is always here",
       "helpBody": "Choose the assistant, a step-by-step guide, or a message to us.",
       "navTitle": "Move around",
@@ -873,7 +873,7 @@
       "helpTitle": "How you get help",
       "helpBody": "Choose the assistant, a guide, or a message to staff.",
       "shortcutsTitle": "Home shortcuts",
-      "shortcutsBody": "Choose the six shortcuts on Home."
+      "shortcutsBody": "Choose the three shortcuts on Home."
     }
   },
   "categories": {
@@ -1122,6 +1122,10 @@
     "goalLine": "Stay on track and make your dreams a reality",
     "insightKicker": "MONEY INSIGHTS",
     "insightLine": "Set a budget breakdown",
+    "goalLink": "View/manage goals",
+    "insightLink": "See my spending",
+    "practiceKicker": "PRACTICE MODE",
+    "practiceLink": "Try it safely",
     "new": "New",
     "recentHint": "Up to 50 (last 7 days only)",
     "logout": "Logout",

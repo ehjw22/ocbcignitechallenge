@@ -209,6 +209,10 @@ export function FlowPage() {
           if (new URLSearchParams(window.location.search).get('tour') === '1') {
             navigate(practice ? `/flow/${flow.id}?practice=1` : `/flow/${flow.id}`, { replace: true })
           }
+        } else if (tourLive.current && practice && flow.id === 'paynow') {
+          // Practice PayNow normally starts on the amount step (contact pre-filled); go back there if the guide ends on the recipient step.
+          tourLive.current = false
+          setWstep((value) => Math.max(value, 1))
         }
         return
       }
@@ -224,7 +228,8 @@ export function FlowPage() {
       }
       Object.keys(fill.values).forEach((key) => tourFilled.current.add(key))
       setForm((prev) => ({ ...prev, ...fill.values }))
-      setWstep(practice && flow.id === 'paynow' ? Math.max(fill.wstep, 1) : fill.wstep)
+      // The guide shows the recipient step too (guide steps 1-2), so don't skip it in practice while touring.
+      setWstep(fill.wstep)
       setStage(fill.stage)
       setIssues([])
     }
@@ -576,7 +581,7 @@ export function FlowPage() {
                 )}
               </section>
             )}
-            {flow.id === 'paynow' && directory && wstep === 0 && !practice && (
+            {flow.id === 'paynow' && directory && wstep === 0 && (!practice || guideOn) && (
               <section className="space-y-3">
                 <div role="tablist" data-guide="paynow-id-tabs" aria-label={t('flows.proxyType')} className="grid grid-cols-3" onKeyDown={(event) => {
                   const order = ['mobile', 'nric', 'uen']
@@ -721,7 +726,7 @@ export function FlowPage() {
             {!(flow.id === 'paynow' && (directory && wstep === 0 || wstep === 1)) && reviewAt >= 0 && wstep > 0 && (
               <button type="button" className="text-sm font-semibold text-[var(--link)]" onClick={() => { setIssues([]); setWstep((value) => value - 1) }}>{t('back')}</button>
             )}
-            {!(flow.id === 'paynow' && directory && wstep === 0 && !practice) && (
+            {!(flow.id === 'paynow' && directory && wstep === 0 && (!practice || guideOn)) && (
             <>
             {showContinueMessage && (
               <p aria-live="polite" id={flow.id === 'paynow' && wstep === 1 ? 'pay-alert' : undefined} className={`text-sm font-semibold ${engaged || showHiddenErrors ? 'text-[var(--danger)]' : 'text-[var(--muted)]'}`} role={engaged || showHiddenErrors ? 'alert' : 'status'}>
@@ -772,6 +777,10 @@ export function FlowPage() {
             {flow.id === 'card-lost' && <p>{t('flows.lostNote')}</p>}
             {touring && !practice ? (
               <div className="space-y-2">
+                {/* Shown (inert) only while the guide runs, so its "slide to pay" step has something to point at. */}
+                {flow.kind === 'payment' && guideOn && (
+                  <PayControl easier={app.prefs.easierTapping} disabled label={t('look.slide')} holdLabel={t('look.holdToPay')} holdingLabel={t('look.holdingToPay')} ariaLabel={`${app.prefs.easierTapping ? t('look.holdToPay') : t('look.slide')} ${formatMoney(Number(form.amount) || 0)}`} guide={reviewGuide(flow.id)} onPay={() => {}} />
+                )}
                 <button type="button" className="ocbc-btn" onClick={() => { stopGuide(); navigate(`/flow/${flow.id}?practice=1`) }}>{t('flows.practiseThis')}</button>
                 <button type="button" className="tap w-full rounded-xl border border-[var(--line)] bg-[var(--card)]" onClick={() => { stopGuide(); navigate(`/flow/${flow.id}`, { replace: true }) }}>{t('doForReal')}</button>
               </div>

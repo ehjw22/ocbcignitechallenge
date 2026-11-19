@@ -29,10 +29,10 @@ export function Join() {
     if (offer) sessionStorage.setItem('ocbc-tour-offer', '1')
     const shortcuts = [...picked]
     for (const id of DEFAULT_SHORTCUTS) {
-      if (shortcuts.length >= 6) break
+      if (shortcuts.length >= 3) break
       if (!shortcuts.includes(id)) shortcuts.push(id)
     }
-    app.updatePrefs({ quizCompleted: true, onboarded: true, shortcuts: shortcuts.slice(0, 6) })
+    app.updatePrefs({ quizCompleted: true, onboarded: true, shortcuts: shortcuts.slice(0, 3) })
     navigate(peekAfterLogin() || (offer ? '/?offer=1' : '/'))
   }
 

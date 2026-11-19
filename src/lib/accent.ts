@@ -64,6 +64,10 @@ export function themeVars(prefs: { colourVision: string; scheme: string; accent:
   const soft = hc ? (dark ? '#1a1a1a' : '#f2f2f2') : dark ? '#25292C' : '#F3ECEB'
   const link = hc ? (dark ? '#ffffff' : '#000000') : dark ? '#9CC0FF' : '#0B3A8C'
   const slate = dark ? '#4A606C' : '#3D525D'
+  // Surface tints from the OCBC app: beige (account card, transactions band), light grey panel (open accordions), soft pink (flow headers, promos).
+  const beige = hc ? (dark ? '#1a1a1a' : '#f2f2f2') : dark ? '#2A2623' : '#F4EEE9'
+  const panel = hc ? (dark ? '#1a1a1a' : '#f2f2f2') : dark ? '#1F2326' : '#F5F5F5'
+  const pinkSoft = hc ? (dark ? '#1a1a1a' : '#f2f2f2') : dark ? '#2B2225' : '#FBF0F0'
   let danger = dark ? '#ffb4b4' : '#9f1239'
   let ok = dark ? '#86efac' : '#0b7a3b'
   let warn = dark ? '#fde68a' : '#8a5a00'
@@ -93,6 +97,9 @@ export function themeVars(prefs: { colourVision: string; scheme: string; accent:
     '--muted': muted,
     '--line': line,
     '--soft': soft,
+    '--beige': beige,
+    '--panel': panel,
+    '--pink-soft': pinkSoft,
     '--danger': danger,
     '--ok': ok,
     '--success': ok,

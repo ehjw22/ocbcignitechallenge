@@ -42,7 +42,7 @@
     "help": "คุณต้องการความช่วยเหลือแบบใด",
     "ready": "คุณพร้อมแล้ว",
     "readyBody": "บันทึกไว้ในอุปกรณ์นี้",
-    "shortcuts": "เลือกทางลัด 6 รายการ",
+    "shortcuts": "เลือกทางลัด 3 รายการ",
     "colourAdjust": "สีไฮไลต์อาจเปลี่ยนเล็กน้อย",
     "voiceLimit": "Voice transfer limit",
     "voiceLimitBody": "Choose a cap for transfers you start by speaking to Ollie. You still review and confirm each one."
@@ -244,7 +244,7 @@
     "home": {
       "balanceTitle": "ยอดคงเหลือของคุณ",
       "balanceBody": "นี่คือเงินที่คุณใช้ได้วันนี้",
-      "shortcutsBody": "ทางลัดหกรายการนี้เป็นของคุณ เปลี่ยนได้ในการตั้งค่า",
+      "shortcutsBody": "ทางลัดสามรายการนี้เป็นของคุณ เปลี่ยนได้ในการตั้งค่า",
       "helpBody": "เลือกผู้ช่วย คำแนะนำทีละขั้นตอน หรือข้อความถึงเรา"
     },
     "scan": {
@@ -304,7 +304,7 @@
     "demoLogin": "ใช้รหัสผ่านใดก็ได้",
     "helpStaff": "ส่งข้อความถึงเจ้าหน้าที่"
   },
-  "selectedCount": "เลือกแล้ว {n} จาก 6",
+  "selectedCount": "เลือกแล้ว {n} จาก 3",
   "allShortcuts": "ทางลัดทั้งหมด",
   "emptySlot": "ว่าง",
   "moveUp": "ขึ้น",

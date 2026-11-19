@@ -89,7 +89,7 @@
   "moveUp": "上移",
   "moveDown": "下移",
   "reorderHint": "拖到空位，或點按添加。",
-  "selectedCount": "已選 {n} / 6",
+  "selectedCount": "已選 {n} / 3",
   "needSix": "請先移除一個，再添加。",
   "contrastWarn": "這張照片太亮。請換一張較暗的。",
   "help": {
@@ -171,7 +171,7 @@
     "colourAdjust": "強調色可能會略有變化。",
     "voiceLimit": "語音轉賬限額",
     "voiceLimitBody": "請為通過 Ollie 語音發起的轉賬設置限額。每筆轉賬仍需你核對並確認。",
-    "shortcuts": "選擇 6 個快捷方式",
+    "shortcuts": "選擇 3 個快捷方式",
     "readAloudBody": "文字旁邊會出現喇叭按鈕。打開後，每個屏幕會自動朗讀。",
     "minutes": "大約 3 分鐘。之後可在設置中更改。"
   },
@@ -677,7 +677,7 @@
       "balanceTitle": "您的餘額",
       "balanceBody": "這是您今天可以使用的金額。",
       "shortcutsTitle": "你的快捷方式",
-      "shortcutsBody": "這六個快捷方式是您的。點自定義來更改。",
+      "shortcutsBody": "這三個快捷方式是您的。點自定義來更改。",
       "helpTitle": "幫助一直都在",
       "helpBody": "請選擇助手、分步指引，或給我們發消息。",
       "navTitle": "在應用裡移動",
@@ -813,7 +813,7 @@
       "helpTitle": "獲得幫助的方式",
       "helpBody": "選擇助手、引導，或給職員發消息。",
       "shortcutsTitle": "首頁快捷方式",
-      "shortcutsBody": "選擇首頁上的 6 個快捷方式。"
+      "shortcutsBody": "選擇首頁上的 3 個快捷方式。"
     }
   },
   "themes": {
@@ -1122,6 +1122,10 @@
     "goalLine": "按計劃儲蓄，實現你的目標",
     "insightKicker": "消費洞察",
     "insightLine": "設定預算分類",
+    "goalLink": "查看/管理目標",
+    "insightLink": "查看我的消費",
+    "practiceKicker": "練習模式",
+    "practiceLink": "安全試一試",
     "new": "新",
     "recentHint": "最多 50 筆（僅最近 7 天）",
     "logout": "退出",

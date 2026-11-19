@@ -43,7 +43,7 @@
     "help": "どのようなサポートをご希望ですか",
     "ready": "準備ができました",
     "readyBody": "この端末に保存されます。",
-    "shortcuts": "ショートカットを6つ選択",
+    "shortcuts": "ショートカットを3つ選択",
     "colourAdjust": "アクセントカラーが少し変わることがあります。",
     "voiceLimit": "Voice transfer limit",
     "voiceLimitBody": "Choose a cap for transfers you start by speaking to Ollie. You still review and confirm each one."
@@ -245,7 +245,7 @@
     "home": {
       "balanceTitle": "残高",
       "balanceBody": "今日使える金額です。",
-      "shortcutsBody": "この6つのショートカットはあなた用です。設定で変更できます。",
+      "shortcutsBody": "この3つのショートカットはあなた用です。設定で変更できます。",
       "helpBody": "アシスタント、手順ガイド、またはメッセージを選んでください。"
     },
     "scan": {
@@ -305,7 +305,7 @@
     "demoLogin": "どのパスワードでも入れます。",
     "helpStaff": "担当者にメッセージ"
   },
-  "selectedCount": "6件中{n}件を選択",
+  "selectedCount": "3件中{n}件を選択",
   "allShortcuts": "すべてのショートカット",
   "emptySlot": "空",
   "moveUp": "上へ",

@@ -24,7 +24,7 @@ import { translate } from '@/i18n'
 import { themeVars } from '@/lib/accent'
 import { SHORTCUT_ICONS } from '@/lib/shortcutItems'
 
-const SLOT_COUNT = 6
+const SLOT_COUNT = 3
 
 const GROUPS: { label: string; ids: string[] }[] = [
   { label: 'nav.pay', ids: ['paynow', 'scan', 'transfer', 'bill', 'overseas', 'giro', 'topup'] },
