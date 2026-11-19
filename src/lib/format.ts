@@ -20,13 +20,14 @@ export function localeFor(language: string) {
   return LOCALE[language] || (language.startsWith('zh') ? 'zh-CN' : 'en-SG')
 }
 
-export function formatMoney(value: number) {
-  const num = new Intl.NumberFormat('en-SG', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(value))
+export function formatMoney(value: number, language = 'en') {
+  const locale = localeFor(language)
+  const num = new Intl.NumberFormat(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(value))
   return `${num} SGD`
 }
 
-export function formatSignedMoney(value: number) {
-  const text = formatMoney(Math.abs(value))
+export function formatSignedMoney(value: number, language = 'en') {
+  const text = formatMoney(Math.abs(value), language)
   return value < 0 ? `-${text}` : text
 }
 
@@ -44,14 +45,16 @@ export function formatDay(iso: string, language = 'en') {
   return new Intl.DateTimeFormat(locale, options).format(day)
 }
 
-export function formatTxnAmount(value: number) {
-  const num = new Intl.NumberFormat('en-SG', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(value))
+export function formatTxnAmount(value: number, language = 'en') {
+  const locale = localeFor(language)
+  const num = new Intl.NumberFormat(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(value))
   return value < 0 ? `-${num}` : num
 }
 
-export function formatSGD(value: number) {
+export function formatSGD(value: number, language = 'en') {
   const abs = Math.abs(value)
-  const num = new Intl.NumberFormat('en-SG', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(abs)
+  const locale = localeFor(language)
+  const num = new Intl.NumberFormat(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(abs)
   return `${value < 0 ? '-' : ''}S$${num}`
 }
 

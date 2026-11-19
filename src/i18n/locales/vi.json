@@ -401,7 +401,20 @@
       "account": "Tài khoản",
       "login": "Đăng nhập",
       "other": "Khác"
-    }
+    },
+    "needs": {
+      "scam": "Possible scam",
+      "largeText": "Large text",
+      "readAloud": "Read aloud",
+      "cantonese": "Cantonese",
+      "highContrast": "High contrast"
+    },
+    "transcript": {
+      "customer": "Customer",
+      "ollie": "Ollie",
+      "scamCheck": "Ollie scam check. {summary} Answers: {answers}."
+    },
+    "scamSummary": "Possible scam. {money} to {name}. {reasons}"
   },
   "ai": {
     "title": "Trợ lý",
@@ -597,7 +610,9 @@
     "chatPinWrong": "Wrong PIN. {left} attempt(s) left.",
     "chatPinLocked": "Transfer cancelled — too many wrong PIN tries.",
     "chatAuthCancelled": "Transfer cancelled. No money was sent.",
-    "chatPinBackspace": "Delete last digit"
+    "chatPinBackspace": "Delete last digit",
+    "samplePayee": "Tan Wei Ming",
+    "sampleCountry": "Australia"
   },
   "flows": {
     "paynow": "PayNow",
@@ -689,7 +704,8 @@
     "ibanHint": "Ví dụ: GB29 NWBK 6016 1331 9268 19",
     "uen": "UEN",
     "available": "Có sẵn {amount}",
-    "readThisScreen": "Read this screen"
+    "readThisScreen": "Read this screen",
+    "currencyLabel": "SGD"
   },
   "shortcuts": {
     "transfer": "Chuyển tiền",
@@ -834,22 +850,22 @@
     },
     "giro": {
       "title": "Set up GIRO",
-      "orgTitle": "Billing organisation",
-      "orgBody": "This is the company that will collect the bill, such as SP Group.",
-      "accountTitle": "Which account?",
-      "accountBody": "Choose the account the company may collect from.",
-      "limitTitle": "Set a ceiling",
-      "limitBody": "The limit is the most they can collect. They cannot take more than this in the demo.",
-      "reviewTitle": "Review the GIRO",
-      "reviewBody": "Read the organisation, account, limit and day before you confirm."
+      "orgTitle": "Công ty thu tiền",
+      "orgBody": "Đây là công ty sẽ thu tiền hóa đơn của cô chú, ví dụ như công ty SP Group.",
+      "accountTitle": "Dùng tài khoản nào?",
+      "accountBody": "Chọn tài khoản để công ty trừ tiền.",
+      "limitTitle": "Đặt mức tối đa",
+      "limitBody": "Đây là số tiền nhiều nhất họ được phép thu. Trong bản thử nghiệm này, họ không được lấy quá số tiền này.",
+      "reviewTitle": "Kiểm tra lại GIRO",
+      "reviewBody": "Xem lại tên công ty, tài khoản, số tiền tối đa và ngày trừ tiền trước khi bấm xác nhận."
     },
     "scan": {
-      "title": "Scan QR",
-      "frameTitle": "Sample QR",
+      "title": "Quét mã QR",
+      "frameTitle": "Mã QR mẫu",
       "frameBody": "Chạm vào mã mẫu.",
-      "amountTitle": "Amount",
-      "amountBody": "Enter how much to pay this merchant.",
-      "reviewTitle": "Review",
+      "amountTitle": "Số tiền",
+      "amountBody": "Nhập số tiền cần trả cho cửa hàng này.",
+      "reviewTitle": "Kiểm tra lại",
       "reviewBody": "Hãy xem lại tên người bán và số tiền."
     },
     "goal": {
@@ -997,14 +1013,14 @@
     "practised": "✓ Đã tập",
     "completed": "✓ Đã xong",
     "aboutMin": "khoảng {min} phút",
-    "recommended": "Recommended",
-    "recommendedForYou": "Recommended for you",
-    "pace": "Tour pace",
-    "paceSlow": "Slower",
-    "paceNormal": "Normal",
-    "confidenceTitle": "You've practised {flow} 🎉",
-    "confidenceBody": "{done} of {total} journeys practised",
-    "nextJourney": "Next journey"
+    "recommended": "Gợi ý cho cô chú",
+    "recommendedForYou": "Gợi ý riêng cho cô chú",
+    "pace": "Tốc độ hướng dẫn",
+    "paceSlow": "Chậm hơn",
+    "paceNormal": "Bình thường",
+    "confidenceTitle": "Cô chú đã tập xong {flow} 🎉",
+    "confidenceBody": "Đã tập được {done} trên tổng số {total} bài",
+    "nextJourney": "Bài tiếp theo"
   },
   "rewards": {
     "title": "Ưu đãi",
@@ -1271,7 +1287,8 @@
     "slidePractice": "Trượt để trả tiền (tập dượt)",
     "ollieSafety": "Ollie · Kiểm tra an toàn",
     "holdToPay": "Nhấn và giữ để thanh toán",
-    "holdingToPay": "Tiếp tục giữ…"
+    "holdingToPay": "Tiếp tục giữ…",
+    "hiddenBalance": "•••••••• SGD"
   },
   "risk": {
     "titleCheck": "Hãy cẩn thận",
@@ -1306,7 +1323,9 @@
     "hi": "Giọng tiếng Hindi",
     "bn": "Giọng tiếng Bengali",
     "mandarin": "Giọng tiếng Trung",
-    "cantonese": "Giọng tiếng Quảng Đông"
+    "cantonese": "Giọng tiếng Quảng Đông",
+    "zh": "Chinese voice",
+    "zh-TW": "Traditional Chinese voice"
   },
   "insightsExclude": {
     "toggle": "Không tính vào mục Phân tích chi tiêu",
@@ -1322,14 +1341,13 @@
     "enterMode": "⤢ Trình bày",
     "exitMode": "Thoát trình bày",
     "exitLink": "Thoát",
-    "f11": "Nhấn F11 để phóng to toàn màn hình",
     "tapsOn": "Bật đánh dấu thao tác chạm",
     "tapsOff": "Tắt đánh dấu thao tác chạm"
   },
   "languages": {
-    "morePreview": "Thêm ngôn ngữ (bản xem trước)",
-    "previewPill": "Xem trước",
-    "previewNote": "Bản dịch máy. Một số từ có thể chưa chuẩn."
+    "moreLanguages": "More languages",
+    "machineNote": "Machine translated, may not be fully accurate.",
+    "switchNotice": "This language is machine translated. Some wording may be imperfect."
   },
   "judge": {
     "title": "Kịch bản dùng thử",
@@ -1348,21 +1366,21 @@
     "more": "Thêm"
   },
   "customise": {
-    "livePreview": "Live Home preview",
-    "presetEasy": "Bigger & simpler",
-    "presetStandard": "Standard",
-    "presetLowVision": "Low vision",
-    "presetDyslexia": "Dyslexia-friendly",
-    "presetApplied": "Preset applied",
-    "undo": "Undo"
+    "livePreview": "Xem thử màn hình chính",
+    "presetEasy": "Chữ to và dễ dùng hơn",
+    "presetStandard": "Bình thường",
+    "presetLowVision": "Dành cho mắt kém",
+    "presetDyslexia": "Dễ đọc chữ",
+    "presetApplied": "Đã đổi giao diện",
+    "undo": "Làm lại"
   },
   "nudge": {
-    "showHow": "Want me to show you how?",
-    "biggerText": "Make the text bigger?",
-    "easierTap": "Turn on easier tapping?",
-    "tourSuggest": "Try a short guided tour?",
-    "yes": "Yes, please",
-    "dismiss": "Not now"
+    "showHow": "Cô chú có muốn con hướng dẫn không?",
+    "biggerText": "Phóng to chữ lên nhé?",
+    "easierTap": "Bật chế độ bấm nút dễ hơn nhé?",
+    "tourSuggest": "Cô chú xem qua bài hướng dẫn ngắn nhé?",
+    "yes": "Dạ, có",
+    "dismiss": "Để sau"
   },
   "_meta": {
     "machine": true,

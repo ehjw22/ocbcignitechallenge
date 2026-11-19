@@ -401,7 +401,20 @@
       "account": "Account",
       "login": "Login",
       "other": "Other"
-    }
+    },
+    "needs": {
+      "scam": "Possible scam",
+      "largeText": "Large text",
+      "readAloud": "Read aloud",
+      "cantonese": "Cantonese",
+      "highContrast": "High contrast"
+    },
+    "transcript": {
+      "customer": "Customer",
+      "ollie": "Ollie",
+      "scamCheck": "Ollie scam check. {summary} Answers: {answers}."
+    },
+    "scamSummary": "Possible scam. {money} to {name}. {reasons}"
   },
   "ai": {
     "title": "সহকারী",
@@ -597,7 +610,9 @@
     "chatPinWrong": "Wrong PIN. {left} attempt(s) left.",
     "chatPinLocked": "Transfer cancelled — too many wrong PIN tries.",
     "chatAuthCancelled": "Transfer cancelled. No money was sent.",
-    "chatPinBackspace": "Delete last digit"
+    "chatPinBackspace": "Delete last digit",
+    "samplePayee": "Tan Wei Ming",
+    "sampleCountry": "Australia"
   },
   "flows": {
     "paynow": "PayNow",
@@ -689,7 +704,8 @@
     "ibanHint": "Example: GB29 NWBK 6016 1331 9268 19",
     "uen": "UEN",
     "available": "Available {amount}",
-    "readThisScreen": "Read this screen"
+    "readThisScreen": "Read this screen",
+    "currencyLabel": "SGD"
   },
   "shortcuts": {
     "transfer": "Transfer",
@@ -1271,7 +1287,8 @@
     "slidePractice": "Slide to pay (practice)",
     "ollieSafety": "Ollie · Safety check",
     "holdToPay": "পরিশোধ করতে চেপে ধরে রাখুন",
-    "holdingToPay": "চেপে ধরে রাখুন…"
+    "holdingToPay": "চেপে ধরে রাখুন…",
+    "hiddenBalance": "•••••••• SGD"
   },
   "risk": {
     "titleCheck": "Stay alert",
@@ -1306,7 +1323,9 @@
     "hi": "Hindi voice",
     "bn": "Bengali voice",
     "mandarin": "Mandarin voice",
-    "cantonese": "Cantonese voice"
+    "cantonese": "Cantonese voice",
+    "zh": "Chinese voice",
+    "zh-TW": "Traditional Chinese voice"
   },
   "insightsExclude": {
     "toggle": "Leave out of Spending insights",
@@ -1322,14 +1341,13 @@
     "enterMode": "⤢ Present",
     "exitMode": "Exit present",
     "exitLink": "Exit",
-    "f11": "Press F11 for full screen",
     "tapsOn": "Tap highlight on",
     "tapsOff": "Tap highlight off"
   },
   "languages": {
-    "morePreview": "More languages (preview)",
-    "previewPill": "Preview",
-    "previewNote": "Machine-translated preview. Some wording may be imperfect."
+    "moreLanguages": "More languages",
+    "machineNote": "Machine translated, may not be fully accurate.",
+    "switchNotice": "This language is machine translated. Some wording may be imperfect."
   },
   "judge": {
     "title": "Demo script",

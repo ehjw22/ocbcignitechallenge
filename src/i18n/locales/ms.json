@@ -223,9 +223,9 @@
     "standard": "Mandarin",
     "cantonese": "Kantonis",
     "note": "Suara Kantonis tersedia dengan Cina Ringkas atau Cina Tradisional.",
-    "hokkien": "Hokkien",
-    "teochew": "Teochew",
-    "hakka": "Hakka",
+    "hokkien": "Hokkien (loghat Cina)",
+    "teochew": "Teochew (loghat Cina)",
+    "hakka": "Hakka (loghat Cina)",
     "soon": "Tidak tersedia",
     "request": "Minta pekerja yang boleh cakap {dialect}",
     "cloud": "Kantonis menggunakan suara awan apabila tersedia."
@@ -401,7 +401,20 @@
       "account": "Akaun",
       "login": "Log masuk",
       "other": "Lain-lain"
-    }
+    },
+    "needs": {
+      "scam": "Kemungkinan penipuan",
+      "largeText": "Teks besar",
+      "readAloud": "Baca dengan kuat",
+      "cantonese": "Kantonis",
+      "highContrast": "Kontras tinggi"
+    },
+    "transcript": {
+      "customer": "Pelanggan",
+      "ollie": "Ollie",
+      "scamCheck": "Semakan penipuan Ollie. {summary} Jawapan: {answers}."
+    },
+    "scamSummary": "Kemungkinan penipuan. {money} kepada {name}. {reasons}"
   },
   "ai": {
     "title": "Pembantu",
@@ -597,7 +610,9 @@
     "thinking": "Sedang berfikir…",
     "spendLastMonth": "Anda paling banyak berbelanja untuk {category}, {amount} pada {month}.",
     "seeInsights": "Lihat cerapan perbelanjaan",
-    "offline": "Ollie luar talian, jawapan adalah terhad."
+    "offline": "Ollie luar talian, jawapan adalah terhad.",
+    "samplePayee": "Tan Wei Ming",
+    "sampleCountry": "Australia"
   },
   "flows": {
     "paynow": "PayNow",
@@ -619,7 +634,7 @@
     "from": "Dari akaun",
     "reference": "Rujukan (pilihan)",
     "recipient": "Nama penerima",
-    "bank": "Bank",
+    "bank": "Bank penerima",
     "bankOcbc": "OCBC",
     "bankDbs": "DBS",
     "bankUob": "UOB",
@@ -689,7 +704,8 @@
     "ibanHint": "Contoh: GB29 NWBK 6016 1331 9268 19",
     "uen": "UEN",
     "available": "Tersedia {amount}",
-    "readThisScreen": "Baca skrin ini"
+    "readThisScreen": "Baca skrin ini",
+    "currencyLabel": "SGD"
   },
   "shortcuts": {
     "transfer": "Pindahan",
@@ -778,7 +794,7 @@
       "navBody": "Guna Utama, Rancang, Bayar & Pindahan, Ganjaran dan Lagi."
     },
     "paynow": {
-      "title": "PayNow",
+      "title": "Hantar dengan PayNow",
       "toTitle": "Siapa yang anda bayar?",
       "toBody": "Masukkan nombor telefon bimbit Singapura atau NRIC. Semak nama yang terpapar.",
       "amountTitle": "Berapa banyak?",
@@ -1270,7 +1286,8 @@
     "slidePractice": "Leret untuk bayar (latihan)",
     "ollieSafety": "Ollie · Semakan keselamatan",
     "holdToPay": "Tekan dan tahan untuk bayar",
-    "holdingToPay": "Teruskan menahan…"
+    "holdingToPay": "Teruskan menahan…",
+    "hiddenBalance": "•••••••• SGD"
   },
   "risk": {
     "titleCheck": "Semakan keselamatan ringkas",
@@ -1305,7 +1322,9 @@
     "hi": "Suara Hindi",
     "bn": "Suara Bengali",
     "mandarin": "Suara Mandarin",
-    "cantonese": "Suara Kantonis"
+    "cantonese": "Suara Kantonis",
+    "zh": "Suara Cina",
+    "zh-TW": "Suara Cina Tradisional"
   },
   "insightsExclude": {
     "toggle": "Tinggalkan daripada cerapan perbelanjaan",
@@ -1321,14 +1340,13 @@
     "enterMode": "⤢ Mod persembahan",
     "exitMode": "Keluar persembahan",
     "exitLink": "Keluar",
-    "f11": "Tekan F11 untuk skrin penuh",
     "tapsOn": "Sorotan ketikan: hidup",
     "tapsOff": "Sorotan ketikan: mati"
   },
   "languages": {
-    "morePreview": "Lagi bahasa (pratonton)",
-    "previewPill": "Pratonton",
-    "previewNote": "Pratonton terjemahan mesin. Sesetengah perkataan mungkin tidak tepat."
+    "moreLanguages": "Lagi bahasa",
+    "machineNote": "Terjemahan mesin, mungkin tidak tepat sepenuhnya.",
+    "switchNotice": "Bahasa ini diterjemah mesin. Sebahagian perkataan mungkin kurang tepat."
   },
   "judge": {
     "title": "Skrip demo",

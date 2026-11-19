@@ -12,7 +12,7 @@ export const LANGUAGES: LanguageOption[] = [
   { id: 'en', native: 'English', english: 'English', official: true, bcp47: 'en-SG', voicePrefix: 'en', tier: 'core' },
   { id: 'zh', native: '中文', english: 'Chinese', official: true, bcp47: 'zh-CN', voicePrefix: 'zh-CN', tier: 'core' },
   { id: 'ms', native: 'Bahasa Melayu', english: 'Malay', official: true, bcp47: 'ms-MY', voicePrefix: 'ms', tier: 'core' },
-  { id: 'ta', native: 'தமிழ்', english: 'Tamil', official: true, bcp47: 'ta-IN', voicePrefix: 'ta', tier: 'core' },
+  { id: 'ta', native: 'தமிழ்', english: 'Tamil', official: true, bcp47: 'ta-SG', voicePrefix: 'ta', tier: 'core' },
   { id: 'zh-TW', native: '繁體中文', english: 'Traditional Chinese', official: false, bcp47: 'zh-TW', voicePrefix: 'zh-TW', tier: 'core' },
   { id: 'id', native: 'Bahasa Indonesia', english: 'Indonesian', official: false, bcp47: 'id-ID', voicePrefix: 'id', tier: 'preview' },
   { id: 'vi', native: 'Tiếng Việt', english: 'Vietnamese', official: false, bcp47: 'vi-VN', voicePrefix: 'vi', tier: 'preview' },

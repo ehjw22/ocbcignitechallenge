@@ -8,7 +8,8 @@ import { formatDay, formatMoney, formatSignedMoney } from '@/lib/format'
 
 export function Accounts() {
   const app = useApp()
-  const t = (key: string) => translate(app.prefs.language, key)
+  const lang = app.prefs.language
+  const t = (key: string) => translate(lang, key)
   const [query, setQuery] = useState('')
   const [accountId, setAccountId] = useState('all')
   const setScreen = app.setScreen
@@ -27,7 +28,7 @@ export function Accounts() {
             <h2 className="text-[0.9rem] font-medium leading-normal">{t(account.nameKey)}</h2>
             <p className="text-[0.75rem] text-[var(--muted)]">{account.kind === 'card' ? `•••• ${account.number}` : account.number}</p>
             <p className="mt-2 text-[1.6rem] font-bold tabular-nums leading-normal tracking-tight">
-              {account.kind === 'card' ? formatMoney(account.balance) : formatMoney(app.balances[account.id] ?? account.balance)}
+              {account.kind === 'card' ? formatMoney(account.balance, lang) : formatMoney(app.balances[account.id] ?? account.balance, lang)}
             </p>
             <p className="text-[0.75rem] text-[var(--muted)]">{account.kind === 'card' ? t('outstanding') : t('available')}</p>
           </Link>
@@ -52,7 +53,7 @@ export function Accounts() {
                   <span className="block leading-normal">{payeeName(txn.title)}</span>
                   <span className="text-sm text-[var(--muted)]">{formatDay(txn.date, app.prefs.language)}</span>
                 </span>
-                <span className="shrink-0 whitespace-nowrap tabular-nums">{formatSignedMoney(txn.amount)}</span>
+                <span className="shrink-0 whitespace-nowrap tabular-nums">{formatSignedMoney(txn.amount, lang)}</span>
               </Link>
             </li>
           ))}

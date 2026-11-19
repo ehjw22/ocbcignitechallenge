@@ -401,7 +401,20 @@
       "account": "賬戶",
       "login": "登錄",
       "other": "其他"
-    }
+    },
+    "needs": {
+      "scam": "疑似詐騙",
+      "largeText": "大號文字",
+      "readAloud": "朗讀",
+      "cantonese": "粵語",
+      "highContrast": "高對比度"
+    },
+    "transcript": {
+      "customer": "客戶",
+      "ollie": "Ollie",
+      "scamCheck": "Ollie 詐騙檢查。{summary} 回答：{answers}。"
+    },
+    "scamSummary": "疑似詐騙。向 {name} 支付 {money}。{reasons}"
   },
   "ai": {
     "title": "Ollie",
@@ -597,7 +610,9 @@
     "thinking": "正在思考…",
     "spendLastMonth": "您上個月在{category}花費最多，{month}共 {amount}。",
     "seeInsights": "查看支出洞察",
-    "offline": "Ollie 目前離線，回答有限。"
+    "offline": "Ollie 目前離線，回答有限。",
+    "samplePayee": "Tan Wei Ming",
+    "sampleCountry": "Australia"
   },
   "flows": {
     "paynow": "PayNow",
@@ -689,7 +704,8 @@
     "ibanHint": "示例：GB29 NWBK 6016 1331 9268 19",
     "uen": "UEN",
     "available": "可用 {amount}",
-    "readThisScreen": "朗讀此頁"
+    "readThisScreen": "朗讀此頁",
+    "currencyLabel": "SGD"
   },
   "shortcuts": {
     "transfer": "轉賬",
@@ -1270,7 +1286,8 @@
     "slidePractice": "滑動付款（練習）",
     "ollieSafety": "Ollie · 安全檢查",
     "holdToPay": "長按付款",
-    "holdingToPay": "請繼續按住…"
+    "holdingToPay": "請繼續按住…",
+    "hiddenBalance": "•••••••• SGD"
   },
   "risk": {
     "titleCheck": "保持警惕",
@@ -1305,7 +1322,9 @@
     "hi": "印地語語音",
     "bn": "孟加拉語語音",
     "mandarin": "普通話語音",
-    "cantonese": "粵語語音"
+    "cantonese": "粵語語音",
+    "zh": "中文語音",
+    "zh-TW": "繁體中文語音"
   },
   "insightsExclude": {
     "toggle": "不計入支出洞察",
@@ -1321,14 +1340,13 @@
     "enterMode": "⤢ 演示模式",
     "exitMode": "退出演示模式",
     "exitLink": "退出",
-    "f11": "按 F11 進入全屏",
     "tapsOn": "點擊高亮：開",
     "tapsOff": "點擊高亮：關"
   },
   "languages": {
-    "morePreview": "更多語言（預覽）",
-    "previewPill": "預覽",
-    "previewNote": "機器翻譯預覽，部分措辭可能不準確。"
+    "moreLanguages": "更多語言",
+    "machineNote": "機器翻譯，可能不完全準確。",
+    "switchNotice": "此語言為機器翻譯，部分措辭可能不準確。"
   },
   "judge": {
     "title": "演示腳本",

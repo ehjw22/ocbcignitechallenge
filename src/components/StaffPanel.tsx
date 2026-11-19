@@ -38,10 +38,10 @@ export function StaffPanel() {
     }
     const summary = message.trim()
     const needs = [
-      app.prefs.textSize >= 20 ? 'Large text' : '',
-      app.prefs.readAloud ? 'Read aloud' : '',
-      app.prefs.dialect === 'cantonese' ? 'Cantonese' : '',
-      app.prefs.highContrast ? 'High contrast' : '',
+      app.prefs.textSize >= 20 ? t('staff.needs.largeText') : '',
+      app.prefs.readAloud ? t('staff.needs.readAloud') : '',
+      app.prefs.dialect === 'cantonese' ? t('staff.needs.cantonese') : '',
+      app.prefs.highContrast ? t('staff.needs.highContrast') : '',
     ].filter(Boolean).join(', ')
     const request = app.addRequest({
       summary,
@@ -55,7 +55,7 @@ export function StaffPanel() {
       urgent: false,
       customerName: app.profile?.name || '',
       needs,
-      transcript: app.messages.slice(-6).map((message) => `${message.role === 'user' ? 'Customer' : 'Ollie'}: ${message.content}`).join('\n'),
+      transcript: app.messages.slice(-6).map((message) => `${message.role === 'user' ? t('staff.transcript.customer') : t('staff.transcript.ollie')}: ${message.content}`).join('\n'),
     })
     app.log('staff_request', { ref: request.ref, task: request.task })
     setDone(request.ref)

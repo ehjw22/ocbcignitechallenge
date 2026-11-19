@@ -20,7 +20,7 @@ import { ResetDemoDialog } from '@/components/ResetDemoDialog'
 import { HomePreview } from '@/components/HomePreview'
 import { UndoSnackbar } from '@/components/UndoSnackbar'
 import { patchForPreset, snapshotPrefs, type PresetId, type PresetSnapshot } from '@/lib/presets'
-import { LanguagePicker } from '@/components/LanguagePicker'
+import { dismissPreviewLanguageNotice, LanguagePicker } from '@/components/LanguagePicker'
 import { DEFAULT_SHORTCUTS, DIALECTS, LANGUAGES, SHORTCUTS, THEMES } from '@/lib/languages'
 import type { ColourVision, HelpPreference, ThemeId, VoiceTransferConfirm } from '@/lib/types'
 
@@ -243,7 +243,15 @@ export function Settings() {
           open={!!open.language}
           onToggle={toggle}
         >
-          <LanguagePicker language={app.prefs.language} t={t} onPick={(item) => app.updatePrefs({ language: item.id })} />
+          <LanguagePicker
+            language={app.prefs.language}
+            t={t}
+            onPick={(item) => app.updatePrefs({ language: item.id, dialect: item.id === 'zh-TW' ? 'cantonese' : item.id === 'zh' ? 'standard' : app.prefs.dialect })}
+            onPreviewPick={(item) => {
+              app.setNotice(translate(item.id, 'languages.switchNotice'))
+              dismissPreviewLanguageNotice()
+            }}
+          />
           <p className="mt-3 text-sm font-normal leading-snug text-[var(--muted)]">{t('dialects.note')}</p>
           <div className="mt-2" role="radiogroup" aria-label={t('dialects.title')}>
             <Choice selected={app.prefs.dialect !== 'cantonese'} onClick={() => app.updatePrefs({ dialect: 'standard' })}>{t('dialects.standard')}</Choice>
@@ -544,26 +552,13 @@ export function Settings() {
   )
 }
 
-const VOICE_LABEL: Record<string, string> = {
-  en: 'English voice',
-  ms: 'Suara Melayu',
-  ta: 'தமிழ் குரல்',
-  id: 'Suara Indonesia',
-  vi: 'Giọng Việt',
-  th: 'เสียงไทย',
-  tl: 'Boses Filipino',
-  ko: '한국어 음성',
-  ja: '日本語の音声',
-  hi: 'हिन्दी आवाज़',
-  bn: 'বাংলা কণ্ঠ',
-}
-
 function voiceSummary(language: string, dialect: string, native: string, t: (key: string) => string) {
   if (language === 'zh' || language === 'zh-TW') {
     const cantonese = dialect === 'cantonese'
-    const voice = language === 'zh-TW' ? (cantonese ? '粵語' : '普通話') : (cantonese ? '粤语' : '普通话')
+    const voice = cantonese ? t('voice.cantonese') : t('voice.mandarin')
     return `${native} · ${voice}`
   }
-  const voice = dialect === 'cantonese' ? t('dialects.cantonese') : (VOICE_LABEL[language] || t('voice.en'))
+  const voiceKey = `voice.${language}` as const
+  const voice = dialect === 'cantonese' ? t('dialects.cantonese') : (t(voiceKey) === voiceKey ? t('voice.en') : t(voiceKey))
   return `${native} · ${voice}`
 }

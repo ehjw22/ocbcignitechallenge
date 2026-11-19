@@ -401,7 +401,20 @@
       "account": "계좌",
       "login": "로그인",
       "other": "기타"
-    }
+    },
+    "needs": {
+      "scam": "Possible scam",
+      "largeText": "Large text",
+      "readAloud": "Read aloud",
+      "cantonese": "Cantonese",
+      "highContrast": "High contrast"
+    },
+    "transcript": {
+      "customer": "Customer",
+      "ollie": "Ollie",
+      "scamCheck": "Ollie scam check. {summary} Answers: {answers}."
+    },
+    "scamSummary": "Possible scam. {money} to {name}. {reasons}"
   },
   "ai": {
     "title": "도우미",
@@ -597,7 +610,9 @@
     "chatPinWrong": "Wrong PIN. {left} attempt(s) left.",
     "chatPinLocked": "Transfer cancelled — too many wrong PIN tries.",
     "chatAuthCancelled": "Transfer cancelled. No money was sent.",
-    "chatPinBackspace": "Delete last digit"
+    "chatPinBackspace": "Delete last digit",
+    "samplePayee": "Tan Wei Ming",
+    "sampleCountry": "Australia"
   },
   "flows": {
     "paynow": "PayNow",
@@ -689,7 +704,8 @@
     "ibanHint": "보기: GB29 NWBK 6016 1331 9268 19",
     "uen": "UEN",
     "available": "쓸 수 있는 돈 {amount}",
-    "readThisScreen": "Read this screen"
+    "readThisScreen": "Read this screen",
+    "currencyLabel": "SGD"
   },
   "shortcuts": {
     "transfer": "돈 보내기",
@@ -1271,7 +1287,8 @@
     "slidePractice": "밀어서 돈 보내기 (연습)",
     "ollieSafety": "Ollie · 안전 확인",
     "holdToPay": "길게 눌러 결제",
-    "holdingToPay": "계속 누르세요…"
+    "holdingToPay": "계속 누르세요…",
+    "hiddenBalance": "•••••••• SGD"
   },
   "risk": {
     "titleCheck": "조심하세요",
@@ -1306,7 +1323,9 @@
     "hi": "힌디어 목소리",
     "bn": "벵골어 목소리",
     "mandarin": "중국어 목소리",
-    "cantonese": "광동어 목소리"
+    "cantonese": "광동어 목소리",
+    "zh": "Chinese voice",
+    "zh-TW": "Traditional Chinese voice"
   },
   "insightsExclude": {
     "toggle": "지출 분석에서 제외하기",
@@ -1322,14 +1341,13 @@
     "enterMode": "⤢ 화면 키우기",
     "exitMode": "원래대로 가기",
     "exitLink": "나가기",
-    "f11": "전체 화면을 보려면 F11을 누르세요",
     "tapsOn": "터치 표시 켜기",
     "tapsOff": "터치 표시 끄기"
   },
   "languages": {
-    "morePreview": "다른 언어 (체험판)",
-    "previewPill": "체험판",
-    "previewNote": "기계로 번역된 화면이에요. 어색한 표현이 있을 수 있어요."
+    "moreLanguages": "More languages",
+    "machineNote": "Machine translated, may not be fully accurate.",
+    "switchNotice": "This language is machine translated. Some wording may be imperfect."
   },
   "judge": {
     "title": "체험 대본",

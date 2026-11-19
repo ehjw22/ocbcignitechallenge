@@ -36,7 +36,8 @@ export function Home() {
     return false
   })
   const navigate = useNavigate()
-  const t = (key: string, vars?: Record<string, string | number>) => translate(app.prefs.language, key, vars)
+  const lang = app.prefs.language
+  const t = (key: string, vars?: Record<string, string | number>) => translate(lang, key, vars)
   const deposits = app.accounts.filter((account) => account.kind === 'deposit')
   const tips = [t('look.heroTip'), t('look.heroPractice'), t('look.heroScam')]
   const [tip, setTip] = useState(0)
@@ -63,7 +64,7 @@ export function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params])
 
-  const money = (value: number) => (hidden ? '•••••••• SGD' : formatMoney(value))
+  const money = (value: number) => (hidden ? t('look.hiddenBalance') : formatMoney(value, lang))
 
   return (
     <div className="relative flex h-full min-h-0 flex-col bg-[var(--bg)] text-[var(--text)]">
@@ -236,7 +237,7 @@ export function Home() {
                             <span className="block text-[0.95rem] font-semibold uppercase">{t(txnKind(txn.title))}</span>
                             <span className="block text-[0.95rem] uppercase text-[var(--muted)]">{payeeName(txn.title)}<ExcludedTag txn={txn} t={t} /></span>
                           </span>
-                          <span className={`shrink-0 whitespace-nowrap text-[1.05rem] font-bold tabular-nums ${txn.amount > 0 ? 'text-[var(--ok)]' : ''}`}>{formatTxnAmount(txn.amount)}</span>
+                          <span className={`shrink-0 whitespace-nowrap text-[1.05rem] font-bold tabular-nums ${txn.amount > 0 ? 'text-[var(--ok)]' : ''}`}>{formatTxnAmount(txn.amount, lang)}</span>
                         </button>
                       </li>
                     ))}
@@ -254,7 +255,7 @@ export function Home() {
               <p className="mt-2 font-bold">{t('insights')}</p>
               <p className="text-[0.85rem]">
                 {t('insight.vsLast', {
-                  amount: formatMoney(sum(rowsFor('all', '2026-10'))),
+                  amount: formatMoney(sum(rowsFor('all', '2026-10')), lang),
                   pct: Math.abs(percentChange(sum(rowsFor('all', '2026-10')), sum(rowsFor('all', '2026-09')))),
                   dir: percentChange(sum(rowsFor('all', '2026-10')), sum(rowsFor('all', '2026-09'))) >= 0 ? t('insight.more') : t('insight.less'),
                 })}

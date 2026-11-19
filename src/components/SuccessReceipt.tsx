@@ -52,6 +52,6 @@ export function receiptWhenLabel(language: string) {
   }).format(new Date())
 }
 
-export function receiptPaidText(amount: number, payeeName: string) {
-  return `${formatMoney(amount)} sent to ${payeeName}`
+export function receiptPaidText(amount: number, payeeName: string, language = 'en') {
+  return `${formatMoney(amount, language)} sent to ${payeeName}`
 }
