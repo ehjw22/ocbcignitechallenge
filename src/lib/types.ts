@@ -5,6 +5,8 @@ export type Scheme = 'light' | 'dark'
 export type Dialect = 'standard' | 'cantonese' | 'hokkien' | 'teochew' | 'hakka'
 export type ThemeId = 'ocbc' | 'ocean' | 'forest' | 'sunset' | 'plum' | 'custom'
 export type ContactMethod = 'message' | 'phone' | 'email'
+/** How Ollie chat/voice transfers are confirmed after review (simulated demo auth). */
+export type VoiceTransferConfirm = 'faceId' | 'pin'
 export type RequestStatus = 'received' | 'in_progress' | 'replied'
 
 export interface Preferences {
@@ -31,6 +33,7 @@ export interface Preferences {
   dyslexiaFont: boolean
   easierTapping: boolean
   voiceTransferLimit: number
+  voiceTransferConfirm: VoiceTransferConfirm
 }
 
 export interface DemoUser {
@@ -128,6 +131,8 @@ export interface VoiceTransferCard {
     | 'review'
     | 'scamQuiz'
     | 'sendReady'
+    | 'authCancelled'
+    | 'authFailed'
     | 'receipt'
     | 'transferError'
     | 'expired'

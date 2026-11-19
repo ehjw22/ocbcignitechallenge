@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { PhoneFrame } from '@/components/Shell'
+import { JudgeBootstrap } from '@/components/JudgeBootstrap'
 import { useApp } from '@/context/AppContext'
 import { Accounts } from '@/pages/Accounts'
 import { Admin } from '@/pages/Admin'
@@ -38,6 +39,7 @@ function Customer() {
   return (
     <ErrorBoundary>
     <PhoneFrame>
+      <JudgeBootstrap />
       <Gate>
       <Routes>
         <Route path="/welcome" element={<Welcome />} />

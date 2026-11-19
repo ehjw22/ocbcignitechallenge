@@ -89,13 +89,24 @@ export function normaliseFillFields(flowId: string, fields: Record<string, strin
   return next
 }
 
+export function firstFieldWizardStep(flowId: string, filled: string[]) {
+  if (!filled.length) return 0
+  if (flowId === 'overseas' && filled.includes('amount') && !filled.some((id) => ['country', 'name', 'swift', 'account'].includes(id))) {
+    return 0
+  }
+  return -1
+}
+
 export function firstFillWizardStep(
   flowId: string,
   form: Record<string, string>,
   balance: number,
   limit: number,
   payees: SavedPayee[],
+  filled: string[] = [],
 ) {
+  const fromField = firstFieldWizardStep(flowId, filled)
+  if (fromField >= 0) return fromField
   const review = wizardReview(flowId)
   if (review < 0) return 0
   const issues = validateForm(flowId, form, balance, payees, limit)

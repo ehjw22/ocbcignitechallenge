@@ -12,8 +12,17 @@ import { useApp } from '@/context/AppContext'
 import { translate } from '@/i18n'
 import { prepareBackground } from '@/lib/contrast'
 import { beginShowHow, takeShowHow } from '@/lib/showHow'
+import { getFlowTour, guideById, startGuide, subscribeFlowTour } from '@/lib/guide'
+import { markTourDropped, markTourFinished, markTourOpened, markTourStep } from '@/lib/tourTracking'
+import { speak } from '@/lib/speech'
+import { collapseOpened } from '@/lib/tourPlace'
+import { ResetDemoDialog } from '@/components/ResetDemoDialog'
+import { HomePreview } from '@/components/HomePreview'
+import { UndoSnackbar } from '@/components/UndoSnackbar'
+import { patchForPreset, snapshotPrefs, type PresetId, type PresetSnapshot } from '@/lib/presets'
+import { dismissPreviewLanguageNotice, LanguagePicker } from '@/components/LanguagePicker'
 import { DEFAULT_SHORTCUTS, DIALECTS, LANGUAGES, SHORTCUTS, THEMES } from '@/lib/languages'
-import type { ColourVision, HelpPreference, ThemeId } from '@/lib/types'
+import type { ColourVision, HelpPreference, ThemeId, VoiceTransferConfirm } from '@/lib/types'
 
 function Section({
   id,
@@ -84,6 +93,12 @@ export function Settings() {
   const routePanel = useParams().panel || ''
   const panel = routePanel || params.get('panel') || ''
   const [greet, setGreet] = useState(app.profile.shortName)
+  const [resetOpen, setResetOpen] = useState(false)
+  const [undo, setUndo] = useState<PresetSnapshot | null>(null)
+  const applyPreset = (id: PresetId) => {
+    setUndo(snapshotPrefs(app.prefs))
+    app.updatePrefs(patchForPreset(id))
+  }
   const remember = useCallback((id: string, value: boolean) => setShown((prev) => (prev[id] === value ? prev : { ...prev, [id]: value })), [])
   const prefsRef = useRef(app.prefs)
   prefsRef.current = app.prefs
@@ -104,6 +119,65 @@ export function Settings() {
     return () => window.clearTimeout(timer)
     // Start once if the assistant sent the customer here.
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  useEffect(() => {
+    if (params.get('tour') !== '1' || panel) return
+    const timer = window.setTimeout(() => {
+      const result = startGuide({
+        guideId: 'settings',
+        text: t,
+        readAloud: app.prefs.readAloud,
+        speak: (text) => speak(text, { language: app.prefs.language, rate: app.prefs.speechRate, dialect: app.prefs.dialect }),
+        onMissing: (element, stepId) => {
+          app.log('guide_step_missing', { guideId: 'settings', element, stepId })
+        },
+        onStart: (guideId) => {
+          const total = guideById(guideId)?.steps.length || 0
+          if (total) markTourOpened(app.profile.id, guideId, total)
+          app.log('guide_started', { guideId })
+        },
+        onStep: (stepId) => {
+          app.setGuideStep(`settings:${stepId}`)
+          const tour = getFlowTour()
+          if (tour) markTourStep(app.profile.id, 'settings', tour.index, tour.steps.length)
+        },
+        onDrop: (guideId, stepId) => {
+          const tour = getFlowTour()
+          if (tour) markTourDropped(app.profile.id, guideId, tour.index, tour.steps.length)
+          app.log('guide_dropped', { guideId, stepId })
+        },
+        onDone: (guideId) => {
+          markTourFinished(app.profile.id, guideId, false)
+          app.log('guide_completed', { guideId })
+          collapseOpened()
+          setParams((current) => {
+            const next = new URLSearchParams(current)
+            next.delete('tour')
+            return next
+          }, { replace: true })
+        },
+      })
+      if (!result.started) app.setNotice(t('guideEmpty'))
+    }, 400)
+    return () => window.clearTimeout(timer)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params, panel])
+
+  useEffect(() => {
+    const openForTour = () => {
+      const tour = getFlowTour()
+      if (!tour || tour.guideId !== 'settings') return
+      const id = tour.steps[tour.index]?.id
+      if (!id || id === 'end') return
+      const section = id === 'read' ? 'language' : id
+      setOpen((current) => (current[section] ? current : { ...current, [section]: true }))
+    }
+    openForTour()
+    const off = subscribeFlowTour(openForTour)
+    return () => {
+      off()
+    }
   }, [])
 
   const toggle = (id: string) => setOpen((current) => ({ ...current, [id]: !current[id] }))
@@ -169,14 +243,15 @@ export function Settings() {
           open={!!open.language}
           onToggle={toggle}
         >
-          <div role="radiogroup" aria-label={t('onboarding.language')}>
-            {LANGUAGES.map((item) => (
-              <Choice key={item.id} selected={app.prefs.language === item.id} onClick={() => app.updatePrefs({ language: item.id })}>
-                <span className="block">{item.native}</span>
-                {app.prefs.language === 'en' && <span className="block text-sm font-medium text-[var(--muted)]">{item.english}</span>}
-              </Choice>
-            ))}
-          </div>
+          <LanguagePicker
+            language={app.prefs.language}
+            t={t}
+            onPick={(item) => app.updatePrefs({ language: item.id, dialect: item.id === 'zh-TW' ? 'cantonese' : item.id === 'zh' ? 'standard' : app.prefs.dialect })}
+            onPreviewPick={(item) => {
+              app.setNotice(translate(item.id, 'languages.switchNotice'))
+              dismissPreviewLanguageNotice()
+            }}
+          />
           <p className="mt-3 text-sm font-normal leading-snug text-[var(--muted)]">{t('dialects.note')}</p>
           <div className="mt-2" role="radiogroup" aria-label={t('dialects.title')}>
             <Choice selected={app.prefs.dialect !== 'cantonese'} onClick={() => app.updatePrefs({ dialect: 'standard' })}>{t('dialects.standard')}</Choice>
@@ -195,8 +270,12 @@ export function Settings() {
         <Section only={panel} onResult={remember}
           id="safety"
           title={t('settings.sections.safety')}
-          summary={app.prefs.voiceTransferLimit === 0 ? t('settings.voiceLimitOff') : t('settings.voiceLimitSummary', { amount: formatVoiceTransferAmount(clampVoiceTransferLimit(app.prefs.voiceTransferLimit)) })}
-          keywords={`${t('settings.voiceLimit')} ${t('settings.sections.safety')}`}
+          summary={
+            app.prefs.voiceTransferLimit === 0
+              ? `${t('settings.voiceLimitOff')} · ${t(app.prefs.voiceTransferConfirm === 'pin' ? 'settings.voiceConfirmPin' : 'settings.voiceConfirmFace')}`
+              : `${t('settings.voiceLimitSummary', { amount: formatVoiceTransferAmount(clampVoiceTransferLimit(app.prefs.voiceTransferLimit)) })} · ${t(app.prefs.voiceTransferConfirm === 'pin' ? 'settings.voiceConfirmPin' : 'settings.voiceConfirmFace')}`
+          }
+          keywords={`${t('settings.voiceLimit')} ${t('settings.voiceTransferConfirm')} ${t('settings.sections.safety')}`}
           query={query}
           open={!!open.safety}
           onToggle={toggle}
@@ -213,6 +292,17 @@ export function Settings() {
             confirmAction={t('settings.voiceLimitConfirm')}
             cancelLabel={t('cancel')}
           />
+          <div className="mt-4 border-t border-[var(--line)] pt-4">
+            <p className="mb-2 font-semibold">{t('settings.voiceTransferConfirm')}</p>
+            <p className="mb-2 text-sm font-normal leading-snug text-[var(--muted)]">{t('settings.voiceTransferConfirmBody')}</p>
+            <div className="grid gap-2" role="radiogroup" aria-label={t('settings.voiceTransferConfirm')}>
+              {(['faceId', 'pin'] as VoiceTransferConfirm[]).map((mode) => (
+                <Choice key={mode} selected={app.prefs.voiceTransferConfirm === mode} onClick={() => app.updatePrefs({ voiceTransferConfirm: mode })}>
+                  {t(mode === 'faceId' ? 'settings.voiceConfirmFace' : 'settings.voiceConfirmPin')}
+                </Choice>
+              ))}
+            </div>
+          </div>
         </Section>
 
         <Section only={panel} onResult={remember}
@@ -225,7 +315,19 @@ export function Settings() {
           open={!!open.text}
           onToggle={toggle}
         >
-          <p className="mb-3 rounded-2xl border border-[var(--line)] bg-[var(--card)] p-3">{t('onboarding.preview', { name: previewName })}</p>
+          <div className="mb-3 flex flex-wrap gap-2">
+            {([
+              ['easyReading', 'customise.presetEasy'],
+              ['standard', 'customise.presetStandard'],
+              ['lowVision', 'customise.presetLowVision'],
+              ['dyslexia', 'customise.presetDyslexia'],
+            ] as const).map(([id, key]) => (
+              <button key={id} type="button" className="min-h-11 flex-1 rounded-xl border border-[var(--line)] bg-[var(--card)] px-2 text-sm font-semibold" onClick={() => applyPreset(id)}>
+                {t(key)}
+              </button>
+            ))}
+          </div>
+          <HomePreview />
           <label htmlFor="size" className="block font-semibold">
             {t('settings.textSize')}: {app.prefs.textSize}px
             <input id="size" type="range" min={16} max={24} value={app.prefs.textSize} onChange={(event) => app.updatePrefs({ textSize: Number(event.target.value) })} className="mt-2 w-full" />
@@ -256,6 +358,7 @@ export function Settings() {
 
         <Section only={panel} onResult={remember}
           id="colour"
+          guide="settings-colour"
           title={t('settings.sections.colour')}
           summary={app.prefs.colourVision === 'monochrome' ? t('cvd.monoSummary') : `${theme ? t(theme.labelKey) : t('themes.custom')} · ${t(`themes.${app.prefs.scheme}`)} · ${t(`cvd.${app.prefs.colourVision}`)}`}
           keywords={`${t('settings.colour')} ${t('themes.title')} ${t('themes.background')} ${t('themes.light')} ${t('themes.dark')} ${THEMES.map((item) => t(item.labelKey)).join(' ')} default protanopia deuteranopia tritanopia monochrome`}
@@ -371,6 +474,7 @@ export function Settings() {
 
         <Section only={panel} onResult={remember}
           id="privacy"
+          guide="settings-privacy"
           title={t('settings.sections.privacy')}
           summary={app.prefs.spendingInsights ? t('settings.insightsOn') : t('settings.insightsOff')}
           keywords={`${t('settings.insights')} ${t('settings.insightsOn')} ${t('settings.insightsOff')}`}
@@ -415,39 +519,46 @@ export function Settings() {
           </button>
           <p className="mb-4 text-sm text-[var(--muted)]">{t('gate.deleteUserBody')}</p>
           <p className="mb-2 text-sm text-[var(--muted)]">{t('settings.resetDataBody')}</p>
-          <button type="button" className="mb-4 min-h-12 rounded-xl border border-[var(--line)] bg-[var(--card)] px-3 font-semibold" onClick={() => { if (window.confirm(t('settings.resetDataConfirm'))) app.resetDemoData() }}>
+          <button type="button" className="mb-4 min-h-12 rounded-xl border border-[var(--line)] bg-[var(--card)] px-3 font-semibold" onClick={() => setResetOpen(true)}>
             {t('settings.resetDemoData')}
           </button>
+          <ResetDemoDialog
+            open={resetOpen}
+            title={t('settings.resetDemoData')}
+            body={t('settings.resetDataConfirm')}
+            confirmLabel={t('settings.resetDemoData')}
+            cancelLabel={t('cancel')}
+            onCancel={() => setResetOpen(false)}
+            onConfirm={() => { setResetOpen(false); app.resetDemoData() }}
+          />
           <p className="mb-2 text-sm text-[var(--muted)]">{t('settings.resetBody')}</p>
           <button type="button" className="min-h-12 rounded-xl border border-[var(--danger)] px-3 text-[var(--danger)]" onClick={app.resetDemo}>
             {t('settings.reset')}
           </button>
         </Section>
+        <p data-guide="settings-end" className="sr-only" aria-hidden="true">
+          {t('guides.settings.endBody')}
+        </p>
       </div>
+      <UndoSnackbar
+        snapshot={undo}
+        onUndo={() => {
+          if (undo) app.updatePrefs(undo)
+          setUndo(null)
+        }}
+        onDone={() => setUndo(null)}
+      />
     </Page>
   )
-}
-
-const VOICE_LABEL: Record<string, string> = {
-  en: 'English voice',
-  ms: 'Suara Melayu',
-  ta: 'தமிழ் குரல்',
-  id: 'Suara Indonesia',
-  vi: 'Giọng Việt',
-  th: 'เสียงไทย',
-  tl: 'Boses Filipino',
-  ko: '한국어 음성',
-  ja: '日本語の音声',
-  hi: 'हिन्दी आवाज़',
-  bn: 'বাংলা কণ্ঠ',
 }
 
 function voiceSummary(language: string, dialect: string, native: string, t: (key: string) => string) {
   if (language === 'zh' || language === 'zh-TW') {
     const cantonese = dialect === 'cantonese'
-    const voice = language === 'zh-TW' ? (cantonese ? '粵語' : '普通話') : (cantonese ? '粤语' : '普通话')
+    const voice = cantonese ? t('voice.cantonese') : t('voice.mandarin')
     return `${native} · ${voice}`
   }
-  const voice = dialect === 'cantonese' ? t('dialects.cantonese') : (VOICE_LABEL[language] || t('voice.en'))
+  const voiceKey = `voice.${language}` as const
+  const voice = dialect === 'cantonese' ? t('dialects.cantonese') : (t(voiceKey) === voiceKey ? t('voice.en') : t(voiceKey))
   return `${native} · ${voice}`
 }

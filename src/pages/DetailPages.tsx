@@ -5,13 +5,16 @@ import { useApp } from '@/context/AppContext'
 import { NOTIFICATIONS, payeeName } from '@/data/bank'
 import { translate } from '@/i18n'
 import { CircleDollarSign, FileText, Info, LockKeyhole, SlidersHorizontal } from 'lucide-react'
-import { formatDay, formatMoney, formatSignedMoney } from '@/lib/format'
+import { formatDay, formatMoney, formatSignedMoney, localeFor } from '@/lib/format'
 import { txnKind } from '@/components/TxnSheet'
+import { loadTourProgress } from '@/lib/tourProgress'
+import { practisedJourneyCount } from '@/lib/tourTracking'
 
 export function AccountDetail() {
   const { accountId = '' } = useParams()
   const app = useApp()
-  const t = (key: string) => translate(app.prefs.language, key)
+  const lang = app.prefs.language
+  const t = (key: string) => translate(lang, key)
   const account = app.accounts.find((item) => item.id === accountId)
   const txns = useMemo(() => app.txns.filter((txn) => txn.accountId === accountId), [app.txns, accountId])
   const months = useMemo(() => {
@@ -36,9 +39,9 @@ export function AccountDetail() {
           <Link to="/info/money-lock" className="flex flex-col items-center gap-1"><LockKeyhole size={22} strokeWidth={1.5} />{t('look.moneyLock')}</Link>
         </div>
         <p className="mt-4 text-[13px] text-[var(--muted)]">{t('look.total')}</p>
-        <p className="text-[18px] font-bold">{formatMoney(balance)}</p>
+        <p className="text-[18px] font-bold">{formatMoney(balance, lang)}</p>
         <p className="mt-2 text-[13px] text-[var(--muted)]">{t('look.available')}</p>
-        <p className="text-[18px] font-bold">{formatMoney(balance)}</p>
+        <p className="text-[18px] font-bold">{formatMoney(balance, lang)}</p>
       </div>
       <div className="px-4">
         <div className="mb-3 flex items-center justify-between">
@@ -50,7 +53,7 @@ export function AccountDetail() {
         <div className="mb-3 flex gap-2 overflow-x-auto">
           {months.map((item) => (
             <button key={item} type="button" className={`min-h-11 shrink-0 rounded-full px-3 text-[13px] font-semibold ${item === month ? 'bg-[#E30613] text-white' : 'border border-[var(--line)]'}`} onClick={() => setMonth(item)}>
-              {new Intl.DateTimeFormat(app.prefs.language.startsWith('zh') ? 'zh-CN' : 'en-SG', { month: 'short', year: 'numeric' }).format(new Date(`${item}-01T00:00:00`))}
+              {new Intl.DateTimeFormat(localeFor(app.prefs.language), { month: 'short', year: 'numeric', ...(localeFor(app.prefs.language) === 'th-TH' ? { calendar: 'gregory' as const } : {}) }).format(new Date(`${item}-01T00:00:00`))}
             </button>
           ))}
         </div>
@@ -78,7 +81,8 @@ export function AccountDetail() {
 export function TxnDetail() {
   const { txnId = '' } = useParams()
   const app = useApp()
-  const t = (key: string) => translate(app.prefs.language, key)
+  const lang = app.prefs.language
+  const t = (key: string) => translate(lang, key)
   const txn = app.txns.find((item) => item.id === txnId)
   const setScreen = app.setScreen
   useEffect(() => { setScreen('transaction') }, [setScreen])
@@ -90,7 +94,7 @@ export function TxnDetail() {
         <h2 className="text-xl font-semibold leading-normal">{t('look.fastPayment')}</h2>
         <p>{account ? t(account.nameKey) : ''} · {account?.number.slice(-4)}</p>
         <p>{formatDay(txn.date, app.prefs.language)} {txn.date.slice(0, 4)}</p>
-        <p className="text-2xl font-bold tabular-nums">{formatSignedMoney(txn.amount)}</p>
+        <p className="text-2xl font-bold tabular-nums">{formatSignedMoney(txn.amount, lang)}</p>
         <p className="border-l-4 border-[#E30613] pl-3">{payeeName(txn.title)}</p>
         <Link to="/help?staff=1" className="block min-h-11 font-semibold text-[var(--link)] underline">{t('look.report')}</Link>
         <p><span className="text-[var(--muted)]">{t('flows.from')}</span> {account ? t(account.nameKey) : txn.accountId}</p>
@@ -128,15 +132,37 @@ export function Notifications() {
 
 export function Profile() {
   const app = useApp()
-  const t = (key: string) => translate(app.prefs.language, key)
+  const t = (key: string, vars?: Record<string, string | number>) => translate(app.prefs.language, key, vars)
   const setScreen = app.setScreen
   useEffect(() => { setScreen('profile') }, [setScreen])
+  const displayName = app.profile.shortName || app.profile.name
+  const initial = displayName.trim().slice(0, 1).toUpperCase()
+  const voice = app.prefs.voiceTransferLimit === 0
+    ? t('profile.mySetupVoiceOff')
+    : t('profile.mySetupVoice', { amount: `S$${app.prefs.voiceTransferLimit}` })
+  const toursDone = practisedJourneyCount(loadTourProgress(app.profile.id))
   return (
     <Page title={t('profile.title')} back>
       <div className="space-y-3 p-4">
-        <article className="card p-4">
-          <p className="text-2xl font-semibold leading-normal">{app.profile.shortName}</p>
-          <p>{app.profile.name}</p>
+        <article className="card flex gap-3 p-4">
+          <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-[var(--accent)] text-lg font-bold text-[var(--on-accent)]">{initial}</span>
+          <div>
+            <p className="text-xl font-semibold leading-normal">{displayName}</p>
+            {app.profile.name !== displayName && <p className="text-sm text-[var(--muted)]">{app.profile.name}</p>}
+          </div>
+        </article>
+        <article className="card space-y-2 p-4">
+          <h2 className="font-bold">{t('profile.mySetup')}</h2>
+          <p className="text-sm">{t('profile.mySetupSummary', {
+            text: app.prefs.textSize,
+            bold: app.prefs.boldText ? t('profile.mySetupBold') : t('profile.mySetupPlain'),
+            voice,
+            tours: toursDone,
+          })}</p>
+          <div className="flex flex-wrap gap-2">
+            <Link to="/settings" className="min-h-11 rounded-lg border border-[var(--line)] px-3 font-semibold">{t('profile.editSettings')}</Link>
+            <Link to="/tours" className="min-h-11 rounded-lg border border-[var(--line)] px-3 font-semibold">{t('profile.editTours')}</Link>
+          </div>
         </article>
         <Link to="/settings" className="ocbc-btn">{t('more.settings')}</Link>
         <button type="button" className="min-h-12 w-full rounded-2xl border border-[var(--line)] bg-[var(--card)] px-3 font-semibold" onClick={app.logout}>

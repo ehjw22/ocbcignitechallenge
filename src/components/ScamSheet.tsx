@@ -45,7 +45,8 @@ export function ScamSheet({
   onClose: () => void
 }) {
   const app = useApp()
-  const t = (key: string, vars?: Record<string, string | number>) => translate(app.prefs.language, key, vars)
+  const lang = app.prefs.language
+  const t = (key: string, vars?: Record<string, string | number>) => translate(lang, key, vars)
   const [host, setHost] = useState<HTMLElement | null>(null)
   const [answers, setAnswers] = useState<Answer[]>([null, null, null])
   const [left, setLeft] = useState(loadRiskConfig().coolingHighSeconds)
@@ -53,16 +54,21 @@ export function ScamSheet({
   const flagged = answers.some((item) => item === 'yes')
   const hold = level === 'high' || flagged
   const answerText = answers.map((item) => item || 'blank').join(',')
-  const money = formatMoney(amount)
+  const money = formatMoney(amount, lang)
   const title = t(level === 'high' ? 'risk.titleHigh' : 'risk.titleCheck')
   const reasonLines = reasons.map((reason) => {
     if (reason === 'new-payee-amount') return t('risk.reason.newPayee')
     if (reason === 'paid-before') return t('risk.reason.paidBefore')
-    if (reason === 'large-amount') return t('risk.reason.large', { amount: formatMoney(loadRiskConfig().largeAmount) })
-    if (reason === 'new-payee-24h-total') return t('risk.reason.day', { amount: formatMoney(dayTotal) })
+    if (reason === 'large-amount') return t('risk.reason.large', { amount: formatMoney(loadRiskConfig().largeAmount, lang) })
+    if (reason === 'new-payee-24h-total') return t('risk.reason.day', { amount: formatMoney(dayTotal, lang) })
     if (reason === 'overseas-new-payee') return t('risk.reason.overseas')
     if (reason === 'scam-words') return t('risk.reason.words', { word: words[0] || '' })
-    return t('risk.reason.unusual', { usual: formatMoney(usual) })
+    if (reason === 'unusual-amount') return t('risk.reason.unusualAmount', { usual: formatMoney(Math.max(usual, 100), lang) })
+    if (reason === 'new-payee-large') return t('risk.reason.newPayeeLarge')
+    if (reason === 'first-overseas') return t('risk.reason.firstOverseas')
+    if (reason === 'burst') return t('risk.reason.burst')
+    if (reason === 'odd-hour-large') return t('risk.reason.oddHourLarge')
+    return t('risk.reason.unusual', { usual: formatMoney(usual, lang) })
   })
   const spoken = [title, ...reasonLines, t('scamCheck.q1'), t('scamCheck.q2'), t('scamCheck.q3'), hold ? t('scamCheck.warning') : ''].filter(Boolean).join(' ')
 
@@ -91,21 +97,42 @@ export function ScamSheet({
     setAnswers((prev) => prev.map((item, index) => (index === slot ? value : item)))
   }
 
+  const reasonEn = (reason: RiskReason) => {
+    const tEn = (key: string, vars?: Record<string, string | number>) => translate('en', key, vars)
+    if (reason === 'new-payee-amount') return tEn('risk.reason.newPayee')
+    if (reason === 'paid-before') return tEn('risk.reason.paidBefore')
+    if (reason === 'large-amount') return tEn('risk.reason.large', { amount: formatMoney(loadRiskConfig().largeAmount, 'en') })
+    if (reason === 'new-payee-24h-total') return tEn('risk.reason.day', { amount: formatMoney(dayTotal, 'en') })
+    if (reason === 'overseas-new-payee') return tEn('risk.reason.overseas')
+    if (reason === 'scam-words') return tEn('risk.reason.words', { word: words[0] || '' })
+    if (reason === 'unusual-amount') return tEn('risk.reason.unusualAmount', { usual: formatMoney(Math.max(usual, 100), 'en') })
+    if (reason === 'new-payee-large') return tEn('risk.reason.newPayeeLarge')
+    if (reason === 'first-overseas') return tEn('risk.reason.firstOverseas')
+    if (reason === 'burst') return tEn('risk.reason.burst')
+    if (reason === 'odd-hour-large') return tEn('risk.reason.oddHourLarge')
+    return tEn('risk.reason.unusual', { usual: formatMoney(usual, 'en') })
+  }
+
   const talk = () => {
-    const summary = `Possible scam. ${money} to ${name}. ${reasonLines.join(' ')}`
+    const summary = t('staff.scamSummary', { money, name, reasons: reasonLines.join(' ') })
+    const summaryEn = translate('en', 'staff.scamSummary', {
+      money: formatMoney(amount, 'en'),
+      name,
+      reasons: reasons.map((reason) => reasonEn(reason)).join(' '),
+    })
     const request = app.addRequest({
       summary,
-      summaryEn: summary,
+      summaryEn,
       task: flowId,
       step: 'before review',
-      language: app.prefs.language,
+      language: lang,
       method: 'message',
       time: '',
       contact: '',
       urgent: true,
       customerName: app.profile?.name || '',
-      needs: 'Possible scam',
-      transcript: `Ollie scam check. ${summary} Answers: ${answerText}.`,
+      needs: t('staff.needs.scam'),
+      transcript: t('staff.transcript.scamCheck', { summary, answers: answerText }),
     })
     app.log('scam_check', { trigger: reasons.join(','), level, reasons: reasons.join(','), answers: answerText, result: 'staff', screen: flowId, amount, ref: request.ref })
     app.log('staff_request', { ref: request.ref, task: 'possible-scam' })

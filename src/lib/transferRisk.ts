@@ -1,11 +1,18 @@
+import type { TransferBaseline } from './transferBaseline.ts'
+
 export type RiskLevel = 'none' | 'check' | 'high'
 export type RiskReason =
   | 'large-amount'
   | 'new-payee-amount'
+  | 'new-payee-large'
   | 'paid-before'
   | 'overseas-new-payee'
+  | 'first-overseas'
   | 'new-payee-24h-total'
   | 'unusual-for-you'
+  | 'unusual-amount'
+  | 'burst'
+  | 'odd-hour-large'
   | 'scam-words'
 
 export const RISK_CONFIG = {
@@ -95,6 +102,7 @@ export function assessTransferRisk(input: {
   history?: { payeeKey: string; amount: number; at: number }[]
   text?: string
   usualTransfer?: number
+  baseline?: TransferBaseline
   config?: Partial<RiskConfig>
   now?: number
 }) {
@@ -107,21 +115,36 @@ export function assessTransferRisk(input: {
   const saved = !knownMerchant && candidates.some((key) => key && savedKeys.has(key))
   const reasons: RiskReason[] = []
   const now = input.now ?? Date.now()
-  const earlier = (input.history || []).filter((row) => candidates.includes(row.payeeKey.toLowerCase()) && now - row.at < 24 * 60 * 60 * 1000)
+  const history = input.history || []
+  const earlier = history.filter((row) => candidates.includes(row.payeeKey.toLowerCase()) && now - row.at < 24 * 60 * 60 * 1000)
   const prior = earlier.reduce((sum, row) => sum + row.amount, 0)
-  const hasHistory = earlier.length > 0
+  const hasHistory = history.some((row) => candidates.includes(row.payeeKey.toLowerCase()))
+  const baseline = input.baseline
+  const payeeMedian = candidates.map((key) => baseline?.perPayee[key] || 0).find((value) => value > 0) || 0
+  const usualCap = Math.max(baseline?.median || 0, payeeMedian, input.usualTransfer || 0, 100)
   if (words.length) reasons.push('scam-words')
   if (amount >= config.tinyAmount) {
     if (amount >= config.largeAmount) reasons.push('large-amount')
     if (!saved && !knownMerchant) {
-      if (amount >= config.newPayeeAmount && !hasHistory) reasons.push('new-payee-amount')
+      if (amount >= config.newPayeeAmount && !hasHistory) {
+        reasons.push('new-payee-amount')
+        if (amount >= config.largeAmount / 2) reasons.push('new-payee-large')
+      }
       if (amount >= config.newPayeeAmount && hasHistory && !(earlier.length >= 2 && prior + amount < config.newPayee24hTotal)) reasons.push('paid-before')
       if (input.flowId === 'overseas' && !hasHistory) reasons.push('overseas-new-payee')
+      if (input.flowId === 'overseas' && baseline && baseline.overseasCount === 0 && !hasHistory) reasons.push('first-overseas')
       if (hasHistory && prior + amount >= config.newPayee24hTotal) reasons.push('new-payee-24h-total')
     }
     const usual = input.usualTransfer || 0
     if (!saved && !knownMerchant && amount >= config.newPayeeAmount && usual > 0 && amount >= usual * config.unusualMultiplier) {
       reasons.push('unusual-for-you')
+    }
+    if (baseline && amount >= config.newPayeeAmount) {
+      if (amount >= Math.max(baseline.p95 || 0, usualCap * config.unusualMultiplier)) reasons.push('unusual-amount')
+      const recent = history.filter((row) => now - row.at < 10 * 60 * 1000).length
+      if (recent + 1 >= 3) reasons.push('burst')
+      const hour = new Date(now).getHours()
+      if (amount >= config.largeAmount / 2 && (hour < 6 || hour >= 23)) reasons.push('odd-hour-large')
     }
   }
   const high = reasons.includes('scam-words')

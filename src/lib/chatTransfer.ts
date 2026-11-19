@@ -2,6 +2,7 @@ import type { SavedPayee } from '../data/demoAccounts.ts'
 import { amountNumber, normaliseAmount } from './amount.ts'
 import { assessTransferRisk, candidateKeys, loadRiskConfig } from './transferRisk.ts'
 import { loadTransferHistory, recordTransfer } from './transferHistory.ts'
+import { buildBaseline } from './transferBaseline.ts'
 import { VOICE_TRANSFER_MAX_SGD, type VoiceMatch } from './voiceTransfer.ts'
 
 // Same masking as maskPayee in src/data/bank.ts (HUANG JIA WEI -> HUAXX JIX WEX).
@@ -68,12 +69,14 @@ export function assessChatRisk(match: VoiceMatch, payees: SavedPayee[], profileI
   const amount = amountNumber(match.fields.amount) || 0
   const keys = candidateKeys(match.flow, match.fields)
   const history = loadTransferHistory(profileId)
+  const baseline = buildBaseline(history)
   return assessTransferRisk({
     flowId: match.flow,
     amount,
     keys,
     payees,
     history,
+    baseline,
     text,
     usualTransfer,
     config: loadRiskConfig(),

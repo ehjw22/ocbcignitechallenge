@@ -6,7 +6,8 @@ import { PERSONAS } from '@/data/personas'
 import { SEED_REQUESTS } from '@/data/seed'
 import { translate } from '@/i18n'
 import { loadExcluded, notifyExcluded, setExcluded as setInsightExcluded, subscribeExcluded } from '@/lib/insightExclusions'
-import { clearTransferHistory } from '@/lib/transferHistory'
+import { clearTransferHistory, ensureSeededTransferHistory } from '@/lib/transferHistory'
+import { clearAllTourProgress } from '@/lib/tourProgress'
 import type { AnalyticsEvent, CardItem, ChatMessage, DemoUser, Preferences, Profile, RequestStatus, StaffRequest, Txn } from '@/lib/types'
 import {
   clearTourSeen,
@@ -540,7 +541,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
     navigate('/join')
   }
 
+  useEffect(() => {
+    if (!sessionId) return
+    ensureSeededTransferHistory(sessionId)
+  }, [sessionId])
+
   const resetDemoData = () => {
+    localStorage.removeItem('ocbc-tours-done')
+    clearAllTourProgress()
     for (const user of DEMO_LOGINS) {
       const seed = demoBook(user.id)
       if (seed) saveBook(user.id, { ...seed, payees: [...seed.payees], txns: [...seed.txns], goals: [...(seed.goals || [])] })

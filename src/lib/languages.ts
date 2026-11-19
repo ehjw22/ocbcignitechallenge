@@ -5,23 +5,27 @@ export interface LanguageOption {
   official: boolean
   bcp47: string
   voicePrefix: string
+  tier: 'core' | 'preview'
 }
 
 export const LANGUAGES: LanguageOption[] = [
-  { id: 'en', native: 'English', english: 'English', official: true, bcp47: 'en-SG', voicePrefix: 'en' },
-  { id: 'zh', native: '中文', english: 'Chinese', official: true, bcp47: 'zh-CN', voicePrefix: 'zh-CN' },
-  { id: 'ms', native: 'Bahasa Melayu', english: 'Malay', official: true, bcp47: 'ms-MY', voicePrefix: 'ms' },
-  { id: 'ta', native: 'தமிழ்', english: 'Tamil', official: true, bcp47: 'ta-IN', voicePrefix: 'ta' },
-  { id: 'zh-TW', native: '繁體中文', english: 'Traditional Chinese', official: false, bcp47: 'zh-TW', voicePrefix: 'zh-TW' },
-  { id: 'id', native: 'Bahasa Indonesia', english: 'Indonesian', official: false, bcp47: 'id-ID', voicePrefix: 'id' },
-  { id: 'vi', native: 'Tiếng Việt', english: 'Vietnamese', official: false, bcp47: 'vi-VN', voicePrefix: 'vi' },
-  { id: 'th', native: 'ไทย', english: 'Thai', official: false, bcp47: 'th-TH', voicePrefix: 'th' },
-  { id: 'tl', native: 'Tagalog', english: 'Tagalog', official: false, bcp47: 'fil-PH', voicePrefix: 'fil' },
-  { id: 'ko', native: '한국어', english: 'Korean', official: false, bcp47: 'ko-KR', voicePrefix: 'ko' },
-  { id: 'ja', native: '日本語', english: 'Japanese', official: false, bcp47: 'ja-JP', voicePrefix: 'ja' },
-  { id: 'hi', native: 'हिन्दी', english: 'Hindi', official: false, bcp47: 'hi-IN', voicePrefix: 'hi' },
-  { id: 'bn', native: 'বাংলা', english: 'Bengali', official: false, bcp47: 'bn-IN', voicePrefix: 'bn' },
+  { id: 'en', native: 'English', english: 'English', official: true, bcp47: 'en-SG', voicePrefix: 'en', tier: 'core' },
+  { id: 'zh', native: '中文', english: 'Chinese', official: true, bcp47: 'zh-CN', voicePrefix: 'zh-CN', tier: 'core' },
+  { id: 'ms', native: 'Bahasa Melayu', english: 'Malay', official: true, bcp47: 'ms-MY', voicePrefix: 'ms', tier: 'core' },
+  { id: 'ta', native: 'தமிழ்', english: 'Tamil', official: true, bcp47: 'ta-SG', voicePrefix: 'ta', tier: 'core' },
+  { id: 'zh-TW', native: '繁體中文', english: 'Traditional Chinese', official: false, bcp47: 'zh-TW', voicePrefix: 'zh-TW', tier: 'core' },
+  { id: 'id', native: 'Bahasa Indonesia', english: 'Indonesian', official: false, bcp47: 'id-ID', voicePrefix: 'id', tier: 'preview' },
+  { id: 'vi', native: 'Tiếng Việt', english: 'Vietnamese', official: false, bcp47: 'vi-VN', voicePrefix: 'vi', tier: 'preview' },
+  { id: 'th', native: 'ไทย', english: 'Thai', official: false, bcp47: 'th-TH', voicePrefix: 'th', tier: 'preview' },
+  { id: 'tl', native: 'Tagalog', english: 'Tagalog', official: false, bcp47: 'fil-PH', voicePrefix: 'fil', tier: 'preview' },
+  { id: 'ko', native: '한국어', english: 'Korean', official: false, bcp47: 'ko-KR', voicePrefix: 'ko', tier: 'preview' },
+  { id: 'ja', native: '日本語', english: 'Japanese', official: false, bcp47: 'ja-JP', voicePrefix: 'ja', tier: 'preview' },
+  { id: 'hi', native: 'हिन्दी', english: 'Hindi', official: false, bcp47: 'hi-IN', voicePrefix: 'hi', tier: 'preview' },
+  { id: 'bn', native: 'বাংলা', english: 'Bengali', official: false, bcp47: 'bn-IN', voicePrefix: 'bn', tier: 'preview' },
 ]
+
+export const CORE_LANGUAGES = LANGUAGES.filter((item) => item.tier === 'core')
+export const PREVIEW_LANGUAGES = LANGUAGES.filter((item) => item.tier === 'preview')
 
 export function languageById(id: string) {
   return LANGUAGES.find((l) => l.id === id) ?? LANGUAGES[0]

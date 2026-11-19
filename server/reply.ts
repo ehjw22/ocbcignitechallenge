@@ -1,3 +1,4 @@
+import { isAccountSecurityMessage } from './accountSecurity.js'
 import { extractAmountFromText } from './amount.js'
 import { z } from 'zod'
 
@@ -41,17 +42,24 @@ export function strongerRisk(a: 'none' | 'check' | 'high', b: 'none' | 'check' |
   return RANK[a] >= RANK[b] ? a : b
 }
 
+export type DetectedTask = {
+  action: { intent: 'paynow' | 'transfer' | 'overseas' | 'bill' | 'giro' | 'goal' | 'card-lock'; fields: Record<string, string> } | null
+  scamRisk: 'none' | 'check' | 'high'
+  handover: boolean
+  accountSecurity?: boolean
+}
+
 export function attachTask<T extends { reply: string; journeyId: string | null; flags: { refused: boolean; escalated: boolean; fraud: boolean } }>(
   base: T,
   message: string,
   payees: PayeeHint[],
 ) {
   const detected = detectTask(message, payees)
-  const action = detected.scamRisk === 'high' ? null : detected.action
+  const action = detected.accountSecurity ? detected.action : detected.scamRisk === 'high' ? null : detected.action
   return {
     reply: base.reply,
     source: 'demo' as const,
-    journeyId: detected.scamRisk === 'high' ? null : base.journeyId,
+    journeyId: detected.accountSecurity || detected.scamRisk === 'high' ? null : base.journeyId,
     action,
     scamRisk: detected.scamRisk,
     suggestions: [] as string[],
@@ -64,10 +72,18 @@ export function attachTask<T extends { reply: string; journeyId: string | null; 
   }
 }
 
-export function detectTask(message: string, payees: PayeeHint[] = []) {
+export function detectTask(message: string, payees: PayeeHint[] = []): DetectedTask {
   const text = message.trim()
   if (/system\s*override|ignore previous|ignore all|<\s*\/?\s*system|jailbreak/i.test(text)) {
     return { action: null, scamRisk: 'none' as const, handover: false }
+  }
+  if (isAccountSecurityMessage(text)) {
+    return {
+      action: { intent: 'card-lock', fields: { lock: 'yes' } },
+      scamRisk: 'high',
+      handover: true,
+      accountSecurity: true,
+    }
   }
   const amount = extractAmountFromText(text)
   const overThousand = Number(amount) > 1000

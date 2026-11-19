@@ -12,11 +12,12 @@ import { SHORTCUT_ICONS, SHORTCUT_ROUTES } from '@/lib/shortcutItems'
 import { startAppTour } from '@/lib/appTour'
 import { formatDay, formatMoney, formatTxnAmount } from '@/lib/format'
 import { payeeName } from '@/data/bank'
-import { TxnSheet, txnKind } from '@/components/TxnSheet'
+import { ExcludedTag, TxnSheet, txnKind } from '@/components/TxnSheet'
 import { Avatar } from '@/components/ui/Avatar'
 import { IconCircle } from '@/components/ui/IconCircle'
 import { Pill } from '@/components/ui/Pill'
 import { SectionTitle } from '@/components/ui/SectionTitle'
+import { AdaptiveNudge } from '@/components/AdaptiveNudge'
 
 const PILLS = ['accounts', 'cards', 'investments', 'insurance', 'loans', 'net'] as const
 
@@ -35,7 +36,8 @@ export function Home() {
     return false
   })
   const navigate = useNavigate()
-  const t = (key: string, vars?: Record<string, string | number>) => translate(app.prefs.language, key, vars)
+  const lang = app.prefs.language
+  const t = (key: string, vars?: Record<string, string | number>) => translate(lang, key, vars)
   const deposits = app.accounts.filter((account) => account.kind === 'deposit')
   const tips = [t('look.heroTip'), t('look.heroPractice'), t('look.heroScam')]
   const [tip, setTip] = useState(0)
@@ -62,12 +64,13 @@ export function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params])
 
-  const money = (value: number) => (hidden ? '•••••••• SGD' : formatMoney(value))
+  const money = (value: number) => (hidden ? t('look.hiddenBalance') : formatMoney(value, lang))
 
   return (
     <div className="relative flex h-full min-h-0 flex-col bg-[var(--bg)] text-[var(--text)]">
       <main id="main" className="nav-clearance min-h-0 flex-1 overflow-y-auto overflow-x-hidden bg-[var(--bg)]">
         <GuideDone />
+        <AdaptiveNudge />
         <header className="flex min-h-14 items-center justify-between gap-2 border-b border-[var(--line)] bg-[var(--card)] py-1 pl-4 pr-3">
           <span className="flex min-w-0 items-center gap-2">
             <Link to="/rewards" className="flex min-h-11 min-w-0 items-center gap-1.5 rounded-full border-[1.5px] border-[var(--accent)] px-3 text-[0.9rem]" aria-label={`${t('rewards.title')}: 1,280 OCBC$`}>
@@ -232,9 +235,9 @@ export function Home() {
                           <Avatar text={txn.accountId === 'frank' ? 'FRA' : 'SAV'} size="2.75rem" />
                           <span className="min-w-0 flex-1">
                             <span className="block text-[0.95rem] font-semibold uppercase">{t(txnKind(txn.title))}</span>
-                            <span className="block text-[0.95rem] uppercase text-[var(--muted)]">{payeeName(txn.title)}</span>
+                            <span className="block text-[0.95rem] uppercase text-[var(--muted)]">{payeeName(txn.title)}<ExcludedTag txn={txn} t={t} /></span>
                           </span>
-                          <span className={`shrink-0 whitespace-nowrap text-[1.05rem] font-bold tabular-nums ${txn.amount > 0 ? 'text-[var(--ok)]' : ''}`}>{formatTxnAmount(txn.amount)}</span>
+                          <span className={`shrink-0 whitespace-nowrap text-[1.05rem] font-bold tabular-nums ${txn.amount > 0 ? 'text-[var(--ok)]' : ''}`}>{formatTxnAmount(txn.amount, lang)}</span>
                         </button>
                       </li>
                     ))}
@@ -252,7 +255,7 @@ export function Home() {
               <p className="mt-2 font-bold">{t('insights')}</p>
               <p className="text-[0.85rem]">
                 {t('insight.vsLast', {
-                  amount: formatMoney(sum(rowsFor('all', '2026-10'))),
+                  amount: formatMoney(sum(rowsFor('all', '2026-10')), lang),
                   pct: Math.abs(percentChange(sum(rowsFor('all', '2026-10')), sum(rowsFor('all', '2026-09')))),
                   dir: percentChange(sum(rowsFor('all', '2026-10')), sum(rowsFor('all', '2026-09'))) >= 0 ? t('insight.more') : t('insight.less'),
                 })}

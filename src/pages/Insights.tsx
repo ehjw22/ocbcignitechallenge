@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { spendKey } from '@/lib/insightExclusions'
 import { useSearchParams } from 'react-router-dom'
 import { Cell, Pie, PieChart, Bar, BarChart, Line, LineChart, ResponsiveContainer, XAxis, YAxis } from 'recharts'
 import { Page } from '@/components/Shell'
@@ -43,15 +44,21 @@ function loadBudgets() {
 
 export function Insights() {
   const app = useApp()
-  const t = (key: string, vars?: Record<string, string | number>) => translate(app.prefs.language, key, vars)
+  const lang = app.prefs.language
+  const t = (key: string, vars?: Record<string, string | number>) => translate(lang, key, vars)
   const colours = chartPalette(app.prefs.colourVision)
   const accent = themeVars(app.prefs)['--accent']
   const [accountId, setAccountId] = useState('all')
   const [month, setMonth] = useState('2026-10')
   const [budgets, setBudgets] = useState(loadBudgets)
   const [note, setNote] = useState('')
+  const [showExcluded, setShowExcluded] = useState(false)
   const [params] = useSearchParams()
   const setScreen = app.setScreen
+  const excludedRows = useMemo(
+    () => app.txns.filter((txn) => txn.amount < 0 && app.excluded.has(spendKey(txn))),
+    [app.txns, app.excluded],
+  )
   useEffect(() => { setScreen('insights') }, [setScreen])
   useEffect(() => {
     if (params.get('tour') !== '1') return
@@ -123,6 +130,14 @@ export function Insights() {
     <Page title={t('insights')} back>
       <div className="space-y-4 p-4">
         <p className="text-sm text-[var(--muted)]">{t('insight.sample')}</p>
+        {excludedRows.length > 0 && (
+          <p className="text-sm">
+            <button type="button" className="font-semibold text-[var(--link)] underline" onClick={() => setShowExcluded(true)}>
+              {t('insightsExclude.summary', { count: excludedRows.length })}
+            </button>
+          </p>
+        )}
+        {note && <p className="rounded-lg bg-[var(--soft)] p-2 text-sm" role="status">{note}</p>}
         <div className={`grid gap-2 ${app.prefs.textSize >= 22 ? 'grid-cols-1' : 'grid-cols-2'}`} data-guide="insights-filters">
           <label className="block min-w-0 text-sm font-semibold">
             {t('insight.account')}
@@ -147,13 +162,13 @@ export function Insights() {
           <h2 className="text-base font-semibold">{t('insight.summary')}</h2>
           <p>
             {prevId
-              ? t('insight.vsLast', { amount: formatMoney(spent), pct: Math.abs(pct), dir: direction(pct) })
-              : t('insight.vsLastNone', { amount: formatMoney(spent) })}
+              ? t('insight.vsLast', { amount: formatMoney(spent, lang), pct: Math.abs(pct), dir: direction(pct) })
+              : t('insight.vsLastNone', { amount: formatMoney(spent, lang) })}
           </p>
         </section>
 
         <section className="card space-y-2 p-3" data-guide="insights-donut">
-          <h2 className="text-base font-semibold">{t('insight.donut')}</h2>
+          <h2 className="text-base font-semibold leading-snug [overflow-wrap:anywhere]">{t('insight.donut')}</h2>
           {slices.length === 0 ? <p>{t('insight.empty')}</p> : (
             <div>
               <div aria-hidden className="mx-auto h-[220px] w-full max-w-[280px]">
@@ -169,7 +184,7 @@ export function Insights() {
                 {slices.map((item, index) => (
                   <li key={item.key} className="flex items-center justify-between gap-2">
                     <span className="flex min-w-0 flex-1 items-center gap-1 [word-break:keep-all]"><span className="h-2.5 w-2.5 shrink-0 rounded-sm" style={{ background: index === 0 ? accent : colours[index % colours.length] }} />{t(`categories.${item.key}`)}</span>
-                    <span className="money shrink-0 whitespace-nowrap">{formatMoney(item.amount)}</span>
+                    <span className="money shrink-0 whitespace-nowrap">{formatMoney(item.amount, lang)}</span>
                   </li>
                 ))}
               </ul>
@@ -184,7 +199,7 @@ export function Insights() {
                     <span className="mr-2 inline-block h-3 w-3 rounded-sm" style={{ background: index === 0 ? accent : colours[index % colours.length] }} aria-hidden />
                     {t(`categories.${item.key}`)}
                   </th>
-                  <td className="py-2 text-right tabular-nums">{formatMoney(item.amount)}</td>
+                  <td className="py-2 text-right tabular-nums">{formatMoney(item.amount, lang)}</td>
                 </tr>
               ))}
             </tbody>
@@ -198,7 +213,7 @@ export function Insights() {
               {merchants.map((item, index) => (
                 <li key={item.name} className="flex justify-between">
                   <span>{index + 1}. {item.name}</span>
-                  <span className="tabular-nums">{formatMoney(item.amount)}</span>
+                  <span className="tabular-nums">{formatMoney(item.amount, lang)}</span>
                 </li>
               ))}
             </ol>
@@ -222,7 +237,7 @@ export function Insights() {
               {trend.map((item) => (
                 <tr key={item.month} className="border-t border-[var(--line)]">
                   <th scope="row" className="py-1 font-medium">{t(`months.${item.month}`)}</th>
-                  <td className="py-1 text-right tabular-nums">{formatMoney(item.amount)}</td>
+                  <td className="py-1 text-right tabular-nums">{formatMoney(item.amount, lang)}</td>
                 </tr>
               ))}
             </tbody>
@@ -250,7 +265,7 @@ export function Insights() {
               {daily.map((item) => (
                 <tr key={item.day} className="border-t border-[var(--line)]">
                   <th scope="row" className="py-1 font-medium">{item.day}</th>
-                  <td className="py-1 text-right tabular-nums">{formatMoney(item.amount)}</td>
+                  <td className="py-1 text-right tabular-nums">{formatMoney(item.amount, lang)}</td>
                 </tr>
               ))}
             </tbody>
@@ -278,7 +293,7 @@ export function Insights() {
               <div key={key}>
                 <label className="flex items-center justify-between gap-2 text-sm font-semibold" htmlFor={`budget-${key}`}>
                   <span>{t(`categories.${key}`)}</span>
-                  <span className="font-medium tabular-nums">{formatMoney(amount)} / {formatMoney(budget)}</span>
+                  <span className="font-medium tabular-nums">{formatMoney(amount, lang)} / {formatMoney(budget, lang)}</span>
                 </label>
                 <input
                   id={`budget-${key}`}
@@ -299,8 +314,32 @@ export function Insights() {
         <button type="button" className="h-12 w-full rounded-xl bg-[var(--accent)] font-semibold text-[var(--on-accent)]" onClick={addToGoal}>
           {t('insight.goalAction', { name: goalName })}
         </button>
-        {note && <p role="status">{note}</p>}
       </div>
+      {showExcluded && (
+        <div className="absolute inset-0 z-40 flex items-end bg-black/40" onClick={() => setShowExcluded(false)}>
+          <div className="max-h-[60vh] w-full overflow-y-auto rounded-t-2xl bg-[var(--card)] p-4" onClick={(event) => event.stopPropagation()}>
+            <h2 className="text-lg font-bold">{t('insightsExclude.view')}</h2>
+            <ul className="mt-3 divide-y divide-[var(--line)]">
+              {excludedRows.map((txn) => (
+                <li key={txn.id} className="flex items-center justify-between gap-2 py-3">
+                  <span className="min-w-0 text-sm">{txn.title}</span>
+                  <button
+                    type="button"
+                    className="min-h-11 shrink-0 rounded-lg border border-[var(--line)] px-3 font-semibold"
+                    onClick={() => {
+                      app.toggleExcluded(spendKey(txn), false)
+                      setNote(t('insightsExclude.restored'))
+                      window.setTimeout(() => setNote(''), 5000)
+                    }}
+                  >
+                    {t('insightsExclude.undo')}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
     </Page>
   )
 }

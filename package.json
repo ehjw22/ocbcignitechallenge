@@ -8,6 +8,7 @@
     "build": "node scripts/check-i18n.mjs && node scripts/check-api.mjs && tsc --noEmit && vite build",
     "i18n:check": "node scripts/check-i18n.mjs",
     "lint": "eslint src",
+    "test": "node --test \"src/lib/*.test.ts\" && node scripts/check-core-locale.mjs && node scripts/check-i18n.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

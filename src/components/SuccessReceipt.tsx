@@ -1,5 +1,5 @@
 import { forwardRef } from 'react'
-import { formatMoney } from '@/lib/format'
+import { formatMoney, localeFor } from '@/lib/format'
 
 export type SuccessReceiptData = {
   amount: number
@@ -10,8 +10,10 @@ export type SuccessReceiptData = {
   practice: boolean
 }
 
-export const SuccessReceipt = forwardRef<HTMLDivElement, { data: SuccessReceiptData; paidLabel: string; practiceLabel: string }>(
-  function SuccessReceipt({ data, paidLabel, practiceLabel }, ref) {
+export const SuccessReceipt = forwardRef<
+  HTMLDivElement,
+  { data: SuccessReceiptData; paidLabel: string; practiceLabel: string; refLabel: string; whenLabel: string; fromLabel: string }
+>(function SuccessReceipt({ data, paidLabel, practiceLabel, refLabel, whenLabel, fromLabel }, ref) {
     return (
       <div ref={ref} className="w-[320px] max-w-full rounded-2xl border border-[var(--line)] bg-[var(--card)] p-4 text-[var(--text)] shadow-md">
         {data.practice && (
@@ -23,15 +25,15 @@ export const SuccessReceipt = forwardRef<HTMLDivElement, { data: SuccessReceiptD
         <p className="mt-2 text-center text-lg font-bold leading-snug">{paidLabel}</p>
         <dl className="mt-4 space-y-2 text-sm">
           <div className="flex justify-between gap-2">
-            <dt className="text-[var(--muted)]">Ref</dt>
+            <dt className="text-[var(--muted)]">{refLabel}</dt>
             <dd className="font-semibold">{data.reference}</dd>
           </div>
           <div className="flex justify-between gap-2">
-            <dt className="text-[var(--muted)]">When</dt>
+            <dt className="text-[var(--muted)]">{whenLabel}</dt>
             <dd className="font-semibold">{data.when}</dd>
           </div>
           <div className="flex justify-between gap-2">
-            <dt className="text-[var(--muted)]">From</dt>
+            <dt className="text-[var(--muted)]">{fromLabel}</dt>
             <dd className="min-w-0 text-right font-semibold">{data.fromLabel}</dd>
           </div>
         </dl>
@@ -41,7 +43,7 @@ export const SuccessReceipt = forwardRef<HTMLDivElement, { data: SuccessReceiptD
 )
 
 export function receiptWhenLabel(language: string) {
-  return new Intl.DateTimeFormat(language.startsWith('zh') ? 'zh-CN' : 'en-SG', {
+  return new Intl.DateTimeFormat(localeFor(language), {
     day: '2-digit',
     month: 'short',
     year: 'numeric',
@@ -50,6 +52,6 @@ export function receiptWhenLabel(language: string) {
   }).format(new Date())
 }
 
-export function receiptPaidText(amount: number, payeeName: string) {
-  return `${formatMoney(amount)} sent to ${payeeName}`
+export function receiptPaidText(amount: number, payeeName: string, language = 'en') {
+  return `${formatMoney(amount, language)} sent to ${payeeName}`
 }

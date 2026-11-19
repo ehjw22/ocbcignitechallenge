@@ -14,14 +14,21 @@ import { formatDraftAmount } from '@/lib/amount'
 import { firstFillWizardStep, normaliseFillFields } from '@/lib/fillFields'
 import { hiddenBlockingIssues, stepIssues } from '@/lib/flowStepIssues'
 import { wizardFields, wizardReview } from '@/lib/flowWizard'
-import { formatMoney } from '@/lib/format'
-import { getFlowTour, startGuide, stopGuide, subscribeFlowTour } from '@/lib/guide'
+import { formatMoney, localeFor } from '@/lib/format'
+import { getFlowTour, guideById, startGuide, stopGuide, subscribeFlowTour } from '@/lib/guide'
+import { recordFlowBack, recordValidationFail } from '@/lib/adaptiveNudges'
+import { nextPracticeJourney } from '@/lib/recommendedTours'
+import { loadTourProgress } from '@/lib/tourProgress'
+import { markTourDropped, markTourFinished, markTourOpened, markTourStep, practisedJourneyCount } from '@/lib/tourTracking'
+import { tourBlocksRealPayment } from '@/lib/tourPayment'
 import { guideStepFill, resolveDemoValue } from '@/lib/guideSync'
 import { formatRate, nextRate } from '@/lib/rates'
 import { beginShowHow, peekShowHow, takeShowHow } from '@/lib/showHow'
 import { speak } from '@/lib/speech'
 import { assessTransferRisk, candidateKeys, loadRiskConfig, type RiskLevel, type RiskReason } from '@/lib/transferRisk'
 import { loadTransferHistory, recordTransfer } from '@/lib/transferHistory'
+import { buildBaseline } from '@/lib/transferBaseline'
+import { phoneScale } from '@/lib/present'
 import { validateForm, type Issue } from '@/lib/validate'
 import { ScamSheet } from '@/components/ScamSheet'
 
@@ -38,6 +45,7 @@ export function FlowPage() {
   const practice = params.get('practice') === '1'
   const touring = params.get('tour') === '1'
   const demo = params.get('demo')
+  const lang = app.prefs.language
   const t = (key: string, vars?: Record<string, string | number>) => translate(app.prefs.language, key, vars)
   const [form, setForm] = useState<Record<string, string>>({})
   const [issues, setIssues] = useState<Issue[]>([])
@@ -143,7 +151,7 @@ export function FlowPage() {
     if (known) setPayeeLabel(known.name)
     setStage('form')
     const fromBal = app.balances[next.from || deposits[0]?.id || '360'] ?? 0
-    const fillStep = filled.length ? firstFillWizardStep(flow.id, next, fromBal, app.limit, app.payees) : 0
+    const fillStep = filled.length ? firstFillWizardStep(flow.id, next, fromBal, app.limit, app.payees, filled) : 0
     // PayNow has a single review screen (stage 'review'), so a filled form opens on the amount step; Next then runs the scam check.
     setWstep(flow.id === 'paynow' && practice ? 1 : flow.id === 'paynow' ? Math.min(fillStep, 1) : fillStep)
     if (filled.length) window.setTimeout(() => sessionStorage.removeItem('ocbc-fill'), 0)
@@ -178,10 +186,25 @@ export function FlowPage() {
           app.log('guide_step_missing', { guideId: flow.guideId, element, stepId })
           app.setNotice('')
         },
-        onStart: (guideId) => app.log('guide_started', { guideId }),
-        onStep: (stepId) => app.setGuideStep(`${flow.guideId}:${stepId}`),
-        onDrop: (guideId, stepId) => app.log('guide_dropped', { guideId, stepId }),
-        onDone: (guideId) => app.log('guide_completed', { guideId }),
+        onStart: (guideId) => {
+          const total = guideById(guideId)?.steps.length || 0
+          if (total) markTourOpened(app.profile.id, guideId, total)
+          app.log('guide_started', { guideId })
+        },
+        onStep: (stepId) => {
+          app.setGuideStep(`${flow.guideId}:${stepId}`)
+          const tour = getFlowTour()
+          if (tour) markTourStep(app.profile.id, flow.guideId, tour.index, tour.steps.length)
+        },
+        onDrop: (guideId, stepId) => {
+          const tour = getFlowTour()
+          if (tour) markTourDropped(app.profile.id, guideId, tour.index, tour.steps.length)
+          app.log('guide_dropped', { guideId, stepId })
+        },
+        onDone: (guideId) => {
+          markTourFinished(app.profile.id, guideId, practice)
+          app.log('guide_completed', { guideId })
+        },
       })
       if (!result.started) app.setNotice(t('guideEmpty'))
     }, 400)
@@ -344,10 +367,11 @@ export function FlowPage() {
   // Split "Daily limit remaining: {amount}" so only the amount is the underlined link (works for any word order).
   const limitParts = t('look.limitLeft', { amount: '\u0001' }).split('\u0001')
   // Success screen text, shared by the screen itself and the Share link.
-  const paidTitle = practice ? t('practice.doneTitle') : flow.id === 'goal' ? t('success.goalAdded', { amount: formatMoney(Number(form.monthly) || Number(form.target) || 0), name: form.name || 'Holiday' }) : t('look.paid', { amount: formatMoney(sendAmount) })
-  const paidToLabel = t(flow.id === 'goal' ? 'success.payee' : 'look.to')
+  const paidTitle = practice ? t('practice.doneTitle') : flow.id === 'goal' ? t('success.goalAdded', { amount: formatMoney(Number(form.monthly) || Number(form.target) || 0, lang), name: form.name || 'Holiday' }) : t('look.paid', { amount: formatMoney(sendAmount, lang) })
+  const paynowDone = stage === 'done' && flow.id === 'paynow'
+  const paidToLabel =t(flow.id === 'goal' ? 'success.payee' : 'look.to')
   const paidTo = flow.id === 'paynow' ? pn.top : displayPayee || form.name || title
-  const paidWhen = form.when === 'later' && form.laterDate ? form.laterDate : new Intl.DateTimeFormat(app.prefs.language.startsWith('zh') ? 'zh-CN' : 'en-SG', { day: '2-digit', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit' }).format(new Date())
+  const paidWhen = form.when === 'later' && form.laterDate ? form.laterDate : new Intl.DateTimeFormat(localeFor(lang), { day: '2-digit', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit', ...(localeFor(lang) === 'th-TH' ? { calendar: 'gregory' as const } : {}) }).format(new Date())
   const sharePayment = () => {
     const text = [paidTitle, `${paidToLabel}: ${paidTo}${flow.id === 'paynow' && pn.sub ? ` (${pn.sub})` : ''}`, `${t('success.when')}: ${paidWhen}`, t('look.transactionId', { id: ref })].join('\n')
     if (typeof navigator.share === 'function') {
@@ -359,11 +383,11 @@ export function FlowPage() {
   // Review layout for the other payment flows (transfer, overseas, bills, scan, top-up), same look as PayNow's review.
   // Used on the Transfer/Overseas summary step and on the slide-to-pay screen. Display only: values come from the form.
   const payField = flow.fields.find((field) => field.id === flow.payeeField)
-  const payTop = flow.id === 'topup' ? lookedUp || maskProxy(form.to || '') : payField ? display(payField, form[payField.id] || '', t) : ''
+  const payTop = flow.id === 'topup' ? lookedUp || maskProxy(form.to || '') : payField ? display(payField, form[payField.id] || '', t, lang) : ''
   const paySub = flow.fields
     .filter((field) => ['bank', 'country', 'swift', 'account', 'ref'].includes(field.id) || (flow.id === 'topup' && field.id === 'to' && !!lookedUp))
     .filter((field) => !(field.id === 'swift' && fx?.account === 'iban'))
-    .map((field) => field.id === 'to' ? maskProxy(form.to || '') : field.id === 'ref' ? `${shortLabel(field, t)} ${form.ref || ''}` : display(field, form[field.id] || '', t))
+    .map((field) => field.id === 'to' ? maskProxy(form.to || '') : field.id === 'ref' ? `${shortLabel(field, t)} ${form.ref || ''}` : display(field, form[field.id] || '', t, lang))
     .filter((text) => text.trim())
     .join(' • ')
   const payDetails = flow.fields.filter((field) => {
@@ -393,13 +417,13 @@ export function FlowPage() {
           {payDetails.map((field) => (
             <div key={field.id}>
               <dt className="text-[0.95rem] text-[var(--muted)]">{shortLabel(field, t)}</dt>
-              <dd className="money text-[1.05rem] font-bold">{display(field, form[field.id] || '', t)}</dd>
+              <dd className="money text-[1.05rem] font-bold">{display(field, form[field.id] || '', t, lang)}</dd>
             </div>
           ))}
           {fx && (
             <>
               <div><dt className="text-[0.95rem] text-[var(--muted)]">{t('success.rate')}</dt><dd className="money text-[1.05rem] font-bold">{t('fx.rate', { currency: t(fx.currencyKey), rate: fx.perSgd.toFixed(2) })}</dd></div>
-              <div><dt className="text-[0.95rem] text-[var(--muted)]">{t('success.fee')}</dt><dd className="money text-[1.05rem] font-bold">{formatMoney(fx.fee)}</dd></div>
+              <div><dt className="text-[0.95rem] text-[var(--muted)]">{t('success.fee')}</dt><dd className="money text-[1.05rem] font-bold">{formatMoney(fx.fee, lang)}</dd></div>
               <div><dt className="text-[0.95rem] text-[var(--muted)]">{t('success.received')}</dt><dd className="money text-[1.05rem] font-bold">{t(fx.currencyKey)} {received.toFixed(2)}</dd></div>
             </>
           )}
@@ -414,8 +438,8 @@ export function FlowPage() {
     const field = flow.fields.find((item) => item.id === issue.field)
     const params: Record<string, string | number> = { ...(issue.params || {}) }
     if (field && params.field) params.field = t(field.label)
-    if (issue.code === 'insufficient') params.available = formatMoney(Number(issue.params?.available ?? balance))
-    if (issue.code === 'daily_limit') params.limit = formatMoney(Number(issue.params?.limit ?? app.limit))
+    if (issue.code === 'insufficient') params.available = formatMoney(Number(issue.params?.available ?? balance), lang)
+    if (issue.code === 'daily_limit') params.limit = formatMoney(Number(issue.params?.limit ?? app.limit), lang)
     return t(`errors.${issue.code}`, params)
   }
   // Message above Next. Errors already shown under their own field on this screen aren't repeated here.
@@ -471,12 +495,14 @@ export function FlowPage() {
     if (!watched.includes(flow.id) || !flow.amountField) return false
     const keys = candidateKeys(flow.id, form)
     const history = loadTransferHistory(app.profile.id)
+    const baseline = buildBaseline(history)
     const result = assessTransferRisk({
       flowId: flow.id,
       amount,
       keys,
       payees: app.payees,
       history,
+      baseline,
       text: [form.reference, form.purpose, form.note, form.message].filter(Boolean).join(' '),
       usualTransfer: app.profile.usualTransfer,
       config: loadRiskConfig(),
@@ -502,10 +528,15 @@ export function FlowPage() {
   }
 
   const confirm = () => {
+    if (tourBlocksRealPayment(touring, practice)) return
     const reference = `DEMO-${Math.floor(100000 + Math.random() * 900000)}`
     setRef(reference)
+    const payAmount = Number(String(form[flow.amountField || ''] || form.amount || '').replace(/,/g, ''))
+    if (practice) {
+      markTourFinished(app.profile.id, flow.id, true)
+    }
     if (!practice) {
-      const amount = Number(String(form[flow.amountField || ''] || '').replace(/,/g, ''))
+      const amount = payAmount
       if (flow.kind === 'payment' && amount > 0) {
         const from = form.from || '360'
         app.setBalance(from, (app.balances[from] ?? 0) - amount)
@@ -528,7 +559,13 @@ export function FlowPage() {
       setStage('processing')
       window.setTimeout(() => setStage('done'), 1200)
     }
-    app.setAnnounce(practice ? t('practice.done') : t('success.demo'))
+    app.setAnnounce(
+      practice
+        ? t('practice.done')
+        : flow.kind === 'payment' && payAmount > 0
+          ? t('success.paidAnnounce', { amount: formatMoney(payAmount, lang), name: displayPayee || title })
+          : t('success.demo'),
+    )
   }
 
   return (
@@ -545,7 +582,8 @@ export function FlowPage() {
           ? () => { setIssues([]); if (stage === 'review') setStage('form'); else setWstep((value) => Math.max(0, value - 1)); document.getElementById('main')?.scrollTo(0, 0) }
           : undefined}
     >
-      <div className="space-y-3 p-4">
+      {/* PayNow success: fill the page so the Transaction ID and buttons can sit at the bottom (as in the OCBC app). */}
+      <div className={`space-y-3 p-4 ${paynowDone ? 'flex min-h-full flex-col' : ''}`}>
         {practice && (
           <p className="rounded-lg border-l-4 border-[var(--accent)] bg-[var(--card)] px-3 py-2 text-[0.85rem] font-semibold leading-normal" role="status">
             <Speakable text={t('practice.banner')} auto={app.prefs.readAloud} />
@@ -560,7 +598,7 @@ export function FlowPage() {
           </div>
         )}
         {flow.id === 'limit' && (
-          <p data-guide="limit-current" className="rounded-lg bg-[var(--beige)] p-4 font-semibold">{t('flows.currentLimit', { amount: formatMoney(app.limit) })}</p>
+          <p data-guide="limit-current" className="rounded-lg bg-[var(--beige)] p-4 font-semibold">{t('flows.currentLimit', { amount: formatMoney(app.limit, lang) })}</p>
         )}
         {flow.id === 'scan' && stage === 'form' && (
           <div data-guide="scan-frame" className="flex flex-col items-center gap-3 rounded-lg bg-[var(--beige)] p-4">
@@ -602,6 +640,7 @@ export function FlowPage() {
                 setIssues(found)
                 found.forEach((issue) => app.log('error_shown', { code: issue.code, flowId: flow.id }))
                 if (found.length) {
+                  recordValidationFail(app.profile.id)
                   if (app.prefs.readAloud) app.setAnnounce(describe(found[0]))
                   focusIssues(found)
                   return
@@ -616,6 +655,7 @@ export function FlowPage() {
                 setIssues(found)
                 found.forEach((issue) => app.log('error_shown', { code: issue.code, flowId: flow.id }))
                 if (found.length) {
+                  recordValidationFail(app.profile.id)
                   if (app.prefs.readAloud) app.setAnnounce(describe(found[0]))
                   focusIssues(found)
                   return
@@ -631,7 +671,7 @@ export function FlowPage() {
                 <p className="font-semibold">{t('fx.sample')}</p>
                 <p>{t('fx.currency')}: {t(fx.currencyKey)}</p>
                 <p>{t('fx.rate', { currency: t(fx.currencyKey), rate: fx.perSgd.toFixed(2) })}</p>
-                <p>{t('fx.fee', { fee: formatMoney(fx.fee) })}</p>
+                <p>{t('fx.fee', { fee: formatMoney(fx.fee, lang) })}</p>
                 <p>{t('fx.received', { amount: `${t(fx.currencyKey)} ${received.toFixed(2)}` })}</p>
                 <p className="text-[var(--muted)]">{t('fx.accountHint', { hint: t(`fx.hint.${fx.account}`) })}</p>
               </section>
@@ -757,7 +797,7 @@ export function FlowPage() {
                     cents={flow.kind === 'payment' && field.id === 'amount'}
                     error={fieldErrorText(field.id)}
                     onBlur={() => touchField(field.id)}
-                    balanceHint={field.id === 'from' ? t('flows.available', { amount: formatMoney(balance) }) : ''}
+                    balanceHint={field.id === 'from' ? t('flows.available', { amount: formatMoney(balance, lang) }) : ''}
                     onChange={(value) => {
                       if (field.id === 'country' && flow.id === 'overseas') {
                         const sample = overseasSample(value)
@@ -810,9 +850,9 @@ export function FlowPage() {
                 <div data-guide="pay-amount" className="flex items-baseline gap-2">
                   {/* Cents-first entry, like a bank keypad: typing 1, 2, 3 shows 0.01, 0.12, 1.23. */}
                   <input data-guide="paynow-amount" className="min-w-0 max-w-[75%] bg-transparent text-[2.25rem] font-semibold leading-tight outline-none placeholder:text-[var(--muted)] placeholder:opacity-60" style={{ width: `${Math.max(4, paynowAmountText.length) + 0.5}ch` }} inputMode="numeric" aria-label={t('amount')} placeholder="0.00" value={paynowAmountText} onFocus={(event) => { const el = event.currentTarget; window.setTimeout(() => el.setSelectionRange(el.value.length, el.value.length), 0) }} onChange={(event) => { const digits = event.target.value.replace(/\D/g, '').replace(/^0+/, '').slice(0, 10); changeField('amount', digits ? (Number(digits) / 100).toFixed(2) : '') }} />
-                  <span className="shrink-0 whitespace-nowrap text-[1rem]">SGD</span>
+                  <span className="shrink-0 whitespace-nowrap text-[1rem]">{t('flows.currencyLabel')}</span>
                 </div>
-                <p className="text-[1rem]">{limitParts[0]}<Link to="/flow/limit" className="text-[var(--link)] underline">{formatMoney(app.limit)}</Link>{limitParts[1]}</p>
+                <p className="text-[1rem]">{limitParts[0]}<Link to="/flow/limit" className="text-[var(--link)] underline">{formatMoney(app.limit, lang)}</Link>{limitParts[1]}</p>
                 <div data-guide="pay-message">
                   <input data-guide="paynow-reference" className="min-h-11 max-w-full rounded-full bg-[var(--slate)] px-4 text-[1rem] text-white placeholder:text-white" style={{ width: `calc(${Math.max(1, textWidth(form.reference || t('look.addMessage')))}ch + 2.25rem)` }} maxLength={35} placeholder={t('look.addMessage')} aria-label={t('look.addMessage')} value={form.reference || ''} onChange={(event) => changeField('reference', event.target.value)} />
                 </div>
@@ -824,10 +864,10 @@ export function FlowPage() {
                 </button>
                 <button type="button" className="inline-flex min-h-11 items-center gap-2 text-[1rem] text-[var(--link)]" aria-pressed={showBal} onClick={() => setShowBal((value) => !value)}>
                   {showBal ? <EyeOff aria-hidden size={20} strokeWidth={1.5} /> : <Eye aria-hidden size={20} strokeWidth={1.5} />}
-                  <span className={showBal ? 'text-[var(--text)]' : 'underline'}>{showBal ? `${t('look.available')} ${formatMoney(balance)}` : t('look.showBalance')}</span>
+                  <span className={showBal ? 'text-[var(--text)]' : 'underline'}>{showBal ? `${t('look.available')} ${formatMoney(balance, lang)}` : t('look.showBalance')}</span>
                 </button>
-                {Number(form.amount) > app.limit && <p id="pay-alert" role="alert" className="rounded-lg border border-l-4 border-[var(--danger)] bg-[var(--soft)] p-3 text-[0.95rem] font-bold text-[var(--text)]">{t('look.overLimit', { amount: formatMoney(app.limit) })} <Link to="/flow/limit" className="underline">{t('look.changeLimit')}</Link></p>}
-                {Number(form.amount) > balance && Number(form.amount) <= app.limit && <p id="pay-alert" role="alert" className="rounded-lg border border-l-4 border-[var(--danger)] bg-[var(--soft)] p-3 text-[0.95rem] font-bold text-[var(--text)]">{t('look.overBalance', { amount: formatMoney(balance) })}</p>}
+                {Number(form.amount) > app.limit && <p id="pay-alert" role="alert" className="rounded-lg border border-l-4 border-[var(--danger)] bg-[var(--soft)] p-3 text-[0.95rem] font-bold text-[var(--text)]">{t('look.overLimit', { amount: formatMoney(app.limit, lang) })} <Link to="/flow/limit" className="underline">{t('look.changeLimit')}</Link></p>}
+                {Number(form.amount) > balance && Number(form.amount) <= app.limit && <p id="pay-alert" role="alert" className="rounded-lg border border-l-4 border-[var(--danger)] bg-[var(--soft)] p-3 text-[0.95rem] font-bold text-[var(--text)]">{t('look.overBalance', { amount: formatMoney(balance, lang) })}</p>}
                 {Number(form.amount) <= 0 && <p id="pay-alert" className="text-[0.9rem] text-[var(--muted)]">{t('look.enterAmount')}</p>}
               </section>
             )}
@@ -908,7 +948,7 @@ export function FlowPage() {
             }).map((field) => (
               <div key={field.id} className="min-w-0 border-b border-[var(--line)] pb-3">
                 <dt className="text-[0.95rem] text-[var(--muted)]">{field.id === 'account' && fx?.account === 'iban' ? t('flows.iban') : shortLabel(field, t)}</dt>
-                <dd className="money min-w-0 text-[1.05rem] font-bold">{field.id === 'to' ? maskProxy(form[field.id] || '', form.proxy) : display(field, form[field.id] || '', t)}</dd>
+                <dd className="money min-w-0 text-[1.05rem] font-bold">{field.id === 'to' ? maskProxy(form[field.id] || '', form.proxy) : display(field, form[field.id] || '', t, lang)}</dd>
               </div>
             ))}
             </dl>
@@ -916,27 +956,47 @@ export function FlowPage() {
             </>
             )}
             {touring && !practice ? (
-              <div className="space-y-2">
+              <div data-guide={reviewGuide(flow.id)} className="space-y-2">
                 {/* Shown (inert) only while the guide runs, so its "slide to pay" step has something to point at. */}
                 {flow.kind === 'payment' && guideOn && (
-                  <PayControl easier={app.prefs.easierTapping} disabled label={t('look.slide')} holdLabel={t('look.holdToPay')} holdingLabel={t('look.holdingToPay')} ariaLabel={`${app.prefs.easierTapping ? t('look.holdToPay') : t('look.slide')} ${formatMoney(Number(form.amount) || 0)}`} guide={reviewGuide(flow.id)} onPay={() => {}} />
+                  <PayControl easier={app.prefs.easierTapping} disabled label={t('look.slide')} holdLabel={t('look.holdToPay')} holdingLabel={t('look.holdingToPay')} ariaLabel={`${app.prefs.easierTapping ? t('look.holdToPay') : t('look.slide')} ${formatMoney(Number(form.amount) || 0, lang)}`} guide={reviewGuide(flow.id)} onPay={() => {}} />
                 )}
                 <button type="button" className="ocbc-btn" onClick={() => { stopGuide(); navigate(`/flow/${flow.id}?practice=1`) }}>{t('flows.practiseThis')}</button>
                 <button type="button" className="ocbc-btn-secondary" onClick={() => { stopGuide(); navigate(`/flow/${flow.id}`, { replace: true }) }}>{t('doForReal')}</button>
               </div>
-            ) : flow.kind === 'payment' ? (
-              <PayControl easier={app.prefs.easierTapping} disabled={false} label={practice ? t('look.slidePractice') : t('look.slide')} holdLabel={t('look.holdToPay')} holdingLabel={t('look.holdingToPay')} ariaLabel={`${app.prefs.easierTapping ? t('look.holdToPay') : t('look.slide')} ${formatMoney(Number(form.amount) || 0)}`} guide={reviewGuide(flow.id)} onPay={() => { setOtp(''); setOtpError(''); setStage('otp') }} />
-            ) : null}
-            {flow.kind === 'payment' && !(touring && !practice) ? (
-              <button type="button" className="min-h-11 w-full text-[0.95rem] text-[var(--link)] underline" onClick={() => setConfirmPay(true)}>{t('look.tapToPay')}</button>
             ) : (
-              <button type="button" className="ocbc-btn" onClick={() => confirm()}>{t('confirm')}</button>
+              <>
+                {flow.kind === 'payment' ? (
+                  <>
+                    <PayControl easier={app.prefs.easierTapping} disabled={false} label={practice ? t('look.slidePractice') : t('look.slide')} holdLabel={t('look.holdToPay')} holdingLabel={t('look.holdingToPay')} ariaLabel={`${app.prefs.easierTapping ? t('look.holdToPay') : t('look.slide')} ${formatMoney(Number(form.amount) || 0, lang)}`} guide={reviewGuide(flow.id)} onPay={() => { setOtp(''); setOtpError(''); setStage('otp') }} />
+                    <button type="button" className="min-h-11 w-full text-[0.95rem] text-[var(--link)] underline" onClick={() => setConfirmPay(true)}>{t('look.tapToPay')}</button>
+                  </>
+                ) : (
+                  <button type="button" className="ocbc-btn" onClick={() => confirm()}>{t('confirm')}</button>
+                )}
+              </>
             )}
-            <button type="button" className="tap w-full" onClick={() => { setStage('form'); if (flow.id === 'paynow') setWstep(1) }}>{t('back')}</button>
+            <button
+              type="button"
+              className="ocbc-btn-secondary gap-2"
+              onClick={() => {
+                const fromLabel = flow.fields.find((f) => f.id === 'from') ? display(flow.fields.find((f) => f.id === 'from')!, form.from || '', t, lang) : ''
+                const lines = [
+                  t('review'),
+                  `${t('success.payee')}: ${flow.id === 'paynow' ? pn.top : displayPayee || payeeLabel || form.name || form.to || ''}`,
+                  `${t('amount')}: ${formatMoney(sendAmount, lang)}`,
+                  fromLabel ? `${t('from')}: ${fromLabel}` : '',
+                ].filter(Boolean).join('. ')
+                void speak(lines, { language: app.prefs.language, rate: app.prefs.speechRate, dialect: app.prefs.dialect })
+              }}
+            >
+              {t('flows.readThisScreen')}
+            </button>
+            <button type="button" className="tap w-full min-h-14" onClick={() => { recordFlowBack(app.profile.id); setStage('form'); if (flow.id === 'paynow') setWstep(1) }}>{t('back')}</button>
             {confirmPay && (
               <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 p-4" role="dialog" aria-modal="true">
                 <div className="w-full max-w-sm rounded-2xl bg-[var(--card)] p-4">
-                  <p className="text-lg font-bold">{t('look.payAsk', { amount: formatMoney(Number(form.amount) || 0), name: flow.id === 'paynow' ? pn.top : maskPayee(payeeLabel || form.name || form.to || '') })}</p>
+                  <p className="text-lg font-bold">{t('look.payAsk', { amount: formatMoney(Number(form.amount) || 0, lang), name: flow.id === 'paynow' ? pn.top : maskPayee(payeeLabel || form.name || form.to || '') })}</p>
                   <button type="button" className="ocbc-btn mt-3" onClick={() => { setConfirmPay(false); setOtp(''); setOtpError(''); setStage('otp') }}>{t('look.pay')}</button>
                   <button type="button" className="mt-2 min-h-11 w-full font-semibold underline" onClick={() => setConfirmPay(false)}>{t('cancel')}</button>
                 </div>
@@ -956,6 +1016,7 @@ export function FlowPage() {
               className="ocbc-btn"
               onClick={() => {
                 if (!/^\d{6}$/.test(otp.trim())) {
+                  recordValidationFail(app.profile.id)
                   setOtpError(t('errors.otp'))
                   window.setTimeout(() => {
                     const el = document.getElementById('demo-otp')
@@ -991,7 +1052,7 @@ export function FlowPage() {
           </section>
         )}
         {stage === 'done' && flow.id !== 'card-lock' && (
-          <section role="status">
+          <section role="status" className={paynowDone ? 'flex flex-1 flex-col' : undefined}>
             {/* Neutral placeholder where the real app shows an illustration. */}
             <div aria-hidden className={`relative -mx-4 h-36 overflow-hidden ${practice || demo || flow.id === 'limit' ? '' : '-mt-4'}`}>
               <span className="absolute -right-16 -top-24 h-64 w-64 rounded-full bg-[var(--soft)]" />
@@ -1001,11 +1062,11 @@ export function FlowPage() {
               <h2 className="min-w-0 flex-1 text-[1.75rem] font-bold leading-tight">{paidTitle}</h2>
               {/* Fixed-width wrapper: Speakable is full-width by default and was squeezing the heading onto two lines. */}
               <span className="w-11 shrink-0">
-                <Speakable text={practice ? t('practice.done') : t('success.summarySpoken', { amount: formatMoney(sendAmount), name: flow.id === 'paynow' ? pn.top : displayPayee || title, ref })} auto={app.prefs.readAloud} hideText />
+                <Speakable text={practice ? t('practice.done') : t('success.summarySpoken', { amount: formatMoney(sendAmount, lang), name: flow.id === 'paynow' ? pn.top : displayPayee || title, ref })} auto={app.prefs.readAloud} hideText />
               </span>
             </div>
             <dl className="mt-6 space-y-5">
-              {practice && flow.id !== 'goal' && <div><dt className="text-[0.95rem] text-[var(--muted)]">{t('amount')}</dt><dd className="money text-[1.1rem] font-bold">{formatMoney(sendAmount)}</dd></div>}
+              {practice && flow.id !== 'goal' && <div><dt className="text-[0.95rem] text-[var(--muted)]">{t('amount')}</dt><dd className="money text-[1.1rem] font-bold">{formatMoney(sendAmount, lang)}</dd></div>}
               <div>
                 <dt className="flex items-center justify-between gap-3 text-[0.95rem] text-[var(--muted)]">
                   <span>{paidToLabel}</span>
@@ -1020,26 +1081,46 @@ export function FlowPage() {
               </div>
               {fx && (
                 <>
-                  <div className={app.prefs.textSize >= 20 ? 'flex flex-col' : 'flex justify-between gap-3'}><dt className="text-[var(--muted)]">{t('success.fee')}</dt><dd className="money font-semibold">{formatMoney(fx.fee)}</dd></div>
+                  <div className={app.prefs.textSize >= 20 ? 'flex flex-col' : 'flex justify-between gap-3'}><dt className="text-[var(--muted)]">{t('success.fee')}</dt><dd className="money font-semibold">{formatMoney(fx.fee, lang)}</dd></div>
                   <div className={app.prefs.textSize >= 20 ? 'flex flex-col' : 'flex justify-between gap-3'}><dt className="text-[var(--muted)]">{t('success.rate')}</dt><dd className="money font-semibold">{t('fx.rate', { currency: t(fx.currencyKey), rate: fx.perSgd.toFixed(2) })}</dd></div>
                   <div className={app.prefs.textSize >= 20 ? 'flex flex-col' : 'flex justify-between gap-3'}><dt className="text-[var(--muted)]">{t('success.received')}</dt><dd className="money font-semibold">{t(fx.currencyKey)} {received.toFixed(2)}</dd></div>
                 </>
               )}
             </dl>
             {shareNote && <p role="status" className="mt-2 text-[0.85rem] text-[var(--muted)]">{shareNote}</p>}
-            <Link to={`/txn/${ref || 'latest'}`} className="mt-4 inline-flex min-h-11 items-center text-[1rem] text-[var(--link)] underline">{t('look.seeTxn')}</Link>
+            <Link to={`/txn/${ref || 'latest'}`} className="mt-4 inline-flex min-h-11 items-center self-start text-[1rem] text-[var(--link)] underline">{t('look.seeTxn')}</Link>
             {flow.id === 'card-lost' && (
               <div className="status-danger mt-4 rounded-xl bg-[var(--soft)] p-3">
                 <p className="font-semibold">{t('staff.hotline')}</p>
                 <p>{t('staff.hotlineBody')}</p>
               </div>
             )}
-            <div className="mt-10 space-y-3">
+            <div className={`space-y-3 ${paynowDone ? 'mt-auto pt-10' : 'mt-10'}`}>
               <p className="text-[0.85rem] text-[var(--muted)]">{t('look.transactionId', { id: ref })}</p>
+              {/* Practice: confidence card from the tours feature (progress, Do it for real, next journey). */}
               {practice && (
-                <button type="button" className="ocbc-btn" onClick={() => navigate(`/flow/${flow.id}`)}>
-                  {t('doForReal')}
-                </button>
+                <article className="space-y-2 rounded-lg bg-[var(--beige)] p-4">
+                  <p className="font-semibold">{t('tours.confidenceTitle', { flow: title })}</p>
+                  <p className="text-[0.9rem] text-[var(--muted)]">{t('tours.confidenceBody', {
+                    done: practisedJourneyCount(loadTourProgress(app.profile.id)),
+                    total: 8,
+                  })}</p>
+                  <button type="button" className="ocbc-btn" onClick={() => navigate(`/flow/${flow.id}`)}>
+                    {t('doForReal')}
+                  </button>
+                  {nextPracticeJourney(app.prefs, loadTourProgress(app.profile.id), flow.id) && (
+                    <button
+                      type="button"
+                      className="ocbc-btn-secondary"
+                      onClick={() => {
+                        const next = nextPracticeJourney(app.prefs, loadTourProgress(app.profile.id), flow.id)
+                        if (next) navigate(`/flow/${next}?practice=1&tour=1`)
+                      }}
+                    >
+                      {t('tours.nextJourney')}
+                    </button>
+                  )}
+                </article>
               )}
               <Link to="/pay" className={practice ? 'ocbc-btn-secondary' : 'ocbc-btn'}>{t('look.goTransfers')}</Link>
               <Link to="/" className="ocbc-btn-secondary">{t('look.backToHome')}</Link>
@@ -1098,7 +1179,7 @@ function reviewGuide(flowId: string) {
   return map[flowId]
 }
 
-function display(field: FlowField, value: string, t: (key: string) => string) {
+function display(field: FlowField, value: string, t: (key: string) => string, language: string) {
   if (field.type === 'account' || field.type === 'select') {
     const option = field.options?.find((item) => item.value === value)
     if (option) return t(option.label)
@@ -1109,7 +1190,7 @@ function display(field: FlowField, value: string, t: (key: string) => string) {
   }
   if (field.id === 'savePayee') return value === 'yes' ? t('yes') : t('no')
   if (field.type === 'toggle') return value === 'no' ? t('flows.unlocked') : t('flows.locked')
-  if (field.type === 'amount') return formatMoney(Number(value || 0))
+  if (field.type === 'amount') return formatMoney(Number(value || 0), language)
   return value
 }
 
@@ -1290,7 +1371,8 @@ function PaySlider({ label, ariaLabel, guide, onPay, disabled }: { label: string
       onPointerMove={(event) => {
         if (!drag.current) return
         const width = event.currentTarget.clientWidth - 48
-        move(drag.current.start + (event.clientX - drag.current.x) / Math.max(width, 1))
+        const scale = phoneScale() || 1
+        move(drag.current.start + (event.clientX - drag.current.x) / scale / Math.max(width, 1))
       }}
       onPointerUp={() => {
         const finished = ratioRef.current >= 0.85
@@ -1371,7 +1453,7 @@ function Field({
             className={`min-w-0 max-w-[75%] rounded-md bg-transparent text-[2.25rem] font-semibold leading-tight outline-none placeholder:text-[var(--muted)] placeholder:opacity-60 ${highlight ? 'ocbc-filled' : ''}`}
             style={{ width: `${Math.max(4, centsText.length) + 0.5}ch` }}
           />
-          <span className="shrink-0 whitespace-nowrap text-[1rem]">SGD</span>
+          <span className="shrink-0 whitespace-nowrap text-[1rem]">{t('flows.currencyLabel')}</span>
         </span>
       ) : field.type === 'select' || field.type === 'account' ? (
         <select id={id} value={value} aria-invalid={invalid} aria-describedby={errorId} onChange={(e) => onChange(e.target.value)} onBlur={onBlur} className={`ocbc-field ${error ? 'is-invalid' : ''} ${highlight ? 'ocbc-filled' : ''}`}>

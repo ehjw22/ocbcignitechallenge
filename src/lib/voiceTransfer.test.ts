@@ -131,3 +131,14 @@ test('clamps the voice transfer limit and never exceeds the hard maximum', () =>
   assert.equal(formatVoiceTransferAmount(50), 'S$50')
   assert.equal(formatVoiceTransferAmount(1000), 'S$1,000')
 })
+
+test('cantonese and tamil voice patterns resolve payees', () => {
+  const yue = parseVoiceTransfer('轉50蚊俾John')
+  assert.ok(yue?.amount === 50 && /john/i.test(yue.payeeQuery))
+  const fields = voiceTransferFields(DEMO_PAYEE_JOHN, yue!.amount!, undefined, 'frank')
+  assert.equal(fields.flow, 'paynow')
+  const tamil = parseVoiceTransfer('Siti க்கு 20 அனுப்பு')
+  assert.ok(tamil?.amount === 20 && /siti/i.test(tamil.payeeQuery))
+  const sitiFields = voiceTransferFields(arif[1], tamil!.amount!, undefined, 'frank')
+  assert.equal(sitiFields.flow, 'paynow')
+})

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { DEMO_PAYEE_JOHN } from '../data/demoAccounts.ts'
-import { normaliseFillFields } from './fillFields.ts'
+import { firstFillWizardStep, normaliseFillFields } from './fillFields.ts'
 
 const siti = { id: 'siti', label: 'Siti Aminah', name: 'Siti Aminah', country: 'Singapore', account: '81234567', key: 'paynow:81234567' }
 
@@ -29,4 +29,9 @@ test('drops unknown paynow keys', () => {
   const fields = normaliseFillFields('paynow', { mobile: '91234567', amount: '20', foo: 'bar' }, { payees: [DEMO_PAYEE_JOHN], depositIds: ['360'] })
   assert.equal(fields.to, '91234567')
   assert.equal(fields.foo, undefined)
+})
+
+test('overseas amount-only fill starts on country step', () => {
+  const step = firstFillWizardStep('overseas', { amount: '50', from: '360' }, 10000, 50000, [], ['amount', 'from'])
+  assert.equal(step, 0)
 })

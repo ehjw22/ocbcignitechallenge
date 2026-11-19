@@ -135,6 +135,23 @@ export function parseVoiceTransfer(text: string): VoiceParse | null {
   const enNameFirst = raw.match(new RegExp(`^(?:please\\s+)?(?:transfer|send|pay)\\s+(.+?)\\s+${AMOUNT}$`, 'i'))
   if (enNameFirst) return pack(enNameFirst[2], enNameFirst[1])
 
+  const yueA = raw.match(new RegExp(`^(?:轉|转|轉帳|转账|過數|过数)\\s*${AMOUNT}\\s*(?:蚊|文|元)?\\s*(?:俾|畀|给|給)\\s*(.+)$`, 'u'))
+  if (yueA) return pack(yueA[1], yueA[2])
+  const yueB = raw.match(new RegExp(`^(?:俾|畀|给|給)\\s*(.+?)\\s*(?:轉|转|過|过)\\s*${AMOUNT}\\s*(?:蚊|文|元)?$`, 'u'))
+  if (yueB) return pack(yueB[2], yueB[1])
+
+  const id = raw.match(new RegExp(`^(?:transfer|kirim)\\s+${AMOUNT}\\s+(?:ke|kepada)\\s+(.+)$`, 'i'))
+  if (id) return pack(id[1], id[2])
+
+  const taA = raw.match(/^([\p{L}\s]+?)\s*(?:க்கு|கு)\s*(\d+(?:\.\d{1,2})?)\s*(?:அனுப்பு|அனுப்பவும்|அனுப்புங்கள்)?\.?$/u)
+    || raw.match(new RegExp(`^([\\p{L}\\s]+?)\\s*(?:க்கு|கு)\\s*${AMOUNT}\\s*(?:அனுப்பு|அனுப்பவும்|அனுப்புங்கள்)?\\.?$`, 'u'))
+  if (taA) return pack(taA[2], taA[1])
+  const taB = raw.match(new RegExp(`^${AMOUNT}\\s*(?:டாலர்|வெள்ளி)?\\s*([\\p{L}\\s]+?)\\s*(?:க்கு|கு)\\.?$`, 'u'))
+  if (taB) return pack(taB[2], taB[1])
+
+  const vi = raw.match(new RegExp(`^(?:chuyển|gửi)\\s+${AMOUNT}\\s+(?:cho|tới)\\s+(.+)$`, 'iu'))
+  if (vi) return pack(vi[1], vi[2])
+
   return null
 }
 

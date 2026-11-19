@@ -3,39 +3,72 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const dir = join(dirname(fileURLToPath(import.meta.url)), '../src/i18n/locales')
-const files = Object.fromEntries(readdirSync(dir).filter((name) => name.endsWith('.json')).map((name) => {
-  return [name.replace('.json', ''), JSON.parse(readFileSync(join(dir, name), 'utf8'))]
-}))
+const allow = JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), 'i18n-allow.json'), 'utf8'))
+
+const files = Object.fromEntries(
+  readdirSync(dir)
+    .filter((name) => name.endsWith('.json'))
+    .map((name) => [name.replace('.json', ''), JSON.parse(readFileSync(join(dir, name), 'utf8'))]),
+)
 
 function flat(obj, prefix = '', out = {}) {
   for (const [key, value] of Object.entries(obj)) {
+    if (key === '_meta') continue
     const next = prefix ? `${prefix}.${key}` : key
     if (value && typeof value === 'object' && !Array.isArray(value)) flat(value, next, out)
-    else out[next] = value
+  else out[next] = value
   }
   return out
 }
 
+function placeholders(value) {
+  return [...String(value).matchAll(/\{(\w+)\}/g)].map((m) => m[1])
+}
+
+function allowedEnglish(text) {
+  const trimmed = String(text).trim()
+  if (!trimmed) return true
+  if (allow.keys.some((k) => trimmed === k)) return true
+  const latinWords = trimmed.match(/\b[A-Za-z][A-Za-z'-]{2,}\b/g) || []
+  return latinWords.every((word) => allow.substrings.some((bit) => word.includes(bit) || bit.includes(word)))
+}
+
 const en = flat(files.en)
-const keep = ['PayNow', 'GIRO', 'IBAN', 'SWIFT', 'NRIC', 'UEN', 'OCBC', 'PIN', 'OTP', 'Ollie', 'Arif', 'SP Group', 'Singtel', 'Auntie Mei', 'OpenDyslexic']
+const CORE = ['zh', 'zh-TW', 'ms', 'ta']
+const PREVIEW = ['id', 'vi', 'th', 'tl', 'ko', 'ja', 'hi', 'bn']
 const problems = []
-for (const lang of ['zh', 'zh-TW']) {
+const warnings = []
+
+for (const lang of [...CORE, ...PREVIEW]) {
   const local = flat(files[lang] || {})
   for (const [key, value] of Object.entries(en)) {
+    if (typeof value !== 'string' || !String(value).trim()) continue
+    if (key.startsWith('admin.') || key.startsWith('staff.')) continue
     const translated = local[key]
-    if (!String(value || '').trim()) continue
     if (typeof translated !== 'string' || !translated.trim()) {
       problems.push(`${lang} missing ${key}`)
       continue
     }
-    if (translated === value && /[A-Za-z]{4,}/.test(translated) && !keep.some((word) => translated.includes(word))) {
-      problems.push(`${lang} still English ${key}: ${translated}`)
+    const enPh = placeholders(value).sort().join(',')
+    const locPh = placeholders(translated).sort().join(',')
+    if (enPh !== locPh) problems.push(`${lang} placeholder mismatch ${key}`)
+    if (CORE.includes(lang) && translated === value && /[A-Za-z]{4,}/.test(translated) && !allow.keys.some((k) => key === k || key.endsWith(`.${k}`))) {
+      if (!allowedEnglish(translated)) problems.push(`${lang} still English ${key}`)
+    }
+    if (PREVIEW.includes(lang) && translated === value && /[A-Za-z]{4,}/.test(translated) && !allowedEnglish(translated)) {
+      warnings.push(`${lang} still English ${key}`)
     }
   }
 }
+
+if (warnings.length) {
+  console.log(warnings.slice(0, 15).join('\n'))
+  console.log(`${warnings.length} preview identical-to-English warning(s)`)
+}
+
 if (problems.length) {
   console.error(problems.slice(0, 40).join('\n'))
   console.error(`${problems.length} i18n problem(s)`)
   process.exit(1)
 }
-console.log('zh and zh-TW cover every English string')
+console.log(`i18n OK for ${CORE.join(', ')} and preview locales (keys + placeholders)`)

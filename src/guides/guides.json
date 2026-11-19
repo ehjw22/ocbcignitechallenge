@@ -124,8 +124,12 @@
     "steps": [
       { "id": "language", "element": "settings-language", "title": "guides.settings.languageTitle", "body": "guides.settings.languageBody" },
       { "id": "text", "element": "settings-text", "title": "guides.settings.textTitle", "body": "guides.settings.textBody" },
+      { "id": "read", "element": "settings-read", "title": "guides.settings.readTitle", "body": "guides.settings.readBody" },
+      { "id": "colour", "element": "settings-colour", "title": "guides.settings.colourTitle", "body": "guides.settings.colourBody" },
       { "id": "help", "element": "settings-help", "title": "guides.settings.helpTitle", "body": "guides.settings.helpBody" },
-      { "id": "shortcuts", "element": "settings-shortcuts", "title": "guides.settings.shortcutsTitle", "body": "guides.settings.shortcutsBody" }
+      { "id": "shortcuts", "element": "settings-shortcuts", "title": "guides.settings.shortcutsTitle", "body": "guides.settings.shortcutsBody" },
+      { "id": "privacy", "element": "settings-privacy", "title": "guides.settings.privacyTitle", "body": "guides.settings.privacyBody" },
+      { "id": "end", "element": "settings-end", "title": "guides.settings.endTitle", "body": "guides.settings.endBody" }
     ]
   }
 ]

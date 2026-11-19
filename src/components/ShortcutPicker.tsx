@@ -23,8 +23,10 @@ import { useApp } from '@/context/AppContext'
 import { translate } from '@/i18n'
 import { themeVars } from '@/lib/accent'
 import { SHORTCUT_ICONS } from '@/lib/shortcutItems'
+import { DEFAULT_SHORTCUTS } from '@/lib/languages'
 
 const SLOT_COUNT = 3
+const MOST_USED = ['paynow', 'transfer', 'scan']
 
 const GROUPS: { label: string; ids: string[] }[] = [
   { label: 'nav.pay', ids: ['paynow', 'scan', 'transfer', 'bill', 'overseas', 'giro', 'topup'] },
@@ -297,6 +299,14 @@ export function ShortcutPicker({ order, onChange }: { order: string[]; onChange:
   return (
     <DndContext sensors={sensors} collisionDetection={slotCollision} onDragStart={onDragStart} onDragCancel={clearDrag} onDragEnd={onDragEnd}>
       <section aria-labelledby="your-shortcuts-title">
+        <div className="mb-2 flex flex-wrap gap-2">
+          <button type="button" className="min-h-11 flex-1 rounded-xl border border-[var(--line)] px-2 text-sm font-semibold" onClick={() => onChange([...MOST_USED])}>
+            {t('shortcuts.mostUsed')}
+          </button>
+          <button type="button" className="min-h-11 flex-1 rounded-xl border border-[var(--line)] px-2 text-sm font-semibold" onClick={() => onChange([...DEFAULT_SHORTCUTS].slice(0, SLOT_COUNT))}>
+            {t('shortcuts.resetRecommended')}
+          </button>
+        </div>
         <h3 id="your-shortcuts-title" className="font-semibold">{t('quickActions')}</h3>
         <p className="mt-1 font-semibold">{t('selectedCount', { n: selected.length })}</p>
         <p className="mt-1 text-sm leading-snug text-[var(--muted)]">{t('reorderHint')}</p>

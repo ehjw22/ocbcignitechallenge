@@ -44,7 +44,7 @@ function dig(obj: unknown, path: string): string | undefined {
 
 const RULES: { intent: string; re: RegExp }[] = [
   { intent: 'secret', re: /password|\botp\b|\bpin\b|full card|card number|cvv|\d{13,}/i },
-  { intent: 'security', re: /hacked|compromised|someone accessed|account.security|think someone|被盗|被黑|盜用|被人入/i },
+  { intent: 'security', re: /hacked|compromised|someone (logged|got) into|someone accessed|unauthori[sz]ed|account\.security|think someone|被盗|被盜|被黑|盜用|被人入|帐户被|帳戶被|godam|ஹேக்/i },
   { intent: 'fraud', re: /fraud|scam|phish|unauthori[sz]ed|dispute|stolen|cheat|诈骗|骗局|盗刷|penipuan|tipu|scammer|骗/i },
   { intent: 'cardlock', re: /lock (my |the )?card|unlock (my |the )?card|锁卡|解锁|kunci kad/i },
   { intent: 'lostcard', re: /lost (my )?card|card (is )?lost|misplaced|丢了卡|卡丢|kad hilang|card missing|report.*card/i },

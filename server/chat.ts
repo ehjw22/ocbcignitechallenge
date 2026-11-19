@@ -26,6 +26,16 @@ type ChatBody = {
   labels?: string
   accounts?: { name: string; balance: number }[]
   payees?: PayeeHint[]
+  context?: {
+    route?: string
+    screen?: string
+    step?: string
+    prefs?: Record<string, unknown>
+    payeeNames?: string[]
+    recentTxns?: { title: string; amount: number; date: string }[]
+    topCategories?: { key: string; amount: number }[]
+    fxRates?: { country: string; rate: number; fee: number }[]
+  }
 }
 
 function stripFlags(text: string) {
@@ -83,7 +93,7 @@ export async function handleChat(req: IncomingMessage, res: ServerResponse) {
   const last = messages.filter((message) => message.role === 'user').at(-1)?.content ?? ''
   const selectedLanguage = raw.language || 'en'
   const writtenYue = (selectedLanguage === 'zh-TW' || selectedLanguage === 'zh-HK') && raw.dialect === 'cantonese'
-  const askedMalay = /\b(saya|nak|macam|mana|tidak|boleh|pindahan|wang|tolong)\b/i.test(last)
+  const askedMalay = selectedLanguage !== 'id' && /\b(saya|nak|macam|mana|tidak|boleh|pindahan|wang|tolong)\b/i.test(last)
   const pack = localePack(askedMalay ? 'ms' : writtenYue ? 'zh-TW' : selectedLanguage)
   const userTurns = messages.filter((message) => message.role === 'user').length
   const detail: 'short' | 'full' = raw.detail === 'short' ? 'short' : 'full'
@@ -94,11 +104,16 @@ export async function handleChat(req: IncomingMessage, res: ServerResponse) {
     return
   }
   const { key, baseURL, model, fallback } = llmSettings()
+  const faqFirst = !raw.explain && demoReply(pack, demoInput).intent !== 'general'
   if (!key) {
     if (raw.explain) {
       send(res, 200, explainPayload(writtenYue ? 'yue' : askedMalay ? 'ms' : selectedLanguage, raw.screen || 'home'))
       return
     }
+    send(res, 200, attachTask(demoReply(pack, demoInput), last, raw.payees || []))
+    return
+  }
+  if (faqFirst && !/transfer|send|paynow|汇|转|轉/i.test(last)) {
     send(res, 200, attachTask(demoReply(pack, demoInput), last, raw.payees || []))
     return
   }
@@ -127,7 +142,7 @@ export async function handleChat(req: IncomingMessage, res: ServerResponse) {
     'Never invent real OCBC rates, fees or balances. If you mention a rate or fee from this demo, call it sample data.',
     'When the user wants to pay, transfer, pay a bill, set up GIRO, save toward a goal, or lock a card, fill action with the intent and any fields you heard. You never complete a payment.',
     'Set scamRisk to high only when the customer describes a scam, such as a prize they must pay for first, police, customs, a job offer, or an investment. A normal request to send money, including to their son, is scamRisk none. Set scamRisk to check only when the amount is over 1000 or the transfer is overseas to someone who is not a saved payee. Otherwise none.',
-    'The real menu is Home, Plan, Pay & Transfer, Rewards, More. In Chinese the Pay & Transfer tab is 转账与付款. Rewards shows a demo balance of 1,280 OCBC$ and view-only vouchers; nothing can be redeemed. Under Pay & Transfer the items are Scan, PayNow, Local transfer, Overseas transfer, Pay a bill, Set up GIRO, Savings goal, Lock or unlock a card, Report a lost card, and Transfer limit. Statements are View Statement on the account page, which opens /info/statements. Money Lock is /info/money-lock, not the card lock. There is no eStatements path. If someone wants to send money to a son or family member, ask which country they are in and mention Overseas transfer. Never invent a fee or a payee the customer does not have.',
+    `Use exactly these on-screen labels when naming menus or buttons: ${['nav.home', 'nav.plan', 'nav.pay', 'nav.rewards', 'nav.more', 'look.customise'].map((key) => `${key}=${String(pack[key] || '')}`).join('; ')}. Rewards shows a demo balance of 1,280 OCBC$ and view-only vouchers; nothing can be redeemed. Statements are View Statement on the account page, which opens /info/statements. Money Lock is /info/money-lock, not the card lock. If someone wants to send money to a son or family member, ask which country they are in and mention Overseas transfer. Never invent a fee or a payee the customer does not have.`,
     'Mention a sample rate only when the task is an overseas transfer or foreign exchange.',
     'Set handover to true if they ask for a person, seem stuck, or a scam is suspected.',
     'For a possible scam, tell them to call the ScamShield Helpline 1799 (free, 24/7). For a lost or stolen card, tell them to call +65 6363 3333. Do not swap those numbers.',
@@ -135,6 +150,12 @@ export async function handleChat(req: IncomingMessage, res: ServerResponse) {
     raw.explain ? `The customer asked what this screen is. Screen id: ${raw.screen || 'home'}. Explain that screen in plain words. Do not list button labels, icons, or symbols.` : '',
     `Current screen: ${raw.screen || 'unknown'}. Current step: ${raw.step || 'none'}.`,
     balances ? `Sample balances: ${balances}. Say they are sample figures.` : '',
+    raw.context?.payeeNames?.length ? `Saved payee names (names only): ${raw.context.payeeNames.join(', ')}.` : '',
+    raw.context?.recentTxns?.length ? `Recent sample transactions: ${raw.context.recentTxns.map((txn) => `${txn.title} ${txn.amount}`).join('; ')}.` : '',
+    raw.context?.topCategories?.length ? `Top spending categories this month (after exclusions): ${raw.context.topCategories.map((row) => `${row.key} S$${row.amount}`).join(', ')}.` : '',
+    raw.context?.fxRates?.length ? `FX sample: ${raw.context.fxRates.map((row) => `${row.country} ${row.rate} fee S$${row.fee}`).join('; ')}.` : '',
+    raw.context?.route ? `Current route: ${raw.context.route}. Screen: ${raw.context.screen || 'unknown'}. Step: ${raw.context.step || 'none'}.` : '',
+    raw.context?.prefs ? `User display prefs: text ${raw.context.prefs.textSize}px, readAloud ${raw.context.prefs.readAloud}, help ${raw.context.prefs.helpPreference}. Never ask for PIN.` : '',
     'Overseas FX sample fees and rates (use only these numbers): Australia fee S$5 rate 1 SGD = 1.10 AUD; Malaysia fee S$5 rate 1 SGD = 3.45 MYR; UK fee S$10 rate 1 SGD = 0.58 GBP; Germany fee S$10 rate 1 SGD = 0.68 EUR.',
     'Return only JSON with keys reply, action (or null), scamRisk, suggestions, handover. action is { intent, fields } or null. intent is paynow, transfer, overseas, bill, giro, goal, or card-lock. fields is an object of strings. Use exact field keys: paynow -> to, amount, reference; transfer -> name, bank, account, amount; overseas -> name, country, swift, account, amount. Amounts must be plain numeric strings without currency symbols.',
   ].filter(Boolean).join(' ')
@@ -166,7 +187,13 @@ export async function handleChat(req: IncomingMessage, res: ServerResponse) {
     const journeyId = flags.refused || scamRisk === 'high' ? null : journeyFor(last, action?.intent || demo.intent)
     const suggestions = (parsed?.suggestions || []).map((item) => item.trim()).filter(Boolean).slice(0, 3)
     let reply = flags.reply.replace(/guide me step by step/gi, '').trim() || demo.reply
-    if (scamRisk === 'high' && !/1799/.test(reply)) {
+    if (detected.accountSecurity) {
+      const detailKey = detail === 'short' ? 'short' : 'full'
+      const security = busyPack[`ai.faq.security.${detailKey}`]
+      if (typeof security === 'string' && security.trim()) reply = security
+      action = detected.action
+      scamRisk = 'high'
+    } else if (scamRisk === 'high' && !/1799/.test(reply)) {
       const prefix = typeof busyPack['scamCheck.helpline'] === 'string'
         ? String(busyPack['scamCheck.helpline']).split('\n')[0]
         : 'Stop. Don\'t transfer. Call ScamShield 1799.'
@@ -201,7 +228,10 @@ export async function handleChat(req: IncomingMessage, res: ServerResponse) {
     const local = raw.explain
       ? explainPayload(writtenYue ? 'yue' : replyLanguage, raw.screen || 'home')
       : attachTask(withBusyNote(busyPack, demoReply(busyPack, demoInput)), last, raw.payees || [])
-    const offline = replyLanguage.startsWith('zh') ? 'Ollie 处于离线模式，回答有限。' : 'Ollie is in offline mode, answers are limited.'
+    const offlineRaw = busyPack['ai.offline']
+    const offline = typeof offlineRaw === 'string' && offlineRaw.trim()
+      ? String(offlineRaw)
+      : (replyLanguage.startsWith('zh') ? 'Ollie 处于离线模式，回答有限。' : 'Ollie is in offline mode, answers are limited.')
     emit({ text: `${local.reply} ${offline}`, done: { ...local, reply: `${local.reply} ${offline}` } })
     res.end()
     return
@@ -293,7 +323,7 @@ async function streamModel(
       const completion = await client.chat.completions.create({
         model,
         temperature: 0.2,
-        max_tokens: 180,
+        max_tokens: 400,
         messages,
         stream: true,
       })
