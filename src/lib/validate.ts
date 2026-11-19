@@ -22,6 +22,28 @@ function amountIssue(field: string, raw: string | undefined): Issue | null {
   return null
 }
 
+function isoDay(date: Date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+}
+
+// Scheduled ("Later") payments: from tomorrow up to one year ahead, as YYYY-MM-DD (local time).
+export function laterDateBounds(now = new Date()) {
+  const min = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1)
+  const max = new Date(now.getFullYear() + 1, now.getMonth(), now.getDate())
+  return { min: isoDay(min), max: isoDay(max) }
+}
+
+export function laterDateIssue(raw: string, now = new Date()): 'date_format' | 'date_range' | null {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(raw.trim())
+  if (!match) return 'date_format'
+  const [year, month, day] = [Number(match[1]), Number(match[2]), Number(match[3])]
+  const date = new Date(year, month - 1, day)
+  if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day) return 'date_format'
+  const { min, max } = laterDateBounds(now)
+  const value = isoDay(date)
+  return value < min || value > max ? 'date_range' : null
+}
+
 export function validateForm(
   flowId: string,
   form: Record<string, string>,
@@ -77,7 +99,16 @@ export function validateForm(
     }
     const amount = amountIssue('amount', form.amount)
     if (amount) issues.push(amount)
-    if (form.when === 'later' && !form.laterDate?.trim()) need('laterDate', false)
+  }
+
+  // "Later" date for the flows that show it (PayNow hides scheduling, so it is not checked there).
+  if (['transfer', 'overseas', 'bill'].includes(flowId) && form.when === 'later') {
+    const raw = form.laterDate?.trim() || ''
+    if (!raw) need('laterDate', false)
+    else {
+      const code = laterDateIssue(raw)
+      if (code) issues.push(issue('laterDate', code))
+    }
   }
 
   if (flowId === 'overseas' && (FX[form.country] || FX.Australia).account !== 'iban' && !SWIFT.test((form.swift || '').trim())) {

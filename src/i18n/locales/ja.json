@@ -314,7 +314,9 @@
     "account_my": "10桁から16桁で入力してください。{got}桁入力されています。",
     "count": "直すところ {n} か所",
     "useMax": "全額を使う",
-    "uen": "UENを入力してください（例：201234567A）。"
+    "uen": "UENを入力してください（例：201234567A）。",
+    "date_format": "YYYY-MM-DD形式で正しい日付を入力してください。",
+    "date_range": "明日から1年以内の日付を選んでください。"
   },
   "unusual": {
     "title": "金額を確認してください",
@@ -1288,7 +1290,15 @@
     "ollieSafety": "Ollie · あんしんチェック",
     "holdToPay": "長押しで支払う",
     "holdingToPay": "そのまま押してください…",
-    "hiddenBalance": "•••••••• SGD"
+    "hiddenBalance": "•••••••• SGD",
+    "reviewPaymentOf": "お支払い内容の確認",
+    "checkDetails": "続行する前に、すべての内容が正しいことをご確認ください。",
+    "from": "出金元",
+    "to": "支払先",
+    "transactionId": "取引ID: {id}",
+    "backToHome": "ホームに戻る",
+    "message": "メッセージ",
+    "shareCopied": "支払いの詳細をコピーしました"
   },
   "risk": {
     "titleCheck": "気をつけましょう",

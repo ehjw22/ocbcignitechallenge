@@ -314,7 +314,9 @@
     "account_my": "Maglagay ng 10 hanggang 16 digit. Naglagay ka ng {got}.",
     "count": "{n} na bagay ang kailangang ayusin",
     "useMax": "Gamitin ang buong balanse",
-    "uen": "Maglagay ng UEN, halimbawa ay 201234567A."
+    "uen": "Maglagay ng UEN, halimbawa ay 201234567A.",
+    "date_format": "Maglagay ng tamang petsa sa anyong YYYY-MM-DD.",
+    "date_range": "Pumili ng petsa mula bukas hanggang isang taon mula ngayon."
   },
   "unusual": {
     "title": "Suriin ang halagang ito",
@@ -1288,7 +1290,15 @@
     "ollieSafety": "Ollie · Pagsusuri ng kaligtasan",
     "holdToPay": "Pindutin at hawakan para magbayad",
     "holdingToPay": "Patuloy na hawakan…",
-    "hiddenBalance": "•••••••• SGD"
+    "hiddenBalance": "•••••••• SGD",
+    "reviewPaymentOf": "Suriin ang bayad na",
+    "checkDetails": "Pakitiyak na tama ang lahat ng detalye bago magpatuloy.",
+    "from": "Mula sa",
+    "to": "Para kay",
+    "transactionId": "ID ng transaksyon: {id}",
+    "backToHome": "Bumalik sa Home",
+    "message": "Mensahe",
+    "shareCopied": "Nakopya ang detalye ng bayad"
   },
   "risk": {
     "titleCheck": "Maging mapagbantay",

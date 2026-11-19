@@ -36,13 +36,13 @@ export const PAYNOW_DIRECTORY: Record<string, string> = {
 const NRIC = /^[STFGM]\d{7}[A-Z]$/
 const MOBILE = /^[89]\d{7}$/
 const UEN = /^(\d{8}[A-Z]|\d{9}[A-Z]|[TSR]\d{2}[A-Z]{2}\d{4}[A-Z])$/
+// OCBC-style PayNow name masking (e.g. HUANG JIA WEI -> HUAXX JIX WEX): keep the first half of each word, X out the rest.
 export function maskPayee(name: string) {
-  const parts = name.trim().split(/\s+/).filter(Boolean)
-  return parts.map((part, index) => {
-    const letters = part.replace(/[^A-Za-z]/g, '')
+  return name.trim().split(/\s+/).filter(Boolean).map((part) => {
+    const letters = part.replace(/[^A-Za-z]/g, '').toUpperCase()
     if (!letters) return part
-    if (index === 0) return letters.toUpperCase()
-    return `${letters[0].toUpperCase()}${'*'.repeat(Math.max(2, letters.length - 1))}`
+    const keep = Math.ceil(letters.length / 2)
+    return `${letters.slice(0, keep)}${'X'.repeat(letters.length - keep)}`
   }).join(' ')
 }
 

@@ -314,7 +314,9 @@
     "account_my": "Masukkan 10 hingga 16 digit. Anda masukkan {got}.",
     "count": "{n} perkara perlu dibetulkan",
     "useMax": "Guna baki maksimum",
-    "uen": "Masukkan UEN, contoh 201234567A."
+    "uen": "Masukkan UEN, contoh 201234567A.",
+    "date_format": "Masukkan tarikh yang sah dalam format YYYY-MM-DD.",
+    "date_range": "Pilih tarikh dari esok hingga satu tahun dari hari ini."
   },
   "unusual": {
     "title": "Semak jumlah ini",
@@ -1287,7 +1289,15 @@
     "ollieSafety": "Ollie · Semakan keselamatan",
     "holdToPay": "Tekan dan tahan untuk bayar",
     "holdingToPay": "Teruskan menahan…",
-    "hiddenBalance": "•••••••• SGD"
+    "hiddenBalance": "•••••••• SGD",
+    "reviewPaymentOf": "Semak pembayaran sebanyak",
+    "checkDetails": "Sila pastikan semua butiran betul sebelum meneruskan.",
+    "from": "Daripada",
+    "to": "Kepada",
+    "transactionId": "ID transaksi: {id}",
+    "backToHome": "Kembali ke Laman Utama",
+    "message": "Mesej",
+    "shareCopied": "Butiran pembayaran disalin"
   },
   "risk": {
     "titleCheck": "Semakan keselamatan ringkas",

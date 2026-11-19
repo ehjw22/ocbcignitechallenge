@@ -314,7 +314,9 @@
     "account_my": "১০ থেকে ১৬টি সংখ্যা লিখুন। আপনি {got} দিয়েছেন।",
     "count": "{n} things to fix",
     "useMax": "Use max balance",
-    "uen": "Enter a UEN, for example 201234567A."
+    "uen": "Enter a UEN, for example 201234567A.",
+    "date_format": "YYYY-MM-DD ফরম্যাটে সঠিক তারিখ লিখুন।",
+    "date_range": "আগামীকাল থেকে এক বছরের মধ্যে একটি তারিখ বেছে নিন।"
   },
   "unusual": {
     "title": "Check this amount",
@@ -1288,7 +1290,15 @@
     "ollieSafety": "Ollie · Safety check",
     "holdToPay": "পরিশোধ করতে চেপে ধরে রাখুন",
     "holdingToPay": "চেপে ধরে রাখুন…",
-    "hiddenBalance": "•••••••• SGD"
+    "hiddenBalance": "•••••••• SGD",
+    "reviewPaymentOf": "পেমেন্ট পর্যালোচনা করুন",
+    "checkDetails": "এগিয়ে যাওয়ার আগে সব তথ্য সঠিক কিনা দেখে নিন।",
+    "from": "যে অ্যাকাউন্ট থেকে",
+    "to": "প্রাপক",
+    "transactionId": "লেনদেন আইডি: {id}",
+    "backToHome": "হোমে ফিরে যান",
+    "message": "বার্তা",
+    "shareCopied": "পেমেন্টের বিবরণ কপি হয়েছে"
   },
   "risk": {
     "titleCheck": "Stay alert",

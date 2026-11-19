@@ -314,7 +314,9 @@
     "account_my": "Nhập 10 đến 16 chữ số. Bạn đã nhập {got}.",
     "count": "Cần sửa {n} chỗ",
     "useMax": "Dùng số dư tối đa",
-    "uen": "Nhập UEN, ví dụ 201234567A."
+    "uen": "Nhập UEN, ví dụ 201234567A.",
+    "date_format": "Nhập ngày hợp lệ theo định dạng YYYY-MM-DD.",
+    "date_range": "Chọn ngày từ ngày mai đến một năm kể từ hôm nay."
   },
   "unusual": {
     "title": "Kiểm tra lại số tiền này",
@@ -1288,7 +1290,15 @@
     "ollieSafety": "Ollie · Kiểm tra an toàn",
     "holdToPay": "Nhấn và giữ để thanh toán",
     "holdingToPay": "Tiếp tục giữ…",
-    "hiddenBalance": "•••••••• SGD"
+    "hiddenBalance": "•••••••• SGD",
+    "reviewPaymentOf": "Xem lại khoản thanh toán",
+    "checkDetails": "Vui lòng kiểm tra tất cả thông tin trước khi tiếp tục.",
+    "from": "Từ",
+    "to": "Đến",
+    "transactionId": "Mã giao dịch: {id}",
+    "backToHome": "Về Trang chủ",
+    "message": "Lời nhắn",
+    "shareCopied": "Đã sao chép chi tiết thanh toán"
   },
   "risk": {
     "titleCheck": "Hãy cẩn thận",

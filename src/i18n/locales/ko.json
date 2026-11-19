@@ -314,7 +314,9 @@
     "account_my": "10자리에서 16자리를 입력하세요. {got}자리를 입력했습니다.",
     "count": "고쳐야 할 것 {n}개",
     "useMax": "남은 돈 전부 쓰기",
-    "uen": "UEN을 적어주세요. 예: 201234567A"
+    "uen": "UEN을 적어주세요. 예: 201234567A",
+    "date_format": "YYYY-MM-DD 형식으로 올바른 날짜를 입력하세요.",
+    "date_range": "내일부터 1년 이내의 날짜를 선택하세요."
   },
   "unusual": {
     "title": "보낼 금액을 확인해 주세요",
@@ -1288,7 +1290,15 @@
     "ollieSafety": "Ollie · 안전 확인",
     "holdToPay": "길게 눌러 결제",
     "holdingToPay": "계속 누르세요…",
-    "hiddenBalance": "•••••••• SGD"
+    "hiddenBalance": "•••••••• SGD",
+    "reviewPaymentOf": "결제 금액 확인",
+    "checkDetails": "진행하기 전에 모든 정보가 올바른지 확인해 주세요.",
+    "from": "출금 계좌",
+    "to": "받는 사람",
+    "transactionId": "거래 ID: {id}",
+    "backToHome": "홈으로 돌아가기",
+    "message": "메시지",
+    "shareCopied": "결제 정보가 복사되었습니다"
   },
   "risk": {
     "titleCheck": "조심하세요",

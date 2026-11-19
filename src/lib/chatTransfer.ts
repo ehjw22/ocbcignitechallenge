@@ -5,13 +5,13 @@ import { loadTransferHistory, recordTransfer } from './transferHistory.ts'
 import { buildBaseline } from './transferBaseline.ts'
 import { VOICE_TRANSFER_MAX_SGD, type VoiceMatch } from './voiceTransfer.ts'
 
+// Same masking as maskPayee in src/data/bank.ts (HUANG JIA WEI -> HUAXX JIX WEX).
 function maskPayeeLabel(name: string) {
-  const parts = name.trim().split(/\s+/).filter(Boolean)
-  return parts.map((part, index) => {
-    const letters = part.replace(/[^A-Za-z]/g, '')
+  return name.trim().split(/\s+/).filter(Boolean).map((part) => {
+    const letters = part.replace(/[^A-Za-z]/g, '').toUpperCase()
     if (!letters) return part
-    if (index === 0) return letters.toUpperCase()
-    return `${letters[0].toUpperCase()}${'*'.repeat(Math.max(2, letters.length - 1))}`
+    const keep = Math.ceil(letters.length / 2)
+    return `${letters.slice(0, keep)}${'X'.repeat(letters.length - keep)}`
   }).join(' ')
 }
 

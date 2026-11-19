@@ -314,7 +314,9 @@
     "account_my": "10 से 16 अंक दर्ज करें। आपने {got} दर्ज किए।",
     "count": "{n} things to fix",
     "useMax": "Use max balance",
-    "uen": "Enter a UEN, for example 201234567A."
+    "uen": "Enter a UEN, for example 201234567A.",
+    "date_format": "YYYY-MM-DD प्रारूप में सही तारीख दर्ज करें।",
+    "date_range": "कल से लेकर एक साल के भीतर की तारीख चुनें।"
   },
   "unusual": {
     "title": "Check this amount",
@@ -1288,7 +1290,15 @@
     "ollieSafety": "Ollie · Safety check",
     "holdToPay": "भुगतान के लिए दबाकर रखें",
     "holdingToPay": "दबाते रहें…",
-    "hiddenBalance": "•••••••• SGD"
+    "hiddenBalance": "•••••••• SGD",
+    "reviewPaymentOf": "भुगतान की समीक्षा करें",
+    "checkDetails": "आगे बढ़ने से पहले कृपया जाँच लें कि सभी विवरण सही हैं।",
+    "from": "किस खाते से",
+    "to": "प्राप्तकर्ता",
+    "transactionId": "लेनदेन आईडी: {id}",
+    "backToHome": "होम पर वापस जाएँ",
+    "message": "संदेश",
+    "shareCopied": "भुगतान विवरण कॉपी हो गया"
   },
   "risk": {
     "titleCheck": "Stay alert",

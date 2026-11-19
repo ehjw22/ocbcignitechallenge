@@ -314,7 +314,9 @@
     "account_my": "Masukkan 10 sampai 16 digit. Anda memasukkan {got}.",
     "count": "Ada {n} hal yang perlu diperbaiki",
     "useMax": "Gunakan sisa saldo",
-    "uen": "Masukkan UEN, contohnya 201234567A."
+    "uen": "Masukkan UEN, contohnya 201234567A.",
+    "date_format": "Masukkan tanggal yang valid dengan format YYYY-MM-DD.",
+    "date_range": "Pilih tanggal mulai besok hingga satu tahun dari hari ini."
   },
   "unusual": {
     "title": "Periksa jumlah ini",
@@ -1288,7 +1290,15 @@
     "ollieSafety": "Ollie · Cek keamanan",
     "holdToPay": "Tekan dan tahan untuk membayar",
     "holdingToPay": "Tetap tahan…",
-    "hiddenBalance": "•••••••• SGD"
+    "hiddenBalance": "•••••••• SGD",
+    "reviewPaymentOf": "Tinjau pembayaran sebesar",
+    "checkDetails": "Harap periksa bahwa semua detail sudah benar sebelum melanjutkan.",
+    "from": "Dari",
+    "to": "Kepada",
+    "transactionId": "ID transaksi: {id}",
+    "backToHome": "Kembali ke Beranda",
+    "message": "Pesan",
+    "shareCopied": "Detail pembayaran disalin"
   },
   "risk": {
     "titleCheck": "Tetap waspada",
