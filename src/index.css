@@ -693,6 +693,31 @@ html[data-bold="1"] #customer-app button {
   border-radius: 2px;
 }
 
+#customer-root {
+  letter-spacing: var(--reading-letter-spacing, 0em);
+  word-spacing: var(--reading-word-spacing, 0em);
+  line-height: var(--reading-line-height, 1.4);
+}
+
+#customer-root .money,
+#customer-root .phone-number,
+#customer-root .tabular-nums {
+  letter-spacing: calc(var(--reading-letter-spacing, 0em) * 0.35);
+  word-spacing: normal;
+}
+
+#customer-root .app-nav a span:last-child {
+  line-height: 1.15;
+}
+
+#customer-root :where(.leading-tight) {
+  line-height: calc(var(--reading-line-height, 1.4) * 0.9);
+}
+
+#customer-root :where(.leading-snug) {
+  line-height: calc(var(--reading-line-height, 1.4) * 0.95);
+}
+
 html.dyslexia-font,
 html.dyslexia-font body,
 html.dyslexia-font #customer-root,
@@ -704,9 +729,6 @@ html.dyslexia-font [data-tour-card],
 html.dyslexia-font [role="dialog"] {
   font-family: "OpenDyslexic", "Segoe UI", "Nirmala UI", "Leelawadee UI", "Malgun Gothic", "Yu Gothic UI",
     "Microsoft YaHei", "Microsoft JhengHei", sans-serif;
-  letter-spacing: 0.05em;
-  word-spacing: 0.1em;
-  line-height: 1.6;
   word-break: keep-all;
   overflow-wrap: normal;
   hyphens: manual;
@@ -760,9 +782,9 @@ html[data-easy-tap="1"] #customer-root .speak-btn {
   flex-basis: 48px;
 }
 
-html.dyslexia-font .money,
-html.dyslexia-font .phone-number,
-html.dyslexia-font .tabular-nums {
-  letter-spacing: 0.02em;
-  word-spacing: normal;
+@media (prefers-reduced-motion: reduce) {
+  .reading-ruler-band,
+  .reading-ruler-dim {
+    transition: none;
+  }
 }
