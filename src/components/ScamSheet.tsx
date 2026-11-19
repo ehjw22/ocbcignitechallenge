@@ -125,15 +125,15 @@ export function ScamSheet({
       >
         <div className="mx-auto mt-2 h-1 w-10 rounded-full bg-[var(--line)]" />
         <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-3 pt-3">
-          <p className="text-center text-[13px] font-semibold text-[var(--muted)]">{t('ai.header')}</p>
-          <div className="mx-auto my-3 grid h-16 w-16 place-items-center rounded-full bg-[#FFF3D6] text-4xl font-bold text-[#5C3B00]" aria-hidden>!</div>
+          <p className="text-center text-[0.8rem] font-semibold text-[var(--muted)]">{t('ai.header')}</p>
+          <div className="mx-auto my-3 grid h-16 w-16 place-items-center rounded-full bg-[var(--soft)] text-4xl font-bold text-[var(--warn)]" aria-hidden>!</div>
           <h2 id="scam-check-title" className="text-[1.25rem] font-bold leading-snug">{title}</h2>
           <p className="mt-2">
-            <span className={`inline-flex rounded-full px-2 py-0.5 text-[12px] font-bold ${level === 'high' ? 'bg-[#E30613] text-white' : 'bg-[#FFF3D6] text-[#5C3B00]'}`}>
+            <span className={`inline-flex rounded-full px-2 py-0.5 text-[0.75rem] font-bold ${level === 'high' ? 'bg-[var(--accent)] text-[var(--on-accent)]' : 'bg-[var(--soft)] text-[var(--warn)]'}`}>
               {t(level === 'high' ? 'risk.high' : 'risk.check')}
             </span>
           </p>
-          <ul className="mt-3 space-y-1 rounded-xl bg-[var(--soft)] p-3 text-[15px]">
+          <ul className="mt-3 space-y-1 rounded-lg bg-[var(--beige)] p-3 text-[0.95rem]">
             {reasonLines.map((line) => <li key={line}>{line}</li>)}
             <li>{t('scamCheck.amountLine', { amount: money, name })}</li>
           </ul>
@@ -153,7 +153,7 @@ export function ScamSheet({
           {hold && left > 0 && !extraTime && (
             <button
               type="button"
-              className="min-h-12 w-full rounded-lg border border-[var(--line)] font-semibold"
+              className="ocbc-btn-secondary"
               onClick={() => {
                 setExtraTime(true)
                 setLeft(0)
@@ -162,10 +162,10 @@ export function ScamSheet({
               {t('scamCheck.needMoreTime')}
             </button>
           )}
-          <button type="button" className="ocbc-btn disabled:opacity-50" disabled={hold && left > 0 && !extraTime} onClick={() => onContinue(answerText)}>{extraTime ? t('scamCheck.continueAnyway') : continueLabel}</button>
-          <button type="button" className="min-h-12 w-full rounded-lg border border-[var(--line)] font-semibold" onClick={() => onCancel(answerText)}>{t('scamCheck.cancel')}</button>
+          <button type="button" className="ocbc-btn" disabled={hold && left > 0 && !extraTime} onClick={() => onContinue(answerText)}>{extraTime ? t('scamCheck.continueAnyway') : continueLabel}</button>
+          <button type="button" className="ocbc-btn-secondary" onClick={() => onCancel(answerText)}>{t('scamCheck.cancel')}</button>
           <a className="phone-number block py-1 text-center text-sm font-semibold text-[var(--link)] underline" href="tel:1799">{t('scamCheck.callShort')}</a>
-          {hold && <button type="button" className="tap w-full rounded-lg border border-[var(--line)] bg-[var(--card)] font-semibold" onClick={talk}>{t('scamCheck.staff')}</button>}
+          {hold && <button type="button" className="ocbc-btn-secondary" onClick={talk}>{t('scamCheck.staff')}</button>}
         </div>
       </div>
     </div>,
