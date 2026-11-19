@@ -24,6 +24,9 @@ const STANDARD: Preferences = {
   onboarded: false,
   quizCompleted: false,
   dyslexiaFont: false,
+  letterSpacing: 'normal',
+  lineHeight: 'normal',
+  readingRuler: false,
   easierTapping: false,
   voiceTransferLimit: 200,
   voiceTransferConfirm: 'faceId',
@@ -37,6 +40,7 @@ export const PRESET_PATCHES: Record<PresetId, Partial<Preferences>> = {
     easierTapping: true,
     readAloud: true,
     speechRate: 1,
+    lineHeight: 'roomy',
     dyslexiaFont: false,
   },
   standard: {
@@ -59,6 +63,8 @@ export const PRESET_PATCHES: Record<PresetId, Partial<Preferences>> = {
   },
   dyslexia: {
     dyslexiaFont: true,
+    letterSpacing: 'wider',
+    lineHeight: 'roomy',
     textSize: 20,
     readAloud: true,
     speechRate: 0.9,

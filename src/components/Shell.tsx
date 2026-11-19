@@ -9,6 +9,8 @@ import { loadTourProgress } from '@/lib/tourProgress'
 import { nextPracticeJourney, JOURNEY_TOUR_IDS } from '@/lib/recommendedTours'
 import { practisedJourneyCount } from '@/lib/tourTracking'
 import { themeVars } from '@/lib/accent'
+import { readingComfortVars } from '@/lib/readingComfort'
+import { ReadingRuler } from '@/components/ReadingRuler'
 import { AppTour } from './AppTour'
 import { FlowTour } from './TourFrame'
 import { getFlowTour, subscribeFlowTour } from '@/lib/guide'
@@ -188,10 +190,11 @@ export { usePhoneScale }
 export function PhoneFrame({ children }: { children: React.ReactNode }) {
   const { prefs, announce } = useApp()
   const { scale, full, present } = usePhoneScale()
-  const vars = themeVars(prefs)
-  const stageBg = present && !full ? '#0f1316' : vars['--bg']
+  const theme = themeVars(prefs)
+  const comfort = readingComfortVars(prefs)
+  const stageBg = present && !full ? '#0f1316' : theme['--bg']
   return (
-    <div className="phone-stage" style={{ background: full ? vars['--bg'] : stageBg, minHeight: full ? undefined : '100dvh', display: full ? undefined : 'flex', flexDirection: full ? undefined : 'column', alignItems: full ? undefined : 'center', justifyContent: full ? undefined : 'center' }}>
+    <div className="phone-stage" style={{ background: full ? theme['--bg'] : stageBg, minHeight: full ? undefined : '100dvh', display: full ? undefined : 'flex', flexDirection: full ? undefined : 'column', alignItems: full ? undefined : 'center', justifyContent: full ? undefined : 'center' }}>
       <div className={full ? 'w-full min-w-0 max-w-full self-stretch' : undefined} style={full ? undefined : { width: 390 * scale, height: 844 * scale }}>
       <div className={full ? 'phone-frame is-full' : 'phone-frame'} style={full ? undefined : { transform: `scale(${scale})`, transformOrigin: 'top left' }}>
         {!full && <div className="phone-notch" aria-hidden />}
@@ -203,7 +206,7 @@ export function PhoneFrame({ children }: { children: React.ReactNode }) {
           data-bold={prefs.boldText ? 'true' : 'false'}
           data-cvd={prefs.colourVision}
           lang={prefs.language}
-          style={{ ...vars, paddingTop: full ? 'env(safe-area-inset-top)' : '28px' }}
+          style={{ ...theme, ...comfort, paddingTop: full ? 'env(safe-area-inset-top)' : '28px' }}
         >
           <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:z-50 focus:bg-white focus:px-3 focus:py-2">
             {translate(prefs.language, 'skipToContent')}
@@ -211,6 +214,7 @@ export function PhoneFrame({ children }: { children: React.ReactNode }) {
           {children}
           <TapVisualizer />
           <div className="sr-only" aria-live="polite">{announce}</div>
+          <ReadingRuler />
           <HelpLayer />
         </div>
       </div>

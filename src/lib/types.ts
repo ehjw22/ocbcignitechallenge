@@ -8,6 +8,8 @@ export type ContactMethod = 'message' | 'phone' | 'email'
 /** How Ollie chat/voice transfers are confirmed after review (simulated demo auth). */
 export type VoiceTransferConfirm = 'faceId' | 'pin'
 export type RequestStatus = 'received' | 'in_progress' | 'replied'
+export type LetterSpacingLevel = 'normal' | 'wider' | 'widest'
+export type LineHeightLevel = 'normal' | 'roomy' | 'extraRoomy'
 
 export interface Preferences {
   language: string
@@ -31,6 +33,9 @@ export interface Preferences {
   onboarded: boolean
   quizCompleted: boolean
   dyslexiaFont: boolean
+  letterSpacing: LetterSpacingLevel
+  lineHeight: LineHeightLevel
+  readingRuler: boolean
   easierTapping: boolean
   voiceTransferLimit: number
   voiceTransferConfirm: VoiceTransferConfirm

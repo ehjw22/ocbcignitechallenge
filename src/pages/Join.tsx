@@ -11,6 +11,7 @@ import { peekAfterLogin } from '@/lib/storage'
 import { translate } from '@/i18n'
 import { DEFAULT_SHORTCUTS } from '@/lib/languages'
 import { HomePreview } from '@/components/HomePreview'
+import { ReadingComfortControls } from '@/components/ReadingComfortControls'
 import { formatSignedMoney } from '@/lib/format'
 import { dismissPreviewLanguageNotice, LanguagePicker } from '@/components/LanguagePicker'
 import { UndoSnackbar } from '@/components/UndoSnackbar'
@@ -128,13 +129,7 @@ export function Join() {
                 {app.prefs.textSize}px
                 <input id="quiz-size" type="range" min={16} max={24} step={1} value={app.prefs.textSize} onChange={(event) => app.updatePrefs({ textSize: Number(event.target.value) })} className="mt-2 w-full" />
               </label>
-              <div className="flex min-h-11 items-center justify-between gap-3">
-                <span>
-                  <span className="block font-semibold">{t('settings.dyslexiaFont')}</span>
-                  <span className="block text-sm text-[var(--muted)]">{t('settings.dyslexiaFontBody')}</span>
-                </span>
-                <Switch on={app.prefs.dyslexiaFont} label={t('settings.dyslexiaFont')} onChange={(next) => app.updatePrefs({ dyslexiaFont: next })} />
-              </div>
+              <ReadingComfortControls headingId="quiz-reading-comfort" />
               <div className="flex min-h-11 items-center justify-between gap-3">
                 <span>
                   <span className="block font-semibold">{t('settings.easierTapping')}</span>

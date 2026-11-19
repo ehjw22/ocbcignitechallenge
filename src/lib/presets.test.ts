@@ -8,5 +8,6 @@ describe('presets', () => {
     assert.equal(patch.textSize, 22)
     assert.equal(patch.highContrast, true)
     assert.equal(patch.readAloud, true)
+    assert.equal(patch.lineHeight, 'roomy')
   })
 })

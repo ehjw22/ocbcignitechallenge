@@ -290,7 +290,20 @@
     "voiceTransferConfirm": "Confirm voice transfers with",
     "voiceTransferConfirmBody": "After you review a transfer in Ollie chat, confirm with simulated Face ID or a 6-digit PIN (demo only).",
     "voiceConfirmFace": "Face ID (default)",
-    "voiceConfirmPin": "6-digit PIN"
+    "voiceConfirmPin": "6-digit PIN",
+    "readingComfort": "Reading comfort",
+    "letterSpacing": "Letter spacing",
+    "letterSpacingNormal": "Normal",
+    "letterSpacingWider": "Wider",
+    "letterSpacingWidest": "Widest",
+    "lineHeight": "Line height",
+    "lineHeightNormal": "Normal",
+    "lineHeightRoomy": "Roomy",
+    "lineHeightExtraRoomy": "Extra roomy",
+    "readingRuler": "Reading ruler",
+    "readingRulerBody": "Dim the screen and highlight a band that follows your finger or pointer while you read.",
+    "readingRulerClose": "Turn off reading ruler",
+    "readingRulerOn": "Reading ruler on"
   },
   "errors": {
     "summary": "아래 항목을 확인하세요.",

@@ -18,6 +18,7 @@ import { speak } from '@/lib/speech'
 import { collapseOpened } from '@/lib/tourPlace'
 import { ResetDemoDialog } from '@/components/ResetDemoDialog'
 import { HomePreview } from '@/components/HomePreview'
+import { ReadingComfortControls } from '@/components/ReadingComfortControls'
 import { UndoSnackbar } from '@/components/UndoSnackbar'
 import { patchForPreset, snapshotPrefs, type PresetId, type PresetSnapshot } from '@/lib/presets'
 import { dismissPreviewLanguageNotice, LanguagePicker } from '@/components/LanguagePicker'
@@ -189,6 +190,11 @@ export function Settings() {
     app.prefs.boldText ? t('onboarding.bold') : '',
     app.prefs.highContrast ? t('onboarding.contrast') : '',
     app.prefs.dyslexiaFont ? t('settings.dyslexiaFont') : '',
+    app.prefs.letterSpacing === 'wider' ? t('settings.letterSpacingWider')
+      : app.prefs.letterSpacing === 'widest' ? t('settings.letterSpacingWidest') : '',
+    app.prefs.lineHeight === 'roomy' ? t('settings.lineHeightRoomy')
+      : app.prefs.lineHeight === 'extraRoomy' ? t('settings.lineHeightExtraRoomy') : '',
+    app.prefs.readingRuler ? t('settings.readingRuler') : '',
     app.prefs.easierTapping ? t('settings.easierTapping') : '',
   ].filter(Boolean).join(' · ')
   const helpKey = app.prefs.helpPreference === 'ai' ? 'help.ai' : app.prefs.helpPreference === 'guide' ? 'help.guide' : 'help.staff'
@@ -310,7 +316,7 @@ export function Settings() {
           guide="settings-text"
           title={t('settings.sections.text')}
           summary={textSummary}
-          keywords={`${t('settings.text')} ${t('settings.textSize')} ${t('onboarding.bold')} ${t('onboarding.contrast')} ${t('settings.large')} ${t('settings.dyslexiaFont')} ${t('settings.easierTapping')}`}
+          keywords={`${t('settings.text')} ${t('settings.textSize')} ${t('onboarding.bold')} ${t('onboarding.contrast')} ${t('settings.large')} ${t('settings.readingComfort')} ${t('settings.dyslexiaFont')} ${t('settings.easierTapping')}`}
           query={query}
           open={!!open.text}
           onToggle={toggle}
@@ -340,13 +346,7 @@ export function Settings() {
             <span className="min-w-0 font-semibold">{t('onboarding.contrast')}</span>
             <Switch on={app.prefs.highContrast} label={t('onboarding.contrast')} onChange={(next) => app.updatePrefs({ highContrast: next })} />
           </div>
-          <div className="mt-3 flex min-h-12 items-center justify-between gap-3">
-            <span className="min-w-0">
-              <span className="block font-semibold">{t('settings.dyslexiaFont')}</span>
-              <span className="block text-sm font-normal text-[var(--muted)]">{t('settings.dyslexiaFontBody')}</span>
-            </span>
-            <Switch on={app.prefs.dyslexiaFont} label={t('settings.dyslexiaFont')} onChange={(next) => app.updatePrefs({ dyslexiaFont: next })} />
-          </div>
+          <ReadingComfortControls headingId="settings-reading-comfort" />
           <div className="mt-3 flex min-h-12 items-center justify-between gap-3">
             <span className="min-w-0">
               <span className="block font-semibold">{t('settings.easierTapping')}</span>
