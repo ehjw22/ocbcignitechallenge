@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Check, CheckCircle2, AlertTriangle } from 'lucide-react'
-import { Choice, choiceClass } from '@/components/Choice'
+import { CheckCircle2, AlertTriangle } from 'lucide-react'
+import { Choice } from '@/components/Choice'
 import { Switch } from '@/components/Switch'
 import { ShortcutPicker } from '@/components/ShortcutPicker'
 import { SpeechSpeed } from '@/components/SpeechSpeed'
@@ -203,10 +203,9 @@ export function Join() {
               </div>
               <div role="radiogroup" aria-label={t('onboarding.colour')} className="mt-3 grid w-full grid-cols-1 gap-2">
                 {(['default', 'protanopia', 'deuteranopia', 'tritanopia', 'monochrome'] as ColourVision[]).map((mode) => (
-                  <button key={mode} type="button" role="radio" aria-checked={app.prefs.colourVision === mode} className={`${choiceClass(app.prefs.colourVision === mode)} flex min-h-11 w-full items-center justify-between gap-3 rounded-xl px-3 py-2 text-left`} onClick={() => app.updatePrefs({ colourVision: mode })}>
-                    <span className="font-semibold">{t(`cvd.${mode}`)}</span>
-                    <Check aria-hidden size={18} className={`shrink-0 text-[var(--accent)] ${app.prefs.colourVision === mode ? 'opacity-100' : 'opacity-0'}`} />
-                  </button>
+                  <Choice key={mode} selected={app.prefs.colourVision === mode} onClick={() => app.updatePrefs({ colourVision: mode })}>
+                    {t(`cvd.${mode}`)}
+                  </Choice>
                 ))}
               </div>
             </section>

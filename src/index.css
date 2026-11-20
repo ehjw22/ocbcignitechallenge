@@ -83,8 +83,29 @@ html[data-bold="1"] #customer-app button {
   font-weight: 700;
 }
 
+.choice.is-on .choice-label,
 .choice.is-on span {
   font-weight: 700;
+}
+
+#customer-root .choice .choice-label {
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.reading-ruler-dim {
+  pointer-events: none;
+  background: rgba(0, 0, 0, 0.28);
+}
+
+.reading-ruler-band {
+  pointer-events: none;
+  background: transparent;
+  border-top: 2px solid var(--accent);
+  border-bottom: 2px solid var(--accent);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--accent) 22%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent);
 }
 
 .speak-btn {
@@ -784,13 +805,6 @@ html[data-easy-tap="1"] #customer-root .speak-btn {
   min-width: 48px;
   min-height: 48px;
   flex-basis: 48px;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .reading-ruler-band,
-  .reading-ruler-dim {
-    transition: none;
-  }
 }
 
 .phone-frame [id^="compare-root-"].dyslexia-font,

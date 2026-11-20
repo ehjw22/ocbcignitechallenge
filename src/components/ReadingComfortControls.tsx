@@ -23,10 +23,11 @@ export function ReadingComfortControls({ headingId }: { headingId?: string }) {
     <h3 id={headingId} className="mb-3 text-base font-semibold">{t('settings.readingComfort')}</h3>
     <fieldset className="space-y-2">
       <legend className="mb-1 block text-sm font-semibold">{t('settings.letterSpacing')}</legend>
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3" role="radiogroup" aria-labelledby={headingId}>
+      <div className="grid grid-cols-1 gap-2" role="radiogroup" aria-labelledby={headingId}>
         {LETTER.map((level) => (
           <Choice
             key={level.id}
+            variant="compact"
             selected={app.prefs.letterSpacing === level.id}
             onClick={() => app.updatePrefs({ letterSpacing: level.id })}
           >
@@ -37,10 +38,11 @@ export function ReadingComfortControls({ headingId }: { headingId?: string }) {
     </fieldset>
     <fieldset className="mt-4 space-y-2">
       <legend className="mb-1 block text-sm font-semibold">{t('settings.lineHeight')}</legend>
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3" role="radiogroup">
+      <div className="grid grid-cols-1 gap-2" role="radiogroup">
         {LINE.map((level) => (
           <Choice
             key={level.id}
+            variant="compact"
             selected={app.prefs.lineHeight === level.id}
             onClick={() => app.updatePrefs({ lineHeight: level.id })}
           >

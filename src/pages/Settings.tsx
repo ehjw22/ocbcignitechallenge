@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
 import { Check, ChevronDown, Search } from 'lucide-react'
-import { Choice, choiceClass } from '@/components/Choice'
+import { Choice, choiceClass, choiceRowClass } from '@/components/Choice'
 import { Switch } from '@/components/Switch'
 import { ShortcutPicker } from '@/components/ShortcutPicker'
 import { SpeechSpeed } from '@/components/SpeechSpeed'
@@ -406,18 +406,18 @@ export function Settings() {
           ))}
           <div className="mb-3 mt-3 flex flex-wrap gap-2">
             {(['light', 'dark'] as const).map((scheme) => (
-              <button key={scheme} type="button" aria-pressed={app.prefs.scheme === scheme} className={`${choiceClass(app.prefs.scheme === scheme)} inline-flex min-h-12 min-w-0 flex-1 basis-24 items-center justify-between gap-2 whitespace-normal rounded-xl px-3`} onClick={() => app.updatePrefs({ scheme })}>
-                {t(`themes.${scheme}`)}
-                <Check aria-hidden size={18} className={`shrink-0 text-[var(--accent)] ${app.prefs.scheme === scheme ? 'opacity-100' : 'opacity-0'}`} />
+              <button key={scheme} type="button" aria-pressed={app.prefs.scheme === scheme} className={choiceRowClass(app.prefs.scheme === scheme, 'min-h-12 min-w-0 flex-1 basis-24 whitespace-normal')} onClick={() => app.updatePrefs({ scheme })}>
+                <span className="choice-label min-w-0">{t(`themes.${scheme}`)}</span>
+                <Check aria-hidden size={18} className={`shrink-0 justify-self-end text-[var(--accent)] ${app.prefs.scheme === scheme ? 'opacity-100' : 'opacity-0'}`} />
               </button>
             ))}
           </div>
           <div className={`grid gap-2 ${app.prefs.textSize >= 20 ? 'grid-cols-1' : 'grid-cols-2'}`}>
             {THEMES.filter((item) => item.id !== 'custom').map((item) => (
-              <button key={item.id} type="button" aria-pressed={app.prefs.theme === item.id} className={`${choiceClass(app.prefs.theme === item.id)} flex min-h-12 items-center gap-2 rounded-xl px-3 text-left`} onClick={() => app.updatePrefs({ theme: item.id as ThemeId, accent: item.accent })}>
+              <button key={item.id} type="button" aria-pressed={app.prefs.theme === item.id} className={`${choiceClass(app.prefs.theme === item.id)} grid min-h-12 min-w-0 grid-cols-[auto_minmax(0,1fr)_1.125rem] items-center gap-2 rounded-xl px-3 py-2 text-left`} onClick={() => app.updatePrefs({ theme: item.id as ThemeId, accent: item.accent })}>
                 <span aria-hidden className="h-6 w-6 shrink-0 rounded-full border border-black/20" style={{ background: item.accent }} />
-                <span className="min-w-0 flex-1">{t(item.labelKey)}</span>
-                <Check aria-hidden size={18} className={`shrink-0 text-[var(--accent)] ${app.prefs.theme === item.id ? 'opacity-100' : 'opacity-0'}`} />
+                <span className="choice-label min-w-0">{t(item.labelKey)}</span>
+                <Check aria-hidden size={18} className={`shrink-0 justify-self-end text-[var(--accent)] ${app.prefs.theme === item.id ? 'opacity-100' : 'opacity-0'}`} />
               </button>
             ))}
           </div>

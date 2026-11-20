@@ -32,7 +32,43 @@ export function readingComfortVars(prefs: Pick<Preferences, 'letterSpacing' | 'l
 
 export function rulerBandHeightPx(textSizePx: number, lineHeight: LineHeightLevel): number {
   const lh = Number(LINE[normalizeLineHeight(lineHeight)])
-  return Math.round(textSizePx * lh * 2)
+  return Math.round(textSizePx * lh * 1.75)
+}
+
+/** Visible height vs layout height when #customer-root is CSS-scaled (e.g. phone frame). */
+export function rulerRootScale(rootClientHeight: number, rootOffsetHeight: number): number {
+  return rootClientHeight / rootOffsetHeight || 1
+}
+
+/** Pointer clientY → ruler centre Y in #customer-root local coordinates (pre-clamp). */
+export function rulerLocalYFromClient(clientY: number, rootTop: number, scale: number): number {
+  return (clientY - rootTop) / scale
+}
+
+export function clampRulerCenterY(localY: number, bandH: number, rootClientHeight: number): number {
+  const half = bandH / 2
+  const maxY = Math.max(half, rootClientHeight - half)
+  return Math.min(Math.max(localY, half), maxY)
+}
+
+export function rulerBandTop(centerY: number, bandH: number): number {
+  return Math.max(0, centerY - bandH / 2)
+}
+
+export function pointerInsideRoot(
+  clientX: number,
+  clientY: number,
+  rootLeft: number,
+  rootTop: number,
+  rootWidth: number,
+  rootHeight: number,
+): boolean {
+  return (
+    clientX >= rootLeft &&
+    clientX <= rootLeft + rootWidth &&
+    clientY >= rootTop &&
+    clientY <= rootTop + rootHeight
+  )
 }
 
 const TEXT_SIZE_MIN = 16
