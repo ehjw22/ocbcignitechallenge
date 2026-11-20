@@ -89,7 +89,6 @@ export function Compare() {
     <div className="flex h-dvh max-h-dvh flex-col overflow-hidden bg-[#0f1316] text-white">
       <header className="shrink-0 px-4 pb-2 pt-3 text-center">
         <p className="text-lg font-semibold tracking-tight text-zinc-100">Same app, set up two different ways</p>
-        <p className="mt-1 text-sm text-zinc-400">Presenter compare · no login · does not change saved customer sessions</p>
       </header>
 
       <div className="flex shrink-0 items-center justify-center gap-3 px-4 pb-3">

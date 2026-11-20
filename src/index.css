@@ -698,7 +698,8 @@ html[data-bold="1"] #customer-app button {
   border-radius: 2px;
 }
 
-#customer-root {
+#customer-root,
+.phone-frame [id^="compare-root-"] {
   letter-spacing: var(--reading-letter-spacing, 0em);
   word-spacing: var(--reading-word-spacing, 0em);
   line-height: var(--reading-line-height, 1.4);
@@ -804,4 +805,42 @@ html[data-easy-tap="1"] #customer-root .speak-btn {
   .reading-ruler-dim {
     transition: none;
   }
+}
+
+.phone-frame [id^="compare-root-"].dyslexia-font,
+.phone-frame [id^="compare-root-"].dyslexia-font input,
+.phone-frame [id^="compare-root-"].dyslexia-font select,
+.phone-frame [id^="compare-root-"].dyslexia-font textarea,
+.phone-frame [id^="compare-root-"].dyslexia-font button,
+.phone-frame [id^="compare-root-"].dyslexia-font p,
+.phone-frame [id^="compare-root-"].dyslexia-font li,
+.phone-frame [id^="compare-root-"].dyslexia-font label,
+.phone-frame [id^="compare-root-"].dyslexia-font h1,
+.phone-frame [id^="compare-root-"].dyslexia-font h2,
+.phone-frame [id^="compare-root-"].dyslexia-font h3,
+.phone-frame [id^="compare-root-"].dyslexia-font span {
+  font-family: "OpenDyslexic", "Segoe UI", "Nirmala UI", "Leelawadee UI", "Malgun Gothic", "Yu Gothic UI",
+    "Microsoft YaHei", "Microsoft JhengHei", sans-serif;
+  word-break: keep-all;
+  overflow-wrap: normal;
+  hyphens: manual;
+}
+
+.phone-frame [id^="compare-root-"][data-easy-tap="1"] button,
+.phone-frame [id^="compare-root-"][data-easy-tap="1"] a,
+.phone-frame [id^="compare-root-"][data-easy-tap="1"] .tap,
+.phone-frame [id^="compare-root-"][data-easy-tap="1"] .ocbc-row,
+.phone-frame [id^="compare-root-"][data-easy-tap="1"] [role="radio"],
+.phone-frame [id^="compare-root-"][data-easy-tap="1"] [role="switch"],
+.phone-frame [id^="compare-root-"][data-easy-tap="1"] .app-nav a {
+  min-height: 52px;
+  min-width: 52px;
+  padding-top: 0.65rem;
+  padding-bottom: 0.65rem;
+}
+
+.phone-frame [id^="compare-root-"][data-easy-tap="1"] .ocbc-btn,
+.phone-frame [id^="compare-root-"][data-easy-tap="1"] .ocbc-btn-secondary {
+  min-height: 60px;
+  font-size: 1.05rem;
 }

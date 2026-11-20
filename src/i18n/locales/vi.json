@@ -312,6 +312,8 @@
     "account_au": "Số tài khoản Úc cần có từ 6 đến 9 chữ số. Bạn đã nhập {got}.",
     "account_uk": "Số tài khoản Anh cần có 8 chữ số. Bạn đã nhập {got}.",
     "paynow_mobile": "Dùng số 8 chữ số bắt đầu bằng 8 hoặc 9.",
+    "paynow_not_registered": "Số này chưa đăng ký PayNow.",
+    "paynow_not_registered_guide": "Số điện thoại này chưa đăng ký PayNow. Hãy kiểm tra số và thử lại. Chạm Quay lại để chọn liên hệ hoặc nhập số khác.",
     "nric": "Dùng NRIC như S1234567A.",
     "amount_positive": "Nhập số tiền lớn hơn S$0,00.",
     "amount_format": "Nhập số tiền bằng chữ số, ví dụ 50.00.",

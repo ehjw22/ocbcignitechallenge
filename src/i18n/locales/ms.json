@@ -312,6 +312,8 @@
     "account_au": "Nombor akaun Australia perlukan 6 hingga 9 digit. Anda masukkan {got}.",
     "account_uk": "Nombor akaun UK perlukan 8 digit. Anda masukkan {got}.",
     "paynow_mobile": "Guna nombor 8 digit yang bermula dengan 8 atau 9.",
+    "paynow_not_registered": "Nombor ini tidak didaftarkan dengan PayNow.",
+    "paynow_not_registered_guide": "Nombor mudah alih ini tidak didaftarkan dengan PayNow. Sila semak nombor dan cuba lagi. Ketik Kembali untuk pilih kenalan atau masukkan nombor lain.",
     "nric": "Guna NRIC seperti S1234567A.",
     "amount_positive": "Masukkan duit lebih dari S$0.00.",
     "amount_format": "Masukkan jumlah dalam nombor, seperti 50.00.",

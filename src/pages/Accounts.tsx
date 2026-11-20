@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Page } from '@/components/Shell'
 import { useApp } from '@/context/AppContext'
+import { percentChange, rowsFor, sum } from '@/data/insights'
 import { payeeName } from '@/data/bank'
 import { translate } from '@/i18n'
 import { formatDay, formatMoney, formatSignedMoney } from '@/lib/format'
@@ -9,7 +10,7 @@ import { formatDay, formatMoney, formatSignedMoney } from '@/lib/format'
 export function Accounts() {
   const app = useApp()
   const lang = app.prefs.language
-  const t = (key: string) => translate(lang, key)
+  const t = (key: string, vars?: Record<string, string | number>) => translate(lang, key, vars)
   const [query, setQuery] = useState('')
   const [accountId, setAccountId] = useState('all')
   const setScreen = app.setScreen
@@ -23,6 +24,23 @@ export function Accounts() {
   return (
     <Page title={t('accounts.title')}>
       <div className="space-y-3 px-4 py-4">
+        {app.prefs.spendingInsights && (
+          <Link
+            to="/insights"
+            data-testid="spending-insights-accounts"
+            className="card block px-4 py-4 text-[var(--text)]"
+          >
+            <p className="text-[0.75rem] font-semibold uppercase tracking-wide text-[var(--muted)]">{t('insights')}</p>
+            <p className="mt-1 text-[0.95rem] leading-snug">
+              {t('insight.vsLast', {
+                amount: formatMoney(sum(rowsFor('all', '2026-10')), lang),
+                pct: Math.abs(percentChange(sum(rowsFor('all', '2026-10')), sum(rowsFor('all', '2026-09')))),
+                dir: percentChange(sum(rowsFor('all', '2026-10')), sum(rowsFor('all', '2026-09'))) >= 0 ? t('insight.more') : t('insight.less'),
+              })}
+            </p>
+            <span className="mt-2 inline-block text-[0.9rem] text-[var(--link)] underline">{t('look.insightLink')}</span>
+          </Link>
+        )}
         {app.accounts.map((account, index) => (
           <Link key={account.id} to={`/accounts/${account.id}`} data-guide={index === 0 ? 'accounts-list' : undefined} className="card block px-4 py-4">
             <h2 className="text-[0.9rem] font-medium leading-normal">{t(account.nameKey)}</h2>

@@ -312,6 +312,8 @@
     "account_au": "호주 계좌 번호는 6자리에서 9자리여야 해요. 지금 {got}자리를 적으셨어요.",
     "account_uk": "영국 계좌 번호는 8자리여야 해요. 지금 {got}자리를 적으셨어요.",
     "paynow_mobile": "8 또는 9로 시작하는 8자리를 사용하세요.",
+    "paynow_not_registered": "이 번호는 PayNow에 등록되어 있지 않습니다.",
+    "paynow_not_registered_guide": "이 휴대폰 번호는 PayNow에 등록되어 있지 않습니다. 번호를 확인한 뒤 다시 시도하세요. 뒤로 가서 연락처를 고르거나 다른 번호를 입력하세요.",
     "nric": "S1234567A 형식의 NRIC를 사용하세요.",
     "amount_positive": "S$0.00보다 많은 금액을 적어주세요.",
     "amount_format": "금액은 50.00처럼 숫자로 입력하세요.",

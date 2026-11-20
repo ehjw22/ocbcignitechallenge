@@ -65,6 +65,13 @@ export function Home() {
   }, [params])
 
   const money = (value: number) => (hidden ? t('look.hiddenBalance') : formatMoney(value, lang))
+  const simpleHome = app.prefs.detail === 'short'
+  const shortcutIds = app.prefs.shortcuts.filter((id) => {
+    if (id === 'rewards' || !SHORTCUT_ICONS[id]) return false
+    return true
+  })
+  const homeShortcuts = simpleHome ? shortcutIds.slice(0, 3) : shortcutIds.slice(0, 6)
+  const recentLimit = simpleHome ? 3 : 5
 
   return (
     <div className="relative flex h-full min-h-0 flex-col bg-[var(--bg)] text-[var(--text)]">
@@ -109,14 +116,8 @@ export function Home() {
 
         <section className={`relative z-10 px-4 ${app.prefs.textSize >= 20 ? 'mt-3' : '-mt-10'}`} data-guide="home-shortcuts">
           <div className="flex rounded-xl border border-[var(--line)] bg-[var(--card)] px-1 py-3 shadow-[0_8px_24px_rgba(47,53,61,0.12)]">
-            <div className="grid min-w-0 flex-1 grid-cols-3 gap-y-3">
-              {app.prefs.shortcuts.filter((id) => {
-                if (id === 'rewards' || !SHORTCUT_ICONS[id]) {
-                  if (id !== 'rewards' && !SHORTCUT_ICONS[id] && import.meta.env.DEV) console.warn('shortcut skipped', id)
-                  return false
-                }
-                return true
-              }).slice(0, 3).map((id) => (
+            <div className={`grid min-w-0 flex-1 gap-y-3 ${simpleHome ? 'grid-cols-3' : 'grid-cols-3'}`}>
+              {homeShortcuts.map((id) => (
                 <Link key={id} to={SHORTCUT_ROUTES[id] ?? '/pay'} data-guide={id === 'paynow' ? 'home-paynow' : undefined} className="flex min-h-11 min-w-0 flex-col items-center justify-center gap-1 px-0.5 text-[var(--text)]">
                   <span aria-hidden className="flex h-[2.75rem] items-center justify-center"><ShortcutMark id={id} /></span>
                   <span className="w-full text-center text-[0.85rem] font-normal leading-tight">{t(`shortcuts.${id}`)}</span>
@@ -135,19 +136,23 @@ export function Home() {
           <button type="button" className="grid h-11 min-h-11 w-11 min-w-11 shrink-0 place-items-center rounded-full bg-[var(--soft)] p-0" aria-pressed={hidden} aria-label={hidden ? t('show') : t('hide')} onClick={() => setHidden((value) => !value)}>
             {hidden ? <EyeOff aria-hidden size={20} strokeWidth={1.5} /> : <Eye aria-hidden size={20} strokeWidth={1.5} />}
           </button>
-          <span aria-hidden className="h-8 w-px shrink-0 bg-[var(--muted)]" />
-          <div className="flex min-w-0 flex-1 gap-2 overflow-x-auto py-1 pr-4">
-            {PILLS.map((id) => (
-              <Pill
-                key={id}
-                data-guide={id === 'accounts' ? 'nav-accounts' : undefined}
-                active={pill === id}
-                onClick={() => setPill(id)}
-              >
-                {t(`look.${id}`)}
-              </Pill>
-            ))}
-          </div>
+          {!simpleHome && (
+            <>
+              <span aria-hidden className="h-8 w-px shrink-0 bg-[var(--muted)]" />
+              <div className="flex min-w-0 flex-1 gap-2 overflow-x-auto py-1 pr-4">
+                {PILLS.map((id) => (
+                  <Pill
+                    key={id}
+                    data-guide={id === 'accounts' ? 'nav-accounts' : undefined}
+                    active={pill === id}
+                    onClick={() => setPill(id)}
+                  >
+                    {t(`look.${id}`)}
+                  </Pill>
+                ))}
+              </div>
+            </>
+          )}
         </div>
 
         <section className="px-4 pt-3" data-guide={pill === 'accounts' ? 'accounts-list' : undefined}>
@@ -198,19 +203,21 @@ export function Home() {
           )}
         </section>
 
-        <section data-guide="home-foryou" className="flex w-full min-w-0 max-w-full gap-3 overflow-x-auto px-4 py-4">
-          {([
-            { to: '/flow/goal', kicker: 'look.goalKicker', line: 'look.goalLine', link: 'look.goalLink' },
-            { to: '/insights', kicker: 'look.insightKicker', line: 'look.insightLine', link: 'look.insightLink' },
-            { to: '/flow/overseas?practice=1&tour=1', kicker: 'look.practiceKicker', line: 'forYouBody', link: 'look.practiceLink' },
-          ]).map((card) => (
-            <Link key={card.to} to={card.to} className="flex w-[78%] max-w-[18rem] shrink-0 flex-col rounded-xl bg-[var(--pink-soft)] p-4 text-[var(--text)]">
-              <span className="text-[0.75rem] font-semibold uppercase tracking-wide text-[var(--muted)]">{t(card.kicker)}</span>
-              <span className="mt-1 text-[1rem] font-semibold leading-snug">{t(card.line)}</span>
-              <span className="mt-auto pt-2 text-[0.95rem] text-[var(--link)] underline">{t(card.link)}</span>
-            </Link>
-          ))}
-        </section>
+        {!simpleHome && (
+          <section data-guide="home-foryou" className="flex w-full min-w-0 max-w-full gap-3 overflow-x-auto px-4 py-4">
+            {([
+              { to: '/flow/goal', kicker: 'look.goalKicker', line: 'look.goalLine', link: 'look.goalLink' },
+              { to: '/insights', kicker: 'look.insightKicker', line: 'look.insightLine', link: 'look.insightLink' },
+              { to: '/flow/overseas?practice=1&tour=1', kicker: 'look.practiceKicker', line: 'forYouBody', link: 'look.practiceLink' },
+            ]).map((card) => (
+              <Link key={card.to} to={card.to} className="flex w-[78%] max-w-[18rem] shrink-0 flex-col rounded-xl bg-[var(--pink-soft)] p-4 text-[var(--text)]">
+                <span className="text-[0.75rem] font-semibold uppercase tracking-wide text-[var(--muted)]">{t(card.kicker)}</span>
+                <span className="mt-1 text-[1rem] font-semibold leading-snug">{t(card.line)}</span>
+                <span className="mt-auto pt-2 text-[0.95rem] text-[var(--link)] underline">{t(card.link)}</span>
+              </Link>
+            ))}
+          </section>
+        )}
 
         {app.txns.length > 0 && (
           <section className="bg-[var(--beige)] pb-5 pt-6">
@@ -219,7 +226,7 @@ export function Home() {
               <p className="text-[1rem] text-[var(--muted)]">{t('look.recentHint')}</p>
             </div>
             <div className="mx-4 mt-4 rounded-xl bg-[var(--card)] px-4 py-1">
-              {app.txns.slice(0, 5).reduce<{ day: string; txns: typeof app.txns }[]>((groups, txn) => {
+              {app.txns.slice(0, recentLimit).reduce<{ day: string; txns: typeof app.txns }[]>((groups, txn) => {
                 const day = txn.date.slice(0, 10)
                 const last = groups[groups.length - 1]
                 if (last && last.day === day) last.txns.push(txn)
@@ -249,7 +256,7 @@ export function Home() {
         )}
 
         {app.prefs.spendingInsights && (
-          <section className="px-4 py-5">
+          <section className="px-4 py-5" data-testid="spending-insights-home">
             <Link to="/insights" className="block rounded-xl bg-[var(--pink-soft)] p-4 text-[var(--text)]">
               <span className="rounded-full bg-[var(--accent)] px-2 py-0.5 text-[0.7rem] font-bold text-[var(--on-accent)]">{t('look.new')}</span>
               <p className="mt-2 font-bold">{t('insights')}</p>

@@ -312,6 +312,8 @@
     "account_au": "澳大利亚账号需要 6 到 9 位数字。您输入了 {got} 位。",
     "account_uk": "英国账号需要 8 位数字。您输入了 {got} 位。",
     "paynow_mobile": "请使用以 8 或 9 开头的 8 位号码。",
+    "paynow_not_registered": "此号码未注册 PayNow。",
+    "paynow_not_registered_guide": "此手机号码未注册 PayNow。请核对号码后再试。点按返回可选择联系人或输入其他号码。",
     "nric": "请使用类似 S1234567A 的 NRIC。",
     "amount_positive": "请输入多于 S$0.00 的金额。",
     "amount_format": "请用数字输入金额，例如 50.00。",

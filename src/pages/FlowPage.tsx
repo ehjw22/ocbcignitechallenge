@@ -29,6 +29,7 @@ import { assessTransferRisk, candidateKeys, loadRiskConfig, type RiskLevel, type
 import { loadTransferHistory, recordTransfer } from '@/lib/transferHistory'
 import { buildBaseline } from '@/lib/transferBaseline'
 import { phoneScale } from '@/lib/present'
+import { preferGuidedErrors } from '@/lib/preferGuidedErrors'
 import { validateForm, type Issue } from '@/lib/validate'
 import { ScamSheet } from '@/components/ScamSheet'
 
@@ -45,6 +46,7 @@ export function FlowPage() {
   const practice = params.get('practice') === '1'
   const touring = params.get('tour') === '1'
   const demo = params.get('demo')
+  const compareScene = params.get('compare')
   const lang = app.prefs.language
   const t = (key: string, vars?: Record<string, string | number>) => translate(app.prefs.language, key, vars)
   const [form, setForm] = useState<Record<string, string>>({})
@@ -141,7 +143,12 @@ export function FlowPage() {
         sessionStorage.removeItem('ocbc-fill')
       }
     }
-    if (flow.id === 'paynow' && practice) {
+    if (flow.id === 'paynow' && compareScene === 'unregistered') {
+      next.to = '91239999'
+      next.proxy = 'mobile'
+      next.amount = '25.00'
+      next.from = deposits[0]?.id || next.from
+    } else if (flow.id === 'paynow' && practice) {
       const mei = app.profile.id === 'auntiemei' || app.profile.id === 'persona-mei' || app.payees.some((payee) => payee.name === 'Tan Wei Ming')
       next.to = mei ? '98765432' : '91234567'
     }
@@ -153,7 +160,19 @@ export function FlowPage() {
     const fromBal = app.balances[next.from || deposits[0]?.id || '360'] ?? 0
     const fillStep = filled.length ? firstFillWizardStep(flow.id, next, fromBal, app.limit, app.payees, filled) : 0
     // PayNow has a single review screen (stage 'review'), so a filled form opens on the amount step; Next then runs the scam check.
-    setWstep(flow.id === 'paynow' && practice ? 1 : flow.id === 'paynow' ? Math.min(fillStep, 1) : fillStep)
+    const paynowStart =
+      flow.id === 'paynow' && compareScene === 'unregistered' ? 1
+        : flow.id === 'paynow' && practice ? 1
+          : flow.id === 'paynow' ? Math.min(fillStep, 1)
+            : fillStep
+    setWstep(paynowStart)
+    if (flow.id === 'paynow' && compareScene === 'unregistered') {
+      const fromBal = app.balances[next.from || deposits[0]?.id || '360'] ?? 0
+      const found = validateForm(flow.id, next, fromBal, app.payees, app.limit)
+      setIssues(found.filter((item) => item.field === 'to'))
+      setTouched(new Set(['to', 'amount']))
+      setContinueTried(true)
+    }
     if (filled.length) window.setTimeout(() => sessionStorage.removeItem('ocbc-fill'), 0)
     if (demo === 'mei' && flow.id === 'overseas') {
       const found = validateForm(flow.id, next, app.balances['360'] ?? 0, app.payees)
@@ -162,10 +181,12 @@ export function FlowPage() {
         app.setAnnounce(translate(app.prefs.language, `errors.${found[0].code}`, found[0].params))
         app.setStep('account')
       }
-    } else setIssues([])
+    } else if (!(flow.id === 'paynow' && compareScene === 'unregistered')) {
+      setIssues([])
+    }
     // Reset the form when the journey or practice flag changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [flowId, practice, demo])
+  }, [flowId, practice, demo, compareScene])
 
   useEffect(() => {
     guided.current = false
@@ -440,6 +461,9 @@ export function FlowPage() {
     if (field && params.field) params.field = t(field.label)
     if (issue.code === 'insufficient') params.available = formatMoney(Number(issue.params?.available ?? balance), lang)
     if (issue.code === 'daily_limit') params.limit = formatMoney(Number(issue.params?.limit ?? app.limit), lang)
+    if (issue.code === 'paynow_not_registered') {
+      return preferGuidedErrors(app.prefs) ? t('errors.paynow_not_registered_guide') : t('errors.paynow_not_registered')
+    }
     return t(`errors.${issue.code}`, params)
   }
   // Message above Next. Errors already shown under their own field on this screen aren't repeated here.
@@ -886,8 +910,8 @@ export function FlowPage() {
             {!(flow.id === 'paynow' && directory && wstep === 0 && (!practice || guideOn)) && (
             <>
             {/* Errors left over (e.g. from a field on another step) use the same red box as the field errors. PayNow keeps its own amount-screen style. */}
-            {showContinueMessage && continueText && (engaged || showHiddenErrors) && flow.id !== 'paynow' ? (
-              <FieldError>{continueText}</FieldError>
+            {showContinueMessage && continueText && (engaged || showHiddenErrors) && (flow.id !== 'paynow' || preferGuidedErrors(app.prefs)) ? (
+              <FieldError id={flow.id === 'paynow' && wstep === 1 ? 'pay-alert' : undefined}>{continueText}</FieldError>
             ) : showContinueMessage && continueText && (
               <p aria-live="polite" id={flow.id === 'paynow' && wstep === 1 ? 'pay-alert' : undefined} className={`text-sm font-semibold ${engaged || showHiddenErrors ? 'text-[var(--danger)]' : 'text-[var(--muted)]'}`} role={engaged || showHiddenErrors ? 'alert' : 'status'}>
                 {continueText}

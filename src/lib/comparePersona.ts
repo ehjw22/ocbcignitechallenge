@@ -28,8 +28,12 @@ export function personaCustomSummary(prefs: Preferences, languageLabel?: string)
   const help = HELP_LABEL[prefs.helpPreference]
   const extras: string[] = []
   if (prefs.readAloud) extras.push('Read aloud on')
+  if (prefs.easierTapping) extras.push('Bigger buttons')
+  if (prefs.dyslexiaFont) extras.push('Dyslexia-friendly font')
+  if (prefs.letterSpacing !== 'normal' || prefs.lineHeight !== 'normal') extras.push('Extra reading spacing')
   if (prefs.scheme === 'dark') extras.push('Dark mode')
   if (prefs.spendingInsights) extras.push('Spending insights on')
+  else extras.push('Spending insights off')
   if (prefs.dialect === 'cantonese' && (prefs.language === 'zh' || prefs.language === 'zh-TW')) {
     extras.push('Cantonese voice')
   }

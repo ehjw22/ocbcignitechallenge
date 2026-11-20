@@ -59,7 +59,8 @@ export function validateForm(
   if (flowId === 'paynow' || flowId === 'topup') {
     const found = lookupPaynow(form.to || '', form.proxy || 'mobile')
     if (flowId === 'paynow' && found.status !== 'ok') {
-      issues.push(issue('to', form.proxy === 'nric' ? 'nric' : form.proxy === 'uen' ? 'uen' : 'paynow_mobile'))
+      if (found.status === 'unknown') issues.push(issue('to', 'paynow_not_registered'))
+      else issues.push(issue('to', form.proxy === 'nric' ? 'nric' : form.proxy === 'uen' ? 'uen' : 'paynow_mobile'))
     } else if (flowId === 'topup' && found.status !== 'ok') issues.push(issue('to', 'paynow_mobile'))
     const amount = amountIssue('amount', form.amount)
     if (amount) issues.push(amount)
