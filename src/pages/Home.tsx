@@ -107,7 +107,7 @@ export function Home() {
           </div>
         </section>
 
-        <section className={`relative z-10 px-4 ${app.prefs.textSize >= 22 ? 'mt-3' : '-mt-10'}`} data-guide="home-shortcuts">
+        <section className={`relative z-10 px-4 ${app.prefs.textSize >= 20 ? 'mt-3' : '-mt-10'}`} data-guide="home-shortcuts">
           <div className="flex rounded-xl border border-[var(--line)] bg-[var(--card)] px-1 py-3 shadow-[0_8px_24px_rgba(47,53,61,0.12)]">
             <div className="grid min-w-0 flex-1 grid-cols-3 gap-y-3">
               {app.prefs.shortcuts.filter((id) => {

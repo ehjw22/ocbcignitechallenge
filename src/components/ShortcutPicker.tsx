@@ -184,7 +184,7 @@ export function ShortcutPicker({ order, onChange }: { order: string[]; onChange:
   const suppress = useRef(false)
   const selected = order.filter((id, index) => id && order.indexOf(id) === index).slice(0, SLOT_COUNT)
   const full = selected.length >= SLOT_COUNT
-  const large = app.prefs.textSize >= 24
+  const large = app.prefs.textSize >= 21
   const slots = Array.from({ length: SLOT_COUNT }, (_, index) => selected[index] ?? null)
   const sensors = useSensors(
     useSensor(MousePointerSensor, { activationConstraint: { distance: 8 } }),

@@ -9,7 +9,7 @@ import { loadTourProgress } from '@/lib/tourProgress'
 import { nextPracticeJourney, JOURNEY_TOUR_IDS } from '@/lib/recommendedTours'
 import { practisedJourneyCount } from '@/lib/tourTracking'
 import { themeVars } from '@/lib/accent'
-import { readingComfortVars } from '@/lib/readingComfort'
+import { readingComfortVars, textDisplayVars } from '@/lib/readingComfort'
 import { ReadingRuler } from '@/components/ReadingRuler'
 import { AppTour } from './AppTour'
 import { FlowTour } from './TourFrame'
@@ -191,7 +191,7 @@ export function PhoneFrame({ children }: { children: React.ReactNode }) {
   const { prefs, announce } = useApp()
   const { scale, full, present } = usePhoneScale()
   const theme = themeVars(prefs)
-  const comfort = readingComfortVars(prefs)
+  const comfort = { ...readingComfortVars(prefs), ...textDisplayVars(prefs.textSize) }
   const stageBg = present && !full ? '#0f1316' : theme['--bg']
   return (
     <div className="phone-stage" style={{ background: full ? theme['--bg'] : stageBg, minHeight: full ? undefined : '100dvh', display: full ? undefined : 'flex', flexDirection: full ? undefined : 'column', alignItems: full ? undefined : 'center', justifyContent: full ? undefined : 'center' }}>

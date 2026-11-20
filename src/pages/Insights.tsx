@@ -138,7 +138,7 @@ export function Insights() {
           </p>
         )}
         {note && <p className="rounded-lg bg-[var(--soft)] p-2 text-sm" role="status">{note}</p>}
-        <div className={`grid gap-2 ${app.prefs.textSize >= 22 ? 'grid-cols-1' : 'grid-cols-2'}`} data-guide="insights-filters">
+        <div className={`grid gap-2 ${app.prefs.textSize >= 20 ? 'grid-cols-1' : 'grid-cols-2'}`} data-guide="insights-filters">
           <label className="block min-w-0 text-sm font-semibold">
             {t('insight.account')}
             <select className="ocbc-field mt-1" value={accountId} onChange={(event) => setAccountId(event.target.value)}>

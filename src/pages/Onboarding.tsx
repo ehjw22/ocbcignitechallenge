@@ -70,7 +70,7 @@ export function Onboarding() {
               id="text-size"
               type="range"
               min={16}
-              max={24}
+              max={21}
               step={1}
               value={prefs.textSize}
               onChange={(event) => updatePrefs({ textSize: Number(event.target.value) })}

@@ -68,7 +68,7 @@ export function peekNudge(userId: string, prefs: Preferences): ActiveNudge | nul
   if (state.validationFails >= 2 && !dismissedRecently(state, 'showHow')) {
     return { kind: 'showHow' }
   }
-  if (state.speakTaps >= 3 && prefs.textSize < 22 && !dismissedRecently(state, 'biggerText')) {
+  if (state.speakTaps >= 3 && prefs.textSize < 20 && !dismissedRecently(state, 'biggerText')) {
     return { kind: 'biggerText' }
   }
   if (state.flowBacks >= 2 && !prefs.easierTapping && !dismissedRecently(state, 'easierTap')) {

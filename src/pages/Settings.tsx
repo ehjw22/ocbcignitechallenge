@@ -6,11 +6,12 @@ import { Switch } from '@/components/Switch'
 import { ShortcutPicker } from '@/components/ShortcutPicker'
 import { SpeechSpeed } from '@/components/SpeechSpeed'
 import { VoiceLimitChoices } from '@/components/VoiceLimitChoices'
+import { VoiceTransferAuthSheet } from '@/components/VoiceTransferAuthSheet'
 import { clampVoiceTransferLimit, formatVoiceTransferAmount } from '@/lib/voiceTransfer'
 import { Page } from '@/components/Shell'
 import { useApp } from '@/context/AppContext'
 import { translate } from '@/i18n'
-import { prepareBackground } from '@/lib/contrast'
+import { TEXT_SIZE_MAX } from '@/lib/readingComfort'
 import { beginShowHow, takeShowHow } from '@/lib/showHow'
 import { getFlowTour, guideById, startGuide, subscribeFlowTour } from '@/lib/guide'
 import { markTourDropped, markTourFinished, markTourOpened, markTourStep } from '@/lib/tourTracking'
@@ -96,6 +97,8 @@ export function Settings() {
   const [greet, setGreet] = useState(app.profile.shortName)
   const [resetOpen, setResetOpen] = useState(false)
   const [undo, setUndo] = useState<PresetSnapshot | null>(null)
+  const [pendingConfirmMode, setPendingConfirmMode] = useState<VoiceTransferConfirm | null>(null)
+  const [confirmModeAuthOpen, setConfirmModeAuthOpen] = useState(false)
   const applyPreset = (id: PresetId) => {
     setUndo(snapshotPrefs(app.prefs))
     app.updatePrefs(patchForPreset(id))
@@ -186,7 +189,7 @@ export function Settings() {
   const theme = THEMES.find((item) => item.id === app.prefs.theme)
   const previewName = (app.profile.shortName || '').toLowerCase().includes('arif') ? 'Siti Aminah' : 'Tan Wei Ming'
   const textSummary = [
-    app.prefs.textSize >= 22 ? t('settings.large') : `${app.prefs.textSize}px`,
+    app.prefs.textSize >= 20 ? t('settings.large') : `${app.prefs.textSize}px`,
     app.prefs.boldText ? t('onboarding.bold') : '',
     app.prefs.highContrast ? t('onboarding.contrast') : '',
     app.prefs.dyslexiaFont ? t('settings.dyslexiaFont') : '',
@@ -293,17 +296,47 @@ export function Settings() {
             offLabel={t('settings.voiceLimitOff')}
             label={t('settings.voiceLimit')}
             confirmRaise
-            confirmTitle={t('settings.voiceLimitRaise')}
-            confirmBody={t('settings.voiceLimitRaiseBody')}
-            confirmAction={t('settings.voiceLimitConfirm')}
-            cancelLabel={t('cancel')}
+            confirmMode={app.prefs.voiceTransferConfirm}
+            easierTapping={app.prefs.easierTapping}
+            readAloud={app.prefs.readAloud}
+            practice
+            t={t}
+          />
+          <VoiceTransferAuthSheet
+            open={confirmModeAuthOpen}
+            confirmMode={app.prefs.voiceTransferConfirm}
+            easierTapping={app.prefs.easierTapping}
+            readAloud={app.prefs.readAloud}
+            practice
+            t={t}
+            onClose={() => {
+              setConfirmModeAuthOpen(false)
+              setPendingConfirmMode(null)
+            }}
+            onVerified={() => {
+              if (pendingConfirmMode) app.updatePrefs({ voiceTransferConfirm: pendingConfirmMode })
+              setConfirmModeAuthOpen(false)
+              setPendingConfirmMode(null)
+            }}
+            onLocked={() => {
+              setConfirmModeAuthOpen(false)
+              setPendingConfirmMode(null)
+            }}
           />
           <div className="mt-4 border-t border-[var(--line)] pt-4">
             <p className="mb-2 font-semibold">{t('settings.voiceTransferConfirm')}</p>
             <p className="mb-2 text-sm font-normal leading-snug text-[var(--muted)]">{t('settings.voiceTransferConfirmBody')}</p>
             <div className="grid gap-2" role="radiogroup" aria-label={t('settings.voiceTransferConfirm')}>
               {(['faceId', 'pin'] as VoiceTransferConfirm[]).map((mode) => (
-                <Choice key={mode} selected={app.prefs.voiceTransferConfirm === mode} onClick={() => app.updatePrefs({ voiceTransferConfirm: mode })}>
+                <Choice
+                  key={mode}
+                  selected={app.prefs.voiceTransferConfirm === mode}
+                  onClick={() => {
+                    if (mode === app.prefs.voiceTransferConfirm) return
+                    setPendingConfirmMode(mode)
+                    setConfirmModeAuthOpen(true)
+                  }}
+                >
                   {t(mode === 'faceId' ? 'settings.voiceConfirmFace' : 'settings.voiceConfirmPin')}
                 </Choice>
               ))}
@@ -336,7 +369,7 @@ export function Settings() {
           <HomePreview />
           <label htmlFor="size" className="block font-semibold">
             {t('settings.textSize')}: {app.prefs.textSize}px
-            <input id="size" type="range" min={16} max={24} value={app.prefs.textSize} onChange={(event) => app.updatePrefs({ textSize: Number(event.target.value) })} className="mt-2 w-full" />
+            <input id="size" type="range" min={16} max={TEXT_SIZE_MAX} value={app.prefs.textSize} onChange={(event) => app.updatePrefs({ textSize: Number(event.target.value) })} className="mt-2 w-full" />
           </label>
           <div className="mt-3 flex min-h-11 items-center justify-between gap-3">
             <span className="min-w-0 font-semibold">{t('onboarding.bold')}</span>
@@ -392,33 +425,6 @@ export function Settings() {
             {t('themes.accent')}
             <input id="accent" type="color" value={app.prefs.accent} onChange={(event) => app.updatePrefs({ theme: 'custom', accent: event.target.value })} />
           </label>
-          <div className="mt-4">
-            <p className="mb-2 font-semibold">{t('themes.background')}</p>
-            <label className="inline-flex min-h-12 cursor-pointer items-center rounded-xl bg-[var(--accent)] px-3 text-[var(--on-accent)]">
-              {t('themes.upload')}
-              <input
-                type="file"
-                accept="image/*"
-                className="sr-only"
-                onChange={async (event) => {
-                  const file = event.target.files?.[0]
-                  if (!file) return
-                  try {
-                    const result = await prepareBackground(file)
-                    app.updatePrefs({ backgroundImage: result.dataUrl, backgroundOverlay: result.overlay, contrastWarning: result.warn })
-                  } catch {
-                    app.setNotice(t('imageTooBig'))
-                  }
-                }}
-              />
-            </label>
-            {app.prefs.backgroundImage && (
-              <button type="button" className="ml-2 mt-2 min-h-12 rounded-xl border border-[var(--line)] bg-[var(--card)] px-3" onClick={() => app.updatePrefs({ backgroundImage: null, contrastWarning: false })}>
-                {t('themes.removePhoto')}
-              </button>
-            )}
-            {app.prefs.contrastWarning && <p className="mt-2" role="status">{t('contrastWarn')}</p>}
-          </div>
         </Section>
 
         <Section only={panel} onResult={remember}
