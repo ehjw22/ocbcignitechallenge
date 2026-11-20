@@ -1366,9 +1366,7 @@
   "present": {
     "enterMode": "⤢ விளக்குதல் (Present)",
     "exitMode": "விளக்குதலை முடிக்கவும்",
-    "exitLink": "வெளியேறு",
-    "tapsOn": "தொடுதல் அடையாளம் ஆன்",
-    "tapsOff": "தொடுதல் அடையாளம் ஆஃப்"
+    "exitLink": "வெளியேறு"
   },
   "languages": {
     "moreLanguages": "மேலும் மொழிகள்",

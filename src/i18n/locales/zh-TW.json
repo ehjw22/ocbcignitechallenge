@@ -1364,9 +1364,7 @@
   "present": {
     "enterMode": "⤢ 演示模式",
     "exitMode": "退出演示模式",
-    "exitLink": "退出",
-    "tapsOn": "點擊高亮：開",
-    "tapsOff": "點擊高亮：關"
+    "exitLink": "退出"
   },
   "languages": {
     "moreLanguages": "更多語言",

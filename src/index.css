@@ -302,20 +302,6 @@ html[data-bold="1"] #customer-app button {
   font-size: clamp(11px, 3.2vw, 13px);
 }
 
-.present-tap {
-  position: absolute;
-  width: 36px;
-  height: 36px;
-  border-radius: 999px;
-  background: rgba(227, 6, 19, 0.35);
-  animation: present-tap-fade 0.4s ease-out forwards;
-}
-
-@keyframes present-tap-fade {
-  from { opacity: 1; transform: scale(1); }
-  to { opacity: 0; transform: scale(1.2); }
-}
-
 .phone-notch {
   position: absolute;
   top: 8px;

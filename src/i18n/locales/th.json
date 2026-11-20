@@ -1365,9 +1365,7 @@
   "present": {
     "enterMode": "⤢ นำเสนอ",
     "exitMode": "ออกจากโหมดนำเสนอ",
-    "exitLink": "ออก",
-    "tapsOn": "เปิดแสดงรอยแตะ",
-    "tapsOff": "ปิดแสดงรอยแตะ"
+    "exitLink": "ออก"
   },
   "languages": {
     "moreLanguages": "More languages",

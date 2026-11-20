@@ -1365,9 +1365,7 @@
   "present": {
     "enterMode": "⤢ 화면 키우기",
     "exitMode": "원래대로 가기",
-    "exitLink": "나가기",
-    "tapsOn": "터치 표시 켜기",
-    "tapsOff": "터치 표시 끄기"
+    "exitLink": "나가기"
   },
   "languages": {
     "moreLanguages": "More languages",

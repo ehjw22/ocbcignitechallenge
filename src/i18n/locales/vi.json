@@ -1365,9 +1365,7 @@
   "present": {
     "enterMode": "⤢ Trình bày",
     "exitMode": "Thoát trình bày",
-    "exitLink": "Thoát",
-    "tapsOn": "Bật đánh dấu thao tác chạm",
-    "tapsOff": "Tắt đánh dấu thao tác chạm"
+    "exitLink": "Thoát"
   },
   "languages": {
     "moreLanguages": "More languages",
