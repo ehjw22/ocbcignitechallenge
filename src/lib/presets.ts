@@ -34,7 +34,7 @@ const STANDARD: Preferences = {
 
 export const PRESET_PATCHES: Record<PresetId, Partial<Preferences>> = {
   easyReading: {
-    textSize: 22,
+    textSize: 19,
     boldText: true,
     highContrast: true,
     easierTapping: true,
@@ -53,7 +53,7 @@ export const PRESET_PATCHES: Record<PresetId, Partial<Preferences>> = {
     dyslexiaFont: STANDARD.dyslexiaFont,
   },
   lowVision: {
-    textSize: 24,
+    textSize: 21,
     boldText: true,
     highContrast: true,
     readAloud: true,
@@ -65,7 +65,7 @@ export const PRESET_PATCHES: Record<PresetId, Partial<Preferences>> = {
     dyslexiaFont: true,
     letterSpacing: 'wider',
     lineHeight: 'roomy',
-    textSize: 20,
+    textSize: 18,
     readAloud: true,
     speechRate: 0.9,
     boldText: false,

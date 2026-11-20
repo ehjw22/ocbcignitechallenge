@@ -62,7 +62,8 @@ export function Join() {
           {step === 0 && (
             <section>
               <h2 id="quiz-title" className="text-xl font-semibold">{t('onboarding.language')}</h2>
-              <p className="mt-1 text-sm text-[var(--muted)]">{t('onboarding.minutes')}</p>
+              <p className="mt-1 text-sm text-[var(--muted)]">{t('onboarding.languageBody')}</p>
+              <p className="text-sm text-[var(--muted)]">{t('onboarding.minutes')}</p>
               <div className="mt-3">
                 <LanguagePicker
                   language={app.prefs.language}
@@ -112,6 +113,7 @@ export function Join() {
           {step === 2 && (
             <section className="space-y-3">
               <h2 id="quiz-title" className="text-xl font-semibold">{t('onboarding.text')}</h2>
+              <p className="text-sm text-[var(--muted)]">{t('onboarding.textBody')}</p>
               <div className="flex flex-wrap gap-2">
                 {([
                   ['easyReading', 'customise.presetEasy'],
@@ -127,7 +129,7 @@ export function Join() {
               <HomePreview />
               <label className="block font-semibold" htmlFor="quiz-size">
                 {app.prefs.textSize}px
-                <input id="quiz-size" type="range" min={16} max={24} step={1} value={app.prefs.textSize} onChange={(event) => app.updatePrefs({ textSize: Number(event.target.value) })} className="mt-2 w-full" />
+                <input id="quiz-size" type="range" min={16} max={21} step={1} value={app.prefs.textSize} onChange={(event) => app.updatePrefs({ textSize: Number(event.target.value) })} className="mt-2 w-full" />
               </label>
               <ReadingComfortControls headingId="quiz-reading-comfort" />
               <div className="flex min-h-11 items-center justify-between gap-3">
@@ -220,13 +222,13 @@ export function Join() {
           )}
         </main>
         <div className="keep-words sticky bottom-0 grid shrink-0 grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.35fr)] gap-2 border-t border-[var(--line)] bg-[var(--bg)] px-4 py-3">
-          <button type="button" className="min-h-11 rounded-xl border border-[var(--line)] bg-[var(--card)] px-2 font-semibold leading-tight text-[var(--text)]" onClick={() => (step === 0 ? app.logout() : setStep((value) => value - 1))}>
+          <button type="button" className="min-h-12 rounded-xl border border-[var(--line)] bg-[var(--card)] px-2 font-semibold leading-tight text-[var(--text)]" onClick={() => (step === 0 ? app.logout() : setStep((value) => value - 1))}>
             {t('back')}
           </button>
-          <button type="button" className="min-h-11 rounded-xl border border-[var(--line)] bg-[var(--card)] px-2 font-semibold leading-tight text-[var(--text)]" onClick={() => (step === STEPS - 1 ? finish(false) : setStep((value) => value + 1))}>
+          <button type="button" className="min-h-12 rounded-xl border border-[var(--line)] bg-[var(--card)] px-2 font-semibold leading-tight text-[var(--text)]" onClick={() => (step === STEPS - 1 ? finish(false) : setStep((value) => value + 1))}>
             {t('skipStep')}
           </button>
-          <button type="button" className="min-h-11 rounded-xl bg-[var(--accent)] px-2 font-semibold leading-tight text-[var(--on-accent)] disabled:opacity-50" disabled={step === STEPS - 1 && picked.length !== 6} onClick={() => (step === STEPS - 1 ? finish(true) : setStep((value) => value + 1))}>
+          <button type="button" className="min-h-12 rounded-xl bg-[var(--accent)] px-2 font-semibold leading-tight text-[var(--on-accent)] disabled:opacity-50" disabled={step === STEPS - 1 && picked.length !== 3} onClick={() => (step === STEPS - 1 ? finish(true) : setStep((value) => value + 1))}>
             {step === STEPS - 1 ? t('done') : t('continue')}
           </button>
         </div>

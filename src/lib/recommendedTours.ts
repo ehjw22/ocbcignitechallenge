@@ -33,7 +33,7 @@ export function recommendedTourIds(prefs: Preferences): string[] {
   if (prefs.shortcuts.includes('transfer')) bump('transfer', 2)
   if (prefs.shortcuts.includes('insights')) bump('insights', 2)
   if (prefs.voiceTransferLimit > 0) bump('transfer', 1)
-  if (prefs.easierTapping || prefs.textSize >= 22) bump('settings', 1)
+  if (prefs.easierTapping || prefs.textSize >= 20) bump('settings', 1)
 
   return [...scores.entries()]
     .sort((a, b) => b[1] - a[1])
