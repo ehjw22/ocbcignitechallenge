@@ -1,13 +1,16 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { X } from 'lucide-react'
 import { useApp } from '@/context/AppContext'
 import { translate } from '@/i18n'
-import { normalizeLineHeight, rulerBandHeightPx } from '@/lib/readingComfort'
-
-function rootScale(root: HTMLElement) {
-  const rect = root.getBoundingClientRect()
-  return rect.height / root.offsetHeight || 1
-}
+import {
+  clampRulerCenterY,
+  normalizeLineHeight,
+  pointerInsideRoot,
+  rulerBandHeightPx,
+  rulerBandTop,
+  rulerLocalYFromClient,
+  rulerRootScale,
+} from '@/lib/readingComfort'
 
 export function ReadingRuler() {
   const app = useApp()
@@ -15,19 +18,17 @@ export function ReadingRuler() {
   const t = (key: string) => translate(app.prefs.language, key)
   const bandH = rulerBandHeightPx(app.prefs.textSize, normalizeLineHeight(app.prefs.lineHeight))
   const [y, setY] = useState(120)
-  const targetRef = useRef(120)
-  const rafRef = useRef(0)
 
-  const positionFromClient = useCallback(
-    (clientY: number) => {
+  const applyClientY = useCallback(
+    (clientX: number, clientY: number, dragging: boolean) => {
       const root = document.getElementById('customer-root')
       if (!root) return
       const rect = root.getBoundingClientRect()
-      const scale = rootScale(root)
-      const local = (clientY - rect.top) / scale
-      const half = bandH / 2
-      const maxY = Math.max(half, root.clientHeight - half)
-      targetRef.current = Math.min(Math.max(local, half), maxY)
+      const inside = pointerInsideRoot(clientX, clientY, rect.left, rect.top, rect.width, rect.height)
+      if (!inside && !dragging) return
+      const scale = rulerRootScale(rect.height, root.offsetHeight)
+      const local = rulerLocalYFromClient(clientY, rect.top, scale)
+      setY(clampRulerCenterY(local, bandH, root.clientHeight))
     },
     [bandH],
   )
@@ -37,35 +38,21 @@ export function ReadingRuler() {
     const root = document.getElementById('customer-root')
     if (!root) return
     const mid = root.clientHeight / 2
-    targetRef.current = mid
-    setY(mid)
+    setY(clampRulerCenterY(mid, bandH, root.clientHeight))
   }, [on, bandH])
 
   useEffect(() => {
     if (!on) return
-    const tick = () => {
-      setY((current) => {
-        const next = targetRef.current
-        const diff = next - current
-        if (Math.abs(diff) < 0.5) return next
-        return current + diff * 0.35
-      })
-      rafRef.current = window.requestAnimationFrame(tick)
+    const onPointer = (event: PointerEvent) => {
+      applyClientY(event.clientX, event.clientY, event.buttons !== 0)
     }
-    rafRef.current = window.requestAnimationFrame(tick)
-    return () => window.cancelAnimationFrame(rafRef.current)
-  }, [on])
-
-  useEffect(() => {
-    if (!on) return
-    const onMove = (event: PointerEvent) => positionFromClient(event.clientY)
-    window.addEventListener('pointermove', onMove, { passive: true })
-    window.addEventListener('pointerdown', onMove, { passive: true })
+    window.addEventListener('pointermove', onPointer, { passive: true })
+    window.addEventListener('pointerdown', onPointer, { passive: true })
     return () => {
-      window.removeEventListener('pointermove', onMove)
-      window.removeEventListener('pointerdown', onMove)
+      window.removeEventListener('pointermove', onPointer)
+      window.removeEventListener('pointerdown', onPointer)
     }
-  }, [on, positionFromClient])
+  }, [on, applyClientY])
 
   useEffect(() => {
     if (!on) return
@@ -75,10 +62,8 @@ export function ReadingRuler() {
       event.preventDefault()
       const root = document.getElementById('customer-root')
       if (!root) return
-      const half = bandH / 2
-      const maxY = Math.max(half, root.clientHeight - half)
       const delta = event.key === 'ArrowUp' ? -step : step
-      targetRef.current = Math.min(Math.max(targetRef.current + delta, half), maxY)
+      setY((current) => clampRulerCenterY(current + delta, bandH, root.clientHeight))
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
@@ -86,7 +71,7 @@ export function ReadingRuler() {
 
   if (!on) return null
 
-  const top = Math.max(0, y - bandH / 2)
+  const top = rulerBandTop(y, bandH)
 
   return (
     <div
@@ -94,12 +79,9 @@ export function ReadingRuler() {
       aria-hidden
       data-reading-ruler=""
     >
-      <div className="reading-ruler-dim absolute inset-x-0 top-0 bg-black/18 transition-[height] duration-75 ease-out" style={{ height: top }} />
-      <div
-        className="reading-ruler-band absolute inset-x-0 border-y-2 border-[var(--accent)] bg-[color-mix(in_srgb,var(--accent)_14%,var(--card))] transition-[top] duration-75 ease-out"
-        style={{ top, height: bandH }}
-      />
-      <div className="reading-ruler-dim absolute inset-x-0 bg-black/18 transition-[top] duration-75 ease-out" style={{ top: top + bandH, bottom: 0 }} />
+      <div className="reading-ruler-dim absolute inset-x-0 top-0" style={{ height: top }} />
+      <div className="reading-ruler-band absolute inset-x-0" style={{ top, height: bandH }} />
+      <div className="reading-ruler-dim absolute inset-x-0 bottom-0" style={{ top: top + bandH }} />
       <button
         type="button"
         className="pointer-events-auto absolute right-2 top-2 z-[1] flex h-11 w-11 items-center justify-center rounded-full border border-[var(--line)] bg-[var(--card)] text-[var(--text)] shadow-sm"
