@@ -17,6 +17,7 @@ import { Settings } from '@/pages/Settings'
 import { Welcome } from '@/pages/Welcome'
 import { AccountDetail, NotFound, Notifications, Profile } from '@/pages/DetailPages'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
+import { Compare } from '@/pages/Compare'
 
 function Gate({ children }: { children: ReactNode }) {
   const { sessionId, prefs } = useApp()
@@ -79,6 +80,7 @@ function Customer() {
 export default function App() {
   const location = useLocation()
   if (location.pathname === '/staff') return <Navigate to="/admin" replace />
+  if (location.pathname.startsWith('/compare')) return <Compare />
   if (location.pathname.startsWith('/admin')) {
     return (
       <ErrorBoundary staff>
