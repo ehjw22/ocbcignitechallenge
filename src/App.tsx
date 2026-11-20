@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { useEffect, type ReactNode } from 'react'
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { PhoneFrame } from '@/components/Shell'
 import { JudgeBootstrap } from '@/components/JudgeBootstrap'
@@ -17,7 +17,14 @@ import { Settings } from '@/pages/Settings'
 import { Welcome } from '@/pages/Welcome'
 import { AccountDetail, NotFound, Notifications, Profile } from '@/pages/DetailPages'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
-import { Compare } from '@/pages/Compare'
+function CompareHardRedirect() {
+  const location = useLocation()
+  useEffect(() => {
+    const url = `${location.pathname}${location.search}${location.hash}`
+    window.location.replace(url)
+  }, [location.hash, location.pathname, location.search])
+  return <p className="p-4 text-center text-sm text-zinc-600">Opening compare view…</p>
+}
 
 function Gate({ children }: { children: ReactNode }) {
   const { sessionId, prefs } = useApp()
@@ -80,7 +87,7 @@ function Customer() {
 export default function App() {
   const location = useLocation()
   if (location.pathname === '/staff') return <Navigate to="/admin" replace />
-  if (location.pathname.startsWith('/compare')) return <Compare />
+  if (location.pathname.startsWith('/compare')) return <CompareHardRedirect />
   if (location.pathname.startsWith('/admin')) {
     return (
       <ErrorBoundary staff>

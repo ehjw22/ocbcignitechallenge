@@ -394,9 +394,9 @@ export function Admin() {
             })}
           </nav>
           <div className="px-3 pb-2">
-            <Link to="/compare?present=1" className="block rounded-lg border border-white/10 px-3 py-2 text-center text-xs font-semibold text-zinc-300 hover:bg-white/5">
+            <a href="/compare?present=1" className="block rounded-lg border border-white/10 px-3 py-2 text-center text-xs font-semibold text-zinc-300 hover:bg-white/5">
               Side-by-side compare
-            </Link>
+            </a>
           </div>
           <div className="border-t border-white/10 p-4">
             <div className="flex items-center gap-2">
