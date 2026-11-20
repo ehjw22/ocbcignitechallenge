@@ -1365,9 +1365,7 @@
   "present": {
     "enterMode": "⤢ Presentasi",
     "exitMode": "Keluar presentasi",
-    "exitLink": "Keluar",
-    "tapsOn": "Sorotan sentuh aktif",
-    "tapsOff": "Sorotan sentuh mati"
+    "exitLink": "Keluar"
   },
   "languages": {
     "moreLanguages": "More languages",

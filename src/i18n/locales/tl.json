@@ -1365,9 +1365,7 @@
   "present": {
     "enterMode": "⤢ I-present",
     "exitMode": "Lumabas sa pag-present",
-    "exitLink": "Lumabas",
-    "tapsOn": "Naka-on ang highlight sa pag-tap",
-    "tapsOff": "Naka-off ang highlight sa pag-tap"
+    "exitLink": "Lumabas"
   },
   "languages": {
     "previewPreviewPill": "Preview",

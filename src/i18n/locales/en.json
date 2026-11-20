@@ -1381,9 +1381,7 @@
   "present": {
     "enterMode": "⤢ Present",
     "exitMode": "Exit present",
-    "exitLink": "Exit",
-    "tapsOn": "Tap highlight on",
-    "tapsOff": "Tap highlight off"
+    "exitLink": "Exit"
   },
   "languages": {
     "moreLanguages": "More languages",

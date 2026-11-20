@@ -1364,9 +1364,7 @@
   "present": {
     "enterMode": "⤢ Mod persembahan",
     "exitMode": "Keluar persembahan",
-    "exitLink": "Keluar",
-    "tapsOn": "Sorotan ketikan: hidup",
-    "tapsOff": "Sorotan ketikan: mati"
+    "exitLink": "Keluar"
   },
   "languages": {
     "moreLanguages": "Lagi bahasa",

@@ -1,7 +1,6 @@
 import { useEffect, useState, useSyncExternalStore } from 'react'
 
 const STORAGE_KEY = 'ocbc-present'
-const TAPS_KEY = 'ocbc-present-taps'
 
 let scaleSnapshot = 1
 
@@ -50,27 +49,6 @@ export function setPresent(on: boolean) {
 export function subscribePresent(listener: () => void) {
   listeners.add(listener)
   return () => listeners.delete(listener)
-}
-
-export function readTapsVisualizer() {
-  if (typeof window === 'undefined') return false
-  const params = new URLSearchParams(window.location.search)
-  if (params.get('taps') === '1') return true
-  try {
-    return sessionStorage.getItem(TAPS_KEY) === '1'
-  } catch {
-    return false
-  }
-}
-
-export function toggleTapsVisualizer() {
-  const next = !readTapsVisualizer()
-  try {
-    if (next) sessionStorage.setItem(TAPS_KEY, '1')
-    else sessionStorage.removeItem(TAPS_KEY)
-  } catch { /* ignore */ }
-  notify()
-  return next
 }
 
 export function getPhoneScale() {
