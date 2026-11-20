@@ -36,6 +36,10 @@ export function ComparePhoneShell({
   const app = useApp()
   const theme = themeVars(app.prefs)
   const comfort = { ...readingComfortVars(app.prefs), ...textDisplayVars(app.prefs.textSize) }
+  const rootClass = [
+    'relative flex h-full flex-col',
+    app.prefs.dyslexiaFont ? 'dyslexia-font' : '',
+  ].filter(Boolean).join(' ')
   const t = (key: string) => translate(app.prefs.language, key)
   const aiFull = app.helpOpen && app.helpView === 'ai'
 
@@ -55,13 +59,19 @@ export function ComparePhoneShell({
         <div className="phone-notch" aria-hidden />
         <div
           id={rootId}
-          className="relative flex h-full flex-col"
+          className={rootClass}
           data-scheme={app.prefs.scheme}
           data-contrast={app.prefs.highContrast ? 'high' : 'normal'}
           data-bold={app.prefs.boldText ? 'true' : 'false'}
           data-cvd={app.prefs.colourVision}
+          data-easy-tap={app.prefs.easierTapping ? '1' : undefined}
           lang={app.prefs.language}
-          style={{ ...theme, ...comfort, paddingTop: '28px' }}
+          style={{
+            ...theme,
+            ...comfort,
+            paddingTop: '28px',
+            fontSize: `${app.prefs.textSize}px`,
+          }}
         >
           {children}
           {app.helpOpen && (

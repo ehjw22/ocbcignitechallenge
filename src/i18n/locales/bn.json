@@ -312,6 +312,8 @@
     "account_au": "An Australian account number needs 6 to 9 digits. You entered {got}.",
     "account_uk": "A UK account number needs 8 digits. You entered {got}.",
     "paynow_mobile": "৮ বা ৯ দিয়ে শুরু হওয়া ৮ সংখ্যার নম্বর ব্যবহার করুন।",
+    "paynow_not_registered": "This number isn't registered with PayNow.",
+    "paynow_not_registered_guide": "This mobile number isn't registered with PayNow. Please check the number and try again. Tap Back to pick a contact or enter a different number.",
     "nric": "S1234567A-এর মতো NRIC ব্যবহার করুন।",
     "amount_positive": "Enter an amount more than S$0.00.",
     "amount_format": "পরিমাণ সংখ্যায় লিখুন, যেমন 50.00।",

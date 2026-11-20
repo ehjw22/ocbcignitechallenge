@@ -1,6 +1,12 @@
 import type { CompareDemoId } from '@/lib/comparePersona'
 
-export type CompareStepId = 'home' | 'accounts' | 'paynow' | 'ollie' | 'settings'
+export type CompareStepId =
+  | 'home'
+  | 'accounts'
+  | 'paynow'
+  | 'paynow-error'
+  | 'ollie'
+  | 'settings'
 
 export interface CompareStep {
   id: CompareStepId
@@ -17,6 +23,7 @@ export const COMPARE_STEPS: CompareStep[] = [
   { id: 'home', title: 'Home', route: '/' },
   { id: 'accounts', title: 'Accounts & balance', route: '/accounts' },
   { id: 'paynow', title: 'PayNow (practice)', route: '/flow/paynow?practice=1' },
+  { id: 'paynow-error', title: 'PayNow mistake', route: '/flow/paynow?practice=1&compare=unregistered' },
   { id: 'ollie', title: 'Ollie assistant', route: '/', openHelp: 'ai' },
   { id: 'settings', title: 'Settings & customisation', route: '/settings' },
 ]
@@ -24,52 +31,62 @@ export const COMPARE_STEPS: CompareStep[] = [
 const CALLOUTS: Record<CompareStepId, Record<CompareDemoId, CompareCallout[]>> = {
   home: {
     auntiemei: [
-      { text: 'Home shortcuts match her setup — PayNow, overseas, and staff help stay one tap away.' },
-      { text: 'Chinese UI with guided help and read-aloud turned on in setup.' },
+      { text: 'Bigger text and buttons — easier tapping turned on.' },
+      { text: 'Simple home: three shortcuts, no spending insights (she opted out).' },
     ],
     arif: [
-      { text: 'Compact home layout shows fewer tiles so essentials stay in view.' },
-      { text: 'Dark theme and spending insights match his FRANK-style preferences.' },
+      { text: 'Dyslexia-friendly font with wider letter and line spacing.' },
+      { text: 'Detailed home with spending insights card on screen.' },
     ],
   },
   accounts: {
     auntiemei: [
-      { text: 'Balances and labels follow her Chinese language setting end to end.' },
-      { text: 'Her 360 account and overseas payees stay visible without extra digging.' },
+      { text: 'Balances only — no insights widgets (opted out).' },
+      { text: 'Chinese labels with guided-help setup.' },
     ],
     arif: [
-      { text: 'Same data model — FRANK account — but copy stays in English.' },
-      { text: 'Transaction list density follows the full-detail preference.' },
+      { text: 'Spending snapshot on the accounts list.' },
+      { text: 'Full transaction search and filters.' },
     ],
   },
   paynow: {
     auntiemei: [
-      { text: 'Practice mode — no real payment — with guided help ready if she hesitates.' },
-      { text: 'Labels and buttons use her Chinese UI; guided journeys can walk each field.' },
+      { text: 'Practice transfer — guided help is her default.' },
+      { text: 'Larger type on the amount step.' },
     ],
     arif: [
-      { text: 'Same PayNow journey with a leaner field layout (short detail mode).' },
-      { text: 'Ollie is the default help path instead of staff messaging.' },
+      { text: 'Same PayNow journey in English, compact layout.' },
+      { text: 'Open dyslexia font carries into the flow.' },
+    ],
+  },
+  'paynow-error': {
+    auntiemei: [
+      { text: 'Clear red box + icon: says the number is not on PayNow.' },
+      { text: 'Plain words on what to fix — in Chinese.' },
+    ],
+    arif: [
+      { text: 'Same wrong number — compact inline error.' },
+      { text: 'Standard styling, no guided error panel.' },
     ],
   },
   ollie: {
     auntiemei: [
-      { text: 'She chose guided help for transfers; Ollie still answers in Cantonese-friendly Chinese.' },
-      { text: 'Voice and read-aloud settings carry into the assistant panel.' },
+      { text: 'She chose guided step-by-step help for journeys.' },
+      { text: 'Read-aloud and Cantonese dialect in setup.' },
     ],
     arif: [
-      { text: 'AI-first help opens straight on Home — no extra taps through a menu.' },
-      { text: 'Suggested chips reflect his shortcuts (GIRO, goals, bills).' },
+      { text: 'AI help opens straight from Home.' },
+      { text: 'Full-detail answers with dyslexia-friendly text.' },
     ],
   },
   settings: {
     auntiemei: [
-      { text: 'Language, speech, and help preference are explicit — never inferred.' },
-      { text: 'Every payment and help option remains available; only presentation changes.' },
+      { text: '20px text · simple layout · insights off · bigger taps.' },
+      { text: 'Every option still available — presentation only.' },
     ],
     arif: [
-      { text: 'Theme, insights, and shortcut bar show what he opted into during setup.' },
-      { text: 'Same settings screens as Auntie Mei — different choices, same access.' },
+      { text: 'Dyslexia font · extra spacing · insights on · full layout.' },
+      { text: 'Same settings screens — different explicit choices.' },
     ],
   },
 }

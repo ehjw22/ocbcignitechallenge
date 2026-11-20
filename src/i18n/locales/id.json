@@ -312,6 +312,8 @@
     "account_au": "Nomor rekening Australia harus 6 sampai 9 angka. Yang Bapak atau Ibu ketik {got}.",
     "account_uk": "Nomor rekening Inggris harus 8 angka. Yang Bapak atau Ibu ketik {got}.",
     "paynow_mobile": "Gunakan nomor 8 digit yang dimulai dengan 8 atau 9.",
+    "paynow_not_registered": "Nomor ini tidak terdaftar di PayNow.",
+    "paynow_not_registered_guide": "Nomor ponsel ini tidak terdaftar di PayNow. Periksa nomornya dan coba lagi. Ketuk Kembali untuk memilih kontak atau memasukkan nomor lain.",
     "nric": "Gunakan NRIC seperti S1234567A.",
     "amount_positive": "Masukkan jumlah lebih dari S$0,00.",
     "amount_format": "Masukkan jumlah dalam angka, seperti 50.00.",
