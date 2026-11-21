@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { ArrowLeftRight, ChevronLeft, Gift, Headset, House, Sprout, X } from 'lucide-react'
 import { useApp } from '@/context/AppContext'
@@ -367,6 +367,11 @@ function HelpLayer() {
   useEffect(() => {
     if (!app.helpOpen) stopSpeaking()
   }, [app.helpOpen])
+  // Leaving a screen stops anything still being read aloud (page read-out, guided tour narration, Ollie, etc.).
+  // Layout effect, so it runs before the new screen's own effects start reading it aloud.
+  useLayoutEffect(() => {
+    stopSpeaking()
+  }, [location.pathname])
   useEffect(() => {
     const onCantonese = () => setNotice(translate(language, 'speech.cantoneseDown'))
     window.addEventListener('ocbc-cantonese', onCantonese)

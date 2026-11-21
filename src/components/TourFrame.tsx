@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useApp } from '@/context/AppContext'
 import { SpeakButton } from '@/components/SpeakButton'
 import { translate } from '@/i18n'
@@ -374,6 +374,22 @@ export function FlowTour() {
   const tour = useSyncExternalStore(subscribeFlowTour, getFlowTour, getFlowTour)
   const app = useApp()
   const navigate = useNavigate()
+  const location = useLocation()
+  // A guided tour belongs to the screen it started on. If the user leaves that screen (back arrow, bottom nav, …),
+  // end the tour so its card and narration don't carry on over the next screen.
+  const startedOn = useRef<{ guideId: string; path: string } | null>(null)
+  const guideId = tour?.guideId || ''
+  useEffect(() => {
+    if (!guideId) {
+      startedOn.current = null
+      return
+    }
+    if (startedOn.current?.guideId !== guideId) {
+      startedOn.current = { guideId, path: location.pathname }
+      return
+    }
+    if (startedOn.current.path !== location.pathname) moveFlowTour(-1)
+  }, [guideId, location.pathname])
   if (!tour) return null
   const current = tour.steps[tour.index]
   if (!current) return null
