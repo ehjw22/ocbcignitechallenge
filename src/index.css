@@ -70,16 +70,42 @@ html[data-bold="1"] #customer-app button {
   border-width: 2px;
   border-style: solid;
   border-color: transparent;
-  box-shadow: inset 0 0 0 1px #d9d9d9;
+  box-shadow: inset 0 0 0 1px var(--line, #d9d9d9);
   background: var(--card);
   color: var(--text);
-  transition: border-color 150ms ease, color 150ms ease, box-shadow 150ms ease;
+  transition: border-color 150ms ease, background-color 150ms ease, color 150ms ease, box-shadow 150ms ease;
 }
 
 .choice.is-on {
   border-color: var(--accent);
-  box-shadow: none;
+  background: color-mix(in srgb, var(--accent) 12%, var(--card));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent);
   font-weight: 700;
+}
+
+.choice.is-on .choice-label,
+.choice.is-on span {
+  font-weight: 700;
+}
+
+#customer-root .choice .choice-label {
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.reading-ruler-dim {
+  pointer-events: none;
+  background: rgba(0, 0, 0, 0.28);
+}
+
+.reading-ruler-band {
+  pointer-events: none;
+  background: transparent;
+  border-top: 2px solid var(--accent);
+  border-bottom: 2px solid var(--accent);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--accent) 22%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent);
 }
 
 .speak-btn {
@@ -295,20 +321,6 @@ html[data-bold="1"] #customer-app button {
   hyphens: auto;
   overflow-wrap: anywhere;
   font-size: clamp(11px, 3.2vw, 13px);
-}
-
-.present-tap {
-  position: absolute;
-  width: 36px;
-  height: 36px;
-  border-radius: 999px;
-  background: rgba(227, 6, 19, 0.35);
-  animation: present-tap-fade 0.4s ease-out forwards;
-}
-
-@keyframes present-tap-fade {
-  from { opacity: 1; transform: scale(1); }
-  to { opacity: 0; transform: scale(1.2); }
 }
 
 .phone-notch {
@@ -693,6 +705,44 @@ html[data-bold="1"] #customer-app button {
   border-radius: 2px;
 }
 
+#customer-root,
+.phone-frame [id^="compare-root-"] {
+  letter-spacing: var(--reading-letter-spacing, 0em);
+  word-spacing: var(--reading-word-spacing, 0em);
+  line-height: var(--reading-line-height, 1.4);
+}
+
+#customer-root :where(h1, .text-2xl) {
+  font-size: calc(var(--h1-em, 1.25) * 1em);
+}
+
+#customer-root :where(h2, .text-xl) {
+  font-size: calc(var(--h2-em, 1.125) * 1em);
+}
+
+#customer-root :where(h3, .text-lg) {
+  font-size: calc(var(--h3-em, 1.0625) * 1em);
+}
+
+#customer-root .money,
+#customer-root .phone-number,
+#customer-root .tabular-nums {
+  letter-spacing: calc(var(--reading-letter-spacing, 0em) * 0.35);
+  word-spacing: normal;
+}
+
+#customer-root .app-nav a span:last-child {
+  line-height: 1.15;
+}
+
+#customer-root :where(.leading-tight) {
+  line-height: calc(var(--reading-line-height, 1.4) * 0.9);
+}
+
+#customer-root :where(.leading-snug) {
+  line-height: calc(var(--reading-line-height, 1.4) * 0.95);
+}
+
 html.dyslexia-font,
 html.dyslexia-font body,
 html.dyslexia-font #customer-root,
@@ -704,9 +754,6 @@ html.dyslexia-font [data-tour-card],
 html.dyslexia-font [role="dialog"] {
   font-family: "OpenDyslexic", "Segoe UI", "Nirmala UI", "Leelawadee UI", "Malgun Gothic", "Yu Gothic UI",
     "Microsoft YaHei", "Microsoft JhengHei", sans-serif;
-  letter-spacing: 0.05em;
-  word-spacing: 0.1em;
-  line-height: 1.6;
   word-break: keep-all;
   overflow-wrap: normal;
   hyphens: manual;
@@ -760,9 +807,40 @@ html[data-easy-tap="1"] #customer-root .speak-btn {
   flex-basis: 48px;
 }
 
-html.dyslexia-font .money,
-html.dyslexia-font .phone-number,
-html.dyslexia-font .tabular-nums {
-  letter-spacing: 0.02em;
-  word-spacing: normal;
+.phone-frame [id^="compare-root-"].dyslexia-font,
+.phone-frame [id^="compare-root-"].dyslexia-font input,
+.phone-frame [id^="compare-root-"].dyslexia-font select,
+.phone-frame [id^="compare-root-"].dyslexia-font textarea,
+.phone-frame [id^="compare-root-"].dyslexia-font button,
+.phone-frame [id^="compare-root-"].dyslexia-font p,
+.phone-frame [id^="compare-root-"].dyslexia-font li,
+.phone-frame [id^="compare-root-"].dyslexia-font label,
+.phone-frame [id^="compare-root-"].dyslexia-font h1,
+.phone-frame [id^="compare-root-"].dyslexia-font h2,
+.phone-frame [id^="compare-root-"].dyslexia-font h3,
+.phone-frame [id^="compare-root-"].dyslexia-font span {
+  font-family: "OpenDyslexic", "Segoe UI", "Nirmala UI", "Leelawadee UI", "Malgun Gothic", "Yu Gothic UI",
+    "Microsoft YaHei", "Microsoft JhengHei", sans-serif;
+  word-break: keep-all;
+  overflow-wrap: normal;
+  hyphens: manual;
+}
+
+.phone-frame [id^="compare-root-"][data-easy-tap="1"] button,
+.phone-frame [id^="compare-root-"][data-easy-tap="1"] a,
+.phone-frame [id^="compare-root-"][data-easy-tap="1"] .tap,
+.phone-frame [id^="compare-root-"][data-easy-tap="1"] .ocbc-row,
+.phone-frame [id^="compare-root-"][data-easy-tap="1"] [role="radio"],
+.phone-frame [id^="compare-root-"][data-easy-tap="1"] [role="switch"],
+.phone-frame [id^="compare-root-"][data-easy-tap="1"] .app-nav a {
+  min-height: 52px;
+  min-width: 52px;
+  padding-top: 0.65rem;
+  padding-bottom: 0.65rem;
+}
+
+.phone-frame [id^="compare-root-"][data-easy-tap="1"] .ocbc-btn,
+.phone-frame [id^="compare-root-"][data-easy-tap="1"] .ocbc-btn-secondary {
+  min-height: 60px;
+  font-size: 1.05rem;
 }

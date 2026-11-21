@@ -96,7 +96,12 @@ export function StaffPanel() {
       )}
       <div role="radiogroup" aria-label={t('staff.method')} className={app.prefs.textSize >= 20 ? 'flex flex-col' : 'grid grid-cols-3 gap-1'}>
         {(['message', 'phone', 'email'] as const).map((item) => (
-          <Choice key={item} selected={method === item} onClick={() => setMethod(item)}>
+          <Choice
+            key={item}
+            variant={app.prefs.textSize >= 20 ? 'default' : 'compact'}
+            selected={method === item}
+            onClick={() => setMethod(item)}
+          >
             {t(item === 'message' ? 'staff.inApp' : `staff.${item}`)}
           </Choice>
         ))}

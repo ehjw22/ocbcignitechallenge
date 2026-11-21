@@ -16,6 +16,10 @@ export interface OllieContextPack {
     helpPreference: Preferences['helpPreference']
     easierTapping: boolean
     spendingInsights: boolean
+    letterSpacing: Preferences['letterSpacing']
+    lineHeight: Preferences['lineHeight']
+    readingRuler: boolean
+    dyslexiaFont: boolean
   }
   payeeNames: string[]
   recentTxns: { title: string; amount: number; date: string }[]
@@ -66,6 +70,10 @@ export function buildOllieContext(input: {
       helpPreference: input.prefs.helpPreference,
       easierTapping: input.prefs.easierTapping,
       spendingInsights: input.prefs.spendingInsights,
+      letterSpacing: input.prefs.letterSpacing,
+      lineHeight: input.prefs.lineHeight,
+      readingRuler: input.prefs.readingRuler,
+      dyslexiaFont: input.prefs.dyslexiaFont,
     },
     payeeNames: input.payees.map((payee) => payee.name).slice(0, 12),
     recentTxns: recent,

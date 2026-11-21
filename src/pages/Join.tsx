@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Check, CheckCircle2, AlertTriangle } from 'lucide-react'
-import { Choice, choiceClass } from '@/components/Choice'
+import { CheckCircle2, AlertTriangle } from 'lucide-react'
+import { Choice } from '@/components/Choice'
 import { Switch } from '@/components/Switch'
 import { ShortcutPicker } from '@/components/ShortcutPicker'
 import { SpeechSpeed } from '@/components/SpeechSpeed'
@@ -11,6 +11,7 @@ import { peekAfterLogin } from '@/lib/storage'
 import { translate } from '@/i18n'
 import { DEFAULT_SHORTCUTS } from '@/lib/languages'
 import { HomePreview } from '@/components/HomePreview'
+import { ReadingComfortControls } from '@/components/ReadingComfortControls'
 import { formatSignedMoney } from '@/lib/format'
 import { dismissPreviewLanguageNotice, LanguagePicker } from '@/components/LanguagePicker'
 import { UndoSnackbar } from '@/components/UndoSnackbar'
@@ -61,7 +62,8 @@ export function Join() {
           {step === 0 && (
             <section>
               <h2 id="quiz-title" className="text-xl font-semibold">{t('onboarding.language')}</h2>
-              <p className="mt-1 text-sm text-[var(--muted)]">{t('onboarding.minutes')}</p>
+              <p className="mt-1 text-sm text-[var(--muted)]">{t('onboarding.languageBody')}</p>
+              <p className="text-sm text-[var(--muted)]">{t('onboarding.minutes')}</p>
               <div className="mt-3">
                 <LanguagePicker
                   language={app.prefs.language}
@@ -111,6 +113,7 @@ export function Join() {
           {step === 2 && (
             <section className="space-y-3">
               <h2 id="quiz-title" className="text-xl font-semibold">{t('onboarding.text')}</h2>
+              <p className="text-sm text-[var(--muted)]">{t('onboarding.textBody')}</p>
               <div className="flex flex-wrap gap-2">
                 {([
                   ['easyReading', 'customise.presetEasy'],
@@ -126,15 +129,9 @@ export function Join() {
               <HomePreview />
               <label className="block font-semibold" htmlFor="quiz-size">
                 {app.prefs.textSize}px
-                <input id="quiz-size" type="range" min={16} max={24} step={1} value={app.prefs.textSize} onChange={(event) => app.updatePrefs({ textSize: Number(event.target.value) })} className="mt-2 w-full" />
+                <input id="quiz-size" type="range" min={16} max={21} step={1} value={app.prefs.textSize} onChange={(event) => app.updatePrefs({ textSize: Number(event.target.value) })} className="mt-2 w-full" />
               </label>
-              <div className="flex min-h-11 items-center justify-between gap-3">
-                <span>
-                  <span className="block font-semibold">{t('settings.dyslexiaFont')}</span>
-                  <span className="block text-sm text-[var(--muted)]">{t('settings.dyslexiaFontBody')}</span>
-                </span>
-                <Switch on={app.prefs.dyslexiaFont} label={t('settings.dyslexiaFont')} onChange={(next) => app.updatePrefs({ dyslexiaFont: next })} />
-              </div>
+              <ReadingComfortControls headingId="quiz-reading-comfort" />
               <div className="flex min-h-11 items-center justify-between gap-3">
                 <span>
                   <span className="block font-semibold">{t('settings.easierTapping')}</span>
@@ -206,10 +203,9 @@ export function Join() {
               </div>
               <div role="radiogroup" aria-label={t('onboarding.colour')} className="mt-3 grid w-full grid-cols-1 gap-2">
                 {(['default', 'protanopia', 'deuteranopia', 'tritanopia', 'monochrome'] as ColourVision[]).map((mode) => (
-                  <button key={mode} type="button" role="radio" aria-checked={app.prefs.colourVision === mode} className={`${choiceClass(app.prefs.colourVision === mode)} flex min-h-11 w-full items-center justify-between gap-3 rounded-xl px-3 py-2 text-left`} onClick={() => app.updatePrefs({ colourVision: mode })}>
-                    <span className="font-semibold">{t(`cvd.${mode}`)}</span>
-                    <Check aria-hidden size={18} className={`shrink-0 text-[var(--accent)] ${app.prefs.colourVision === mode ? 'opacity-100' : 'opacity-0'}`} />
-                  </button>
+                  <Choice key={mode} selected={app.prefs.colourVision === mode} onClick={() => app.updatePrefs({ colourVision: mode })}>
+                    {t(`cvd.${mode}`)}
+                  </Choice>
                 ))}
               </div>
             </section>
@@ -225,13 +221,13 @@ export function Join() {
           )}
         </main>
         <div className="keep-words sticky bottom-0 grid shrink-0 grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.35fr)] gap-2 border-t border-[var(--line)] bg-[var(--bg)] px-4 py-3">
-          <button type="button" className="min-h-11 rounded-xl border border-[var(--line)] bg-[var(--card)] px-2 font-semibold leading-tight text-[var(--text)]" onClick={() => (step === 0 ? app.logout() : setStep((value) => value - 1))}>
+          <button type="button" className="min-h-12 rounded-xl border border-[var(--line)] bg-[var(--card)] px-2 font-semibold leading-tight text-[var(--text)]" onClick={() => (step === 0 ? app.logout() : setStep((value) => value - 1))}>
             {t('back')}
           </button>
-          <button type="button" className="min-h-11 rounded-xl border border-[var(--line)] bg-[var(--card)] px-2 font-semibold leading-tight text-[var(--text)]" onClick={() => (step === STEPS - 1 ? finish(false) : setStep((value) => value + 1))}>
+          <button type="button" className="min-h-12 rounded-xl border border-[var(--line)] bg-[var(--card)] px-2 font-semibold leading-tight text-[var(--text)]" onClick={() => (step === STEPS - 1 ? finish(false) : setStep((value) => value + 1))}>
             {t('skipStep')}
           </button>
-          <button type="button" className="min-h-11 rounded-xl bg-[var(--accent)] px-2 font-semibold leading-tight text-[var(--on-accent)] disabled:opacity-50" disabled={step === STEPS - 1 && picked.length !== 6} onClick={() => (step === STEPS - 1 ? finish(true) : setStep((value) => value + 1))}>
+          <button type="button" className="min-h-12 rounded-xl bg-[var(--accent)] px-2 font-semibold leading-tight text-[var(--on-accent)] disabled:opacity-50" disabled={step === STEPS - 1 && picked.length !== 3} onClick={() => (step === STEPS - 1 ? finish(true) : setStep((value) => value + 1))}>
             {step === STEPS - 1 ? t('done') : t('continue')}
           </button>
         </div>

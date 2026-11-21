@@ -14,14 +14,14 @@ export function HomePreview({ balance = 1230.55 }: { balance?: number }) {
       aria-label={t('customise.livePreview')}
     >
       <p className="text-sm text-[var(--muted)]">{t('totalBalance')}</p>
-      <p className="font-bold tabular-nums text-[var(--text)]" style={{ fontSize: app.prefs.textSize + 6 }}>
+      <p className="font-bold tabular-nums text-[var(--text)]" style={{ fontSize: app.prefs.textSize + 4 }}>
         {formatMoney(balance, app.prefs.language)}
       </p>
       <div className="mt-3 grid grid-cols-3 gap-2">
         {shortcuts.map((id) => {
           const Icon = SHORTCUT_ICONS[id]
           return (
-            <ShortcutTile key={id} id={id} compact={app.prefs.textSize >= 22} label={t(`shortcuts.${id}`)} Icon={Icon} />
+            <ShortcutTile key={id} id={id} compact={app.prefs.textSize >= 20} label={t(`shortcuts.${id}`)} Icon={Icon} />
           )
         })}
       </div>

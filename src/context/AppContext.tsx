@@ -135,6 +135,24 @@ function signedOutPrefs(): Preferences {
   return { ...defaultPrefs(), ...loadGuest(), onboarded: false }
 }
 
+export type IsolatedDemoId = 'auntiemei' | 'arif'
+
+function bootIsolated(id: IsolatedDemoId): { sessionId: string; prefs: Preferences; profile: Profile } {
+  const user = DEMO_LOGINS.find((item) => item.id === id)
+  if (!user) throw new Error(`Unknown isolated demo user: ${id}`)
+  return {
+    sessionId: user.id,
+    prefs: { ...user.prefs },
+    profile: { ...user.profile },
+  }
+}
+
+function bookForSession(sessionId: string | null, isolated: boolean): BankBook | null {
+  if (!sessionId || !isDemoAccount(sessionId)) return null
+  if (isolated) return demoBook(sessionId)
+  return resolveBook(sessionId) ?? demoBook(sessionId)
+}
+
 function bootView(): { sessionId: string | null; prefs: Preferences; profile: Profile } {
   const sessionId = loadSessionId()
   const user = sessionId ? loadUsers().find((item) => item.id === sessionId) : null
@@ -162,10 +180,11 @@ function bootView(): { sessionId: string | null; prefs: Preferences; profile: Pr
   return { sessionId: null, prefs: signedOutPrefs(), profile: defaultProfile() }
 }
 
-export function AppProvider({ children }: { children: ReactNode }) {
+export function AppProvider({ children, isolatedDemoId }: { children: ReactNode; isolatedDemoId?: IsolatedDemoId }) {
+  const isolated = isolatedDemoId != null
   const navigate = useNavigate()
   const location = useLocation()
-  const [boot] = useState(bootView)
+  const [boot] = useState(() => (isolated && isolatedDemoId ? bootIsolated(isolatedDemoId) : bootView()))
   const [sessionId, setSessionId] = useState<string | null>(boot.sessionId)
   const sessionRef = useRef<string | null>(null)
   sessionRef.current = sessionId
@@ -186,6 +205,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return saved.length ? saved : SEED_REQUESTS
   })
   useEffect(() => {
+    if (isolated) return
     const sync = (event: StorageEvent) => {
       if (event.key && event.key !== 'ocbc-adaptive-requests') return
       const saved = loadRequests()
@@ -193,41 +213,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
     window.addEventListener('storage', sync)
     return () => window.removeEventListener('storage', sync)
-  }, [])
+  }, [isolated])
   const [cards, setCardsState] = useState<CardItem[]>(() => loadCards(SEED_CARDS))
   const [extraTxns, setExtraTxns] = useState<Txn[]>(() => (boot.sessionId && isDemoAccount(boot.sessionId) ? [] : loadExtraTxns()))
-  const [baseTxns, setBaseTxns] = useState<Txn[]>(() => {
-    if (boot.sessionId && isDemoAccount(boot.sessionId)) {
-      return resolveBook(boot.sessionId)?.txns ?? SEED_TXNS
-    }
-    return SEED_TXNS
-  })
-  const [accounts, setAccounts] = useState(() => {
-    if (boot.sessionId && isDemoAccount(boot.sessionId)) {
-      return resolveBook(boot.sessionId)?.accounts ?? ACCOUNTS
-    }
-    return ACCOUNTS
-  })
-  const [payees, setPayees] = useState<SavedPayee[]>(() => {
-    if (boot.sessionId && isDemoAccount(boot.sessionId)) {
-      return resolveBook(boot.sessionId)?.payees ?? []
-    }
-    return []
-  })
+  const [baseTxns, setBaseTxns] = useState<Txn[]>(() => bookForSession(boot.sessionId, isolated)?.txns ?? SEED_TXNS)
+  const [accounts, setAccounts] = useState(() => bookForSession(boot.sessionId, isolated)?.accounts ?? ACCOUNTS)
+  const [payees, setPayees] = useState<SavedPayee[]>(() => bookForSession(boot.sessionId, isolated)?.payees ?? [])
   const [guidePrompt, setGuidePrompt] = useState<{ journeyId: string; practice: boolean } | null>(null)
   const [balances, setBalances] = useState<Record<string, number>>(() => {
-    if (boot.sessionId && isDemoAccount(boot.sessionId)) {
-      return resolveBook(boot.sessionId)?.balances ?? loadBalances(seedBalances)
-    }
+    const book = bookForSession(boot.sessionId, isolated)
+    if (book) return book.balances
     return loadBalances(seedBalances)
   })
   const [limit, setLimitState] = useState(() => loadLimit(5000))
-  const [goals, setGoalsState] = useState<Goal[]>(() => {
-    if (boot.sessionId && isDemoAccount(boot.sessionId)) {
-      return resolveBook(boot.sessionId)?.goals ?? readGoals()
-    }
-    return readGoals()
-  })
+  const [goals, setGoalsState] = useState<Goal[]>(() => bookForSession(boot.sessionId, isolated)?.goals ?? (isolated ? [] : readGoals()))
   const [screen, setScreenState] = useState('home')
   const [step, setStep] = useState('')
   const [guideStep, setGuideStepState] = useState('')
@@ -244,19 +243,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => subscribeExcluded(() => setExclusionTick((value) => value + 1)), [])
   const excluded = useMemo(() => (sessionId ? loadExcluded(sessionId) : new Set<string>()), [sessionId, exclusionTick])
   const toggleExcluded = useCallback((key: string, on: boolean) => {
-    if (!sessionId) return
+    if (!sessionId || isolated) return
     setInsightExcluded(sessionId, key, on)
     notifyExcluded()
-  }, [sessionId])
+  }, [sessionId, isolated])
 
   useEffect(() => {
+    if (isolated) return
     const pending = peekAfterLogin()
     if (pending && location.pathname === pending.split('?')[0]) takeAfterLogin()
-  }, [location.pathname])
+  }, [location.pathname, isolated])
 
   useEffect(() => {
+    if (isolated) return
     const root = document.documentElement
-    const admin = location.pathname.startsWith('/admin') || location.pathname === '/staff'
+    const admin = location.pathname.startsWith('/admin') || location.pathname === '/staff' || location.pathname.startsWith('/compare')
     root.style.fontSize = admin ? '16px' : `${prefs.textSize}px`
     const htmlLang = prefs.language === 'zh' ? 'zh-Hans' : prefs.language === 'zh-TW' ? 'zh-Hant' : prefs.language
     root.lang = htmlLang
@@ -264,9 +265,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     root.classList.toggle('dyslexia-font', !admin && Boolean(prefs.dyslexiaFont))
     if (!admin && prefs.easierTapping) root.setAttribute('data-easy-tap', '1')
     else root.removeAttribute('data-easy-tap')
-  }, [prefs.textSize, prefs.language, prefs.scheme, prefs.dyslexiaFont, prefs.easierTapping, location.pathname])
+  }, [prefs.textSize, prefs.language, prefs.scheme, prefs.dyslexiaFont, prefs.easierTapping, location.pathname, isolated])
 
   const persistUser = (id: string, nextPrefs: Preferences, nextProfile: Profile) => {
+    if (isolated) return
     const users = loadUsers()
     const next = users.some((user) => user.id === id)
       ? users.map((user) => (user.id === id ? { ...user, prefs: nextPrefs, profile: nextProfile } : user))
@@ -282,15 +284,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if (patch.language === 'zh-TW' && patch.dialect === undefined) next.dialect = 'cantonese'
       if (patch.language === 'zh' && patch.dialect === undefined) next.dialect = 'standard'
       const id = sessionRef.current
-      if (id) persistUser(id, next, profile)
-      else saveGuest(next)
-      savePrefs(next)
+      if (!isolated) {
+        if (id) persistUser(id, next, profile)
+        else saveGuest(next)
+        savePrefs(next)
+      }
       return next
     })
   }
 
   const setProfile = (next: Profile) => {
     setProfileState(next)
+    if (isolated) return
     const id = sessionRef.current
     if (id) persistUser(id, prefs, next)
     else saveProfile(next)
@@ -299,7 +304,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const log = (type: string, data: AnalyticsEvent['data'] = {}) => {
     setEvents((current) => {
       const next = [...current, { id: `evt-${Date.now()}-${current.length}`, ts: new Date().toISOString(), type, data }].slice(-400)
-      saveEvents(next)
+      if (!isolated) saveEvents(next)
       return next
     })
   }
@@ -310,41 +315,44 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const setCards = (next: CardItem[]) => {
     setCardsState(next)
-    saveCards(next)
+    if (!isolated) saveCards(next)
   }
 
   const addTxn = (txn: Txn) => {
     const userId = sessionRef.current
-    if (userId && isDemoAccount(userId)) {
-      const book = loadBook(userId)
-      if (book && !book.txns.some((item) => item.id === txn.id)) saveBook(userId, { ...book, txns: [txn, ...book.txns].slice(0, 30) })
-    } else {
-      const saved = loadExtraTxns().filter((item) => item.id !== txn.id)
-      saveExtraTxns([txn, ...saved].slice(0, 30))
+    if (!isolated) {
+      if (userId && isDemoAccount(userId)) {
+        const book = loadBook(userId)
+        if (book && !book.txns.some((item) => item.id === txn.id)) saveBook(userId, { ...book, txns: [txn, ...book.txns].slice(0, 30) })
+      } else {
+        const saved = loadExtraTxns().filter((item) => item.id !== txn.id)
+        saveExtraTxns([txn, ...saved].slice(0, 30))
+      }
     }
     setExtraTxns((current) => [txn, ...current.filter((item) => item.id !== txn.id)].slice(0, 30))
   }
 
   const setBalance = (id: string, amount: number) => {
     const userId = sessionRef.current
-    if (userId && isDemoAccount(userId)) {
+    if (!isolated && userId && isDemoAccount(userId)) {
       const book = loadBook(userId)
       if (book) saveBook(userId, { ...book, balances: { ...book.balances, [id]: amount } })
     }
     setBalances((current) => {
       const next = { ...current, [id]: amount }
-      if (!userId || !isDemoAccount(userId)) saveBalances(next)
+      if (!isolated && (!userId || !isDemoAccount(userId))) saveBalances(next)
       return next
     })
   }
 
   const setLimit = (amount: number) => {
     setLimitState(amount)
-    saveLimit(amount)
+    if (!isolated) saveLimit(amount)
   }
 
   const setGoals = (next: Goal[]) => {
     setGoalsState(next)
+    if (isolated) return
     const userId = sessionRef.current
     if (userId && isDemoAccount(userId)) {
       const book = loadBook(userId)
@@ -380,7 +388,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
     setRequests((current) => {
       const next = [request, ...current]
-      saveRequests(next)
+      if (!isolated) saveRequests(next)
       return next
     })
     return request
@@ -389,7 +397,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const setRequestStatus = (ref: string, status: RequestStatus) => {
     setRequests((current) => {
       const next = current.map((item) => (item.ref === ref ? { ...item, status } : item))
-      saveRequests(next)
+      if (!isolated) saveRequests(next)
       return next
     })
   }
@@ -408,12 +416,23 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const setCardLocked = (id: string, locked: boolean) => {
     setCardsState((current) => {
       const next = current.map((card) => (card.id === id ? { ...card, locked } : card))
-      saveCards(next)
+      if (!isolated) saveCards(next)
       return next
     })
   }
 
   const activate = (user: DemoUser) => {
+    if (isolated) {
+      sessionRef.current = user.id
+      setSessionId(user.id)
+      setPrefs(user.prefs)
+      setProfileState(user.profile)
+      if (isDemoAccount(user.id)) {
+        const book = demoBook(user.id)
+        if (book) showBook(book)
+      } else showSharedBook()
+      return
+    }
     saveUsers(loadUsers().some((item) => item.id === user.id)
       ? loadUsers().map((item) => (item.id === user.id ? user : item))
       : [...loadUsers(), user])
@@ -439,6 +458,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const destination = () => peekAfterLogin() || '/'
 
   const login = (username: string, password: string) => {
+    if (isolated) return false
     const name = username.trim()
     if (!name) return false
     const users = loadUsers()
@@ -465,6 +485,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }
 
   const logout = () => {
+    if (isolated) return
     if (sessionRef.current) saveLastUserId(sessionRef.current)
     saveGuest(prefs)
     saveSessionId(null)
@@ -478,6 +499,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }
 
   const switchUser = () => {
+    if (isolated) return
     saveLastUserId(null)
     saveSessionId(null)
     sessionRef.current = null
@@ -489,6 +511,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }
 
   const deleteUser = () => {
+    if (isolated) return
     const id = sessionRef.current
     if (!id) return
     saveUsers(loadUsers().filter((user) => user.id !== id))
@@ -504,6 +527,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }
 
   const applyPersona = (id: 'mei' | 'arif') => {
+    if (isolated) return
     const persona = PERSONAS.find((item) => item.id === id)
     if (!persona) return
     const storedId = `persona-${id}`
@@ -527,6 +551,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }
 
   const resetQuiz = () => {
+    if (isolated) return
     updatePrefs({
       ...defaultPrefs(),
       language: prefs.language,
@@ -542,11 +567,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }
 
   useEffect(() => {
-    if (!sessionId) return
+    if (!sessionId || isolated) return
     ensureSeededTransferHistory(sessionId)
-  }, [sessionId])
+  }, [sessionId, isolated])
 
   const resetDemoData = () => {
+    if (isolated) return
     localStorage.removeItem('ocbc-tours-done')
     clearAllTourProgress()
     for (const user of DEMO_LOGINS) {
@@ -564,6 +590,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }
 
   const resetDemo = () => {
+    if (isolated) return
     resetAll()
     clearBooks()
     localStorage.removeItem(GOALS_KEY)

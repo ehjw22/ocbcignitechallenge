@@ -9,6 +9,8 @@ import { loadTourProgress } from '@/lib/tourProgress'
 import { nextPracticeJourney, JOURNEY_TOUR_IDS } from '@/lib/recommendedTours'
 import { practisedJourneyCount } from '@/lib/tourTracking'
 import { themeVars } from '@/lib/accent'
+import { readingComfortVars, textDisplayVars } from '@/lib/readingComfort'
+import { ReadingRuler } from '@/components/ReadingRuler'
 import { AppTour } from './AppTour'
 import { FlowTour } from './TourFrame'
 import { getFlowTour, subscribeFlowTour } from '@/lib/guide'
@@ -20,9 +22,6 @@ import { speak, stopSpeaking } from '@/lib/speech'
 import { readableText } from '@/lib/tourPlace'
 import { SpeakButton } from './SpeakButton'
 import {
-  readTapsVisualizer,
-  subscribePresent,
-  toggleTapsVisualizer,
   usePhoneScale,
   usePresentMode,
 } from '@/lib/present'
@@ -52,33 +51,6 @@ function HomeFilled() {
       <path d="M12 2.6 2.8 10.2c-.5.4-.8 1-.8 1.6V20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-8.2c0-.6-.3-1.2-.8-1.6Z" fill="currentColor" />
       <rect x="9.5" y="14" width="5" height="8" rx="1" fill="var(--card, #fff)" />
     </svg>
-  )
-}
-
-function TapVisualizer() {
-  const tapsOn = useSyncExternalStore(subscribePresent, readTapsVisualizer, () => false)
-  const [dots, setDots] = useState<{ x: number; y: number; id: number }[]>([])
-  useEffect(() => {
-    if (!tapsOn) return
-    const root = document.getElementById('customer-root')
-    if (!root) return
-    let serial = 0
-    const onDown = (event: PointerEvent) => {
-      const box = root.getBoundingClientRect()
-      const id = ++serial
-      setDots((prev) => [...prev, { x: event.clientX - box.left, y: event.clientY - box.top, id }])
-      window.setTimeout(() => setDots((prev) => prev.filter((dot) => dot.id !== id)), 400)
-    }
-    root.addEventListener('pointerdown', onDown)
-    return () => root.removeEventListener('pointerdown', onDown)
-  }, [tapsOn])
-  if (!tapsOn || dots.length === 0) return null
-  return (
-    <div className="pointer-events-none absolute inset-0 z-[60]" aria-hidden>
-      {dots.map((dot) => (
-        <span key={dot.id} className="present-tap" style={{ left: dot.x - 18, top: dot.y - 18 }} />
-      ))}
-    </div>
   )
 }
 
@@ -134,7 +106,6 @@ function PresentChrome({ full }: { full: boolean }) {
   const { prefs } = useApp()
   const { present, toggle, exit } = usePresentMode()
   const { scale } = usePhoneScale()
-  const tapsOn = useSyncExternalStore(subscribePresent, readTapsVisualizer, () => false)
   const t = (key: string) => translate(prefs.language, key)
   const anchor = presentChromeAnchor(scale)
 
@@ -147,7 +118,6 @@ function PresentChrome({ full }: { full: boolean }) {
         toggle()
       }
       if (event.key === 'Escape' && present) exit()
-      if (present && (event.key === 't' || event.key === 'T')) toggleTapsVisualizer()
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
@@ -168,11 +138,6 @@ function PresentChrome({ full }: { full: boolean }) {
           {present ? t('present.exitMode') : t('present.enterMode')}
         </button>
         {present && (
-          <button type="button" className={chromeBtn} onClick={() => toggleTapsVisualizer()}>
-            {tapsOn ? t('present.tapsOff') : t('present.tapsOn')}
-          </button>
-        )}
-        {present && (
           <button type="button" className={`${chromeBtn} text-white/90`} onClick={exit}>
             {t('present.exitLink')}
           </button>
@@ -188,10 +153,11 @@ export { usePhoneScale }
 export function PhoneFrame({ children }: { children: React.ReactNode }) {
   const { prefs, announce } = useApp()
   const { scale, full, present } = usePhoneScale()
-  const vars = themeVars(prefs)
-  const stageBg = present && !full ? '#0f1316' : vars['--bg']
+  const theme = themeVars(prefs)
+  const comfort = { ...readingComfortVars(prefs), ...textDisplayVars(prefs.textSize) }
+  const stageBg = present && !full ? '#0f1316' : theme['--bg']
   return (
-    <div className="phone-stage" style={{ background: full ? vars['--bg'] : stageBg, minHeight: full ? undefined : '100dvh', display: full ? undefined : 'flex', flexDirection: full ? undefined : 'column', alignItems: full ? undefined : 'center', justifyContent: full ? undefined : 'center' }}>
+    <div className="phone-stage" style={{ background: full ? theme['--bg'] : stageBg, minHeight: full ? undefined : '100dvh', display: full ? undefined : 'flex', flexDirection: full ? undefined : 'column', alignItems: full ? undefined : 'center', justifyContent: full ? undefined : 'center' }}>
       <div className={full ? 'w-full min-w-0 max-w-full self-stretch' : undefined} style={full ? undefined : { width: 390 * scale, height: 844 * scale }}>
       <div className={full ? 'phone-frame is-full' : 'phone-frame'} style={full ? undefined : { transform: `scale(${scale})`, transformOrigin: 'top left' }}>
         {!full && <div className="phone-notch" aria-hidden />}
@@ -203,14 +169,14 @@ export function PhoneFrame({ children }: { children: React.ReactNode }) {
           data-bold={prefs.boldText ? 'true' : 'false'}
           data-cvd={prefs.colourVision}
           lang={prefs.language}
-          style={{ ...vars, paddingTop: full ? 'env(safe-area-inset-top)' : '28px' }}
+          style={{ ...theme, ...comfort, paddingTop: full ? 'env(safe-area-inset-top)' : '28px' }}
         >
           <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:z-50 focus:bg-white focus:px-3 focus:py-2">
             {translate(prefs.language, 'skipToContent')}
           </a>
           {children}
-          <TapVisualizer />
           <div className="sr-only" aria-live="polite">{announce}</div>
+          <ReadingRuler />
           <HelpLayer />
         </div>
       </div>

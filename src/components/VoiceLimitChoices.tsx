@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { Choice } from '@/components/Choice'
+import { VoiceTransferAuthSheet } from '@/components/VoiceTransferAuthSheet'
 import { VOICE_TRANSFER_LIMIT_OPTIONS, clampVoiceTransferLimit, formatVoiceTransferAmount } from '@/lib/voiceTransfer'
+import type { VoiceTransferConfirm } from '@/lib/types'
 
 type VoiceLimitChoicesProps = {
   value: number
@@ -8,10 +10,11 @@ type VoiceLimitChoicesProps = {
   offLabel: string
   label: string
   confirmRaise?: boolean
-  confirmTitle?: string
-  confirmBody?: string
-  confirmAction?: string
-  cancelLabel?: string
+  confirmMode?: VoiceTransferConfirm
+  easierTapping?: boolean
+  readAloud?: boolean
+  practice?: boolean
+  t?: (key: string, vars?: Record<string, string | number>) => string
 }
 
 export function VoiceLimitChoices({
@@ -20,18 +23,21 @@ export function VoiceLimitChoices({
   offLabel,
   label,
   confirmRaise,
-  confirmTitle,
-  confirmBody,
-  confirmAction,
-  cancelLabel,
+  confirmMode = 'faceId',
+  easierTapping = false,
+  readAloud = false,
+  practice = true,
+  t = (key) => key,
 }: VoiceLimitChoicesProps) {
   const current = clampVoiceTransferLimit(value)
   const [pending, setPending] = useState<number | null>(null)
+  const [authOpen, setAuthOpen] = useState(false)
 
   const choose = (next: number) => {
     if (next === current) return
     if (confirmRaise && next > current) {
       setPending(next)
+      setAuthOpen(true)
       return
     }
     onChange(next)
@@ -48,15 +54,28 @@ export function VoiceLimitChoices({
           </Choice>
         ))}
       </div>
-      {pending !== null && (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 p-4" role="dialog" aria-modal="true" aria-labelledby="voice-limit-raise">
-          <div className="w-full max-w-sm rounded-2xl bg-[var(--card)] p-4 text-[var(--text)]">
-            <p id="voice-limit-raise" className="text-lg font-bold">{confirmTitle}</p>
-            <p className="mt-2">{confirmBody?.replace('{amount}', formatVoiceTransferAmount(pending))}</p>
-            <button type="button" className="mt-3 min-h-12 w-full rounded-xl bg-[var(--accent)] font-semibold text-[var(--on-accent)]" onClick={() => { onChange(pending); setPending(null) }}>{confirmAction}</button>
-            <button type="button" className="mt-2 min-h-11 w-full font-semibold underline" onClick={() => setPending(null)}>{cancelLabel}</button>
-          </div>
-        </div>
+      {confirmRaise && (
+        <VoiceTransferAuthSheet
+          open={authOpen}
+          confirmMode={confirmMode}
+          easierTapping={easierTapping}
+          readAloud={readAloud}
+          practice={practice}
+          t={t}
+          onClose={() => {
+            setAuthOpen(false)
+            setPending(null)
+          }}
+          onVerified={() => {
+            if (pending !== null) onChange(pending)
+            setAuthOpen(false)
+            setPending(null)
+          }}
+          onLocked={() => {
+            setAuthOpen(false)
+            setPending(null)
+          }}
+        />
       )}
     </>
   )

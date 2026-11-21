@@ -1,16 +1,17 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
 import { Check, ChevronDown, Search } from 'lucide-react'
-import { Choice, choiceClass } from '@/components/Choice'
+import { Choice, choiceClass, choiceRowClass } from '@/components/Choice'
 import { Switch } from '@/components/Switch'
 import { ShortcutPicker } from '@/components/ShortcutPicker'
 import { SpeechSpeed } from '@/components/SpeechSpeed'
 import { VoiceLimitChoices } from '@/components/VoiceLimitChoices'
+import { VoiceTransferAuthSheet } from '@/components/VoiceTransferAuthSheet'
 import { clampVoiceTransferLimit, formatVoiceTransferAmount } from '@/lib/voiceTransfer'
 import { Page } from '@/components/Shell'
 import { useApp } from '@/context/AppContext'
 import { translate } from '@/i18n'
-import { prepareBackground } from '@/lib/contrast'
+import { TEXT_SIZE_MAX } from '@/lib/readingComfort'
 import { beginShowHow, takeShowHow } from '@/lib/showHow'
 import { getFlowTour, guideById, startGuide, subscribeFlowTour } from '@/lib/guide'
 import { markTourDropped, markTourFinished, markTourOpened, markTourStep } from '@/lib/tourTracking'
@@ -18,6 +19,7 @@ import { speak } from '@/lib/speech'
 import { collapseOpened } from '@/lib/tourPlace'
 import { ResetDemoDialog } from '@/components/ResetDemoDialog'
 import { HomePreview } from '@/components/HomePreview'
+import { ReadingComfortControls } from '@/components/ReadingComfortControls'
 import { UndoSnackbar } from '@/components/UndoSnackbar'
 import { patchForPreset, snapshotPrefs, type PresetId, type PresetSnapshot } from '@/lib/presets'
 import { dismissPreviewLanguageNotice, LanguagePicker } from '@/components/LanguagePicker'
@@ -95,6 +97,8 @@ export function Settings() {
   const [greet, setGreet] = useState(app.profile.shortName)
   const [resetOpen, setResetOpen] = useState(false)
   const [undo, setUndo] = useState<PresetSnapshot | null>(null)
+  const [pendingConfirmMode, setPendingConfirmMode] = useState<VoiceTransferConfirm | null>(null)
+  const [confirmModeAuthOpen, setConfirmModeAuthOpen] = useState(false)
   const applyPreset = (id: PresetId) => {
     setUndo(snapshotPrefs(app.prefs))
     app.updatePrefs(patchForPreset(id))
@@ -185,10 +189,15 @@ export function Settings() {
   const theme = THEMES.find((item) => item.id === app.prefs.theme)
   const previewName = (app.profile.shortName || '').toLowerCase().includes('arif') ? 'Siti Aminah' : 'Tan Wei Ming'
   const textSummary = [
-    app.prefs.textSize >= 22 ? t('settings.large') : `${app.prefs.textSize}px`,
+    app.prefs.textSize >= 20 ? t('settings.large') : `${app.prefs.textSize}px`,
     app.prefs.boldText ? t('onboarding.bold') : '',
     app.prefs.highContrast ? t('onboarding.contrast') : '',
     app.prefs.dyslexiaFont ? t('settings.dyslexiaFont') : '',
+    app.prefs.letterSpacing === 'wider' ? t('settings.letterSpacingWider')
+      : app.prefs.letterSpacing === 'widest' ? t('settings.letterSpacingWidest') : '',
+    app.prefs.lineHeight === 'roomy' ? t('settings.lineHeightRoomy')
+      : app.prefs.lineHeight === 'extraRoomy' ? t('settings.lineHeightExtraRoomy') : '',
+    app.prefs.readingRuler ? t('settings.readingRuler') : '',
     app.prefs.easierTapping ? t('settings.easierTapping') : '',
   ].filter(Boolean).join(' · ')
   const helpKey = app.prefs.helpPreference === 'ai' ? 'help.ai' : app.prefs.helpPreference === 'guide' ? 'help.guide' : 'help.staff'
@@ -287,17 +296,47 @@ export function Settings() {
             offLabel={t('settings.voiceLimitOff')}
             label={t('settings.voiceLimit')}
             confirmRaise
-            confirmTitle={t('settings.voiceLimitRaise')}
-            confirmBody={t('settings.voiceLimitRaiseBody')}
-            confirmAction={t('settings.voiceLimitConfirm')}
-            cancelLabel={t('cancel')}
+            confirmMode={app.prefs.voiceTransferConfirm}
+            easierTapping={app.prefs.easierTapping}
+            readAloud={app.prefs.readAloud}
+            practice
+            t={t}
+          />
+          <VoiceTransferAuthSheet
+            open={confirmModeAuthOpen}
+            confirmMode={app.prefs.voiceTransferConfirm}
+            easierTapping={app.prefs.easierTapping}
+            readAloud={app.prefs.readAloud}
+            practice
+            t={t}
+            onClose={() => {
+              setConfirmModeAuthOpen(false)
+              setPendingConfirmMode(null)
+            }}
+            onVerified={() => {
+              if (pendingConfirmMode) app.updatePrefs({ voiceTransferConfirm: pendingConfirmMode })
+              setConfirmModeAuthOpen(false)
+              setPendingConfirmMode(null)
+            }}
+            onLocked={() => {
+              setConfirmModeAuthOpen(false)
+              setPendingConfirmMode(null)
+            }}
           />
           <div className="mt-4 border-t border-[var(--line)] pt-4">
             <p className="mb-2 font-semibold">{t('settings.voiceTransferConfirm')}</p>
             <p className="mb-2 text-sm font-normal leading-snug text-[var(--muted)]">{t('settings.voiceTransferConfirmBody')}</p>
             <div className="grid gap-2" role="radiogroup" aria-label={t('settings.voiceTransferConfirm')}>
               {(['faceId', 'pin'] as VoiceTransferConfirm[]).map((mode) => (
-                <Choice key={mode} selected={app.prefs.voiceTransferConfirm === mode} onClick={() => app.updatePrefs({ voiceTransferConfirm: mode })}>
+                <Choice
+                  key={mode}
+                  selected={app.prefs.voiceTransferConfirm === mode}
+                  onClick={() => {
+                    if (mode === app.prefs.voiceTransferConfirm) return
+                    setPendingConfirmMode(mode)
+                    setConfirmModeAuthOpen(true)
+                  }}
+                >
                   {t(mode === 'faceId' ? 'settings.voiceConfirmFace' : 'settings.voiceConfirmPin')}
                 </Choice>
               ))}
@@ -310,7 +349,7 @@ export function Settings() {
           guide="settings-text"
           title={t('settings.sections.text')}
           summary={textSummary}
-          keywords={`${t('settings.text')} ${t('settings.textSize')} ${t('onboarding.bold')} ${t('onboarding.contrast')} ${t('settings.large')} ${t('settings.dyslexiaFont')} ${t('settings.easierTapping')}`}
+          keywords={`${t('settings.text')} ${t('settings.textSize')} ${t('onboarding.bold')} ${t('onboarding.contrast')} ${t('settings.large')} ${t('settings.readingComfort')} ${t('settings.dyslexiaFont')} ${t('settings.easierTapping')}`}
           query={query}
           open={!!open.text}
           onToggle={toggle}
@@ -330,7 +369,7 @@ export function Settings() {
           <HomePreview />
           <label htmlFor="size" className="block font-semibold">
             {t('settings.textSize')}: {app.prefs.textSize}px
-            <input id="size" type="range" min={16} max={24} value={app.prefs.textSize} onChange={(event) => app.updatePrefs({ textSize: Number(event.target.value) })} className="mt-2 w-full" />
+            <input id="size" type="range" min={16} max={TEXT_SIZE_MAX} value={app.prefs.textSize} onChange={(event) => app.updatePrefs({ textSize: Number(event.target.value) })} className="mt-2 w-full" />
           </label>
           <div className="mt-3 flex min-h-11 items-center justify-between gap-3">
             <span className="min-w-0 font-semibold">{t('onboarding.bold')}</span>
@@ -340,13 +379,7 @@ export function Settings() {
             <span className="min-w-0 font-semibold">{t('onboarding.contrast')}</span>
             <Switch on={app.prefs.highContrast} label={t('onboarding.contrast')} onChange={(next) => app.updatePrefs({ highContrast: next })} />
           </div>
-          <div className="mt-3 flex min-h-12 items-center justify-between gap-3">
-            <span className="min-w-0">
-              <span className="block font-semibold">{t('settings.dyslexiaFont')}</span>
-              <span className="block text-sm font-normal text-[var(--muted)]">{t('settings.dyslexiaFontBody')}</span>
-            </span>
-            <Switch on={app.prefs.dyslexiaFont} label={t('settings.dyslexiaFont')} onChange={(next) => app.updatePrefs({ dyslexiaFont: next })} />
-          </div>
+          <ReadingComfortControls headingId="settings-reading-comfort" />
           <div className="mt-3 flex min-h-12 items-center justify-between gap-3">
             <span className="min-w-0">
               <span className="block font-semibold">{t('settings.easierTapping')}</span>
@@ -373,18 +406,18 @@ export function Settings() {
           ))}
           <div className="mb-3 mt-3 flex flex-wrap gap-2">
             {(['light', 'dark'] as const).map((scheme) => (
-              <button key={scheme} type="button" aria-pressed={app.prefs.scheme === scheme} className={`${choiceClass(app.prefs.scheme === scheme)} inline-flex min-h-12 min-w-0 flex-1 basis-24 items-center justify-between gap-2 whitespace-normal rounded-xl px-3`} onClick={() => app.updatePrefs({ scheme })}>
-                {t(`themes.${scheme}`)}
-                <Check aria-hidden size={18} className={`shrink-0 text-[var(--accent)] ${app.prefs.scheme === scheme ? 'opacity-100' : 'opacity-0'}`} />
+              <button key={scheme} type="button" aria-pressed={app.prefs.scheme === scheme} className={choiceRowClass(app.prefs.scheme === scheme, 'min-h-12 min-w-0 flex-1 basis-24 whitespace-normal')} onClick={() => app.updatePrefs({ scheme })}>
+                <span className="choice-label min-w-0">{t(`themes.${scheme}`)}</span>
+                <Check aria-hidden size={18} className={`shrink-0 justify-self-end text-[var(--accent)] ${app.prefs.scheme === scheme ? 'opacity-100' : 'opacity-0'}`} />
               </button>
             ))}
           </div>
           <div className={`grid gap-2 ${app.prefs.textSize >= 20 ? 'grid-cols-1' : 'grid-cols-2'}`}>
             {THEMES.filter((item) => item.id !== 'custom').map((item) => (
-              <button key={item.id} type="button" aria-pressed={app.prefs.theme === item.id} className={`${choiceClass(app.prefs.theme === item.id)} flex min-h-12 items-center gap-2 rounded-xl px-3 text-left`} onClick={() => app.updatePrefs({ theme: item.id as ThemeId, accent: item.accent })}>
+              <button key={item.id} type="button" aria-pressed={app.prefs.theme === item.id} className={`${choiceClass(app.prefs.theme === item.id)} grid min-h-12 min-w-0 grid-cols-[auto_minmax(0,1fr)_1.125rem] items-center gap-2 rounded-xl px-3 py-2 text-left`} onClick={() => app.updatePrefs({ theme: item.id as ThemeId, accent: item.accent })}>
                 <span aria-hidden className="h-6 w-6 shrink-0 rounded-full border border-black/20" style={{ background: item.accent }} />
-                <span className="min-w-0 flex-1">{t(item.labelKey)}</span>
-                <Check aria-hidden size={18} className={`shrink-0 text-[var(--accent)] ${app.prefs.theme === item.id ? 'opacity-100' : 'opacity-0'}`} />
+                <span className="choice-label min-w-0">{t(item.labelKey)}</span>
+                <Check aria-hidden size={18} className={`shrink-0 justify-self-end text-[var(--accent)] ${app.prefs.theme === item.id ? 'opacity-100' : 'opacity-0'}`} />
               </button>
             ))}
           </div>
@@ -392,33 +425,6 @@ export function Settings() {
             {t('themes.accent')}
             <input id="accent" type="color" value={app.prefs.accent} onChange={(event) => app.updatePrefs({ theme: 'custom', accent: event.target.value })} />
           </label>
-          <div className="mt-4">
-            <p className="mb-2 font-semibold">{t('themes.background')}</p>
-            <label className="inline-flex min-h-12 cursor-pointer items-center rounded-xl bg-[var(--accent)] px-3 text-[var(--on-accent)]">
-              {t('themes.upload')}
-              <input
-                type="file"
-                accept="image/*"
-                className="sr-only"
-                onChange={async (event) => {
-                  const file = event.target.files?.[0]
-                  if (!file) return
-                  try {
-                    const result = await prepareBackground(file)
-                    app.updatePrefs({ backgroundImage: result.dataUrl, backgroundOverlay: result.overlay, contrastWarning: result.warn })
-                  } catch {
-                    app.setNotice(t('imageTooBig'))
-                  }
-                }}
-              />
-            </label>
-            {app.prefs.backgroundImage && (
-              <button type="button" className="ml-2 mt-2 min-h-12 rounded-xl border border-[var(--line)] bg-[var(--card)] px-3" onClick={() => app.updatePrefs({ backgroundImage: null, contrastWarning: false })}>
-                {t('themes.removePhoto')}
-              </button>
-            )}
-            {app.prefs.contrastWarning && <p className="mt-2" role="status">{t('contrastWarn')}</p>}
-          </div>
         </Section>
 
         <Section only={panel} onResult={remember}

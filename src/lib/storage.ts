@@ -3,6 +3,7 @@ import type { AnalyticsEvent, CardItem, DemoUser, Preferences, Profile, StaffReq
 import { DEFAULT_SHORTCUTS, sanitizeShortcuts } from './languages'
 import { snapRate } from './rates'
 import { clampVoiceTransferLimit, VOICE_TRANSFER_LIMIT_SGD } from './voiceTransfer'
+import { clampTextSize, normalizeLetterSpacing, normalizeLineHeight } from './readingComfort'
 
 export const defaultPrefs = (): Preferences => ({
   language: 'en',
@@ -26,6 +27,9 @@ export const defaultPrefs = (): Preferences => ({
   onboarded: false,
   quizCompleted: false,
   dyslexiaFont: false,
+  letterSpacing: 'normal',
+  lineHeight: 'normal',
+  readingRuler: false,
   easierTapping: false,
   voiceTransferLimit: VOICE_TRANSFER_LIMIT_SGD,
   voiceTransferConfirm: 'faceId',
@@ -74,9 +78,14 @@ export function loadPrefs(): Preferences {
   const shortcutsChanged = JSON.stringify(cleanedShortcuts) !== JSON.stringify(saved.shortcuts)
   saved.shortcuts = cleanedShortcuts
   if (shortcutsChanged) savePrefs(saved)
-  saved.textSize = Math.min(24, Math.max(16, Number(saved.textSize) || 16))
+  saved.textSize = clampTextSize(saved.textSize)
+  saved.backgroundImage = null
+  saved.contrastWarning = false
   saved.voiceTransferLimit = clampVoiceTransferLimit(saved.voiceTransferLimit)
   saved.voiceTransferConfirm = saved.voiceTransferConfirm === 'pin' ? 'pin' : 'faceId'
+  saved.letterSpacing = normalizeLetterSpacing(saved.letterSpacing)
+  saved.lineHeight = normalizeLineHeight(saved.lineHeight)
+  saved.readingRuler = Boolean(saved.readingRuler)
   saved.quizCompleted = typeof saved.quizCompleted === 'boolean' ? saved.quizCompleted : Boolean(saved.onboarded)
   saved.onboarded = saved.quizCompleted
   return saved
@@ -209,11 +218,16 @@ export type GuestDisplay = Pick<Preferences, 'language' | 'dialect' | 'textSize'
 function mergePrefs(prefs: Preferences): Preferences {
   const next = { ...defaultPrefs(), ...prefs }
   next.shortcuts = sanitizeShortcuts(next.shortcuts)
-  next.textSize = Math.min(24, Math.max(16, Number(next.textSize) || 16))
+  next.textSize = clampTextSize(next.textSize)
+  next.backgroundImage = null
+  next.contrastWarning = false
   next.speechRate = snapRate(Number(next.speechRate) || 1)
   next.quizCompleted = typeof next.quizCompleted === 'boolean' ? next.quizCompleted : Boolean(next.onboarded)
   next.onboarded = next.quizCompleted
   next.dyslexiaFont = Boolean(next.dyslexiaFont)
+  next.letterSpacing = normalizeLetterSpacing(next.letterSpacing)
+  next.lineHeight = normalizeLineHeight(next.lineHeight)
+  next.readingRuler = Boolean(next.readingRuler)
   next.easierTapping = Boolean(next.easierTapping)
   next.voiceTransferLimit = clampVoiceTransferLimit(next.voiceTransferLimit)
   return next
