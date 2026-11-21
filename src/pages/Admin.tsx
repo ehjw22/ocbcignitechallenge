@@ -242,6 +242,26 @@ export function Admin() {
     observer.observe(el)
     return () => observer.disconnect()
   }, [authed])
+  // While a customer drawer is open, stop the page behind it from scrolling (the drawer is a fixed overlay).
+  useEffect(() => {
+    if (!selectedId) return
+    const html = document.documentElement
+    const body = document.body
+    const gap = window.innerWidth - html.clientWidth
+    const previous = { overflow: html.style.overflow, bodyOverflow: body.style.overflow, paddingRight: body.style.paddingRight }
+    html.style.overflow = 'hidden'
+    body.style.overflow = 'hidden'
+    if (gap > 0) body.style.paddingRight = `${gap}px`
+    return () => {
+      html.style.overflow = previous.overflow
+      body.style.overflow = previous.bodyOverflow
+      body.style.paddingRight = previous.paddingRight
+    }
+  }, [selectedId])
+  // Switching sections in the left nav (or the "waiting" bell) closes any open customer drawer.
+  useEffect(() => {
+    setSelectedId(null)
+  }, [section])
 
   const checkService = () => {
     setServiceError('')
@@ -756,7 +776,7 @@ function CustomerDrawer({
             <button key={item} type="button" className={`h-10 shrink-0 border-b-2 px-2 text-sm font-medium ${tab === item ? 'border-[#E30613] text-[#9f1239]' : 'border-transparent text-zinc-600'}`} onClick={() => setTab(item)}>{item}</button>
           ))}
         </div>
-        <div className="min-h-0 flex-1 space-y-3 overflow-y-auto p-4">
+        <div className="min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain p-4">
           {tab === 'Overview' && (
             <>
               <section className="rounded-xl border border-zinc-200 p-3">
